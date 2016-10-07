@@ -1,0 +1,33 @@
+{
+  "name": "labs-authorization",
+  "version": "0.0.1",
+  "description": "Full stack authorization component",
+  "main": "integration/authorizationServer.js",
+  "scripts": {
+    "lint": "jshint **/*.js",
+    "test": "tap test/**/*Test.js",
+    "coverage": "tap test/**/*Test.js --cov --coverage-report=html",
+    "init-db": "./scripts/init/database/db_init.sh | tee ./logs/init-db.log",
+    "load-test-data": "node ./scripts/init/database/testdata/loadUsers.js  | tee ./logs/load-test-data.log"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nearform/labs-authorization.git"
+  },
+  "author": "Mark Ireland",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nearform/labs-authorization/issues"
+  },
+  "homepage": "https://github.com/nearform/labs-authorization#readme",
+  "dependencies": {
+    "async": "^2.0.1",
+    "hapi": "^15.1.1",
+    "mu": "apparatus/mu",
+    "pg": "^6.1.0"
+  },
+  "devDependencies": {
+    "tap": "^7.1.2",
+    "postgrator": "^2.8.2"
+  }
+}
