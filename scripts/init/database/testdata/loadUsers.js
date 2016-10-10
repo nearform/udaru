@@ -34,7 +34,7 @@ var insertUser = function (userName, done) {
 
 var truncateTable = function (tableName) {
   console.log('truncating %s', tableName)
-  client.query('TRUNCATE ' + tableName, function (err, result) {
+  client.query('TRUNCATE ' + tableName + ' CASCADE', function (err, result) {
     if (err) throw (err)
   })
 }
