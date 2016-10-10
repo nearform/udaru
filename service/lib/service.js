@@ -44,10 +44,6 @@ module.exports = function (done) {
     })
   }
 
-// TODO: this function doesn't currently work as liked (still have to wait for 30 sec timeout)
-// after the listUsers function has been called, so guessing that something is being held onto
-// or it's simply waiting for the connection's 30 second idle timeout
-// not sure why this fucntion doesn't force the issue and shut it down
   function shutdown (args, cb) {
     pool.connect(function(err, client, done) {
       if (err) return cb(err)

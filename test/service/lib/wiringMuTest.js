@@ -8,7 +8,7 @@ var tcp = require('mu/drivers/tcp')
 
 
 test('auth:listUsers list of users', (t) => {
-  t.plan(2)
+  t.plan(3)
   var mu = Mu()
   mu.outbound('*', tcp.client(opts))
 
@@ -16,8 +16,11 @@ test('auth:listUsers list of users', (t) => {
     mu.dispatch({role: 'auth', cmd: 'list', type: 'users'}, (err, result) => {
       t.error(err)
       t.ok(result, 'result should be supplied')
-      wiring.stop()
-      mu.tearDown()
+      mu.dispatch({role: 'auth', cmd: 'done'}, (err, result) => {
+        t.error(err)
+        wiring.stop()
+        mu.tearDown()
+      })
     })
   })
 })
