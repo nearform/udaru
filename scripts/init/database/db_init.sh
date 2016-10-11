@@ -2,7 +2,6 @@
 # TODO: test if database exists before attempting to create it
 createdb authorization
 # TODO: test if user already exists before attempting to create it
-#node scripts/init/database/testdata/loadUsers.js
 psql --echo-all -c "CREATE USER admin WITH PASSWORD 'default';"
 # remove old database, if it exists
 node scripts/init/database/install_000.js;
