@@ -26,10 +26,10 @@ There is a basic service which will respond to a list users request:
 
 with data in the form:
 
-    [ { userid: 1, name: 'Charlie Bucket' },
-      { userid: 2, name: 'Grandpa Joe' },
-      { userid: 3, name: 'Veruca Salt' },
-      { userid: 4, name: 'Willy Wonka' } ]
+    [ { id: 1, name: 'Charlie Bucket' },
+      { id: 2, name: 'Grandpa Joe' },
+      { id: 3, name: 'Veruca Salt' },
+      { id: 4, name: 'Willy Wonka' } ]
 
 It also has a shutdown operation, which should be called when finished with the
 service:
