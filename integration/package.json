@@ -1,0 +1,26 @@
+{
+  "name": "integration",
+  "description": "service integration test",
+  "version": "0.0.1",
+  "main": "./run.js",
+  "engines": {
+    "node": "*"
+  },
+  "dependencies": {
+    "good": "^6.4.0",
+    "good-console": "^5.1.0",
+    "hapi": "^10.5.0",
+    "inert": "^3.1.0",
+    "vision": "^3.0.0"
+  },
+  "devDependencies": {
+    "tap": "^7.1.2"
+  },
+  "scripts": {
+    "test": "env $(cat .env) tap run.js",
+    "start": "env $(cat .env) node run.js"
+  },
+  "repository": {
+    "private": true
+  }
+}
