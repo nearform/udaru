@@ -23,7 +23,7 @@
   "dependencies": {
     "async": "^2.0.1",
     "hapi": "^15.1.1",
-    "mu": "apparatus/mu",
+    "mu": "^1.0.0",
     "pg": "^6.1.0"
   },
   "devDependencies": {
