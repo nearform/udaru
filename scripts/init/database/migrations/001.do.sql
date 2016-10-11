@@ -10,10 +10,26 @@ CREATE TABLE users (
 
 CREATE TABLE policies (
   id        SERIAL UNIQUE,
-  name      VARCHAR(30) NOT NULL,
-  effect    VARCHAR(30) NOT NULL,
-  action    VARCHAR(30) NOT NULL,
-  resource  VARCHAR(30) NOT NULL
+  version   VARCHAR(20),
+  name      VARCHAR(30) NOT NULL
+);
+
+CREATE TABLE statement_elements (
+  id          SERIAL UNIQUE,
+  effect      VARCHAR(30) NOT NULL,
+  policy_id   INT REFERENCES policies(id) NOT NULL
+);
+
+CREATE TABLE statement_actions (
+  id          SERIAL UNIQUE,
+  action      VARCHAR(30) NOT NULL,
+  element_id  INT REFERENCES statement_elements(id) NOT NULL
+);
+
+CREATE TABLE statement_resources (
+  id          SERIAL UNIQUE,
+  resource    VARCHAR(30) NOT NULL,
+  element_id  INT REFERENCES statement_elements(id) NOT NULL
 );
 
 CREATE TABLE organizations (
