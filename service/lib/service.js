@@ -48,11 +48,9 @@ module.exports = function (done) {
     pool.connect(function(err, client, done) {
       if (err) return cb(err)
       client.query('SELECT  now()', function(err, result) {
-        console.log(result.rows[0].now)
         client.release()
         pool.end(function(err, done) {
           if(err) return cb(err)
-          console.log('ending the pool')
           return cb(null, null)
         })
       })

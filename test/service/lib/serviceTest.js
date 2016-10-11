@@ -12,7 +12,6 @@ test('list of users', (t) => {
 //TODO:      t.deepEqual(expectedUserList, result, 'data should be as expected')
       svc.shutdown({}, (err, result) => {
         t.error(err)
-        console.log(err, result)
       })
     })
   })
@@ -23,7 +22,6 @@ test('service response', (t) => {
   service((svc) => {
     svc.shutdown({}, (err, result) => {
       t.error(err)
-      console.log(err, result)
     })
   })
 })
