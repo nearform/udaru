@@ -36,11 +36,19 @@ service:
 
     {role: 'auth', cmd: 'done'}
 
+## API
+
+There is a simple route for fetching all the users: http://localhost:8000/auth/users
+
+Start the service and the API with the following:
+
+    node integration/service.js
+    
+    node integration/index.js 
+
 ## Testing
 
-Tests are supplied for the service interface and the Mu wiring.
-Currently the service will wait 30 seconds for the db connections to go idle
-before shutting down and therefore the Mu tests timeout and fail
+Tests are supplied for the service interface and the Mu wiring (npm test)
 
 ## Security
 
