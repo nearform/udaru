@@ -1,0 +1,15 @@
+version: '2'
+services:
+  database:
+    build: .
+    volumes_from:
+      - pg_data
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      PGDATA : /var/lib/postgresql/data/pgdata
+  pg_data:
+    image: alpine:latest
+    volumes:
+      - /var/lib/postgresql/data/pgdata
+    command: "true"
