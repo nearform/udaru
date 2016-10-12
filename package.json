@@ -6,7 +6,8 @@
   "scripts": {
     "lint": "jshint **/*.js",
     "pg:build": "docker-compose -f ./scripts/init/docker/docker-compose.yml build",
-    "pg": "docker-compose -f ./scripts/init/docker/docker-compose.yml up",
+    "pg:start": "docker-compose -f ./scripts/init/docker/docker-compose.yml up",
+    "pg:stop": "docker-compose -f ./scripts/init/docker/docker-compose.yml down",
     "test": "tap test/**/*Test.js",
     "coverage": "tap test/**/*Test.js --cov --coverage-report=html",
     "init-db": "[ ! -d ./logs ] && mkdir ./logs;./scripts/init/database/db_init.sh | tee ./logs/init-db.log",
