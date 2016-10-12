@@ -4,18 +4,37 @@ A full-stack component providing authorization functionality, designed for use i
 
 ## Database
 
-Running the initial demo (first cut of the service) requires postgres to
-be installed locally.
+Running the initial demo (first cut of the service) requires Postgres to
+be installed locally or have a Postgres in a Docker running instance.
 
+###To install Postgres locally
 Instructions at:
 
 http://exponential.io/blog/2015/02/21/install-postgresql-on-mac-os-x-via-brew/
 
+###Start Postgres in a Docker container
+
+A Docker container with Postgres can be started with:
+```
+npm run pg
+```
+
+To see the running container and its ID:
+```
+docker ps
+```
+
+To connect to the running container:
+```
+docker exec -ti <container_id>
+```
+
+###Populate the database
 The Authorization database, system user and initial tables (just users at the moment)
 can be created by executing:
 
     npm run init-db
-    
+
 _This also currently adds some test data._
 
 ## Service
@@ -43,8 +62,8 @@ There is a simple route for fetching all the users: http://localhost:8000/auth/u
 Start the service and the API with the following:
 
     node integration/service.js
-    
-    node integration/index.js 
+
+    node integration/index.js
 
 ## Testing
 
