@@ -1,5 +1,7 @@
 FROM postgres
 
-ADD dbschema.sql /docker-entrypoint-initdb.d
+ADD A-drop-db.sql /docker-entrypoint-initdb.d
+ADD B-create-schema.sql /docker-entrypoint-initdb.d
+
 
 EXPOSE 5432
