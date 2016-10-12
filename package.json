@@ -7,8 +7,8 @@
     "lint": "jshint **/*.js",
     "test": "tap test/**/*Test.js",
     "coverage": "tap test/**/*Test.js --cov --coverage-report=html",
-    "init-db": "./scripts/init/database/db_init.sh | tee ./logs/init-db.log",
-    "load-test-data": "node ./scripts/init/database/testdata/loadUsers.js  | tee ./logs/load-test-data.log"
+    "init-db": "[ ! -d ./logs ] && mkdir ./logs;./scripts/init/database/db_init.sh | tee ./logs/init-db.log",
+    "load-test-data": "./scripts/init/database/db_load.sh | tee ./logs/load-test-data.log"
   },
   "repository": {
     "type": "git",
