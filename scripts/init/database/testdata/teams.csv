@@ -1,0 +1,13 @@
+Admins, Administrators of the Authorization System,,1
+Readers, General read-only access,,1
+Authors, Content contributors,,1
+Managers, General Line Managers with confidential info,,1
+Personnel Managers, Personnel Line Managers with confidential info,4,1
+Company Lawyer, Author of legal documents,3,1
+Admins, Administrators of the Authorization System,,2
+Readers, General read-only access,,2
+Admins, Administrators of the Authorization System,,3
+Readers, General read-only access,,3
+Admins, Administrators of the Authorization System,,4
+Readers, General read-only access,,4
+Authors, Content contributors,,4
