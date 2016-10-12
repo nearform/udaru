@@ -2,6 +2,8 @@ version: '2'
 services:
   database:
     build: .
+    ports:
+      - 5432:5432
     volumes_from:
       - pg_data
     environment:

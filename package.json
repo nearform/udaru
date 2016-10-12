@@ -5,8 +5,8 @@
   "main": "integration/authorizationServer.js",
   "scripts": {
     "lint": "jshint **/*.js",
-    "pg:build": "docker build -t pgauth ./scripts/init/docker",
-    "pg": "npm run pg:build && docker run -it -p 5432:5432 pgauth",
+    "pg:build": "docker-compose -f ./scripts/init/docker/docker-compose.yml build",
+    "pg": "docker-compose -f ./scripts/init/docker/docker-compose.yml up",
     "test": "tap test/**/*Test.js",
     "coverage": "tap test/**/*Test.js --cov --coverage-report=html",
     "init-db": "./scripts/init/database/db_init.sh | tee ./logs/init-db.log",

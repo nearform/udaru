@@ -7,8 +7,8 @@ postgrator.setConfig({
     host: '127.0.0.1',
     port: 5432, // optionally provide port
     database: 'authorization',
-    username: 'admin',
-    password: 'default'
+    username: 'postgres',
+    password: 'postgres'
 });
 
 postgrator.migrate('000', function (err, migrations) {
