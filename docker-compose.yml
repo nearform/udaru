@@ -13,5 +13,8 @@ services:
   pg_data:
     image: alpine:latest
     volumes:
-      - /var/lib/postgresql/data/pgdata
+      - psqlvolumes:/var/lib/postgresql/data/pgdata
     command: "true"
+volumes:
+  psqlvolumes:
+    driver: local
