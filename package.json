@@ -10,7 +10,7 @@
     "pg:stop": "docker-compose -f ./scripts/init/docker/docker-compose.yml down",
     "test": "tap test/**/*Test.js",
     "coverage": "tap test/**/*Test.js --cov --coverage-report=html",
-    "init-db": "[ ! -d ./logs ] && mkdir ./logs;./scripts/init/database/db_init.sh | tee ./logs/init-db.log",
+    "init-db": "[ ! -d ./logs ] && mkdir ./logs;./scripts/init/database/db_load.sh | tee ./logs/init-db.log",
     "load-test-data": "./scripts/init/database/db_load.sh | tee ./logs/load-test-data.log"
   },
   "repository": {

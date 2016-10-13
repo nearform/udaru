@@ -1,7 +1,7 @@
 #!/bin/bash
 # TODO: team_members, team_policies
 # TODO: statement_*
-psql authorization<<EOF
+psql -h localhost -p 5432 -U postgres -W -d authorization <<EOF
 SELECT 'Database installed, schemaversion = ' || MAX(version) from schemaversion;
 \cd './scripts/init/database/testdata'
 \! pwd
