@@ -36,11 +36,9 @@ export default class TabContent extends Component {
       list: listData,
       filtered: listData
     }
-    console.log('LOL')
   }
 
   filterChanged(filter) {
-    console.log('FILTER CHANGED')
     const filtered = this.state.list.filter(item => {
       if (item.name.indexOf(filter) > -1) return item
     })
