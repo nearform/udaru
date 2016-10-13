@@ -1,0 +1,20 @@
+version: '2'
+services:
+  database:
+    build: ./database
+    ports:
+      - 5432:5432
+    volumes_from:
+      - pg_data
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      PGDATA : /var/lib/postgresql/data/pgdata
+  pg_data:
+    image: alpine:latest
+    volumes:
+      - psqlvolumes:/var/lib/postgresql/data/pgdata
+    command: "true"
+volumes:
+  psqlvolumes:
+    driver: local

@@ -1,9 +1,10 @@
 #!/bin/bash
-# TODO: test if database exists before attempting to create it
-createdb authorization
-# TODO: test if user already exists before attempting to create it
-psql --echo-all -c "CREATE USER admin WITH PASSWORD 'default';"
-# remove old database, if it exists
-node scripts/init/database/install_000.js;
+
+PGPASSWORD=postgres dropdb -h localhost -p 5432 -U postgres authorization
+PGPASSWORD=postgres createdb -h localhost -p 5432 -U postgres authorization
+
+PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres --echo-all -c "DROP USER IF EXISTS admin;"
+PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres --echo-all -c "CREATE USER admin WITH PASSWORD 'default';"
 # install new database
 node scripts/init/database/install_001.js;
+

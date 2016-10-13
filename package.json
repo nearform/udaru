@@ -5,6 +5,9 @@
   "main": "integration/authorizationServer.js",
   "scripts": {
     "lint": "jshint **/*.js",
+    "pg:build": "docker-compose build",
+    "pg:start": "docker-compose up",
+    "pg:stop": "docker-compose down",
     "test": "tap test/**/*Test.js",
     "coverage": "tap test/**/*Test.js --cov --coverage-report=html",
     "init-db": "[ ! -d ./logs ] && mkdir ./logs;./scripts/init/database/db_init.sh | tee ./logs/init-db.log",
