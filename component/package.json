@@ -1,0 +1,66 @@
+{
+  "name": "frontend-boilerplate",
+  "version": "0.0.1",
+  "description": "",
+  "main": "dist/index.js",
+  "spacey-standard": {
+    "parser": "babel-eslint"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "./node_modules/.bin/spacey-standard \"src/**/*.js\" \"src/**/*.jsx\"",
+    "dev": "./node_modules/.bin/webpack-dev-server",
+    "build": "npm run lint && ./node_modules/.bin/webpack"
+  },
+  "contributors": [
+    "Salman Mitha <salmanmitha@gmail.com>"
+  ],
+  "pre-commit": [
+    "lint"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.14.0",
+    "lodash": "^4.16.2",
+    "moment": "^2.15.1",
+    "muicss": "^0.8.1",
+    "object-path": "^0.11.2",
+    "react": "^15.3.2",
+    "react-cookie": "^0.4.8",
+    "react-datepicker": "^0.29.0",
+    "react-dom": "^15.3.2",
+    "react-redux": "^4.4.5",
+    "react-resolver": "^3.0.3",
+    "react-router": "^2.8.1",
+    "react-router-redux": "^4.0.6",
+    "react-tap-event-plugin": "^1.0.0",
+    "redux": "^3.6.0",
+    "redux-thunk": "^2.1.0"
+  },
+  "devDependencies": {
+    "babel-core": "^6.14.0",
+    "babel-loader": "^6.2.5",
+    "babel-preset-react": "^6.11.1",
+    "autoprefixer": "^6.5.0",
+    "babel-eslint": "^6.1.2",
+    "babel-plugin-transform-decorators-legacy": "^1.3.4",
+    "babel-plugin-transform-object-rest-spread": "^6.8.0",
+    "babel-polyfill": "^6.16.0",
+    "babel-preset-es2015": "^6.14.0",
+    "babel-preset-stage-0": "^6.5.0",
+    "css-loader": "^0.25.0",
+    "file-loader": "^0.9.0",
+    "node-sass": "^3.10.1",
+    "postcss-loader": "^0.13.0",
+    "pre-commit": "^1.1.3",
+    "precss": "^1.4.0",
+    "react-hot-loader": "^1.3.0",
+    "sass-loader": "^4.0.2",
+    "spacey-standard": "^3.0.0",
+    "style-loader": "^0.13.1",
+    "url-loader": "^0.5.7",
+    "webpack": "^1.13.2",
+    "webpack-dev-server": "^1.16.1"
+  }
+}
