@@ -8,10 +8,10 @@
     "pg:build": "docker-compose build",
     "pg:start": "docker-compose up",
     "pg:stop": "docker-compose down",
+    "pg:init": "[ ! -d ./logs ] && mkdir ./logs;./scripts/init/database/db_init.sh | tee ./logs/init-db.log",
+    "pg:load-test-data": "./scripts/init/database/db_load.sh | tee ./logs/load-test-data.log",
     "test": "tap test/**/*Test.js",
-    "coverage": "tap test/**/*Test.js --cov --coverage-report=html",
-    "init-db": "[ ! -d ./logs ] && mkdir ./logs;./scripts/init/database/db_init.sh | tee ./logs/init-db.log",
-    "load-test-data": "./scripts/init/database/db_load.sh | tee ./logs/load-test-data.log"
+    "coverage": "tap test/**/*Test.js --cov --coverage-report=html"
   },
   "repository": {
     "type": "git",
