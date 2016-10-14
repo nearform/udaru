@@ -1,23 +1,31 @@
 import React, { Component } from 'react'
 
-export default class FilterList extends Component {
-  constructor(props) {
+class FilterList extends Component {
+  constructor (props) {
     super(props)
 
     this.state = { filter: '' }
+
+    this.onInputChange = ::this.onInputChange
   }
 
-  render() {
+  render () {
     return (
       <input
         placeholder='Filter results'
         value={this.state.filter}
-        onChange={e => this.onInputChange(e.target.value)} />
+        onChange={this.onInputChange} />
     )
   }
 
-  onInputChange(filter) {
-    this.setState({filter})
-    this.props.onFilterChange(filter)
+  onInputChange (input) {
+    this.setState({filter: input.target.value})
+    this.props.onFilterChange(input.target.value)
   }
 }
+
+FilterList.propTypes = {
+  onFilterChange: React.PropTypes.func.isRequired
+}
+
+export default FilterList

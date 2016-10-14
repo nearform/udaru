@@ -8,33 +8,35 @@ import TabContent from './TabContent'
 
 const tabNames = ['Policies', 'Teams', 'Users']
 const tabComponents = tabNames.map((item) => {
-  return <Tab value={item} label={item} key={item}></Tab>
+  return <Tab value={item} label={item} key={item} />
 })
 
 export default class AdminMain extends Component {
-  constructor(props) {
+  constructor (props) {
     super(props)
 
     this.state = {
       tabIndex: 2,
       tabName: tabNames[2]
     }
+
+    this.onChange = ::this.onChange
   }
 
-  onChange(i, value, tab, ev) {
+  onChange (i, value, tab, ev) {
     this.setState({
       tabIndex: i,
       tabName: value
     })
   }
 
-  render() {
+  render () {
     return (
       <Container>
-        <Tabs onChange={this.onChange.bind(this)} initialSelectedIndex={this.state.tabIndex}>
+        <Tabs onChange={this.onChange} initialSelectedIndex={this.state.tabIndex}>
           {tabComponents}
         </Tabs>
-        <TabContent page={this.state.tabName}/>
+        <TabContent page={this.state.tabName} />
       </Container>
     )
   }
