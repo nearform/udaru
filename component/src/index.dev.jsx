@@ -1,5 +1,9 @@
 import React from 'react'
 import { render } from 'react-dom'
+import { Provider } from 'react-redux'
+import { compose, createStore, combineReducers, applyMiddleware } from 'redux'
+import { reducer as formReducer } from 'redux-form'
+import thunk from 'redux-thunk'
 import { browserHistory } from 'react-router'
 import injectTapEventPlugin from 'react-tap-event-plugin'
 
@@ -17,7 +21,28 @@ import './styles/main.scss'
 // http://stackoverflow.com/a/34015469/988941
 injectTapEventPlugin()
 
+import reducers from './reducers';
+
+const rootReducer = combineReducers({
+  ...reducers,
+  form: formReducer
+});
+
+const middleware = applyMiddleware(
+  thunk
+);
+
+const store = createStore(
+  rootReducer,
+  compose(
+    middleware,
+    window.devToolsExtension ? window.devToolsExtension() : f => f
+  )
+);
+
 render(
-  <Routes history={browserHistory} />,
+  <Provider store={store}>
+    <Routes history={browserHistory} />
+  </Provider>,
   document.getElementById('app')
 )

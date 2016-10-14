@@ -20,7 +20,7 @@ module.exports = {
     loaders: [{
       test: /\.jsx?$/,
       exclude: /node_modules/,
-      loader: 'react-hot!babel'
+      loader: 'babel'
     }, {
       test: /\.scss$/,
       loader: 'style!css!postcss-loader!sass?outputStyle=expanded'
