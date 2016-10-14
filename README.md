@@ -4,19 +4,17 @@ A full-stack component providing authorization functionality, designed for use i
 
 ## Database
 
-Running the initial demo (first cut of the service) requires Postgres to
-be installed locally or have a Postgres in a Docker running instance.
+Running the initial demo (first cut of the service) uses Postgres in a Docker running instance, which can be created with:
 
-###To install Postgres locally
-Instructions at:
-
-http://exponential.io/blog/2015/02/21/install-postgresql-on-mac-os-x-via-brew/
+```
+npm run pg:build
+```
 
 ###Start Postgres in a Docker container
 
 A Docker container with Postgres can be started with:
 ```
-npm run pg
+npm run pg:start
 ```
 
 To see the running container and its ID:
@@ -33,9 +31,14 @@ docker exec -ti <container_id>
 The Authorization database, system user and initial tables (just users at the moment)
 can be created by executing:
 
-    npm run init-db
+```
+npm run pg:init
+```
 
-_This also currently adds some test data._
+Test data can be added with:
+```
+npm run pg:load-test-data
+```
 
 ## Service
 
