@@ -29,7 +29,7 @@ module.exports = function (options) {
   function start (cb) {
     service(function (svc) {
       mu.define({role: 'auth', cmd: 'list', type: 'users'}, svc.listUsers)
-      mu.define({role: 'auth', cmd: 'done'}, svc.shutdown)
+      mu.define({role: 'auth', cmd: 'done'}, svc.destroy)
       mu.inbound('*', tcp.server(options))
       cb()
     })

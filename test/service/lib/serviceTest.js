@@ -10,7 +10,7 @@ test('list of users', (t) => {
       t.error(err, 'should be no error')
       t.ok(result, 'result should be supplied')
 //TODO:      t.deepEqual(expectedUserList, result, 'data should be as expected')
-      svc.shutdown({}, (err, result) => {
+      svc.destroy({}, (err, result) => {
         t.error(err)
       })
     })
@@ -20,7 +20,7 @@ test('list of users', (t) => {
 test('service response', (t) => {
   t.plan(1)
   service((svc) => {
-    svc.shutdown({}, (err, result) => {
+    svc.destroy({}, (err, result) => {
       t.error(err)
     })
   })
