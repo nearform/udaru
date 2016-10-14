@@ -25,6 +25,7 @@
     "lodash": "^4.16.2",
     "moment": "^2.15.1",
     "muicss": "^0.8.1",
+    "normalize.css": "^5.0.0",
     "object-path": "^0.11.2",
     "react": "^15.3.2",
     "react-cookie": "^0.4.8",

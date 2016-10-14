@@ -5,6 +5,11 @@ import injectTapEventPlugin from 'react-tap-event-plugin'
 
 import Routes from './Routes'
 
+// import normalize.css
+// It's an npm package and omitted by default config
+// hence, we're manually invoking the loaders with `style!css!`
+import 'style!css!normalize.css';
+
 import 'muicss/lib/sass/mui.scss'
 import './styles/main.scss'
 

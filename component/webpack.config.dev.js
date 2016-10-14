@@ -26,7 +26,8 @@ module.exports = {
       loader: 'style!css!postcss-loader!sass?outputStyle=expanded'
     }, {
       test: /\.css$/,
-      loader: 'style-loader!css-loader!postcss-loader'
+      loader: 'style-loader!css-loader!postcss-loader',
+      exclude: [/node_module/]
     }, {
       test: /\.jpg$/,
       loader: 'file-loader'
