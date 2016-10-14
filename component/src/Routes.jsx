@@ -2,7 +2,9 @@ import React from 'react'
 import { Redirect, Router, Route } from 'react-router'
 
 import App from './containers/App'
-import Home from './components/Home'
+import Home from './containers/Home'
+import Users from './containers/Users'
+import Policies from './containers/Policies'
 
 const validateLogin = (nextState, replace, callback) => {
   // do auth verification here
@@ -15,6 +17,8 @@ const Routes = (props) => (
 
     <Route path="/" component={App}>
       <Route path="/home" component={Home} onEnter={validateLogin} />
+      <Route path="/users" component={Users} onEnter={validateLogin} />
+      <Route path="/policies" component={Policies} onEnter={validateLogin} />
     </Route>
   </Router>
 )

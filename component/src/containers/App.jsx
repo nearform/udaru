@@ -44,15 +44,9 @@ export default class App extends Component {
           </div>
         </header>
 
-        <Container fluid style={{padding: 0}}>
-          <Row>
-            <Col xs="12">
-              <Panel>
-                {children}
-              </Panel>
-            </Col>
-          </Row>
-        </Container>
+        <div className="content">
+          {children}
+        </div>
       </div>
     )
   }
