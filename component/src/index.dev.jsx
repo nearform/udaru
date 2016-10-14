@@ -1,16 +1,17 @@
 import React from 'react'
 import { render } from 'react-dom'
-//
-// import HelloWorld from './HelloWorld'
-//
-// render(
-//   <HelloWorld list={data} filter={''} />,
-//   document.getElementById('app')
-// )
+import { browserHistory } from 'react-router'
+import injectTapEventPlugin from 'react-tap-event-plugin'
 
-import Home from './components/Home'
+import Routes from './Routes'
+
+import 'muicss/lib/sass/mui.scss'
+
+// Needed for onTouchTap
+// http://stackoverflow.com/a/34015469/988941
+injectTapEventPlugin()
 
 render(
-  <Home />,
+  <Routes history={browserHistory} />,
   document.getElementById('app')
 )
