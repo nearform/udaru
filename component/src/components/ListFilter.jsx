@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 
-class FilterList extends Component {
+class FilterInput extends Component {
   constructor (props) {
     super(props)
 
@@ -9,23 +9,24 @@ class FilterList extends Component {
     this.onInputChange = ::this.onInputChange
   }
 
-  render () {
-    return (
-      <input
-        placeholder='Filter results'
-        value={this.state.filter}
-        onChange={this.onInputChange} />
-    )
-  }
-
   onInputChange (input) {
     this.setState({filter: input.target.value})
     this.props.onFilterChange(input.target.value)
   }
+
+  render () {
+    return (
+      <input type='text'
+        onChange={this.onInputChange}
+        placeholder='Filter Users'
+        className='filterlist--filter-input'
+      />
+    )
+  }
 }
 
-FilterList.propTypes = {
+FilterInput.propTypes = {
   onFilterChange: React.PropTypes.func.isRequired
 }
 
-export default FilterList
+export default FilterInput

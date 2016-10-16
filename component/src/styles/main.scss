@@ -47,3 +47,45 @@
 .content {
 
 }
+
+.mainpanel {
+  margin-top: 20px;
+  display: flex;
+  overflow: hidden;
+  height: 500px;
+}
+
+.filterlist {
+  width: 160px;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  &--filter-input {
+    border-radius: 8px;
+    width: 140px;
+    text-align: center;
+  }
+
+  &--list-items {
+    margin-top: 20px;
+    text-align: center;
+  }
+
+  &--item-selected {
+    color: red;
+  }
+
+  &--item-default {
+    color: black;
+  }
+}
+
+.detail {
+
+  &--panel {
+    margin: 30px 50px 0px 50px;
+    padding-top: 50px;
+    flex: 1 1;
+    text-align: center;
+  }
+}
