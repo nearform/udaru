@@ -1,23 +1,18 @@
 import React from 'react'
 
-import Row from 'muicss/lib/react/row'
-import Col from 'muicss/lib/react/col'
-
-const ListItem = ({item, onItemSelect}) => {
+const ListItem = ({item, onItemSelect, selected}) => {
   function clicked () {
     onItemSelect(item)
   }
-  return (
-    <Row onClick={clicked}>
-      <Col>
-        {item.name}
-      </Col>
-    </Row>
-  )
+
+  const f = selected ? 'filterlist--item-selected' : 'filterlist--item-default'
+
+  return <div className={f} onClick={clicked}>{item.name}</div>
 }
 
 ListItem.propTypes = {
   item: React.PropTypes.object.isRequired,
+  selected: React.PropTypes.bool.isRequired,
   onItemSelect: React.PropTypes.func.isRequired
 }
 
