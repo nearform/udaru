@@ -25,7 +25,6 @@ var service = require('./lib/service')
  *  host: process.env.SERVICE_HOST || 'localhost'
  */
 module.exports = function (options) {
-
   function start (cb) {
     service(function (svc) {
       mu.define({role: 'auth', cmd: 'list', type: 'users'}, svc.listUsers)

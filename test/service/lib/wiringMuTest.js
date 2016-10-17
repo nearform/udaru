@@ -6,7 +6,6 @@ var Mu = require('mu')
 var wiring = require('../../../service/wiring-mu')(opts)
 var tcp = require('mu/drivers/tcp')
 
-
 test('auth:listUsers list of users', (t) => {
   t.plan(3)
   var mu = Mu()
