@@ -21,16 +21,16 @@ import './styles/main.scss'
 // http://stackoverflow.com/a/34015469/988941
 injectTapEventPlugin()
 
-import reducers from './reducers';
+import reducers from './reducers'
 
 const rootReducer = combineReducers({
   ...reducers,
   form: formReducer
-});
+})
 
 const middleware = applyMiddleware(
   thunk
-);
+)
 
 const store = createStore(
   rootReducer,
@@ -38,7 +38,7 @@ const store = createStore(
     middleware,
     window.devToolsExtension ? window.devToolsExtension() : f => f
   )
-);
+)
 
 render(
   <Provider store={store}>

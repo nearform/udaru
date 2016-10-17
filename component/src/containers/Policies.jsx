@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import { Field, reduxForm } from 'redux-form';
 
 import Container from 'muicss/lib/react/container'
 import Row from 'muicss/lib/react/row'
