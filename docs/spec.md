@@ -30,8 +30,10 @@ authorization:user:create
 authorization:user:read
 authorization:user:update
 authorization:user:delete
+authorization:users:list
 authorization:policies:list
 authorization:policy:create
+authorization:policy:read
 authorization:policy:update
 authorization:policy:delete
 
@@ -52,6 +54,7 @@ The SuperUser is created at first install, this is simply a normal user with the
 The SuperUser policy will look as follows, it simply allows all actions on all resources:
 
 {
+  Name: 'SuperUser',
   Version: '2106-10-17',
   Statement: [{
 	Effect: 'Allow',
