@@ -11,8 +11,8 @@ const PolicyForm = ({ onSubmit, handleSubmit }) => (
 )
 
 PolicyForm.propTypes = {
-  onSubmit: React.PropTypes.function.isRequired,
-  handleSubmit: React.PropTypes.function.isRequired
+  onSubmit: React.PropTypes.func.isRequired,
+  handleSubmit: React.PropTypes.func.isRequired
 }
 
 export default reduxForm({
