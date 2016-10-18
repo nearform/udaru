@@ -10,6 +10,8 @@ Running the initial demo (first cut of the service) uses Postgres in a Docker ru
 npm run pg:build
 ```
 
+Note: In case you have issues building or running it with Docker make sure you have a recent version of docker engine and docker compose.
+
 ###Start Postgres in a Docker container
 
 A Docker container with Postgres can be started with:
