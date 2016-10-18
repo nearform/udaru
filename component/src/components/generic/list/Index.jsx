@@ -47,10 +47,9 @@ export default class List extends Component {
         <Filter onFilterChange={this.filterChanged} />
         <div className='filterlist--list-items'>
           <div>
-            <div>+ Add User (placeholder)</div>
+            <div>Add {this.props.which}</div>
             <hr />
           </div>
-
           {listItems}
         </div>
       </div>
@@ -59,6 +58,7 @@ export default class List extends Component {
 }
 
 List.propTypes = {
+  which: React.PropTypes.string.isRequired,
   items: React.PropTypes.array.isRequired,
   selected: React.PropTypes.object,
   onItemSelect: React.PropTypes.func.isRequired
