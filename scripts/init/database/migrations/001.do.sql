@@ -3,11 +3,6 @@
   (less predictabiity)
   probably GUID
  */
-CREATE TABLE users (
-  id        SERIAL UNIQUE,
-  name      VARCHAR(50) NOT NULL
-);
-
 CREATE TABLE policies (
   id        SERIAL UNIQUE,
   version   VARCHAR(20),
@@ -36,6 +31,12 @@ CREATE TABLE organizations (
   id          SERIAL UNIQUE,
   name        VARCHAR(30) NOT NULL,
   description VARCHAR(30)
+);
+
+CREATE TABLE users (
+  id        SERIAL UNIQUE,
+  name      VARCHAR(50) NOT NULL,
+  org_id    INT REFERENCES organizations(id) NOT NULL
 );
 
 CREATE TABLE teams (
