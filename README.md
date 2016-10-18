@@ -28,6 +28,12 @@ To connect to the running container:
 ```
 docker exec -ti <container_id>
 ```
+e.g.
+```
+docker exec -ti e343edecaaa7 ls
+docker exec -ti e343edecaaa7 bash
+docker exec -ti e bash        // short container name
+```
 
 ###Populate the database
 The Authorization database, system user and initial tables (just users at the moment)
