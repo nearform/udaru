@@ -1,5 +1,5 @@
-import my from './my'
+import policies from './policies'
 
 export default {
-  my
+  policies
 }

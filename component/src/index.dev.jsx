@@ -2,12 +2,15 @@ import React from 'react'
 import { render } from 'react-dom'
 import { Provider } from 'react-redux'
 import { compose, createStore, combineReducers, applyMiddleware } from 'redux'
+import { routerMiddleware, syncHistoryWithStore, routerReducer } from 'react-router-redux'
 import { reducer as formReducer } from 'redux-form'
 import thunk from 'redux-thunk'
 import { browserHistory } from 'react-router'
 import injectTapEventPlugin from 'react-tap-event-plugin'
 
 import Routes from './Routes'
+
+import api from './middleware/api'
 
 // import normalize.css
 // It's an npm package and omitted by default config
@@ -25,11 +28,14 @@ import reducers from './reducers'
 
 const rootReducer = combineReducers({
   ...reducers,
+  routing: routerReducer,
   form: formReducer
 })
 
 const middleware = applyMiddleware(
-  thunk
+  routerMiddleware(browserHistory),
+  thunk,
+  api
 )
 
 const store = createStore(
