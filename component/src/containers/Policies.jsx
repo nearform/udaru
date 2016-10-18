@@ -9,64 +9,60 @@ import { resolve } from 'react-resolver'
 
 import { callApi } from '../middleware/api'
 
-import Filter from '../components/ListFilter'
-import List from '../components/ListMain'
-import PolicyForm from '../components/Policy'
+import List from '../components/generic/list/List'
+import ViewPolicy from '../components/ViewPolicy'
 
 @connect(({ policies }) => ({
   _policies: policies.list
 }))
 @resolve('policies', (props) => {
   // return callApi('/policies')
-  return Promise.resolve([{id:1,name:'Policy 1'}])
+  return Promise.resolve([{id:1,name:'Policy 1'}, {id:2,name:'Policy 2'}])
 })
 export default class Policies extends Component {
   constructor (props) {
     super(props)
 
     this.state = {
-      selected: {},
-      filtered: props.policies
+      selected: {}
     }
 
-    this.filterChanged = ::this.filterChanged
-    this.itemSelected = ::this.itemSelected
-    this.save = ::this.save
+    this.viewPolicy = ::this.viewPolicy
   }
 
-  componentDidMount() {
+  viewPolicy (selected) {
+    // Load policy details here, currently setting stubbed data
 
-  }
+    const policy = {
+      ...selected,
+      effect: 'Allow',
+      action: 'iam:someAction',
+      resource: '/a/b/cccc'
+    }
 
-  itemSelected (selected) {
-    this.setState({ selected })
-  }
+    this.setState({
+      policy
+    })
 
-  filterChanged (filter) {
-    filter = filter.toLowerCase()
-    const filtered = this.props.policies.filter(item => ~item.name.toLowerCase().indexOf(filter))
-    this.setState({ filtered })
-  }
-
-  save (data) {
-    // create new policy here
-
+    // callApi('/policy/' + selected.id).then((data) => {
+    //   console.log(data);
+    // })
   }
 
   render () {
+    const { policy } = this.state
+
     return (
       <Container fluid className="">
         <Row>
           <Col md="2">
-            <Filter onFilterChange={this.filterChanged} />
             <List
-              selected={this.state.selected}
-              onItemSelect={this.itemSelected}
-              items={this.state.filtered}
+              items={this.props.policies}
+              onItemSelect={this.viewPolicy}
             />
           </Col>
           <Col md="10">
-            <PolicyForm onSubmit={this.save} />
+            { policy && <ViewPolicy policy={policy} /> }
           </Col>
         </Row>
       </Container>
