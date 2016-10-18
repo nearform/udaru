@@ -1,69 +1,69 @@
-var pg = require('pg');
+var dbConn = require('./dbConn')
+var userOps = require('./userOps')
 
 module.exports = function (done) {
-  // create a config to configure both pooling behavior
-  // and client options
-  // note: all config is optional and the environment variables
-  // will be read if the config is not present
-  var config = {
-    user: 'postgres', //env var: PGUSER
-    database: 'authorization', //env var: PGDATABASE
-    password: 'postgres', //env var: PGPASSWORD
-    host: 'localhost', // Server hosting the postgres database
-    port: 5432, //env var: PGPORT
-    max: 10, // max number of clients in the pool
-    idleTimeoutMillis: 30000, // how long a client is allowed to remain idle before being closed
-  };
+  var db = dbConn.create()
 
-  //this initializes a connection pool
-  //it will keep idle connections open for a 30 seconds
-  //and set a limit of maximum 10 idle clients
-  var pool = new pg.Pool(config);
+// TODO consider using bind functions instead of this repetitive boilerplate
 
-  pool.on('error', function (err, client) {
-    // if an error is encountered by a client while it sits idle in the pool
-    // the pool itself will emit an error event with both the error and
-    // the client which emitted the original error
-    // this is a rare occurrence but can happen if there is a network partition
-    // between your application and the database, the database restarts, etc.
-    // and so you might want to handle it and at least log it out
-    console.error('idle client error', err.message, err.stack)
-  })
-
-  function listUsers (args, cb) {
-    // to run a query we can acquire a client from the pool,
-    // run a query on the client, and then return the client to the pool
-    pool.connect(function(err, client, done) {
+  function listAllUsers (args, cb) {
+    userOps.listAllUsers(db.pool, args, function (err, result) {
       if (err) return cb(err)
-      client.query('SELECT  * from users', function(err, result) {
-        done() // release the client back to the pool
-        if(err) return cb(err)
-        console.log(result.rows)
-        return cb(null, result.rows)
-      })
+      return cb(null, result)
+    })
+  }
+
+  function listOrgUsers (args, cb) {
+    userOps.listOrgUsers(db.pool, args, function (err, result) {
+      if (err) return cb(err)
+      return cb(null, result)
+    })
+  }
+
+  function createUser (args, cb) {
+    userOps.createUser(db.pool, args, function (err, result) {
+      if (err) return cb(err)
+      return cb(null, result)
+    })
+  }
+
+  function readUserById (args, cb) {
+    userOps.readUserById(db.pool, args, function (err, result) {
+      if (err) return cb(err)
+      return cb(null, result)
+    })
+  }
+
+  function updateUser (args, cb) {
+    userOps.updateUser(db.pool, args, function (err, result) {
+      if (err) return cb(err)
+      return cb(null, result)
+    })
+  }
+
+  function deleteUserById (args, cb) {
+    userOps.deleteUserById(db.pool, args, function (err, result) {
+      if (err) return cb(err)
+      return cb(null, result)
     })
   }
 
   function shutdown (args, cb) {
-    pool.connect(function(err, client, done) {
-      if (err) return cb(err)
-      client.query('SELECT  now()', function(err, result) {
-        client.release()
-        pool.end(function(err, done) {
-          if(err) return cb(err)
-          return cb(null, null)
-        })
-      })
-    })
+    db.shutdown(args, cb)
   }
 
-  // simulate resource initialization
+  // simulate resource initialization.
+  // give ourselves plenty of time,
+  // as less may give intermittent ECONNREFUSED
   setTimeout(function () {
-    done({listUsers: listUsers, shutdown: shutdown})
-  }, 1000)
-
-  return {
-    listUsers: listUsers,
-    shutdown: shutdown
-  }
+    done({
+      createUser: createUser,
+      deleteUserById: deleteUserById,
+      listAllUsers: listAllUsers,
+      listOrgUsers: listOrgUsers,
+      readUserById: readUserById,
+      updateUser: updateUser,
+      destroy: shutdown
+    })
+  }, 5000)
 }

@@ -25,11 +25,39 @@ var service = require('./lib/service')
  *  host: process.env.SERVICE_HOST || 'localhost'
  */
 module.exports = function (options) {
-
   function start (cb) {
     service(function (svc) {
-      mu.define({role: 'auth', cmd: 'list', type: 'users'}, svc.listUsers)
-      mu.define({role: 'auth', cmd: 'done'}, svc.shutdown)
+      mu.define({role: 'authorization', cmd: 'list', type: 'users'}, function (args, cb) {
+        svc.listAllUsers(args.pattern.params, function (err, result) {
+          if (err) return cb(err, null)
+          return cb(null, result)
+        })
+      })
+      mu.define({role: 'authorization', cmd: 'create', type: 'user'}, function (args, cb) {
+        svc.createUser(args.pattern.params, function (err, result) {
+          if (err) return cb(err, null)
+          return cb(null, result)
+        })
+      })
+      mu.define({role: 'authorization', cmd: 'read', type: 'user'}, function (args, cb) {
+        svc.readUserById(args.pattern.params, function (err, result) {
+          if (err) return cb(err, null)
+          return cb(null, result)
+        })
+      })
+      mu.define({role: 'authorization', cmd: 'update', type: 'user'}, function (args, cb) {
+        svc.updateUser(args.pattern.params, function (err, result) {
+          if (err) return cb(err, null)
+          return cb(null, result)
+        })
+      })
+      mu.define({role: 'authorization', cmd: 'delete', type: 'user'}, function (args, cb) {
+        svc.deleteUserById(args.pattern.params, function (err, result) {
+          if (err) return cb(err, null)
+          return cb(null, result)
+        })
+      })
+      mu.define({role: 'authorization', cmd: 'done'}, svc.destroy)
       mu.inbound('*', tcp.server(options))
       cb()
     })
