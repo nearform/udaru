@@ -48,7 +48,7 @@ function createUser (pool, args, cb) {
     client.query('INSERT INTO users (id, name, org_id) VALUES ($1, $2, $3)', args, function (err, result) {
       done() // release the client back to the pool
       if (err) return cb(err)
-      console.log('create user result: ', result)
+      // console.log('create user result: ', result)
       return cb(null, result.rows)
     })
   })
@@ -77,7 +77,7 @@ function readUserById (pool, args, cb) {
           done()
           return cb(err)
         }
-        console.log(result)
+        // console.log(result)
         result.rows.forEach(function (row) {
           user.teams.push(row)
         })
@@ -87,7 +87,7 @@ function readUserById (pool, args, cb) {
           result.rows.forEach(function (row) {
             user.policies.push(row)
           })
-          console.log(user)
+          // console.log(user)
           return cb(null, user)
         })
       })
@@ -104,7 +104,7 @@ function updateUser (pool, args, cb) {
     client.query('UPDATE users SET name = $2 WHERE id = $1', args, function (err, result) {
       done() // release the client back to the pool
       if (err) return cb(err)
-      console.log('update user result: ', result)
+      // console.log('update user result: ', result)
       return cb(null, result.rows)
     })
   })
@@ -121,13 +121,13 @@ function deleteUserById (pool, args, cb) {
       process.nextTick(function () {
         client.query('DELETE from user_policies WHERE user_id = $1', args, function (err, result) {
           if (err) return cb(dbUtil.rollback(client, done))
-          console.log('delete user_policies result: ', result)
+          // console.log('delete user_policies result: ', result)
           client.query('DELETE from team_members WHERE user_id = $1', args, function (err, result) {
             if (err) return cb(dbUtil.rollback(client, done))
-            console.log('delete team_member result: ', result)
+            // console.log('delete team_member result: ', result)
             client.query('DELETE from users WHERE id = $1', args, function (err, result) {
               if (err) return cb(dbUtil.rollback(client, done))
-              console.log('delete user result: ', result)
+              // console.log('delete user result: ', result)
               client.query('COMMIT', done)
               return cb(null, result.rows)
             })
