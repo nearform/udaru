@@ -26,7 +26,7 @@ docker ps
 
 To connect to the running container:
 ```
-docker exec -ti <container_id>
+docker exec -ti <container_id> <command>
 ```
 e.g.
 ```
@@ -36,6 +36,7 @@ docker exec -ti e bash        // short container name
 ```
 
 ###Populate the database
+
 The Authorization database, system user and initial tables (just users at the moment)
 can be created by executing:
 
@@ -47,6 +48,15 @@ Test data can be added with:
 ```
 npm run pg:load-test-data
 ```
+
+Note: the scripts that initialize and load data into the database require you to have the Postgresql client installed on your machine.
+Not needed to have the full Postgtresql database and dependencies installed.
+
+###pgAdmin database access
+As the Postgresql docker container has its 5432 port forwarded on the local machine the datatbase can be accessed with pgAdmin.
+
+To access the database using the pgAdmin you have to fill in also the container IP beside the database names and access credentials. The conainer IP can be seen with `docker ps`.
+
 
 ## Service
 
@@ -70,7 +80,7 @@ service:
 
 There is a simple route for fetching all the users: http://localhost:8000/auth/users
 
-Start the service and the API with the following:
+To expose the reoute start both the service and the API with the following:
 
     node integration/service.js
 
