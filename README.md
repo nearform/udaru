@@ -37,7 +37,7 @@ docker exec -ti e bash        // short container name
 
 ###Populate the database
 
-The Authorization database, system user and initial tables (just users at the moment)
+The Authorization database, system user and initial tables
 can be created by executing:
 
 ```
@@ -53,7 +53,7 @@ Note: the scripts that initialize and load data into the database require you to
 Not needed to have the full Postgtresql database and dependencies installed.
 
 ###pgAdmin database access
-As the Postgresql docker container has its 5432 port forwarded on the local machine the datatbase can be accessed with pgAdmin.
+As the Postgresql docker container has its 5432 port forwarded on the local machine the database can be accessed with pgAdmin.
 
 To access the database using the pgAdmin you have to fill in also the container IP beside the database names and access credentials. The conainer IP can be seen with `docker ps`.
 
@@ -62,7 +62,7 @@ To access the database using the pgAdmin you have to fill in also the container 
 
 There is a basic service which will respond to a list users request:
 
-    {role: 'auth', cmd: 'list', type: 'users'}
+    {role: 'authorization', cmd: 'list', type: 'users'}
 
 with data in the form:
 
@@ -74,11 +74,12 @@ with data in the form:
 It also has a shutdown operation, which should be called when finished with the
 service:
 
-    {role: 'auth', cmd: 'done'}
+    {role: 'authorization', cmd: 'done'}
 
 ## API
 
 There is a simple route for fetching all the users: http://localhost:8000/auth/users
+Curl examples for the other routes can be found in services.js
 
 To expose the reoute start both the service and the API with the following:
 
