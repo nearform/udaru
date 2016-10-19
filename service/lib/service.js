@@ -74,5 +74,5 @@ module.exports = function (done) {
       updateUser: updateUser,
       destroy: shutdown
     })
-  }, 5000)
+  }, 500)
 }

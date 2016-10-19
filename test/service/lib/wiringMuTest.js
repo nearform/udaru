@@ -31,7 +31,7 @@ test('authorization:user:create', (t) => {
   var mu = Mu()
   mu.outbound('*', tcp.client(opts))
   wiring.start(() => {
-    mu.dispatch({role: 'authorization', cmd: 'create', type: 'user', params: [99, 'Mike Teavee', 1]}, (err, result) => {
+    mu.dispatch({role: 'authorization', cmd: 'create', type: 'user', params: [99, 'Mike Teavee', 'WONKA']}, (err, result) => {
       t.error(err)
       t.ok(result, 'result should be supplied')
       mu.dispatch({role: 'authorization', cmd: 'done'}, (err, result) => {
