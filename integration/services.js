@@ -69,4 +69,12 @@ module.exports = function (server) {
       }
     }
   })
+   // curl http://localhost:8000/authorization/policies
+  server.route({
+    method: 'GET',
+    path: '/authorization/policies',
+    handler: function (request, reply) {
+      handleRoleCommandType('authorization', 'list', 'policies', null, request, reply)
+    }
+  })
 }

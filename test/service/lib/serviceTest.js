@@ -1,7 +1,8 @@
 'use strict'
 
-var test = require('tap').test
-var service = require('../../../service/lib/service')
+const _ = require('lodash')
+const test = require('tap').test
+const service = require('../../../service/lib/service')
 
 test('service starts and stops', (t) => {
   t.plan(1)
@@ -45,10 +46,9 @@ test('list of org users', (t) => {
 test('create a user', (t) => {
   t.plan(2)
   service((svc) => {
-    svc.createUser([99, 'Mike Teavee', 1], (err, result) => {
+    svc.createUser([99, 'Mike Teavee', 'WONKA'], (err, result) => {
       t.error(err, 'should be no error creating')
       t.ok(result, 'result should be supplied')
-      console.log('RESULT: ', result)
 /*      svc.readUserById([99], (err, result) => {
         t.error(err, 'should be no error reading back after creation')
         t.ok(result, 'result should be supplied')
@@ -96,6 +96,24 @@ test('delete a user', (t) => {
       t.ok(result, 'result should be supplied')
       // t.deepEqual(result, { id: 3, name: 'Veruca Salt' }, 'data should be as expected')
       // TODO: test correct data exists before and after the call
+      svc.destroy({}, (err, result) => {
+        t.error(err)
+      })
+    })
+  })
+})
+
+test('list policies', (t) => {
+  t.plan(5)
+  service((svc) => {
+    svc.listAllPolicies({}, (err, result) => {
+      t.error(err, 'should be no error')
+      t.ok(result, 'result should be supplied')
+      t.ok(result.length == 5, 'number of expected results')
+      let expectedResult = [{id:1, version:'0.1', name: 'Administrator'}]
+      let index = _.findIndex(result, (value) => { return _.isMatch(value, expectedResult[0]) })
+      t.ok(index>=0, 'expected data')
+
       svc.destroy({}, (err, result) => {
         t.error(err)
       })
