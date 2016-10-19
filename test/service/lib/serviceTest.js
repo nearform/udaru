@@ -45,7 +45,7 @@ test('list of org users', (t) => {
 test('create a user', (t) => {
   t.plan(2)
   service((svc) => {
-    svc.createUser([99, 'Mike Teavee', 1], (err, result) => {
+    svc.createUser([99, 'Mike Teavee', 'WONKA'], (err, result) => {
       t.error(err, 'should be no error creating')
       t.ok(result, 'result should be supplied')
       console.log('RESULT: ', result)

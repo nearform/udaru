@@ -1,9 +1,9 @@
-Allow, 1
-Deny, 2
-Allow, 2
-Allow, 3
-Allow, 3
-Deny, 3
-Allow, 4
-Allow, 4
-Deny, 5
+Allow,1
+Deny,2
+Allow,2
+Allow,3
+Allow,3
+Deny,3
+Allow,4
+Allow,4
+Deny,5
