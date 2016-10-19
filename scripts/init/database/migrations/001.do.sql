@@ -17,18 +17,18 @@ CREATE TABLE statement_elements (
 
 CREATE TABLE statement_actions (
   id          SERIAL UNIQUE,
-  action      VARCHAR(30) NOT NULL,
+  action      VARCHAR(100) NOT NULL,
   element_id  INT REFERENCES statement_elements(id) NOT NULL
 );
 
 CREATE TABLE statement_resources (
   id          SERIAL UNIQUE,
-  resource    VARCHAR(30) NOT NULL,
+  resource    VARCHAR(100) NOT NULL,
   element_id  INT REFERENCES statement_elements(id) NOT NULL
 );
 
 CREATE TABLE organizations (
-  id          SERIAL UNIQUE,
+  id          VARCHAR(20) UNIQUE,
   name        VARCHAR(30) NOT NULL,
   description VARCHAR(30)
 );
@@ -36,7 +36,7 @@ CREATE TABLE organizations (
 CREATE TABLE users (
   id        SERIAL UNIQUE,
   name      VARCHAR(50) NOT NULL,
-  org_id    INT REFERENCES organizations(id) NOT NULL
+  org_id    VARCHAR REFERENCES organizations(id) NOT NULL
 );
 
 CREATE TABLE teams (
@@ -44,7 +44,7 @@ CREATE TABLE teams (
   name            VARCHAR(30) NOT NULL,
   description     VARCHAR(90),
   team_parent_id  INT REFERENCES teams(id),
-  org_id          INT REFERENCES organizations(id) NOT NULL
+  org_id          VARCHAR REFERENCES organizations(id) NOT NULL
 );
 
 CREATE TABLE team_members (
