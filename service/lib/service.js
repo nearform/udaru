@@ -1,6 +1,6 @@
 var dbConn = require('./dbConn')
 var userOps = require('./userOps')
-var policies = require('./policies')
+var policyOps = require('./policyOps')
 
 module.exports = function (done) {
   var db = dbConn.create()
@@ -54,7 +54,7 @@ module.exports = function (done) {
   }
 
   function listAllPolicies(args, cb) {
-    policies.listAllPolicies(db.pool, args, function (err, result) {
+    policyOps.listAllPolicies(db.pool, args, function (err, result) {
       if (err) return cb(err)
       return cb(null, result)
     })
