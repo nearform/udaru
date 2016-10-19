@@ -18,18 +18,8 @@ CREATE TABLE policies (
   statements  JSONB
 );
 
-CREATE TABLE statement_elements (
-  id          SERIAL UNIQUE,
-  effect      VARCHAR(30) NOT NULL,
-  policy_id   INT REFERENCES policies(id) NOT NULL
-);
-
 CREATE TABLE ref_actions (
   action      VARCHAR(100) NOT NULL
-);
-
-CREATE TABLE ref_resources (
-  resource    VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE users (
