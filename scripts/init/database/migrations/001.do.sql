@@ -3,34 +3,23 @@
   (less predictabiity)
   probably GUID
  */
-CREATE TABLE policies (
-  id        SERIAL UNIQUE,
-  version   VARCHAR(20),
-  name      VARCHAR(30) NOT NULL
-);
-
-CREATE TABLE statement_elements (
-  id          SERIAL UNIQUE,
-  effect      VARCHAR(30) NOT NULL,
-  policy_id   INT REFERENCES policies(id) NOT NULL
-);
-
-CREATE TABLE statement_actions (
-  id          SERIAL UNIQUE,
-  action      VARCHAR(100) NOT NULL,
-  element_id  INT REFERENCES statement_elements(id) NOT NULL
-);
-
-CREATE TABLE statement_resources (
-  id          SERIAL UNIQUE,
-  resource    VARCHAR(100) NOT NULL,
-  element_id  INT REFERENCES statement_elements(id) NOT NULL
-);
-
 CREATE TABLE organizations (
-  id          VARCHAR(20) UNIQUE,
+ id          VARCHAR(20) UNIQUE,
+ name        VARCHAR(30) NOT NULL,
+ description VARCHAR(30)
+);
+
+/* TODO: need policies unique constraint on org_id, name */
+CREATE TABLE policies (
+  id          SERIAL UNIQUE,
+  version     VARCHAR(20),
   name        VARCHAR(30) NOT NULL,
-  description VARCHAR(30)
+  org_id      VARCHAR REFERENCES organizations(id) NOT NULL,
+  statements  JSONB
+);
+
+CREATE TABLE ref_actions (
+  action      VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE users (
