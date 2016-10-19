@@ -1,5 +1,6 @@
 var dbConn = require('./dbConn')
 var userOps = require('./userOps')
+var policies = require('./policies')
 
 module.exports = function (done) {
   var db = dbConn.create()
@@ -52,6 +53,13 @@ module.exports = function (done) {
     db.shutdown(args, cb)
   }
 
+  function listAllPolicies(args, cb) {
+    policies.listAllPolicies(db.pool, args, function (err, result) {
+      if (err) return cb(err)
+      return cb(null, result)
+    })
+  }
+
   // simulate resource initialization.
   // give ourselves plenty of time,
   // as less may give intermittent ECONNREFUSED
@@ -60,6 +68,7 @@ module.exports = function (done) {
       createUser: createUser,
       deleteUserById: deleteUserById,
       listAllUsers: listAllUsers,
+      listAllPolicies: listAllPolicies,
       listOrgUsers: listOrgUsers,
       readUserById: readUserById,
       updateUser: updateUser,
