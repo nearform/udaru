@@ -30,7 +30,8 @@
     "pg": "^6.1.0"
   },
   "devDependencies": {
-    "tap": "^7.1.2",
-    "postgrator": "^2.8.2"
+    "lodash": "^4.16.4",
+    "postgrator": "^2.8.2",
+    "tap": "^7.1.2"
   }
 }
