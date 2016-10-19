@@ -21,12 +21,12 @@ var data = [
         {
           'Effect': 'Allow',
           'Action': ['iam:ChangePassword'],
-          'Resource': '*'
+          'Resource': ['*']
         },
         {
           'Effect': 'Deny',
-          'Action': 'iam:ChangeAdminPassword',
-          'Resource': '*'
+          'Action': ['iam:ChangeAdminPassword'],
+          'Resource': ['*']
         },
         {
           'Effect': 'Allow',
@@ -47,12 +47,12 @@ var data = [
         {
           'Effect': 'Allow',
           'Action': ['iam:ChangePassword'],
-          'Resource': '*'
+          'Resource': ['*']
         },
         {
           'Effect': 'Deny',
-          'Action': 'iam:ChangeAdminPassword',
-          'Resource': '*'
+          'Action': ['iam:ChangeAdminPassword'],
+          'Resource': ['*']
         },
         {
           'Effect': 'Allow',
@@ -73,12 +73,12 @@ var data = [
         {
           'Effect': 'Allow',
           'Action': ['iam:ChangePassword'],
-          'Resource': '*'
+          'Resource': ['*']
         },
         {
           'Effect': 'Deny',
-          'Action': 'iam:ChangeAdminPassword',
-          'Resource': '*'
+          'Action': ['iam:ChangeAdminPassword'],
+          'Resource': ['*']
         },
         {
           'Effect': 'Allow',
@@ -99,12 +99,12 @@ var data = [
         {
           'Effect': 'Allow',
           'Action': ['iam:ChangePassword'],
-          'Resource': '*'
+          'Resource': ['*']
         },
         {
           'Effect': 'Deny',
-          'Action': 'iam:ChangeAdminPassword',
-          'Resource': '*'
+          'Action': ['iam:ChangeAdminPassword'],
+          'Resource': ['*']
         },
         {
           'Effect': 'Allow',
@@ -125,12 +125,12 @@ var data = [
         {
           'Effect': 'Allow',
           'Action': ['iam:ChangePassword'],
-          'Resource': '*'
+          'Resource': ['*']
         },
         {
           'Effect': 'Deny',
-          'Action': 'iam:ChangeAdminPassword',
-          'Resource': '*'
+          'Action': ['iam:ChangeAdminPassword'],
+          'Resource': ['*']
         },
         {
           'Effect': 'Allow',
