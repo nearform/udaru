@@ -5,9 +5,13 @@ const ListItem = ({item, onItemSelect, selected}) => {
     onItemSelect(item)
   }
 
-  const f = selected ? 'filterlist--item-selected' : 'filterlist--item-default'
+  const selectedClass = selected ? 'filterlist--item-selected' : ''
 
-  return <div className={f} onClick={clicked}>{item.name}</div>
+  return (
+    <li className={'filterlist--item ' + selectedClass} onClick={clicked}>
+      {item.name}
+    </li>
+  )
 }
 
 ListItem.propTypes = {

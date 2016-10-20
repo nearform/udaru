@@ -1,4 +1,10 @@
+@import url('https://fonts.googleapis.com/css?family=Lato:300');
 @import 'variables';
+
+// TODO: CHANGE IT ASAP, else importing our component would effect whole page's font
+body {
+  font-family: 'Lato', sans-serif;
+}
 
 .header {
   display: flex;
@@ -45,49 +51,106 @@
 }
 
 .content {
-
-}
-
-.mainpanel {
-  margin-top: 20px;
-  display: flex;
-  overflow: hidden;
-  // height: 500px;
-  text-align: center;
+  margin-top: 40px;
 }
 
 .filterlist {
-  width: 160px;
-  overflow-y: auto;
-  overflow-x: hidden;
+  &--filter-wrapper {
+    position: relative;
+    width: 100%;
+    vertical-align: middle;
+  }
+
+  &--filter-icon {
+    position: absolute;
+    left: 10px;
+    top: 8px;
+    z-index: 1;
+    color: $icon-color;
+  }
 
   &--filter-input {
-    border-radius: 8px;
-    width: 140px;
-    text-align: center;
+    border-radius: 20px;
+    box-shadow: inset 0px 2px 4px 0px rgba(176, 176, 176, 0.75);
+    border: none;
+    background: #EEEEEE;
+    padding: 5px 10px 5px 30px;
+    width: 100%;
+    transition: background .55s ease;
+
+    &:focus {
+      background: #FFFFFF;
+    }
+
+    &::-webkit-input-placeholder {
+      font-size: 12px;
+    }
+  }
+
+  &--add-item {
+    margin-left: 10px;
+    font-weight: bold;
   }
 
   &--list-items {
-    margin-top: 20px;
-    text-align: center;
+    padding: 0;
+    margin: 20px 0 0 0;
+    list-style: none;
   }
 
-  &--item-selected {
-    color: red;
-  }
-
-  &--item-default {
+  &--item {
     color: black;
+    padding: 20px 0 20px 20px;
+    cursor: pointer;
+    color: $list-item-color;
+    border-bottom: 1px solid $divider-color;
+    background-color: $list-item-background-color;
+
+    &:hover {
+      background-color: $list-item-background-color-hover;
+    }
+
+    &-selected {
+      position: relative;
+      color: $list-item-color-selected;
+
+      &:before {
+        content: "\2022";
+        position: absolute;
+        left: 0;
+        font-size: 20px;
+        line-height: 20px;
+      }
+    }
   }
 }
 
-.detail {
+// TODO: Really need to think of namespacing our CSS to avoid conflicts
+.view-policy {
+  box-shadow: 4px 8px 25px 0px rgba(204,204,204,1);
+  margin: 0 40px;
 
-  &--panel {
-    margin: 30px 50px 0px 50px;
-    padding-top: 50px;
-    flex: 1 1;
-    text-align: center;
+  &--row {
+    padding: 20px 0;
+
+    &-dark {
+      background-color: #FBFBFB;
+    }
+  }
+
+  &--statement {
+    border-bottom: 1px solid #AAA;
+    padding: 0;
+  }
+
+  &--actions {
+    list-style: none;
+    padding: 0;
+  }
+
+  &--resources {
+    list-style: none;
+    padding: 0;
   }
 }
 

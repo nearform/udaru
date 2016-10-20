@@ -7,7 +7,7 @@ import { connect } from 'react-redux'
 // import { push } from 'react-router-redux'
 import { resolve } from 'react-resolver'
 
-// import { callApi } from '../middleware/api'
+import { callApi } from '../middleware/api'
 
 import List from '../components/generic/list'
 import ViewPolicy from '../components/policies/ViewPolicy'
@@ -16,8 +16,7 @@ import ViewPolicy from '../components/policies/ViewPolicy'
   _policies: policies.list
 }))
 @resolve('policies', (props) => {
-  // return callApi('/policies')
-  return Promise.resolve([{id: 1, name: 'Policy 1'}, {id: 2, name: 'Policy 2'}])
+  return callApi('/authorization/policies').then(data => data.result)
 })
 export default class Policies extends Component {
   static propTypes = {
@@ -34,23 +33,16 @@ export default class Policies extends Component {
     this.viewPolicy = ::this.viewPolicy
   }
 
+  componentDidMount () {
+
+  }
+
   viewPolicy (selected) {
-    // Load policy details here, currently setting stubbed data
-
-    const policy = {
-      ...selected,
-      effect: 'Allow',
-      action: 'iam:someAction',
-      resource: '/a/b/cccc'
-    }
-
-    this.setState({
-      policy
+    callApi('/authorization/policies/' + selected.id)
+    .then(data => data.result)
+    .then(policy => {
+      this.setState({ policy })
     })
-
-    // callApi('/policy/' + selected.id).then((data) => {
-    //   console.log(data);
-    // })
   }
 
   render () {
