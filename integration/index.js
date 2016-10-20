@@ -10,7 +10,8 @@ const SERVICE_HOST = process.env.SERVICE_HOST || 'localhost'
 
 server.connection({
   port: Number(SERVICE_PORT),
-  host: SERVICE_HOST
+  host: SERVICE_HOST,
+  routes: { cors: true } // TODO: find a better solution
 })
 
 services(server)

@@ -7,20 +7,24 @@ import { connect } from 'react-redux'
 // import { push } from 'react-router-redux'
 import { resolve } from 'react-resolver'
 
-// import { callApi } from '../middleware/api'
+import { callApi } from '../middleware/api'
 
 import List from '../components/generic/list'
 import EditUser from '../components/users/EditUser'
-
-import { users as testData } from '../components/users/testData'
 
 @connect(({ users }) => ({
   _users: users.list
 }))
 @resolve('users', (props) => {
-  return Promise.resolve(testData) // return callApi('/users')
+  return Promise.resolve(callApi('/authorization/users').then((data) => {
+    return data.result
+  }))
 })
 export default class Users extends Component {
+  static propTypes = {
+    users: React.PropTypes.array.isRequired
+  }
+
   constructor (props) {
     super(props)
 
@@ -35,7 +39,7 @@ export default class Users extends Component {
   save (data) {
     // callApi({
     //   method: 'post', // opt.
-    //   url: '/user' + selected.id,
+    //   endpoint: '/authorization/user' + selected.id,
     //   data: data
     // }).then(res => {
     //
@@ -44,13 +48,12 @@ export default class Users extends Component {
   }
 
   edit (selected) {
-    // get this user's data
-    // callApi('/user/' + selected.id).then((data) => {
-    //   console.log(data);
-    // })
-
-    this.setState({
-      user: selected
+    callApi('/authorization/user/' + selected.id).then(data => {
+      if (!data.err) {
+        this.setState({
+          user: data.result
+        })
+      }
     })
   }
 
@@ -67,7 +70,7 @@ export default class Users extends Component {
               onItemSelect={this.edit}
             />
           </Col>
-          <Col md='10'>
+          <Col md='10' className='mainpanel'>
             {user && <EditUser onSubmit={this.save} initialValues={user} />}
           </Col>
         </Row>
@@ -75,7 +78,3 @@ export default class Users extends Component {
     )
   }
 }
-
-// Users.WrappedComponent.propTypes = {
-//   users: React.PropTypes.object.isRequired
-// }
