@@ -1,6 +1,6 @@
 import request from 'axios'
 
-const API_BASE = 'http://localhost:6001'
+const API_BASE = 'http://localhost:8000'
 const URL_REGEX = /^(https?:\/\/)/
 
 export const callApi = (options) => {

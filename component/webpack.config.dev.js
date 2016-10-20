@@ -11,7 +11,7 @@ var plugins = [
 
 module.exports = {
   entry: [
-    'webpack-dev-server/client?http://localhost:8080',
+    'webpack-dev-server/client?http://localhost:3000',
     'webpack/hot/only-dev-server',
     path.join(__dirname, 'src/index.dev.jsx')
   ],
@@ -58,7 +58,7 @@ module.exports = {
     hot: true,
     historyApiFallback: true,
     host: '0.0.0.0',
-    port: 8080
+    port: 3000
   },
 
   plugins: plugins

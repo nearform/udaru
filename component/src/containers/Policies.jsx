@@ -20,6 +20,10 @@ import ViewPolicy from '../components/policies/ViewPolicy'
   return Promise.resolve([{id: 1, name: 'Policy 1'}, {id: 2, name: 'Policy 2'}])
 })
 export default class Policies extends Component {
+  static propTypes = {
+    policies: React.PropTypes.array.isRequired
+  }
+
   constructor (props) {
     super(props)
 
