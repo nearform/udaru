@@ -111,6 +111,23 @@ test('authorization:policy:read', (t) => {
   })
 })
 
+test('authorization:policy:list', (t) => {
+  t.plan(3)
+  var mu = Mu()
+  mu.outbound('*', tcp.client(opts))
+  wiring.start(() => {
+    mu.dispatch({role: 'authorization', cmd: 'list', type: 'policies'}, (err, result) => {
+      t.error(err)
+      t.ok(result, 'result should be supplied')
+      mu.dispatch({role: 'authorization', cmd: 'done'}, (err, result) => {
+        t.error(err)
+        wiring.stop()
+        mu.tearDown()
+      })
+    })
+  })
+})
+
 test('authorization:done', (t) => {
   t.plan(1)
   var mu = Mu()
