@@ -1,9 +1,11 @@
-@import url('https://fonts.googleapis.com/css?family=Lato:300');
+@import url('https://fonts.googleapis.com/css?family=Lato:300,400,700');
 @import 'variables';
+@import 'mixins';
 
 // TODO: CHANGE IT ASAP, else importing our component would effect whole page's font
 body {
   font-family: 'Lato', sans-serif;
+  font-weight: 300;
 }
 
 .header {
@@ -12,8 +14,8 @@ body {
   margin-bottom: 10px;
 
   &--logo {
-    width: 160px;
-    height: 160px;
+    width: 120px;
+    height: 120px;
     box-shadow: 1px 0px 2px 0px rgba(209,209,209,1);
   }
 
@@ -30,23 +32,36 @@ body {
   &--nav-item {
     list-style: none;
     float: left;
-    width: 100px;
+    width: 120px;
+  }
 
-    a {
-      display: block;
-      padding: 10px 20px;
-      text-align: center;
+  &--nav-link {
+    display: block;
+    padding: 20px 20px;
+    text-align: center;
+    text-decoration: none;
+    color: $list-item-color;
+    font-weight: 400;
+
+    &:hover, &:active, &:focus, &-active {
+      color: $list-item-color-selected;
+      text-decoration: none;
     }
+
+    &-active {
+      @include fa-icon-before($fa-var-check);
+    }
+
   }
 
   &--search-bar {
-    background: linear-gradient(to left, #32589B 0%, #C01B1B 100%);
-    height: 80px;
+    background: linear-gradient(to left, $header-gradient-left 0%, $header-gradient-right 100%);
+    height: 60px;
   }
 
   &--nav-bar {
     background: transparent;
-    height: 80px;
+    height: 60px;
   }
 }
 
@@ -129,13 +144,25 @@ body {
 .view-policy {
   box-shadow: 4px 8px 25px 0px rgba(204,204,204,1);
   margin: 0 40px;
+  border-radius: 5px;
+  overflow: hidden;
 
   &--row {
-    padding: 20px 0;
+    padding: 10px 0;
 
     &-dark {
-      background-color: #FBFBFB;
+      background-color: #DDDDDD;
+
+      span {
+        color: $list-item-color-selected;
+      }
     }
+  }
+
+  &--statements {
+    max-height: 400px;
+    overflow-x: hidden;
+    overflow-y: scroll;
   }
 
   &--statement {
@@ -146,6 +173,7 @@ body {
   &--actions {
     list-style: none;
     padding: 0;
+    margin: 0;
   }
 
   &--resources {

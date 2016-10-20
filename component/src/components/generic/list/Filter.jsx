@@ -24,7 +24,7 @@ class FilterInput extends Component {
         <i className='fa fa-search filterlist--filter-icon'></i>
         <input type='text'
           onChange={this.onInputChange}
-          placeholder='Filter Users'
+          placeholder={'Search ' + this.props.which + '...'}
           className='filterlist--filter-input'
         />
       </div>

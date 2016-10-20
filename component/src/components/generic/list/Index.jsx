@@ -44,7 +44,7 @@ export default class List extends Component {
 
     return (
       <div>
-        <Filter onFilterChange={this.filterChanged} />
+        <Filter onFilterChange={this.filterChanged} which={this.props.which} />
         <ul className='filterlist--list-items'>
           <li className='filterlist--item'>
             <i className='fa fa-plus'></i>

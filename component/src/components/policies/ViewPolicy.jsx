@@ -64,7 +64,7 @@ const ViewPolicy = ({ policy }) => (
     </Row>
 
     <Row>
-      <Col xs='12'>
+      <Col xs='12' className='view-policy--statements'>
         { renderStatements(policy.Statement) }
       </Col>
     </Row>
