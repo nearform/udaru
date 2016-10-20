@@ -17,7 +17,9 @@ import api from './middleware/api'
 // hence, we're manually invoking the loaders with `style!css!`
 import 'style!css!normalize.css'
 
+import 'font-awesome-webpack';
 import 'muicss/lib/sass/mui.scss'
+
 import './styles/main.scss'
 
 // Needed for onTouchTap
