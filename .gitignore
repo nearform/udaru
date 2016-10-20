@@ -39,3 +39,6 @@ src/testResults/*.xml
 # integration test reports
 src/integration-testResults/*.tap
 src/integration-testResults/*.xml
+
+.idea/
+.vscode/

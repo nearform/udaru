@@ -77,4 +77,12 @@ module.exports = function (server) {
       handleRoleCommandType('authorization', 'list', 'policies', null, request, reply)
     }
   })
+  // curl http://localhost:8000/authorization/policy/123
+  server.route({
+    method: 'GET',
+    path: '/authorization/policy/{id}',
+    handler: function (request, reply) {
+      handleRoleCommandType('authorization', 'read', 'policy', [request.params.id], request, reply)
+    }
+  })
 }

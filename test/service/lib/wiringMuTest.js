@@ -94,6 +94,23 @@ test('authorization:user:delete', (t) => {
   })
 })
 
+test('authorization:policy:read', (t) => {
+  t.plan(3)
+  var mu = Mu()
+  mu.outbound('*', tcp.client(opts))
+  wiring.start(() => {
+    mu.dispatch({role: 'authorization', cmd: 'read', type: 'policy', params: [1]}, (err, result) => {
+      t.error(err)
+      t.ok(result, 'result should be supplied')
+      mu.dispatch({role: 'authorization', cmd: 'done'}, (err, result) => {
+        t.error(err)
+        wiring.stop()
+        mu.tearDown()
+      })
+    })
+  })
+})
+
 test('authorization:done', (t) => {
   t.plan(1)
   var mu = Mu()
