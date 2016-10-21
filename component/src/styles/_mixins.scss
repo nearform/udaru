@@ -9,11 +9,30 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-@mixin fa-icon-before($icon) {
-  &:before {
+@mixin fa-icon-before($icon, $left-offset: 0, $font-size: $fa-font-size-base) {
+  position: relative;
+
+  &::before {
     @include fa-icon();
 
-    margin-right: 10px;
+    position: absolute;
+    left: $left-offset;
+    font-size: $font-size;
+    line-height: 20px;
+    content: $icon;
+  }
+}
+
+@mixin fa-icon-after($icon, $right-offset: 0, $font-size: $fa-font-size-base) {
+  position: relative;
+
+  &::after {
+    @include fa-icon();
+
+    position: absolute;
+    right: $right-offset;
+    font-size: $font-size;
+    line-height: 20px;
     content: $icon;
   }
 }

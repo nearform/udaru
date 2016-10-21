@@ -37,7 +37,7 @@ body {
 
   &--nav-link {
     display: block;
-    padding: 20px 20px;
+    padding: 20px 0;
     text-align: center;
     text-decoration: none;
     color: $list-item-color;
@@ -49,7 +49,7 @@ body {
     }
 
     &-active {
-      @include fa-icon-before($fa-var-check);
+      @include fa-icon-before($fa-var-check, 10px);
     }
 
   }
@@ -126,16 +126,9 @@ body {
     }
 
     &-selected {
-      position: relative;
       color: $list-item-color-selected;
 
-      &:before {
-        content: "\2022";
-        position: absolute;
-        left: 0;
-        font-size: 20px;
-        line-height: 20px;
-      }
+      @include fa-icon-before($fa-var-circle, 0, 6px);
     }
   }
 }
