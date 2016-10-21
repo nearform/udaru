@@ -136,12 +136,12 @@ test('list policies', (t) => {
       t.ok(result, 'result should be supplied')
       t.ok(result.length == 5, 'number of expected results')
       var expectedResult = [{
-            id: 1,
-            version: '0.1',
-            name: 'Administrator',
-          }]
+        id: 1,
+        version: '0.1',
+        name: 'Administrator'
+      }]
       var index = _.findIndex(result, (value) => { return _.isMatch(value, expectedResult[0]) })
-      t.ok(index>=0, 'expected data')
+      t.ok(index >= 0, 'expected data')
 
       svc.destroy({}, (err, result) => {
         t.error(err)
@@ -158,16 +158,16 @@ test('list all policies full', (t) => {
       t.ok(result, 'result should be supplied')
       t.ok(result.length == 5, 'number of expected results')
       let expectedResult = [{
-            id: 1,
-            version: '0.1',
-            name: 'Administrator',
-            statements: [{
-              'Effect': 'Allow',
-              'Action': ['iam:ChangePassword'],
-            }]
-          }]
+        id: 1,
+        version: '0.1',
+        name: 'Administrator',
+        statements: [{
+          'Effect': 'Allow',
+          'Action': ['iam:ChangePassword']
+        }]
+      }]
       let index = _.findIndex(result, (value) => { return _.isMatch(value, expectedResult[0]) })
-      t.ok(index>=0, 'expected data')
+      t.ok(index >= 0, 'expected data')
 
       svc.destroy({}, (err, result) => {
         t.error(err)
@@ -184,14 +184,14 @@ test('read a specific policy', (t) => {
       t.ok(result, 'result should be supplied')
 
       var expectedResult = {
-            id: 1,
-            version: '0.1',
-            name: 'Administrator',
-            statements: [{
-              'Effect': 'Allow',
-              'Action': ['iam:ChangePassword'],
-            }]
-          }
+        id: 1,
+        version: '0.1',
+        name: 'Administrator',
+        statements: [{
+          'Effect': 'Allow',
+          'Action': ['iam:ChangePassword']
+        }]
+      }
       t.ok(_.isMatch(result, expectedResult), 'expected data')
 
       svc.destroy({}, (err, result) => {

@@ -61,14 +61,14 @@ module.exports = function (done) {
     db.shutdown(args, cb)
   }
 
-  function listAllPolicies(args, cb) {
+  function listAllPolicies (args, cb) {
     policyOps.listAllPolicies(db.pool, args, function (err, result) {
       if (err) return cb(err)
       return cb(null, result)
     })
   }
 
-  function listAllPoliciesDetails(args, cb) {
+  function listAllPoliciesDetails (args, cb) {
     policyOps.listAllPoliciesDetails(db.pool, args, function (err, result) {
       if (err) return cb(err)
       return cb(null, result)

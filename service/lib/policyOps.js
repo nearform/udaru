@@ -1,11 +1,9 @@
 'use strict'
 
-const dbUtil = require('./dbUtil')
-
 /*
 * no query args (but may e.g. sort in future)
 */
-function listAllPolicies(pool, args, cb) {
+function listAllPolicies (pool, args, cb) {
   pool.connect(function (err, client, done) {
     if (err) return cb(err)
     client.query('SELECT  id, version, name from policies', function (err, result) {
@@ -20,7 +18,7 @@ function listAllPolicies(pool, args, cb) {
 * gathers all policy list including the policy statements
 * no query args (but may e.g. sort in future)
 */
-function listAllPoliciesDetails(pool, args, cb) {
+function listAllPoliciesDetails (pool, args, cb) {
   pool.connect(function (err, client, done) {
     if (err) return cb(err)
     client.query('SELECT  id, version, name, statements from policies', function (err, result) {
@@ -43,7 +41,7 @@ function readPolicyById (pool, args, cb) {
     client.query('SELECT id, version, name, statements from policies WHERE id = $1', args, function (err, result) {
       done() // release the client back to the pool
       if (err) return cb(err)
-      if (result.rows.length == 0) return cb(null, {})
+      if (result.rows.length === 0) return cb(null, {})
 
       var policy = result.rows[0]
       return cb(null, {id: policy.id, version: policy.version, name: policy.name, statements: policy.statements.Statement})
