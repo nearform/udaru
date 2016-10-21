@@ -11,7 +11,7 @@ var plugins = [
 
 module.exports = {
   entry: [
-    'webpack-dev-server/client?http://localhost:8080',
+    'webpack-dev-server/client?http://localhost:3000',
     'webpack/hot/only-dev-server',
     path.join(__dirname, 'src/index.dev.jsx')
   ],
@@ -27,13 +27,19 @@ module.exports = {
     }, {
       test: /\.css$/,
       loader: 'style-loader!css-loader!postcss-loader',
-      exclude: [/node_module/]
+      exclude: [/node_modules/]
     }, {
       test: /\.jpg$/,
       loader: 'file-loader'
     }, {
       test: /\.png$/,
       loader: 'file-loader?name=images/[name].[ext]'
+    }, {
+      test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+      loader: 'url-loader?limit=10000&mimetype=application/font-woff'
+    }, {
+      test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+      loader: 'file-loader'
     }]
   },
 
@@ -58,7 +64,7 @@ module.exports = {
     hot: true,
     historyApiFallback: true,
     host: '0.0.0.0',
-    port: 8080
+    port: 3000
   },
 
   plugins: plugins

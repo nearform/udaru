@@ -1,0 +1,38 @@
+@import '~font-awesome/scss/_variables.scss';
+
+@mixin fa-icon() {
+  display: inline-block;
+  font: normal normal normal #{$fa-font-size-base}/#{$fa-line-height-base} FontAwesome; // shortening font declaration
+  font-size: inherit; // can't have font-size inherit on line above, so need to override
+  text-rendering: auto; // optimizelegibility throws things off #1094
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@mixin fa-icon-before($icon, $left-offset: 0, $font-size: $fa-font-size-base) {
+  position: relative;
+
+  &::before {
+    @include fa-icon();
+
+    position: absolute;
+    left: $left-offset;
+    font-size: $font-size;
+    line-height: 20px;
+    content: $icon;
+  }
+}
+
+@mixin fa-icon-after($icon, $right-offset: 0, $font-size: $fa-font-size-base) {
+  position: relative;
+
+  &::after {
+    @include fa-icon();
+
+    position: absolute;
+    right: $right-offset;
+    font-size: $font-size;
+    line-height: 20px;
+    content: $icon;
+  }
+}

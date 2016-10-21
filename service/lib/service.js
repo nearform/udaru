@@ -68,6 +68,20 @@ module.exports = function (done) {
     })
   }
 
+  function listAllPoliciesDetails(args, cb) {
+    policyOps.listAllPoliciesDetails(db.pool, args, function (err, result) {
+      if (err) return cb(err)
+      return cb(null, result)
+    })
+  }
+
+  function readPolicyById (args, cb) {
+    policyOps.readPolicyById(db.pool, args, function (err, result) {
+      if (err) return cb(err)
+      return cb(null, result)
+    })
+  }
+
   // simulate resource initialization.
   // give ourselves plenty of time,
   // as less may give intermittent ECONNREFUSED
@@ -78,8 +92,10 @@ module.exports = function (done) {
       deleteUserById: deleteUserById,
       listAllUsers: listAllUsers,
       listAllPolicies: listAllPolicies,
+      listAllPoliciesDetails: listAllPoliciesDetails,
       listOrgUsers: listOrgUsers,
       readUserById: readUserById,
+      readPolicyById: readPolicyById,
       updateUser: updateUser,
       destroy: shutdown
     })

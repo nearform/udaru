@@ -1,6 +1,10 @@
 import React, { Component } from 'react'
 
 class FilterInput extends Component {
+  static propTypes = {
+    onFilterChange: React.PropTypes.func.isRequired
+  }
+
   constructor (props) {
     super(props)
 
@@ -16,17 +20,16 @@ class FilterInput extends Component {
 
   render () {
     return (
-      <input type='text'
-        onChange={this.onInputChange}
-        placeholder='Filter Users'
-        className='filterlist--filter-input'
-      />
+      <div className='filterlist--filter-wrapper'>
+        <i className='fa fa-search filterlist--filter-icon'></i>
+        <input type='text'
+          onChange={this.onInputChange}
+          placeholder={'Search ' + this.props.which + '...'}
+          className='filterlist--filter-input'
+        />
+      </div>
     )
   }
-}
-
-FilterInput.propTypes = {
-  onFilterChange: React.PropTypes.func.isRequired
 }
 
 export default FilterInput
