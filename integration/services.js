@@ -26,19 +26,38 @@ module.exports = function (server) {
     method: 'GET',
     path: '/authorization/user/{id}',
     handler: function (request, reply) {
-      handleRoleCommandType('authorization', 'read', 'user', [request.params.id], request, reply)
+      mu.dispatch({role: 'authorization', cmd: 'read', type: 'user', params: [request.params.id]}, function (err, res) {
+        console.log(err, res)
+        if (err && err.message === 'not found') return reply(err.message).code(410)
+        if (err) return reply(err.message).code(500)
+        return reply(res)
+      })
     }
   })
   // NOTE: create method currently takes an ID, but later on that will be auto-assigned
   // curl http://localhost:8000/authorization/user -X POST -H 'Content-Type: application/json' -d '{"id":"123","name":"Violet Beauregarde","org_id":"1"}'
+  // server.route({
+  //   method: 'POST',
+  //   path: '/authorization/user',
+  //   handler: function (request, reply) {
+  //     // console.log("rawPayload: " + request.rawPayload)
+  //     if (request.payload.id && request.payload.name) {
+  //       console.log('Received POST, name= ' + request.payload.name + ', id=' + request.payload.id)
+  //       handleRoleCommandType('authorization', 'create', 'user', [request.payload.id, request.payload.name, request.payload.org_id], request, reply)
+  //     }
+  //   }
+  // })
+
+  // curl http://localhost:8000/authorization/user -X POST -H 'Content-Type: application/json' -d '{"name":"Violet Beauregarde"}'
   server.route({
     method: 'POST',
     path: '/authorization/user',
     handler: function (request, reply) {
       // console.log("rawPayload: " + request.rawPayload)
-      if (request.payload.id && request.payload.name) {
-        console.log('Received POST, name= ' + request.payload.name + ', id=' + request.payload.id)
-        handleRoleCommandType('authorization', 'create', 'user', [request.payload.id, request.payload.name, request.payload.org_id], request, reply)
+      if (request.payload.name) {
+        console.log('Received POST, name= ' + request.payload.name)
+        // hardcode the org_id for now (as not yet fully implemented)
+        handleRoleCommandType('authorization', 'create', 'user', [request.payload.name, 'WONKA'], request, reply)
       }
     }
   })

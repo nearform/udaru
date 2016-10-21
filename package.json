@@ -4,7 +4,7 @@
   "description": "Full stack authorization component",
   "main": "integration/authorizationServer.js",
   "scripts": {
-    "lint": "jshint **/*.js",
+    "lint": "./node_modules/.bin/spacey-standard \"service/**/*.js\" \"test/**/*.js\"",
     "pg:build": "docker-compose build",
     "pg:start": "docker-compose up",
     "pg:stop": "docker-compose down",
@@ -32,6 +32,7 @@
   "devDependencies": {
     "lodash": "^4.16.4",
     "postgrator": "^2.8.2",
+    "spacey-standard": "^3.0.0",
     "tap": "^7.1.2"
   }
 }
