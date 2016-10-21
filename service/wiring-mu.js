@@ -41,7 +41,11 @@ module.exports = function (options) {
       })
       mu.define({role: 'authorization', cmd: 'read', type: 'user'}, function (args, cb) {
         svc.readUserById(args.pattern.params, function (err, result) {
-          if (err) return cb(err, null)
+          // console.log("Wiring error:", err)
+          // console.log("Wiring result:", result)
+
+          // temporarily using err.message instead of err, due to mu bug
+          if (err) return cb(err.message, null)
           return cb(null, result)
         })
       })

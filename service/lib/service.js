@@ -1,3 +1,4 @@
+'use strict'
 var dbConn = require('./dbConn')
 var userOps = require('./userOps')
 var policyOps = require('./policyOps')
@@ -23,6 +24,13 @@ module.exports = function (done) {
 
   function createUser (args, cb) {
     userOps.createUser(db.pool, args, function (err, result) {
+      if (err) return cb(err)
+      return cb(null, result)
+    })
+  }
+
+  function createUserById (args, cb) {
+    userOps.createUserById(db.pool, args, function (err, result) {
       if (err) return cb(err)
       return cb(null, result)
     })
@@ -80,6 +88,7 @@ module.exports = function (done) {
   setTimeout(function () {
     done({
       createUser: createUser,
+      createUserById: createUserById,
       deleteUserById: deleteUserById,
       listAllUsers: listAllUsers,
       listAllPolicies: listAllPolicies,

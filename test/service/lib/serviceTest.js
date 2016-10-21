@@ -43,20 +43,30 @@ test('list of org users', (t) => {
   })
 })
 
-test('create a user', (t) => {
-  t.plan(2)
+test('create a user by ID', (t) => {
+  t.plan(4)
   service((svc) => {
-    svc.createUser([99, 'Mike Teavee', 'WONKA'], (err, result) => {
+    svc.createUserById([99, 'Mike Teavee', 'WONKA'], (err, result) => {
       t.error(err, 'should be no error creating')
       t.ok(result, 'result should be supplied')
-/*      svc.readUserById([99], (err, result) => {
-        t.error(err, 'should be no error reading back after creation')
-        t.ok(result, 'result should be supplied')
-        t.deepEqual(result, [{ id: 99, name: 'Mike Teavee' }], 'data should be as expected')
-        svc.destroy({}, (err, result) => {
-          t.error(err)
-        })
-      })*/
+      t.deepEqual(result, { id: 99, name: 'Mike Teavee', teams: [], policies: [] }, 'data should be as expected')
+      svc.destroy({}, (err, result) => {
+        t.error(err)
+      })
+    })
+  })
+})
+
+test('create a user', (t) => {
+  t.plan(4)
+  service((svc) => {
+    svc.createUser(['Grandma Josephine', 'WONKA'], (err, result) => {
+      t.error(err, 'should be no error creating')
+      t.ok(result, 'result should be supplied')
+      t.deepEqual(result.name, 'Grandma Josephine', 'data should be as expected')
+      svc.destroy({}, (err, result) => {
+        t.error(err)
+      })
     })
   })
 })
@@ -80,6 +90,21 @@ test('read a specific user', (t) => {
     svc.readUserById([1], (err, result) => {
       t.error(err, 'should be no error')
       t.ok(result, 'result should be supplied')
+      // t.deepEqual(result, [{ id: 99, name: 'Augustus Gloop' }], 'data should be as expected')
+      svc.destroy({}, (err, result) => {
+        t.error(err)
+      })
+    })
+  })
+})
+
+test('read a specific user that does not exist', (t) => {
+  t.plan(3)
+  service((svc) => {
+    svc.readUserById([987654321], (err, result) => {
+      // console.log(err)
+      t.equal(err.message, 'not found')
+      t.notOk(result, 'result should not be supplied')
       // t.deepEqual(result, [{ id: 99, name: 'Augustus Gloop' }], 'data should be as expected')
       svc.destroy({}, (err, result) => {
         t.error(err)

@@ -1,8 +1,8 @@
 'use strict'
-var dbUtil = require('./dbUtil')
+const dbUtil = require('./dbUtil')
 
 //
-// TODO: take the org_id from the administrator credentials
+// TODO: take the org_id from the administrator credentials (or superadmin role?)
 //
 // TODO: check admin privs for permission
 //
@@ -39,17 +39,38 @@ function listOrgUsers (pool, args, cb) {
 }
 
 /*
-* $1 = id, $2 = name, $3 = org_id
-* (for now, allow passing in of ID for test purposes)
+* $1 = name, $2 = org_id
 */
 function createUser (pool, args, cb) {
+  pool.connect(function (err, client, done) {
+    if (err) return cb(err)
+    client.query('INSERT INTO users (id, name, org_id) VALUES (DEFAULT, $1, $2) RETURNING id', args, function (err, result) {
+      done() // release the client back to the pool
+      if (err) return cb(err)
+      // console.log('create user result: ', result)
+      readUserById(pool, [result.rows[0].id], function (err, result) {
+        if (err) return cb(err)
+        return cb(null, result)
+      })
+    })
+  })
+}
+
+/*
+* $1 = id, $2 = name, $3 = org_id
+* (allows passing in of ID for test purposes)
+*/
+function createUserById (pool, args, cb) {
   pool.connect(function (err, client, done) {
     if (err) return cb(err)
     client.query('INSERT INTO users (id, name, org_id) VALUES ($1, $2, $3)', args, function (err, result) {
       done() // release the client back to the pool
       if (err) return cb(err)
       // console.log('create user result: ', result)
-      return cb(null, result.rows)
+      readUserById(pool, [args[0]], function (err, result) {
+        if (err) return cb(err)
+        return cb(null, result)
+      })
     })
   })
 }
@@ -59,19 +80,21 @@ function createUser (pool, args, cb) {
 */
 function readUserById (pool, args, cb) {
   var user = {
-    'id': args[0],
-    'name': '',
+    'id': null,
+    'name': null,
     teams: [],
     policies: []
   }
   pool.connect(function (err, client, done) {
     if (err) return cb(err)
     client.query('SELECT id, name from users WHERE id = $1', args, function (err, result) {
-      if (err) {
+      if (err || (result.rowCount < 1)) {
         done()
-        return cb(err)
+        return cb(err || new Error('not found'))
       }
-      if (result.rows[0]) user.name = result.rows[0].name
+      user.id = result.rows[0].id
+      user.name = result.rows[0].name
+
       client.query('SELECT teams.id, teams.name from team_members mem, teams WHERE mem.user_id = $1 and mem.team_id = teams.id', args, function (err, result) {
         if (err) {
           done()
@@ -140,6 +163,7 @@ function deleteUserById (pool, args, cb) {
 
 module.exports = {
   createUser: createUser,
+  createUserById: createUserById,
   deleteUserById: deleteUserById,
   listAllUsers: listAllUsers,
   listOrgUsers: listOrgUsers,

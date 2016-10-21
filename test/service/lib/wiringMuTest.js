@@ -31,7 +31,7 @@ test('authorization:user:create', (t) => {
   var mu = Mu()
   mu.outbound('*', tcp.client(opts))
   wiring.start(() => {
-    mu.dispatch({role: 'authorization', cmd: 'create', type: 'user', params: [99, 'Mike Teavee', 'WONKA']}, (err, result) => {
+    mu.dispatch({role: 'authorization', cmd: 'create', type: 'user', params: ['Mike Teavee', 'WONKA']}, (err, result) => {
       t.error(err)
       t.ok(result, 'result should be supplied')
       mu.dispatch({role: 'authorization', cmd: 'done'}, (err, result) => {
@@ -48,9 +48,31 @@ test('authorization:user:read', (t) => {
   var mu = Mu()
   mu.outbound('*', tcp.client(opts))
   wiring.start(() => {
-    mu.dispatch({role: 'authorization', cmd: 'read', type: 'user', params: [99]}, (err, result) => {
+    mu.dispatch({role: 'authorization', cmd: 'read', type: 'user', params: [1]}, (err, result) => {
       t.error(err)
       t.ok(result, 'result should be supplied')
+      mu.dispatch({role: 'authorization', cmd: 'done'}, (err, result) => {
+        t.error(err)
+        wiring.stop()
+        mu.tearDown()
+      })
+    })
+  })
+})
+
+test('authorization:user:read non-existent', (t) => {
+  t.plan(2)  // 3 after bug fix
+  var mu = Mu()
+  mu.outbound('*', tcp.client(opts))
+  wiring.start(() => {
+    mu.dispatch({role: 'authorization', cmd: 'read', type: 'user', params: [98765432]}, (err, result) => {
+      // console.log("error:", err)
+      // console.log("result:", result)
+// temporarily just use err, until mu bug fixed
+      t.equal(err, 'not found')
+      // t.equal(err.message, 'not found')
+      // temporarily can't check this, until mu bug fixed
+      // t.notOk(result, 'result should not be supplied')
       mu.dispatch({role: 'authorization', cmd: 'done'}, (err, result) => {
         t.error(err)
         wiring.stop()
