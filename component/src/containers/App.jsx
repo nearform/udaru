@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 
 import { Link } from 'react-router'
+import '../images/logo.png'
 
 export default class App extends Component {
   constructor (props) {
@@ -15,7 +16,9 @@ export default class App extends Component {
     return (
       <div>
         <header className='header'>
-          <div className='header--logo'></div>
+          <div className='header--logo'>
+            <img src='../images/logo.png' style={{width: '100%' /* Temp */}} />
+          </div>
           <div className='header--bar'>
             <div className='header--search-bar'>
 
@@ -23,13 +26,13 @@ export default class App extends Component {
             <div className='header--nav-bar'>
               <ul className='header--nav-list'>
                 <li className='header--nav-item'>
-                  <Link to='/users'>Users</Link>
+                  <Link className='header--nav-link' activeClassName='header--nav-link-active' to='/users'>Users</Link>
                 </li>
                 <li className='header--nav-item'>
-                  <Link to='/teams'>Teams</Link>
+                  <Link className='header--nav-link' activeClassName='header--nav-link-active' to='/teams'>Teams</Link>
                 </li>
                 <li className='header--nav-item'>
-                  <Link to='/policies'>Policies</Link>
+                  <Link className='header--nav-link' activeClassName='header--nav-link-active' to='/policies'>Policies</Link>
                 </li>
               </ul>
             </div>
