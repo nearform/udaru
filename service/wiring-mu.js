@@ -63,6 +63,12 @@ module.exports = function (options) {
           return cb(null, result)
         })
       })
+      mu.define({role: 'authorization', cmd: 'read', type: 'policy'}, function (args, cb) {
+        svc.readPolicyById(args.pattern.params, function (err, result) {
+          if (err) return cb(err, null)
+          return cb(null, result)
+        })
+      })
 
       mu.define({role: 'authorization', cmd: 'done'}, svc.destroy)
       mu.inbound('*', tcp.server(options))
