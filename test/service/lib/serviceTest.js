@@ -102,7 +102,7 @@ test('read a specific user that does not exist', (t) => {
   t.plan(3)
   service((svc) => {
     svc.readUserById([987654321], (err, result) => {
-      console.log(err)
+      // console.log(err)
       t.equal(err.message, 'not found')
       t.notOk(result, 'result should not be supplied')
       // t.deepEqual(result, [{ id: 99, name: 'Augustus Gloop' }], 'data should be as expected')

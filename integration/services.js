@@ -28,8 +28,8 @@ module.exports = function (server) {
     handler: function (request, reply) {
       mu.dispatch({role: 'authorization', cmd: 'read', type: 'user', params: [request.params.id]}, function (err, res) {
         console.log(err, res)
-        if (err && err.message === 'not found') return reply(err.message).code(410)
-        if (err) return reply(err.message).code(500)
+        if (err && err === 'not found') return reply(err).code(410)
+        if (err) return reply(err).code(500)
         return reply(res)
       })
     }
