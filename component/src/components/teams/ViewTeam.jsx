@@ -34,5 +34,5 @@ ViewTeam.propTypes = {
 }
 
 export default reduxForm({
-  form: 'TeamForm',
+  form: 'TeamForm'
 })(ViewTeam)

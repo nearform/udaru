@@ -7,7 +7,7 @@ import Col from 'muicss/lib/react/col'
 const renderStatements = (statements) => {
   if (!statements || !Array.isArray(statements)) return null
 
-  return statements.map(({ Effect, Action: Actions, Resource: Resources}, index) => (
+  return statements.map(({ Effect, Action: Actions, Resource: Resources }, index) => (
     <Container key={index} className='view-policy--statement'>
       <Row className='view-policy--row'>
         <Col xs='12' sm='2'>
@@ -65,7 +65,7 @@ const ViewPolicy = ({ policy }) => (
 
     <Row>
       <Col xs='12' className='view-policy--statements'>
-        { renderStatements(policy.Statement) }
+        {renderStatements(policy.Statement)}
       </Col>
     </Row>
   </Container>

@@ -2,7 +2,8 @@ import React, { Component } from 'react'
 
 class FilterInput extends Component {
   static propTypes = {
-    onFilterChange: React.PropTypes.func.isRequired
+    onFilterChange: React.PropTypes.func.isRequired,
+    which: React.PropTypes.string.isRequired
   }
 
   constructor (props) {

@@ -2,74 +2,81 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { Field, FieldArray, reduxForm, formValueSelector } from 'redux-form'
 
-let EditUser = ({ onSubmit, handleSubmit, pristine, teams, policies }) => {
-  const renderTeams = ({ fields }) => (
-    <div>
-      {fields.map((member, i) =>
-        <span key={i} className='attached--item-display'>
-          <Field type='text' component='text' name='team'>{teams[i].name}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</Field>
-          <button onClick={() => fields.remove(i)}>&#10006;</button>
-        </span>
-      )}
-    </div>
-  )
+import Attachments from './Attachments'
 
-  // reuse the team code above once it's been properly refactored
-  const renderPolicies = ({ fields }) => (
-    <div>
-      {fields.map((member, i) =>
-        <span key={i} className='attached--item-display'>
-          <Field type='text' component='text' name='policy'>{policies[i].name}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</Field>
-          <button onClick={() => fields.remove(i)}>&#10006;</button>
-        </span>
-      )}
-    </div>
-  )
-
-  // <Field type='button' component='button' name='apolicy' key={i} onClick={() => fields.push(newpol)}>{policies[i].name}</Field>
-
+let EditUser = (props) => {
   return (
-    <div>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div className=''>
-          <label htmlFor='name'>Name: </label>
-          <Field name='name' component='input' type='text' placeholder='Name' className='filterlist--filter-input' />
+    <div className=''>
+
+      <div className='user--namecontainer user--flex'>
+        <label htmlFor='name' className='user--flex-left'>Name: </label>
+        <div className='user--flex-mid'>
+          <Field name='name'
+            component='input'
+            type='text'
+            placeholder='Name'
+            className='user--name-input'
+          />
         </div>
-        <hr />
-        <div className=''>
-          <label htmlFor='teamsearch'>Teams: </label>
-          <Field name='teamsearch' component='input' type='text' placeholder='PLACEHOLDER' disabled />
-        </div>
-        <br />
-        <label htmlFor='teams'>Teams: </label>
-        <div className='attached--items'>
-          <FieldArray name='teams' component={renderTeams} />
-        </div>
-        <br />
-        <hr />
-        <div className=''>
-          <label htmlFor='policysearch'>Policies: </label>
-          <Field name='policysearch' component='input' type='text' placeholder='PLACEHOLDER' disabled />
-        </div>
-        <br />
-        <label htmlFor='policies'>Policies: </label>
-        <div className='attached--items'>
-          <FieldArray name='policies' component={renderPolicies} />
-        </div>
-        <hr hidden={pristine} />
-        <button type='submit' hidden={pristine}>Save</button>
-        <br />
-      </form>
+        <div className='user--flex-right' />
+      </div>
+
+      <div className='user--teamcontainer'>
+        <FieldArray name='teams'
+          component={Attachments}
+          fieldName='teams'
+          items={props.teams}
+          available={[]}
+          title='Teams'
+          selected={props.selectedTeam}
+          selector='teamSelector'
+          hide={props.hideTeams}
+          toggle={props.toggle}
+        />
+      </div>
+
+      <div className='user--policycontainer'>
+        <FieldArray name='policies'
+          component={Attachments}
+          fieldName='policies'
+          items={props.policies}
+          available={props.policyList}
+          title='Policies'
+          selected={props.selectedPolicy}
+          selector='policySelector'
+          hide={props.hidePolicies}
+          toggle={props.toggle}
+        />
+      </div>
+
+      <div className='user--savecontainer'>
+        <Field name='submitForm'
+          className='user--applybutton'
+          hidden={props.pristine}
+          component='button'
+          type='button'
+          onClick={props.handleSubmit(props.saveUser)}>
+          Save
+        </Field>
+      </div>
+
+      <br />
     </div>
   )
 }
 
 EditUser.propTypes = {
-  onSubmit: React.PropTypes.func.isRequired,
-  handleSubmit: React.PropTypes.func.isRequired,
-  pristine: React.PropTypes.bool.isRequired,
+  selectedTeam: React.PropTypes.string,
   teams: React.PropTypes.array.isRequired,
-  policies: React.PropTypes.array.isRequired
+  hideTeams: React.PropTypes.bool.isRequired,
+  toggle: React.PropTypes.func.isRequired,
+  policies: React.PropTypes.array.isRequired,
+  policyList: React.PropTypes.array.isRequired,
+  selectedPolicy: React.PropTypes.string,
+  hidePolicies: React.PropTypes.bool.isRequired,
+  pristine: React.PropTypes.bool.isRequired,
+  handleSubmit: React.PropTypes.func.isRequired,
+  saveUser: React.PropTypes.func.isRequired
 }
 
 // const validate = values => {
@@ -84,11 +91,11 @@ const selector = formValueSelector('EditUser')
 
 EditUser = connect(
   state => {
-    const teams = selector(state, 'teams')
-    const policies = selector(state, 'policies')
     return {
-      teams,
-      policies
+      teams: selector(state, 'teams'),
+      policies: selector(state, 'policies'),
+      selectedTeam: selector(state, 'teamSelector'),
+      selectedPolicy: selector(state, 'policySelector')
     }
   }
 )(EditUser)
