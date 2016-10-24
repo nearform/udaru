@@ -12,14 +12,16 @@ import { callApi } from '../middleware/api'
 import List from '../components/generic/list'
 import EditUser from '../components/users/EditUser'
 
-@connect(({ users }) => ({
-  _users: users.list
+@connect(({ users, policies }) => ({
+  _users: users.list,
+  _policies: policies.list
 }))
 @resolve('users', (props) => {
-  return callApi('/authorization/users').then(data => data.result)
+  // return callApi('/authorization/users').then(data => data)
+  return callApi('/authorization/users').then(data => data)
 })
 @resolve('policies', (props) => {
-  return callApi('/authorization/policies').then(data => data.result)
+  return callApi('/authorization/policies').then(data => data)
 })
 export default class Users extends Component {
   static propTypes = {
@@ -32,13 +34,10 @@ export default class Users extends Component {
 
     this.state = {
       selected: {},
-      hideTeams: true,
-      hidePolicies: true
     }
 
     this.edit = ::this.edit
     this.save = ::this.save
-    this.toggle = ::this.toggle
   }
 
   save (data) {
@@ -60,11 +59,6 @@ export default class Users extends Component {
     })
   }
 
-  toggle (which) {
-    if (which === 'teams') this.setState({ hideTeams: !this.state.hideTeams })
-    else this.setState({ hidePolicies: !this.state.hidePolicies })
-  }
-
   render () {
     const { user } = this.state
 
@@ -82,9 +76,6 @@ export default class Users extends Component {
             {user && <EditUser saveUser={this.save}
               initialValues={user}
               policyList={this.props.policies}
-              hideTeams={this.state.hideTeams}
-              hidePolicies={this.state.hidePolicies}
-              toggle={this.toggle}
             />}
           </div>
         </Row>

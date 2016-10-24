@@ -41,28 +41,23 @@ const RenderItems = (props) => {
         </Field>
 
         <div className='user--flex-right'>
-          <Field name='attach'
-            component='button'
+          <button name='attach'
             onClick={attach}
+            type='button'
             className='user--applybutton'
             hidden={available.length === 0}>
             Attach
-          </Field>
+          </button>
         </div>
       </div>
 
       <div hidden={items.length === 0}
         className='user--showhidecontainer'
         onClick={toggleAttachments}>
-        <Field name='showhide'
-          component='text'
-          className='user--showhide-text'>
+        <span className='user--showhide-text'>
           {hide ? 'Show' : 'Hide'} {title}
-          <Field name='caret'
-            component='text'
-            className={hide ? 'user--caret-right' : 'user--caret-down'}
-          />
-        </Field>
+        </span>
+        <i className={hide ? 'user--caret-right' : 'user--caret-down'} />
       </div>
 
       <div className='user--attachmentcontainer' hidden={hide}>
@@ -87,6 +82,22 @@ const RenderItems = (props) => {
     </div>
   )
 }
+
+// <button name='attach'
+//   onClick={attach}
+//   type='button'
+//   className='user--applybutton'
+//   hidden={available.length === 0}>
+//   Attach
+// </button>
+
+// <Field name='attach'
+//   component='button'
+//   onClick={attach}
+//   className='user--applybutton'
+//   hidden={available.length === 0}>
+//   Attach
+// </Field>
 
 RenderItems.propTypes = {
   fields: React.PropTypes.object.isRequired,
