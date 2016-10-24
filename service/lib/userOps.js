@@ -16,7 +16,7 @@ const dbUtil = require('./dbUtil')
 function listAllUsers (pool, args, cb) {
   pool.connect(function (err, client, done) {
     if (err) return cb(err)
-    client.query('SELECT  * from users', function (err, result) {
+    client.query('SELECT * from users ORDER BY name', function (err, result) {
       done() // release the client back to the pool
       if (err) return cb(err)
       return cb(null, result.rows)
@@ -30,7 +30,7 @@ function listAllUsers (pool, args, cb) {
 function listOrgUsers (pool, args, cb) {
   pool.connect(function (err, client, done) {
     if (err) return cb(err)
-    client.query('SELECT  * from users WHERE org_id = $1', args, function (err, result) {
+    client.query('SELECT  * from users WHERE org_id = $1 ORDER BY name', args, function (err, result) {
       done() // release the client back to the pool
       if (err) return cb(err)
       return cb(null, result.rows)
