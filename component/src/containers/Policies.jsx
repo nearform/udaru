@@ -16,7 +16,7 @@ import ViewPolicy from '../components/policies/ViewPolicy'
   _policies: policies.list
 }))
 @resolve('policies', (props) => {
-  return callApi('/authorization/policies').then(data => data.result)
+  return callApi('/authorization/policies').then(data => data)
 })
 export default class Policies extends Component {
   static propTypes = {

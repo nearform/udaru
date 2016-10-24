@@ -12,24 +12,28 @@ import { callApi } from '../middleware/api'
 import List from '../components/generic/list'
 import EditUser from '../components/users/EditUser'
 
-@connect(({ users }) => ({
-  _users: users.list
+@connect(({ users, policies }) => ({
+  _users: users.list,
+  _policies: policies.list
 }))
 @resolve('users', (props) => {
-  return Promise.resolve(callApi('/authorization/users').then((data) => {
-    return data.result
-  }))
+  // return callApi('/authorization/users').then(data => data)
+  return callApi('/authorization/users').then(data => data)
+})
+@resolve('policies', (props) => {
+  return callApi('/authorization/policies').then(data => data)
 })
 export default class Users extends Component {
   static propTypes = {
-    users: React.PropTypes.array.isRequired
+    users: React.PropTypes.array.isRequired,
+    policies: React.PropTypes.array.isRequired
   }
 
   constructor (props) {
     super(props)
 
     this.state = {
-      selected: {}
+      selected: {},
     }
 
     this.edit = ::this.edit
@@ -48,12 +52,10 @@ export default class Users extends Component {
   }
 
   edit (selected) {
-    callApi('/authorization/user/' + selected.id).then(data => {
-      if (!data.err) {
-        this.setState({
-          user: data.result
-        })
-      }
+    callApi('/authorization/user/' + selected.id).then(user => {
+      this.setState({
+        user
+      })
     })
   }
 
@@ -70,9 +72,12 @@ export default class Users extends Component {
               onItemSelect={this.edit}
             />
           </Col>
-          <Col md='10' className='mainpanel'>
-            {user && <EditUser onSubmit={this.save} initialValues={user} />}
-          </Col>
+          <div className='user'>
+            {user && <EditUser saveUser={this.save}
+              initialValues={user}
+              policyList={this.props.policies}
+            />}
+          </div>
         </Row>
       </Container>
     )
