@@ -27,7 +27,7 @@ test('list of all teams', (t) => {
   })
 })
 
-test('list of org users', (t) => {
+test('list of org teams', (t) => {
   t.plan(3)
   service((svc) => {
     svc.listOrgTeams([1], (err, result) => {

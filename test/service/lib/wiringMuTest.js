@@ -17,6 +17,7 @@ test('authorization:users:list (org)', (t) => {
     mu.dispatch({role: 'authorization', cmd: 'list', type: 'users', params: [3]}, (err, result) => {
       t.error(err)
       t.ok(result, 'result should be supplied')
+      // console.log(result)
       mu.dispatch({role: 'authorization', cmd: 'done'}, (err, result) => {
         t.error(err)
         wiring.stop()

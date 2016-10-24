@@ -1,61 +1,38 @@
 'use strict'
-var dbConn = require('./dbConn')
-var userOps = require('./userOps')
-var teamOps = require('./teamOps')
-var policyOps = require('./policyOps')
+const dbConn = require('./dbConn')
+const userOps = require('./userOps')
+const teamOps = require('./teamOps')
+const policyOps = require('./policyOps')
 
 module.exports = function (done) {
   var db = dbConn.create()
 
-// TODO consider using bind functions instead of this repetitive boilerplate
-
   function listAllUsers (args, cb) {
-    userOps.listAllUsers(db.pool, args, function (err, result) {
-      if (err) return cb(err)
-      return cb(null, result)
-    })
+    userOps.listAllUsers(db.pool, args, cb)
   }
 
   function listOrgUsers (args, cb) {
-    userOps.listOrgUsers(db.pool, args, function (err, result) {
-      if (err) return cb(err)
-      return cb(null, result)
-    })
+    userOps.listOrgUsers(db.pool, args, cb)
   }
 
   function createUser (args, cb) {
-    userOps.createUser(db.pool, args, function (err, result) {
-      if (err) return cb(err)
-      return cb(null, result)
-    })
+    userOps.createUser(db.pool, args, cb)
   }
 
   function createUserById (args, cb) {
-    userOps.createUserById(db.pool, args, function (err, result) {
-      if (err) return cb(err)
-      return cb(null, result)
-    })
+    userOps.createUserById(db.pool, args, cb)
   }
 
   function readUserById (args, cb) {
-    userOps.readUserById(db.pool, args, function (err, result) {
-      if (err) return cb(err)
-      return cb(null, result)
-    })
+    userOps.readUserById(db.pool, args, cb)
   }
 
   function updateUser (args, cb) {
-    userOps.updateUser(db.pool, args, function (err, result) {
-      if (err) return cb(err)
-      return cb(null, result)
-    })
+    userOps.updateUser(db.pool, args, cb)
   }
 
   function deleteUserById (args, cb) {
-    userOps.deleteUserById(db.pool, args, function (err, result) {
-      if (err) return cb(err)
-      return cb(null, result)
-    })
+    userOps.deleteUserById(db.pool, args, cb)
   }
 
   function shutdown (args, cb) {
@@ -63,38 +40,23 @@ module.exports = function (done) {
   }
 
   function listAllPolicies (args, cb) {
-    policyOps.listAllPolicies(db.pool, args, function (err, result) {
-      if (err) return cb(err)
-      return cb(null, result)
-    })
+    policyOps.listAllPolicies(db.pool, args, cb)
   }
 
   function listAllPoliciesDetails (args, cb) {
-    policyOps.listAllPoliciesDetails(db.pool, args, function (err, result) {
-      if (err) return cb(err)
-      return cb(null, result)
-    })
+    policyOps.listAllPoliciesDetails(db.pool, args, cb)
   }
 
   function readPolicyById (args, cb) {
-    policyOps.readPolicyById(db.pool, args, function (err, result) {
-      if (err) return cb(err)
-      return cb(null, result)
-    })
+    policyOps.readPolicyById(db.pool, args, cb)
   }
 
   function listAllTeams (args, cb) {
-    teamOps.listAllTeams(db.pool, args, function (err, result) {
-      if (err) return cb(err)
-      return cb(null, result)
-    })
+    teamOps.listAllTeams(db.pool, args, cb)
   }
 
   function listOrgTeams (args, cb) {
-    teamOps.listOrgTeams(db.pool, args, function (err, result) {
-      if (err) return cb(err)
-      return cb(null, result)
-    })
+    teamOps.listOrgTeams(db.pool, args, cb)
   }
 
   // simulate resource initialization.

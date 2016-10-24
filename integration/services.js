@@ -7,7 +7,8 @@ mu.outbound({role: 'authorization'}, tcp.client({port: process.env.SERVICE_PORT 
 
 function handleRoleCommandType (role, command, type, params, request, reply) {
   mu.dispatch({role: role, cmd: command, type: type, params: params}, function (err, res) {
-    reply({result: err ? 'error' : res, err: err})
+    if (err) return reply(err).code(500)
+    return reply(res)
   })
 }
 
@@ -21,32 +22,20 @@ module.exports = function (server) {
       handleRoleCommandType('authorization', 'list', 'users', null, request, reply)
     }
   })
+
   // curl http://localhost:8000/authorization/user/123
   server.route({
     method: 'GET',
     path: '/authorization/user/{id}',
     handler: function (request, reply) {
       mu.dispatch({role: 'authorization', cmd: 'read', type: 'user', params: [request.params.id]}, function (err, res) {
-        console.log(err, res)
+        // console.log(err, res)
         if (err && err === 'not found') return reply(err).code(410)
         if (err) return reply(err).code(500)
         return reply(res)
       })
     }
   })
-  // NOTE: create method currently takes an ID, but later on that will be auto-assigned
-  // curl http://localhost:8000/authorization/user -X POST -H 'Content-Type: application/json' -d '{"id":"123","name":"Violet Beauregarde","org_id":"1"}'
-  // server.route({
-  //   method: 'POST',
-  //   path: '/authorization/user',
-  //   handler: function (request, reply) {
-  //     // console.log("rawPayload: " + request.rawPayload)
-  //     if (request.payload.id && request.payload.name) {
-  //       console.log('Received POST, name= ' + request.payload.name + ', id=' + request.payload.id)
-  //       handleRoleCommandType('authorization', 'create', 'user', [request.payload.id, request.payload.name, request.payload.org_id], request, reply)
-  //     }
-  //   }
-  // })
 
   // curl http://localhost:8000/authorization/user -X POST -H 'Content-Type: application/json' -d '{"name":"Violet Beauregarde"}'
   server.route({
@@ -61,6 +50,7 @@ module.exports = function (server) {
       }
     }
   })
+
   // curl -X DELETE http://localhost:8000/authorization/user/123
   server.route({
     method: 'DELETE',
@@ -73,6 +63,7 @@ module.exports = function (server) {
       }
     }
   })
+
   // curl -X PUT http://localhost:8000/authorization/user/123 -H 'Content-Type: application/json' -d '{"name": "Mrs Beauregarde"}'
   server.route({
     method: 'PUT',
