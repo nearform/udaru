@@ -4,7 +4,9 @@
   "description": "Full stack authorization component",
   "main": "integration/authorizationServer.js",
   "scripts": {
-    "lint": "./node_modules/.bin/spacey-standard \"service/**/*.js\" \"test/**/*.js\"",
+    "lint:service": "./node_modules/.bin/spacey-standard \"service/**/*.js\" \"test/**/*.js\"",
+    "lint:component": "./component/node_modules/.bin/spacey-standard --parser babel-eslint \"component/src/**/*.js\"",
+    "lint": "npm run lint:component",
     "pg:build": "docker-compose build",
     "pg:start": "docker-compose up",
     "pg:stop": "docker-compose down",
@@ -13,6 +15,9 @@
     "test": "tap test/**/*Test.js --coverage",
     "coverage": "tap test/**/*Test.js --cov --coverage-report=html"
   },
+  "pre-commit": [
+    "lint"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/nearform/labs-authorization.git"
@@ -32,6 +37,7 @@
   "devDependencies": {
     "lodash": "^4.16.4",
     "postgrator": "^2.8.2",
+    "pre-commit": "^1.1.3",
     "spacey-standard": "^3.0.0",
     "tap": "^7.1.2"
   }
