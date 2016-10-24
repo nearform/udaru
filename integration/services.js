@@ -103,4 +103,66 @@ module.exports = function (server) {
       handleRoleCommandType('authorization', 'list', 'teams', null, request, reply)
     }
   })
+
+  // curl http://localhost:8000/authorization/team
+  server.route({
+    method: 'POST',
+    path: '/authorization/team',
+    handler: function (request, reply) {
+      const { name, description } = request.payload
+      const params = [
+        name,
+        description,
+        null, // team_parent_id
+        'WONKA'
+      ]
+
+      handleRoleCommandType('authorization', 'create', 'team', params, request, reply)
+    }
+  })
+
+  // curl http://localhost:8000/authorization/team/123
+  server.route({
+    method: 'GET',
+    path: '/authorization/team/{id}',
+    handler: function (request, reply) {
+      handleRoleCommandType('authorization', 'read', 'team', [request.params.id], request, reply)
+    }
+  })
+
+  // curl -X PUT http://localhost:8000/authorization/team/123 -H 'Content-Type: application/json' -d '{"name": "Team A", "description": "Some description"}'
+  // TODO: allow for updating more than just 'name' and 'description'
+  server.route({
+    method: 'PUT',
+    path: '/authorization/team/{id}',
+    handler: function (request, reply) {
+      const id = request.params.id
+
+      if (!id) {
+        return reply('no team id found in request').code(400)
+      }
+
+      const { name, description } = request.payload
+
+      const params = [
+        id,
+        name,
+        description,
+      ]
+
+      handleRoleCommandType('authorization', 'update', 'team', params, request, reply)
+    }
+  })
+
+  // curl -X DELETE http://localhost:8000/authorization/team/123
+  server.route({
+    method: 'DELETE',
+    path: '/authorization/team/{id}',
+    handler: function (request, reply) {
+      const id = request.params.id
+
+      handleRoleCommandType('authorization', 'delete', 'team', [id], request, reply)
+    }
+  })
+
 }
