@@ -38,10 +38,13 @@ export default class Policies extends Component {
   }
 
   viewPolicy (selected) {
-    callApi('/authorization/policies/' + selected.id)
+    callApi('/authorization/policy/' + selected.id)
     .then(data => data.result)
     .then(policy => {
       this.setState({ policy })
+    })
+    .catch(error => {
+      // show error/toast
     })
   }
 

@@ -7,14 +7,14 @@ import Col from 'muicss/lib/react/col'
 const renderStatements = (statements) => {
   if (!statements || !Array.isArray(statements)) return null
 
-  return statements.map(({ Effect, Action: Actions, Resource: Resources }, index) => (
+  return statements.map(({ Effect: effect, Action: actions, Resource: resources }, index) => (
     <Container key={index} className='view-policy--statement'>
       <Row className='view-policy--row'>
         <Col xs='12' sm='2'>
           <label>Effect :</label>
         </Col>
         <Col xs='12' sm='8'>
-          <span>{Effect}</span>
+          <span>{effect}</span>
         </Col>
       </Row>
 
@@ -24,7 +24,7 @@ const renderStatements = (statements) => {
         </Col>
         <Col xs='12' sm='8'>
           <ul className='view-policy--actions'> {
-            Actions.map((action, index) => <li key={index}>{action}</li>)
+            actions.map((action, index) => <li key={index}>{action}</li>)
           } </ul>
         </Col>
       </Row>
@@ -35,7 +35,7 @@ const renderStatements = (statements) => {
         </Col>
         <Col xs='12' sm='8'>
           <ul className='view-policy--resources'> {
-            Resources.map((resource, index) => <li key={index}>{resource}</li>)
+            resources.map((resource, index) => <li key={index}>{resource}</li>)
           } </ul>
         </Col>
       </Row>
@@ -50,7 +50,7 @@ const ViewPolicy = ({ policy }) => (
         <label>Name :</label>
       </Col>
       <Col xs='12' sm='8'>
-        <span>{policy.Name}</span>
+        <span>{policy.name}</span>
       </Col>
     </Row>
 
@@ -59,13 +59,13 @@ const ViewPolicy = ({ policy }) => (
         <label>Version :</label>
       </Col>
       <Col xs='12' sm='8'>
-        <span>{policy.Version}</span>
+        <span>{policy.version}</span>
       </Col>
     </Row>
 
     <Row>
       <Col xs='12' className='view-policy--statements'>
-        {renderStatements(policy.Statement)}
+        {renderStatements(policy.statements)}
       </Col>
     </Row>
   </Container>

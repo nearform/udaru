@@ -17,6 +17,7 @@ test('authorization:users:list (org)', (t) => {
     mu.dispatch({role: 'authorization', cmd: 'list', type: 'users', params: [3]}, (err, result) => {
       t.error(err)
       t.ok(result, 'result should be supplied')
+      // console.log(result)
       mu.dispatch({role: 'authorization', cmd: 'done'}, (err, result) => {
         t.error(err)
         wiring.stop()
@@ -139,6 +140,23 @@ test('authorization:policy:list', (t) => {
   mu.outbound('*', tcp.client(opts))
   wiring.start(() => {
     mu.dispatch({role: 'authorization', cmd: 'list', type: 'policies'}, (err, result) => {
+      t.error(err)
+      t.ok(result, 'result should be supplied')
+      mu.dispatch({role: 'authorization', cmd: 'done'}, (err, result) => {
+        t.error(err)
+        wiring.stop()
+        mu.tearDown()
+      })
+    })
+  })
+})
+
+test('authorization:teams:list', (t) => {
+  t.plan(3)
+  var mu = Mu()
+  mu.outbound('*', tcp.client(opts))
+  wiring.start(() => {
+    mu.dispatch({role: 'authorization', cmd: 'list', type: 'teams', params: [3]}, (err, result) => {
       t.error(err)
       t.ok(result, 'result should be supplied')
       mu.dispatch({role: 'authorization', cmd: 'done'}, (err, result) => {
