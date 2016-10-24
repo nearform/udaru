@@ -4,14 +4,10 @@
   "description": "Full stack authorization component",
   "main": "integration/authorizationServer.js",
   "scripts": {
-<<<<<<< HEAD
     "api:start": "node integration/index.js",
-    "lint": "./node_modules/.bin/spacey-standard \"service/**/*.js\" \"test/**/*.js\"",
-=======
     "lint:service": "./node_modules/.bin/spacey-standard \"service/**/*.js\" \"test/**/*.js\"",
     "lint:component": "./component/node_modules/.bin/spacey-standard --parser babel-eslint \"component/src/**/*.js\" \"component/src/**/*.jsx\"",
     "lint": "npm run lint:service && npm run lint:component",
->>>>>>> 321ceedef153b2c7cd85dcb59afec674e4d23463
     "pg:build": "docker-compose build",
     "pg:start": "docker-compose up",
     "pg:stop": "docker-compose down",
