@@ -30,7 +30,9 @@ build/Release
 node_modules
 
 # Generated Files
-component/dist/
+component/dist/*
+!component/dist/index.html
+!component/dist/loading.gif
 
 # image cache
 src/images/
