@@ -4,12 +4,14 @@
   "description": "Full stack authorization component",
   "main": "integration/authorizationServer.js",
   "scripts": {
+    "api:start": "node integration/index.js",
     "lint": "./node_modules/.bin/spacey-standard \"service/**/*.js\" \"test/**/*.js\"",
     "pg:build": "docker-compose build",
     "pg:start": "docker-compose up",
     "pg:stop": "docker-compose down",
     "pg:init": "[ ! -d ./logs ] && mkdir ./logs;./scripts/init/database/db_init.sh | tee ./logs/init-db.log",
     "pg:load-test-data": "./scripts/init/database/db_load.sh | tee ./logs/load-test-data.log",
+    "svc:start": "node integration/service.js",
     "test": "tap test/**/*Test.js --coverage",
     "coverage": "tap test/**/*Test.js --cov --coverage-report=html"
   },

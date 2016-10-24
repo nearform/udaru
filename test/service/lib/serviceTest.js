@@ -21,6 +21,7 @@ test('list of all users', (t) => {
     svc.listAllUsers({}, (err, result) => {
       t.error(err, 'should be no error')
       t.ok(result, 'result should be supplied')
+      // console.log(result)
 // TODO:      t.deepEqual(result, expectedUserList, 'data should be as expected')
       svc.destroy({}, (err, result) => {
         t.error(err)
