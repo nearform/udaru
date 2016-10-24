@@ -134,7 +134,7 @@ test('list policies', (t) => {
     svc.listAllPolicies({}, (err, result) => {
       t.error(err, 'should be no error')
       t.ok(result, 'result should be supplied')
-      t.ok(result.length == 5, 'number of expected results')
+      t.ok(result.length === 5, 'number of expected results')
       var expectedResult = [{
         id: 1,
         version: '0.1',
@@ -156,7 +156,7 @@ test('list all policies full', (t) => {
     svc.listAllPoliciesDetails({}, (err, result) => {
       t.error(err, 'should be no error')
       t.ok(result, 'result should be supplied')
-      t.ok(result.length == 5, 'number of expected results')
+      t.ok(result.length === 5, 'number of expected results')
       let expectedResult = [{
         id: 1,
         version: '0.1',

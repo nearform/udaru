@@ -1,6 +1,7 @@
 'use strict'
 var dbConn = require('./dbConn')
 var userOps = require('./userOps')
+var teamOps = require('./teamOps')
 var policyOps = require('./policyOps')
 
 module.exports = function (done) {
@@ -82,6 +83,20 @@ module.exports = function (done) {
     })
   }
 
+  function listAllTeams (args, cb) {
+    teamOps.listAllTeams(db.pool, args, function (err, result) {
+      if (err) return cb(err)
+      return cb(null, result)
+    })
+  }
+
+  function listOrgTeams (args, cb) {
+    teamOps.listOrgTeams(db.pool, args, function (err, result) {
+      if (err) return cb(err)
+      return cb(null, result)
+    })
+  }
+
   // simulate resource initialization.
   // give ourselves plenty of time,
   // as less may give intermittent ECONNREFUSED
@@ -97,6 +112,8 @@ module.exports = function (done) {
       readUserById: readUserById,
       readPolicyById: readPolicyById,
       updateUser: updateUser,
+      listAllTeams: listAllTeams,
+      listOrgTeams: listOrgTeams,
       destroy: shutdown
     })
   }, 500)
