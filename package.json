@@ -5,8 +5,8 @@
   "main": "integration/authorizationServer.js",
   "scripts": {
     "lint:service": "./node_modules/.bin/spacey-standard \"service/**/*.js\" \"test/**/*.js\"",
-    "lint:component": "./component/node_modules/.bin/spacey-standard --parser babel-eslint \"component/src/**/*.js\"",
-    "lint": "npm run lint:component",
+    "lint:component": "./component/node_modules/.bin/spacey-standard --parser babel-eslint \"component/src/**/*.js\" \"component/src/**/*.jsx\"",
+    "lint": "npm run lint:service && npm run lint:component",
     "pg:build": "docker-compose build",
     "pg:start": "docker-compose up",
     "pg:stop": "docker-compose down",
