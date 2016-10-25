@@ -6,7 +6,7 @@
 function listAllPolicies (pool, args, cb) {
   pool.connect(function (err, client, done) {
     if (err) return cb(err)
-    client.query('SELECT  id, version, name from policies', function (err, result) {
+    client.query('SELECT  id, version, name from policies ORDER BY name', function (err, result) {
       done() // release the client back to the pool
       if (err) return cb(err)
       return cb(null, result.rows)
@@ -21,7 +21,7 @@ function listAllPolicies (pool, args, cb) {
 function listAllPoliciesDetails (pool, args, cb) {
   pool.connect(function (err, client, done) {
     if (err) return cb(err)
-    client.query('SELECT  id, version, name, statements from policies', function (err, result) {
+    client.query('SELECT  id, version, name, statements from policies ORDER BY name', function (err, result) {
       done() // release the client back to the pool
       if (err) return cb(err)
       var results = result.rows.map((policy) => {
