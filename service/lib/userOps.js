@@ -120,7 +120,7 @@ function readUserById (pool, args, cb) {
 }
 
 /*
-* $1 = id, $2 = name
+* $1 = id, $2 = name, $3 = teams, $4 = policies
 */
 function updateUser (pool, args, cb) {
   pool.connect(function (err, client, done) {
@@ -128,6 +128,10 @@ function updateUser (pool, args, cb) {
 
     const [id, name, teams, policies] = args
     const task = []
+
+    if(!Array.isArray(teams) || !Array.isArray(policies)) {
+     return cb(dbUtil.rollback(client, done))
+    }
 
     task.push((cb) => {
       client.query('BEGIN', cb)
