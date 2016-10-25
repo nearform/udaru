@@ -4,24 +4,24 @@ import Container from 'muicss/lib/react/container'
 import Row from 'muicss/lib/react/row'
 import Col from 'muicss/lib/react/col'
 import { connect } from 'react-redux'
-// import { push } from 'react-router-redux'
-import { resolve } from 'react-resolver'
 
-import { callApi } from '../middleware/api'
+import { fetchPolicies, fetchPolicy } from '../actions/policies'
 
 import List from '../components/generic/list'
 import ViewPolicy from '../components/policies/ViewPolicy'
 
 @connect(({ policies }) => ({
-  _policies: policies.list
+  policies: policies.list,
+  selectedPolicy: policies.selectedPolicy
+}), ({
+  fetchPolicy,
+  fetchPolicies
 }))
-@resolve('policies', (props) => {
-  return callApi('/authorization/policies').then(data => data)
-})
+
 export default class Policies extends Component {
-  static propTypes = {
-    policies: React.PropTypes.array.isRequired
-  }
+  // static propTypes = {
+  //   policies: React.PropTypes.array.isRequired
+  // }
 
   constructor (props) {
     super(props)
@@ -34,35 +34,28 @@ export default class Policies extends Component {
   }
 
   componentDidMount () {
-
+    this.props.fetchPolicies()
   }
 
   viewPolicy (selected) {
-    callApi('/authorization/policy/' + selected.id)
-    .then(data => data.result)
-    .then(policy => {
-      this.setState({ policy })
-    })
-    .catch(error => {
-      // show error/toast
-    })
+    this.props.fetchPolicy(selected.id)
   }
 
   render () {
-    const { policy } = this.state
+    const { policies, selectedPolicy } = this.props
 
     return (
       <Container fluid className=''>
         <Row>
           <Col md='2'>
-            <List
+            { policies && <List
               which='Policy'
-              items={this.props.policies}
-              onItemSelect={this.viewPolicy}
-            />
+              items={policies}
+              onItemSelect={this.viewPolicy} />
+            }
           </Col>
           <Col md='10'>
-            {policy && <ViewPolicy policy={policy} />}
+            {selectedPolicy && <ViewPolicy policy={selectedPolicy} />}
           </Col>
         </Row>
       </Container>

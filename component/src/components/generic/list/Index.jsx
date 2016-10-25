@@ -9,7 +9,8 @@ export default class List extends Component {
 
     this.state = {
       selected: null,
-      filtered: props.items
+      filtered: props.items,
+      filter: ''
     }
 
     this.itemSelected = ::this.itemSelected
@@ -22,10 +23,21 @@ export default class List extends Component {
   }
 
   filterChanged (filter) {
+    this.applyFilter(filter.target.value)
+    this.setState({
+      filter: filter.target.value
+    })
+  }
+
+  filterItems(filter) {
     filter = filter.toLowerCase()
     const filtered = this.props.items.filter(item => ~item.name.toLowerCase().indexOf(filter))
 
     this.setState({ filtered })
+  }
+
+  componentWillUpdate (props) {
+    this.filterItems(this.state.filter)
   }
 
   render () {
@@ -44,7 +56,7 @@ export default class List extends Component {
 
     return (
       <div>
-        <Filter onFilterChange={this.filterChanged} which={this.props.which} />
+        <Filter filterChanged={this.filterChanged} which={this.props.which} />
         <ul className='filterlist--list-items'>
           <li className='filterlist--item'>
             <i className='fa fa-plus'></i>

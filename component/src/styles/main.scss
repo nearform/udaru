@@ -178,7 +178,14 @@ body {
 .user {
   box-shadow: 0px 18px 35px 0px rgba(0, 0, 0, 0.5);
   margin-left: 240px;
-  // max-height: 685px;
+
+  &--delete {
+    position: relative;
+    left: 60px;
+    top: -3px;
+    color: $nearform-red;
+    @include fa-icon-after($fa-var-trash, 0, 30px);
+  }
 
   &--namecontainer {
     padding-top: 99px;
@@ -245,6 +252,8 @@ body {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-around;
+    max-height: 250px;
+    overflow-y: auto;
   }
 
   &--attachmentitem {

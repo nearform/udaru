@@ -39,7 +39,9 @@ class EditUser extends Component {
               className='user--name-input'
             />
           </div>
-          <div className='user--flex-right' />
+          <div className='user--flex-right'>
+            <i className='user--delete' onClick={this.props.remove} />
+          </div>
         </div>
 
         <div className='user--teamcontainer'>
@@ -87,6 +89,7 @@ class EditUser extends Component {
 }
 
 EditUser.propTypes = {
+  remove: React.PropTypes.func.isRequired,
   selectedTeam: React.PropTypes.string,
   teams: React.PropTypes.array.isRequired,
   policies: React.PropTypes.array.isRequired,
