@@ -69,13 +69,19 @@ module.exports = function (server) {
     method: 'PUT',
     path: '/authorization/user/{id}',
     handler: function (request, reply) {
-      // console.log("rawPayload: " + request.rawPayload)
-      //
-      // TODO: allow for updating more than just 'name'
-      //
+      
+      const { policies, teams, id, name } = request.payload
+
+      const params = [
+        id,
+        name,
+        teams,
+        policies
+      ]
+      
       if (request.params.id && request.payload.name) {
         console.log('Received PUT, name= ' + request.payload.name + ', id=' + request.params.id)
-        handleRoleCommandType('authorization', 'update', 'user', [request.params.id, request.payload.name], request, reply)
+        handleRoleCommandType('authorization', 'update', 'user', params, request, reply)
       }
     }
   })

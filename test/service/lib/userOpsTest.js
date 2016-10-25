@@ -63,9 +63,10 @@ test('create a user', (t) => {
 })
 
 test('update a user', (t) => {
+  const data = [99, 'Augustus Gloop', [{'id': 4, 'name': 'Dream Team'}], [{'id': 1, 'name': 'DROP ALL TABLES!'}, { 'id': 2, 'name': 'THROW DESK' }]]
   t.plan(3)
   service((svc) => {
-    svc.updateUser([99, 'Augustus Gloop'], (err, result) => {
+    svc.updateUser(data, (err, result) => {
       t.error(err, 'should be no error')
       t.ok(result, 'result should be supplied')
       svc.destroy({}, (err, result) => {

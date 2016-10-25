@@ -1,5 +1,6 @@
 'use strict'
 const dbUtil = require('./dbUtil')
+const async = require('async')
 
 //
 // TODO: take the org_id from the administrator credentials (or superadmin role?)
@@ -124,14 +125,40 @@ function readUserById (pool, args, cb) {
 function updateUser (pool, args, cb) {
   pool.connect(function (err, client, done) {
     if (err) return cb(err)
-    client.query('UPDATE users SET name = $2 WHERE id = $1', args, function (err, result) {
-      done() // release the client back to the pool
-      if (err) return cb(err)
-      // console.log('update user result: ', result)
-      return cb(null, result.rows)
+
+    const [id, name, teams, policies] = args
+    const task = []
+
+    task.push((cb) => {
+      client.query('BEGIN', cb)
+    })
+    task.push((result, cb) => {
+      client.query('UPDATE users SET name = $2 WHERE id = $1', [id, name], cb)
+    })
+    task.push((result, cb) => {
+      client.query('DELETE FROM team_members WHERE user_id = $1', [id], cb)
+    })
+    teams.forEach((t) => {
+      task.push((result, cb) => {
+        client.query('INSERT INTO team_members (team_id, user_id) VALUES ($1, $2)', [t.id, id], cb)
+      })
+    })
+    task.push((result, cb) => {
+      client.query('DELETE FROM user_policies WHERE user_id = $1', [id], cb)
+    })
+    policies.forEach((p) => {
+      task.push((result, cb) => {
+        client.query('INSERT INTO user_policies (policy_id, user_id) VALUES ($1, $2)', [p.id, id], cb)
+      })
+    })
+    async.waterfall(task, (err) => {
+      if (err) return cb(dbUtil.rollback(client, done))
+      client.query('COMMIT', done)
+      return cb(null, {id, name, teams, policies})
     })
   })
 }
+
 
 /*
 * $1 = id
