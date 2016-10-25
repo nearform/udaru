@@ -79,6 +79,31 @@ module.exports = function (options) {
           return cb(null, result)
         })
       })
+      mu.define({role: 'authorization', cmd: 'create', type: 'team'}, function (args, cb) {
+        svc.createTeam(args.pattern.params, function (err, result) {
+          if (err) return cb(err, null)
+          return cb(null, result)
+        })
+      })
+      mu.define({role: 'authorization', cmd: 'read', type: 'team'}, function (args, cb) {
+        svc.readTeamById(args.pattern.params, function (err, result) {
+          if (err) return cb(err, null)
+          return cb(null, result)
+        })
+      })
+      mu.define({role: 'authorization', cmd: 'update', type: 'team'}, function (args, cb) {
+        svc.updateTeam(args.pattern.params, function (err, result) {
+          if (err) return cb(err, null)
+          return cb(null, result)
+        })
+      })
+      mu.define({role: 'authorization', cmd: 'delete', type: 'team'}, function (args, cb) {
+        svc.deleteTeamById(args.pattern.params, function (err, result) {
+          if (err) return cb(err, null)
+          return cb(null, result)
+        })
+      })
+
 
       mu.define({role: 'authorization', cmd: 'done'}, svc.destroy)
       mu.inbound('*', tcp.server(options))
