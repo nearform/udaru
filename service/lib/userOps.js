@@ -143,6 +143,7 @@ function deleteUserById (pool, args, cb) {
       if (err) return cb(dbUtil.rollback(client, done))
       process.nextTick(function () {
         client.query('DELETE from user_policies WHERE user_id = $1', args, function (err, result) {
+          // TODO: need to ensure that a 'not found' response is returned here
           if (err) return cb(dbUtil.rollback(client, done))
           // console.log('delete user_policies result: ', result)
           client.query('DELETE from team_members WHERE user_id = $1', args, function (err, result) {
