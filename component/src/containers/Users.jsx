@@ -5,7 +5,7 @@ import Row from 'muicss/lib/react/row'
 import Col from 'muicss/lib/react/col'
 import { connect } from 'react-redux'
 
-import { fetchUsers, fetchUser, deleteUser } from '../actions/users'
+import { fetchUsers, fetchUser, deleteUser, updateUser, makeUser } from '../actions/users'
 import { fetchPolicies } from '../actions/policies'
 
 import List from '../components/generic/list'
@@ -18,6 +18,8 @@ import EditUser from '../components/users/EditUser'
 }), ({
   fetchUser,
   deleteUser,
+  updateUser,
+  makeUser,
   fetchUsers,
   fetchPolicies
 }))
@@ -37,6 +39,7 @@ export default class Policies extends Component {
     this.edit = ::this.edit
     this.save = ::this.save
     this.remove = ::this.remove
+    this.make = ::this.make
   }
 
   componentDidMount () {
@@ -53,24 +56,15 @@ export default class Policies extends Component {
   }
 
   save (data) {
-    // callApi({
-    //   method: 'post', // opt.
-    //   endpoint: '/authorization/user' + selected.id,
-    //   data: data
-    // }).then(res => {
-    //
-    // })
-    console.log('Attempted to save:', data)
+    this.props.updateUser(data)
   }
 
   remove (selected) {
     this.props.deleteUser(this.props.selectedUser.id)
-    // callApi({
-    //   method: 'delete',
-    //   endpoint: '/authorization/user/' + this.state.user.id
-    // }).then(res => {
-    //   console.log(res)
-    // })
+  }
+
+  make (username) {
+    this.props.makeUser('ThEnEwGuY')
   }
 
   render () {
@@ -80,6 +74,7 @@ export default class Policies extends Component {
           <Col md='2'>
             { this.props.users && <List
               which='User'
+              make={this.make}
               items={this.props.users}
               onItemSelect={this.edit} />
             }

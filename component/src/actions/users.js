@@ -1,17 +1,5 @@
 import { callApi } from '../middleware/api'
-import { RECEIVE_USERS, RECEIVE_USER, DELETE_USER } from '../constants'
-
-export const fetchUser = (id) => {
-  return (dispatch, getState) => {
-    const state = getState()
-
-    return callApi('/authorization/user/' + id).then((user) => {
-      dispatch({ type: RECEIVE_USER, user })
-
-      return user
-    })
-  }
-}
+import { RECEIVE_USERS, RECEIVE_USER, DELETE_USER, UPDATE_USER, MAKE_USER } from '../constants'
 
 export const fetchUsers = () => {
   return (dispatch, getState) => {
@@ -29,15 +17,47 @@ export const fetchUsers = () => {
   }
 }
 
+export const fetchUser = (id) => {
+  return (dispatch, getState) => {
+    return callApi('/authorization/user/' + id).then((user) => {
+      dispatch({ type: RECEIVE_USER, user })
+
+      return user
+    })
+  }
+}
+
 export const deleteUser = (id) => {
   return (dispatch, getState) => {
-    const state = getState()
+    callApi({
+      method: 'delete',
+      endpoint: '/authorization/user/' + id
+    }).then(res => {
+      dispatch({ type: DELETE_USER, id })
+    })
+  }
+}
 
-    dispatch({ type: DELETE_USER, id})
-    // return callApi('/authorization/user/' + id).then((user) => {
-    //   dispatch({ type: RECEIVE_USER, user })
-    //
-    //   return user
-    // })
+export const updateUser = (user) => {
+  return (dispatch, getState) => {
+    callApi({
+      method: 'put',
+      endpoint: '/authorization/user/' + user.id,
+      data: user
+    }).then(res => {
+      dispatch({ type: UPDATE_USER, user })
+    })
+  }
+}
+
+export const makeUser = (username) => {
+  return (dispatch, getState) => {
+    callApi({
+      method: 'post',
+      endpoint: '/authorization/user',
+      data: { name: username }
+    }).then(user => {
+      dispatch({ type: MAKE_USER, user })
+    })
   }
 }

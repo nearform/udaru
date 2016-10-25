@@ -9,7 +9,6 @@ export default class List extends Component {
 
     this.state = {
       selected: null,
-      filtered: props.items,
       filter: ''
     }
 
@@ -23,32 +22,20 @@ export default class List extends Component {
   }
 
   filterChanged (filter) {
-    this.applyFilter(filter.target.value)
     this.setState({
       filter: filter.target.value
     })
   }
 
-  filterItems(filter) {
-    filter = filter.toLowerCase()
-    const filtered = this.props.items.filter(item => ~item.name.toLowerCase().indexOf(filter))
-
-    this.setState({ filtered })
-  }
-
-  componentWillUpdate (props) {
-    this.filterItems(this.state.filter)
-  }
-
   render () {
-    const { filtered, selected } = this.state
+    const filtered = this.props.items.filter(item => ~item.name.toLowerCase().indexOf(this.state.filter))
 
     const listItems = filtered.map(item => {
       return (
         <Item
           key={item.id}
           item={item}
-          selected={item === selected}
+          selected={item === this.state.selected}
           onItemSelect={this.itemSelected}
         />
       )
@@ -60,7 +47,7 @@ export default class List extends Component {
         <ul className='filterlist--list-items'>
           <li className='filterlist--item'>
             <i className='fa fa-plus'></i>
-            <span className='filterlist--add-item'>Add {this.props.which}</span>
+            <span className='filterlist--add-item' onClick={this.props.make}>Add {this.props.which}</span>
           </li>
           {listItems}
         </ul>

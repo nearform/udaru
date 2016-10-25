@@ -1,4 +1,4 @@
-import { RECEIVE_USERS, RECEIVE_USER, DELETE_USER } from '../constants'
+import { RECEIVE_USERS, RECEIVE_USER, DELETE_USER, UPDATE_USER, MAKE_USER } from '../constants'
 
 const initialState = {
   list: null
@@ -21,6 +21,20 @@ const users = (state = initialState, action) => {
       return Object.assign({}, state, {
         list: filtered,
         selectedUser: null
+      })
+    case UPDATE_USER:
+      const list = state.list.map(item => {
+        if (item.id === action.user.id) return action.user
+        return item
+      })
+      return Object.assign({}, state, {
+        list,
+        selectedUser: action.user
+      })
+    case MAKE_USER:
+      return Object.assign({}, state, {
+        list: state.list.concat([action.user]),
+        selectedUser: action.user
       })
     default:
       return state
