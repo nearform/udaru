@@ -129,8 +129,8 @@ function updateUser (pool, args, cb) {
     const [id, name, teams, policies] = args
     const task = []
 
-    if(!Array.isArray(teams) || !Array.isArray(policies)) {
-     return cb(dbUtil.rollback(client, done))
+    if (!Array.isArray(teams) || !Array.isArray(policies)) {
+      return cb(dbUtil.rollback(client, done))
     }
 
     task.push((cb) => {
