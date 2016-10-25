@@ -22,6 +22,7 @@ CREATE TABLE ref_actions (
   action      VARCHAR(100) NOT NULL
 );
 
+/* TODO: users should have additional 'username' column */
 CREATE TABLE users (
   id        SERIAL UNIQUE,
   name      VARCHAR(50) NOT NULL,
