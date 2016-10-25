@@ -104,6 +104,10 @@ module.exports = function (options) {
         })
       })
 
+      // TODO: ACHECK
+      mu.define({role: 'authorization', cmd: 'authorize', type: 'user'}, function (args, cb) {
+        // svc.isUserAuthorized(args, cb)
+      })
 
       mu.define({role: 'authorization', cmd: 'done'}, svc.destroy)
       mu.inbound('*', tcp.server(options))

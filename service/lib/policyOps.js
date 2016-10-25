@@ -1,6 +1,13 @@
 'use strict'
 
 /*
+* $1 = user_id
+*/
+function listAllUserPolicies (pool, args, cb) {
+// TODO: ACHECK
+}
+
+/*
 * no query args (but may e.g. sort in future)
 */
 function listAllPolicies (pool, args, cb) {
@@ -52,5 +59,6 @@ function readPolicyById (pool, args, cb) {
 module.exports = {
   listAllPolicies: listAllPolicies,
   listAllPoliciesDetails: listAllPoliciesDetails,
+  listAllUserPolicies: listAllUserPolicies,
   readPolicyById: readPolicyById
 }
