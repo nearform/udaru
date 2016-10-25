@@ -1,4 +1,5 @@
 'use strict'
+const dbUtil = require('./dbUtil')
 
 /*
 * no query args (but may e.g. sort in future)
