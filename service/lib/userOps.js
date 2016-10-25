@@ -127,7 +127,7 @@ function updateUser (pool, args, cb) {
     client.query('UPDATE users SET name = $2 WHERE id = $1', args, function (err, result) {
       done() // release the client back to the pool
       if (err) return cb(err)
-      // console.log('update user result: ', result)
+      console.log('update user result: ', result)
       return cb(null, result.rows)
     })
   })

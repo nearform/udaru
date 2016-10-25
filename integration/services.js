@@ -7,7 +7,8 @@ mu.outbound({role: 'authorization'}, tcp.client({port: process.env.SERVICE_PORT 
 
 function handleRoleCommandType (role, command, type, params, request, reply) {
   mu.dispatch({role: role, cmd: command, type: type, params: params}, function (err, res) {
-    if (err) return reply(err).code(500)
+    // TODO: consider using Boom
+    if (err) return reply('Internal Server Error').code(500)
     return reply(res)
   })
 }
@@ -43,11 +44,14 @@ module.exports = function (server) {
     path: '/authorization/user',
     handler: function (request, reply) {
       // console.log("rawPayload: " + request.rawPayload)
-      if (request.payload.name) {
-        console.log('Received POST, name= ' + request.payload.name)
-        // hardcode the org_id for now (as not yet fully implemented)
-        handleRoleCommandType('authorization', 'create', 'user', [request.payload.name, 'WONKA'], request, reply)
-      }
+      if (!request.payload.name) return reply('request payload is missing data').code(400)
+      console.log('Received POST, name= ' + request.payload.name)
+      // hardcode the org_id for now (as not yet fully implemented)
+      mu.dispatch({role: 'authorization', cmd: 'create', type: 'user', params: [request.payload.name, 'WONKA']}, function (err, res) {
+        // console.log(err, res)
+        if (err) return reply(err).code(500)
+        return reply(res).code(201)
+      })
     }
   })
 
@@ -57,10 +61,14 @@ module.exports = function (server) {
     path: '/authorization/user/{id}',
     handler: function (request, reply) {
       // console.log("rawPayload: " + request.rawPayload)
-      if (request.params.id) {
-        console.log('Received DELETE, id=' + request.params.id)
-        handleRoleCommandType('authorization', 'delete', 'user', [request.params.id], request, reply)
-      }
+      if (!request.params.id) return reply('request payload is missing data').code(400)
+      console.log('Received DELETE, id=' + request.params.id)
+      mu.dispatch({role: 'authorization', cmd: 'delete', type: 'user', params: [request.params.id]}, function (err, res) {
+        // console.log(err, res)
+        if (err && err === 'not found') return reply(err).code(410)
+        if (err) return reply(err).code(500)
+        return reply(res).code(204)
+      })
     }
   })
 
