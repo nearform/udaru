@@ -4,7 +4,22 @@
 * $1 = user_id
 */
 function listAllUserPolicies (pool, args, cb) {
-// TODO: ACHECK
+  pool.connect(function (err, client, done) {
+    if (err) return cb(err)
+
+    const sql = 'SELECT version, statements FROM policies p JOIN user_policies up ON p.id = up.policy_id WHERE up.user_id = $1'
+    client.query(sql, args, function (err, result) {
+      done() // release the client back to the pool
+      if (err) return cb(err)
+
+      const userPolicies = result.rows.map(row => ({
+        Version: row.version,
+        Statement: row.statements.Statement
+      }))
+
+      return cb(null, userPolicies)
+    })
+  })
 }
 
 /*

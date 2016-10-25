@@ -173,4 +173,19 @@ module.exports = function (server) {
     }
   })
 
+  // curl -X DELETE http://localhost:8000/authorization/team/123
+  server.route({
+    method: 'POST',
+    path: '/authorization/check',
+    handler: function (request, reply) {
+      const params = {
+        userId: request.payload.userId, // TODO: get userId from token
+        action: request.payload.action,
+        resource: request.payload.resource
+      }
+
+      handleRoleCommandType('authorization', 'authorize', 'user', params, request, reply)
+    }
+  })
+
 }

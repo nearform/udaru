@@ -35,7 +35,7 @@
   "dependencies": {
     "async": "^2.0.1",
     "hapi": "^15.1.1",
-    "iam-js": "git+https://github.com/nearform/iam-js.git",
+    "iam-js": "git+ssh://git@github.com:nearform/iam-js.git",
     "mu": "^1.0.0",
     "pg": "^6.1.0"
   },

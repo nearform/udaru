@@ -6,10 +6,16 @@ const policyOps = require('./policyOps')
 /*
 * Auth.canDo(user policy set, resource, action) returns "allow" or "deny"
 */
-function isUserAuthorized (user, resource, action) {
-// TODO: ACHECK
-// user policies = policy.OpslistAllUserPolicies()
-  // iam.process(resource, user policies, (err, result) => {
+function isUserAuthorized (pool, { resource, action, userId }, cb) {
+  policyOps.listAllUserPolicies(pool, [userId], (err, policies) => {
+    iam(policies, ({ process }) => {
+      process(resource, action, (err, access) => {
+        if (err) return cb(err)
+
+        cb(null, { access })
+      })
+    })
+  })
 }
 
 module.exports = {
