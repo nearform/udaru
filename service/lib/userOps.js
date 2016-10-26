@@ -130,7 +130,8 @@ function updateUser (pool, args, cb) {
     const task = []
 
     if (!Array.isArray(teams) || !Array.isArray(policies)) {
-      return cb(dbUtil.rollback(client, done))
+      done()
+      return cb()
     }
 
     task.push((cb) => {
@@ -142,18 +143,16 @@ function updateUser (pool, args, cb) {
     task.push((result, cb) => {
       client.query('DELETE FROM team_members WHERE user_id = $1', [id], cb)
     })
-    teams.forEach((t) => {
-      task.push((result, cb) => {
-        client.query('INSERT INTO team_members (team_id, user_id) VALUES ($1, $2)', [t.id, id], cb)
-      })
+    task.push((result, cb) => {
+      let stmt = dbUtil.buildInsertStmt('INSERT INTO team_members (team_id, user_id) VALUES ', teams.map(p => [p.id, id]))
+      client.query(stmt.statement, stmt.params, cb)
     })
     task.push((result, cb) => {
       client.query('DELETE FROM user_policies WHERE user_id = $1', [id], cb)
     })
-    policies.forEach((p) => {
-      task.push((result, cb) => {
-        client.query('INSERT INTO user_policies (policy_id, user_id) VALUES ($1, $2)', [p.id, id], cb)
-      })
+    task.push((result, cb) => {
+      let stmt = dbUtil.buildInsertStmt('INSERT INTO user_policies (policy_id, user_id) VALUES ', policies.map(p => [p.id, id]))
+      client.query(stmt.statement, stmt.params, cb)
     })
     async.waterfall(task, (err) => {
       if (err) return cb(dbUtil.rollback(client, done))
