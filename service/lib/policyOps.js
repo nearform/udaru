@@ -3,12 +3,45 @@
 /*
 * $1 = user_id
 */
-function listAllUserPolicies (pool, args, cb) {
+function listAllUserPolicies (pool, { userId }, cb) {
   pool.connect(function (err, client, done) {
     if (err) return cb(err)
 
-    const sql = 'SELECT version, statements FROM policies p JOIN user_policies up ON p.id = up.policy_id WHERE up.user_id = $1'
-    client.query(sql, args, function (err, result) {
+    /* Query1: For fetching policies attached directly to the user */
+    /* Query2: For fetching policies attached to the teams user belongs to */
+    const sql = `(
+
+        SELECT
+          version,
+          statements
+        FROM
+          policies p JOIN user_policies up
+        ON
+          p.id = up.policy_id
+        WHERE
+          up.user_id = $1
+
+      ) UNION (
+
+        SELECT
+          version,
+          statements
+        FROM
+          policies p JOIN team_policies tp
+        ON
+          p.id = tp.policy_id
+        WHERE
+          tp.team_id IN (
+            SELECT team_id FROM team_members tm WHERE tm.user_id = $1
+          )
+      )
+    `
+
+    const params = [
+      userId
+    ]
+
+    client.query(sql, params, function (err, result) {
       done() // release the client back to the pool
       if (err) return cb(err)
 
