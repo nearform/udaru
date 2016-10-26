@@ -4,7 +4,7 @@
 // as currently frequently times out (address in use)
 
 var test = require('tap').test
-var opts = {port: process.env.SERVICE_PORT || 8080, host: process.env.SERVICE_HOST || 'localhost'}
+var opts = {port: process.env.SERVICE_PORT || 8080, host: process.env.SERVICE_HOST || 'localhost', logLevel: process.env.LOG_LEVEL || 'info'}
 var Mu = require('mu')
 var wiring = require('../../service/wiring-mu')(opts)
 var tcp = require('mu/drivers/tcp')
@@ -88,7 +88,7 @@ test('authorization:user:update', (t) => {
   var mu = Mu()
   mu.outbound('*', tcp.client(opts))
   wiring.start(() => {
-    mu.dispatch({role: 'authorization', cmd: 'update', type: 'user', params: [99, 'Augustus Gloop']}, (err, result) => {
+    mu.dispatch({role: 'authorization', cmd: 'update', type: 'user', params: [99, 'Augustus Gloop', [{'id': 4, 'name': 'Dream Team'}], [{'id': 1, 'name': 'DROP ALL TABLES!'}, { 'id': 2, 'name': 'THROW DESK' }]]}, (err, result) => {
       t.error(err)
       t.ok(result, 'result should be supplied')
       mu.dispatch({role: 'authorization', cmd: 'done'}, (err, result) => {
@@ -210,7 +210,7 @@ test('authorization:team:update', (t) => {
   var mu = Mu()
   mu.outbound('*', tcp.client(opts))
   wiring.start(() => {
-    mu.dispatch({role: 'authorization', cmd: 'update', type: 'team', params: [testTeamId, 'Team B', 'This is Team B']}, (err, result) => {
+    mu.dispatch({role: 'authorization', cmd: 'update', type: 'team', params: [testTeamId, 'Team B', 'This is Team B', [{'id': 1, 'name': 'Tom Watson'}, {'id': 2, 'name': 'Michael O\'Brien'}], [{'id': 1, 'name': 'Financial info access'}]]}, (err, result) => {
       t.error(err)
       t.ok(result, 'result should be supplied')
       mu.dispatch({role: 'authorization', cmd: 'done'}, (err, result) => {

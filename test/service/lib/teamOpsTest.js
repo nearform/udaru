@@ -5,9 +5,13 @@ const test = require('tap').test
 const service = require('../../../service/lib/service')
 let testTeamId
 
+var opts = {
+  logLevel: 'warn'
+}
+
 test('service starts and stops', (t) => {
   t.plan(1)
-  service((svc) => {
+  service(opts, (svc) => {
     svc.destroy({}, (err, result) => {
       t.error(err)
     })
@@ -16,7 +20,7 @@ test('service starts and stops', (t) => {
 
 test('list of all teams', (t) => {
   t.plan(3)
-  service((svc) => {
+  service(opts, (svc) => {
     svc.listAllTeams({}, (err, result) => {
       t.error(err, 'should be no error')
       t.ok(result, 'result should be supplied')
@@ -30,7 +34,7 @@ test('list of all teams', (t) => {
 
 test('list of org teams', (t) => {
   t.plan(3)
-  service((svc) => {
+  service(opts, (svc) => {
     svc.listOrgTeams([1], (err, result) => {
       t.error(err, 'should be no error')
       t.ok(result, 'result should be supplied')
@@ -44,7 +48,7 @@ test('list of org teams', (t) => {
 
 test('create a team', (t) => {
   t.plan(4)
-  service((svc) => {
+  service(opts, (svc) => {
     svc.createTeam(['Team 4', 'This is a test team', null, 'WONKA'], (err, result) => {
       testTeamId = result.id
 
@@ -60,7 +64,7 @@ test('create a team', (t) => {
 
 test('read a specific team', (t) => {
   t.plan(4)
-  service((svc) => {
+  service(opts, (svc) => {
     svc.readTeamById([testTeamId], (err, result) => {
       t.error(err, 'should be no error')
       t.ok(result, 'result should be supplied')
@@ -74,8 +78,8 @@ test('read a specific team', (t) => {
 
 test('update a team', (t) => {
   t.plan(3)
-  service((svc) => {
-    svc.updateTeam([testTeamId, 'Team 5', 'description', [{'id': 4, 'name': 'Tom Watson'}, {'id': 3, 'name': 'Michael O\'Brien'}], [{'id': 1, 'name': 'Financial info access'}]], (err, result) => {
+  service(opts, (svc) => {
+    svc.updateTeam([testTeamId, 'Team 5', 'description', [{'id': 1, 'name': 'Tom Watson'}, {'id': 2, 'name': 'Michael O\'Brien'}], [{'id': 1, 'name': 'Financial info access'}]], (err, result) => {
       t.error(err, 'should be no error')
       t.ok(result, 'result should be supplied')
       svc.destroy({}, (err, result) => {
@@ -87,7 +91,7 @@ test('update a team', (t) => {
 
 test('delete a team', (t) => {
   t.plan(3)
-  service((svc) => {
+  service(opts, (svc) => {
     svc.deleteTeamById([testTeamId], (err, result) => {
       t.error(err, 'should be no error')
       t.ok(result, 'result should be supplied')
