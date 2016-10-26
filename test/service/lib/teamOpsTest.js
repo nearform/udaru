@@ -78,13 +78,8 @@ test('read a specific team', (t) => {
 
 test('update a team', (t) => {
   t.plan(3)
-<<<<<<< HEAD
   service((svc) => {
     svc.updateTeam([testTeamId, 'Team 5', 'description', [{'id': 4, 'name': 'Tom Watson'}, {'id': 3, 'name': 'Michael O\'Brien'}], [{'id': 1, 'name': 'Financial info access'}]], (err, result) => {
-=======
-  service(opts, (svc) => {
-    svc.updateTeam([testTeamId, 'Team 5', 'description'], (err, result) => {
->>>>>>> 7b7a8e19647a7a3967fc983d2cbea4ce83861c29
       t.error(err, 'should be no error')
       t.ok(result, 'result should be supplied')
       svc.destroy({}, (err, result) => {

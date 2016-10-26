@@ -80,14 +80,9 @@ function readTeamById (rsc, args, cb) {
 * $4 = users
 * $5 = policies
 */
-<<<<<<< HEAD
-function updateTeam (pool, args, cb) {
-  pool.connect(function (err, client, done) {
-=======
 // TODO: Allow updating specific fields only
 function updateTeam (rsc, args, cb) {
   rsc.pool.connect(function (err, client, done) {
->>>>>>> 7b7a8e19647a7a3967fc983d2cbea4ce83861c29
     if (err) return cb(err)
 
     const [ id, name, description, users, policies ] = args
