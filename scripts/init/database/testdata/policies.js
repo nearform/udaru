@@ -1,132 +1,92 @@
 module.exports = [
-  [0.1, 'Administrator', 'WONKA', {
+  [0.1, 'Director', 'WONKA', {
     'Statement':
       [
         {
           'Effect': 'Allow',
-          'Action': ['iam:ReadBalanceSheet'],
+          'Action': ['finance:ReadBalanceSheet'],
+          'Resource': ['database:pg01:balancesheet']
+        },
+        {
+          'Effect': 'Deny',
+          'Action': ['finance:ImportBalanceSheet'],
           'Resource': ['database:pg01:balancesheet']
         },
         {
           'Effect': 'Allow',
-          'Action': ['iam:ImportBalanceSheet'],
-          'Resource': ['*']
+          'Action': ['finance:ReadCompanies'],
+          'Resource': ['database:pg01:companies']
         },
         {
-          'Effect': 'Allow',
-          'Action': [
-            'iam:',
-            'files:Edit'
-          ],
-          'Resource': [
-            'filestore:dev:project-data',
-            'filestore:dev:common-repo'
-          ]
+          'Effect': 'Deny',
+          'Action': ['finance:UpdateCompanies'],
+          'Resource': ['database:pg01:companies']
+        },
+            {
+          'Effect': 'Deny',
+          'Action': ['finance:DeleteCompanies'],
+          'Resource': ['database:pg01:companies']
         }
       ]}
   ],
-  [0.1, 'Read anything', 'WONKA', {
+  [0.1, 'Accountant', 'WONKA', {
     'Statement':
       [
         {
           'Effect': 'Allow',
-          'Action': ['iam:ChangePassword'],
-          'Resource': ['*']
+          'Action': ['finance:ReadBalanceSheet'],
+          'Resource': ['database:pg01:balancesheet']
         },
         {
           'Effect': 'Deny',
-          'Action': ['iam:ChangeAdminPassword'],
-          'Resource': ['*']
+          'Action': ['finance:ImportBalanceSheet'],
+          'Resource': ['database:pg01:balancesheet']
         },
         {
-          'Effect': 'Allow',
-          'Action': [
-            'files:List',
-            'files:Edit'
-          ],
-          'Resource': [
-            'filestore:dev:project-data',
-            'filestore:dev:common-repo'
-          ]
+          'Effect': 'Deny',
+          'Action': ['finance:ReadCompanies'],
+          'Resource': ['database:pg01:companies']
+        },
+        {
+          'Effect': 'Deny',
+          'Action': ['finance:UpdateCompanies'],
+          'Resource': ['database:pg01:companies']
+        },
+            {
+          'Effect': 'Deny',
+          'Action': ['finance:DeleteCompanies'],
+          'Resource': ['database:pg01:companies']
         }
       ]}
   ],
-  [0.1, 'Confidential', 'WONKA', {
+  [0.1, 'Sys admin', 'WONKA', {
     'Statement':
       [
         {
           'Effect': 'Allow',
-          'Action': ['iam:ChangePassword'],
-          'Resource': ['*']
-        },
-        {
-          'Effect': 'Deny',
-          'Action': ['iam:ChangeAdminPassword'],
-          'Resource': ['*']
+          'Action': ['finance:ReadBalanceSheet'],
+          'Resource': ['database:pg01:balancesheet']
         },
         {
           'Effect': 'Allow',
-          'Action': [
-            'files:List',
-            'files:Edit'
-          ],
-          'Resource': [
-            'filestore:dev:project-data',
-            'filestore:dev:common-repo'
-          ]
+          'Action': ['finance:ImportBalanceSheet'],
+          'Resource': ['database:pg01:balancesheet']
+        },
+        {
+          'Effect': 'Allow',
+          'Action': ['finance:ReadCompanies'],
+          'Resource': ['database:pg01:companies']
+        },
+        {
+          'Effect': 'Allow',
+          'Action': ['finance:UpdateCompanies'],
+          'Resource': ['database:pg01:companies']
+        },
+            {
+          'Effect': 'Allow',
+          'Action': ['finance:DeleteCompanies'],
+          'Resource': ['database:pg01:companies']
         }
       ]}
   ],
-  [0.1, 'Company secret', 'WONKA', {
-    'Statement':
-      [
-        {
-          'Effect': 'Allow',
-          'Action': ['iam:ChangePassword'],
-          'Resource': ['*']
-        },
-        {
-          'Effect': 'Deny',
-          'Action': ['iam:ChangeAdminPassword'],
-          'Resource': ['*']
-        },
-        {
-          'Effect': 'Allow',
-          'Action': [
-            'files:List',
-            'files:Edit'
-          ],
-          'Resource': [
-            'filestore:dev:project-data',
-            'filestore:dev:common-repo'
-          ]
-        }
-      ]}
-  ],
-  [0.2, 'Developer', 'WONKA', {
-    'Statement':
-      [
-        {
-          'Effect': 'Allow',
-          'Action': ['iam:ChangePassword'],
-          'Resource': ['*']
-        },
-        {
-          'Effect': 'Deny',
-          'Action': ['iam:ChangeAdminPassword'],
-          'Resource': ['*']
-        },
-        {
-          'Effect': 'Allow',
-          'Action': [
-            'files:List',
-            'files:Edit'
-          ],
-          'Resource': [
-            'filestore:dev:project-data',
-            'filestore:dev:common-repo'
-          ]
-        }
-      ]}
-  ]
 ]
