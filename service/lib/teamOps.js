@@ -57,18 +57,42 @@ function createTeam (rsc, args, cb) {
 * $1 = id
 */
 function readTeamById (rsc, args, cb) {
+  const team = {
+    'id': null,
+    'name': null,
+    'description': null,
+    users: [],
+    policies: []
+  }
   rsc.pool.connect((err, client, done) => {
     if (err) return cb(err)
 
     client.query('SELECT id, name, description from teams WHERE id = $1', args, (err, result) => {
-      done() // release the client back to the pool
+      if (err || (result.rowCount < 1)) {
+        done() // release the client back to the pool
+        return cb(err || new Error('not found'))
+      }
+      team.id = result.rows[0].id
+      team.name = result.rows[0].name
+      team.description = result.rows[0].description
 
-      if (err) return cb(err)
-      if (result.rows.length === 0) return cb(null, {})
-
-      const team = result.rows[0]
-
-      return cb(null, team)
+      client.query('SELECT users.id, users.name from team_members mem, users WHERE mem.team_id = $1 and mem.user_id = users.id ORDER BY UPPER(users.name)', args, function (err, result) {
+        if (err) {
+          done() // release the client back to the pool
+          return cb(err)
+        }
+        result.rows.forEach(function (row) {
+          team.users.push(row)
+        })
+        client.query('SELECT pol.id, pol.version, pol.name from team_policies tpol, policies pol WHERE tpol.team_id = $1 and tpol.policy_id = pol.id ORDER BY UPPER(pol.name)', args, function (err, result) {
+          done() // release the client back to the pool
+          if (err) return cb(err)
+          result.rows.forEach(function (row) {
+            team.policies.push(row)
+          })
+          return cb(null, team)
+        })
+      })
     })
   })
 }
