@@ -7,7 +7,8 @@
     "parser": "babel-eslint"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "./node_modules/.bin/lab ./test/",
+    "test-cov-html": "./node_modules/.bin/lab ./test/ -r html -o coverage.html",
     "lint": "./node_modules/.bin/spacey-standard \"src/**/*.js\" \"src/**/*.jsx\"",
     "dev": "./node_modules/.bin/webpack-dev-server",
     "build": "npm run lint && ./node_modules/.bin/webpack"
@@ -53,8 +54,11 @@
     "babel-preset-es2015": "^6.14.0",
     "babel-preset-react": "^6.11.1",
     "babel-preset-stage-0": "^6.5.0",
+    "code": "^4.0.0",
     "css-loader": "^0.25.0",
     "file-loader": "^0.9.0",
+    "lab": "^11.1.0",
+    "lab-babel": "^1.1.1",
     "less": "^2.7.1",
     "less-loader": "^2.2.3",
     "node-sass": "^3.10.1",
