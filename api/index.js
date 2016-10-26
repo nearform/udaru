@@ -1,7 +1,7 @@
 'use strict'
 
 var Hapi = require('hapi')
-var services = require('./services')
+var route = require('./route')
 
 var server = new Hapi.Server()
 
@@ -14,7 +14,7 @@ server.connection({
   routes: { cors: true } // TODO: find a better solution
 })
 
-services(server)
+route(server)
 server.register({
   register: require('good'),
   options: {

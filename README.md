@@ -83,9 +83,9 @@ Curl examples for the other routes can be found in services.js
 
 To expose the reoute start both the service and the API with the following:
 
-    node integration/service.js
+    node service/index.js
 
-    node integration/index.js
+    node api/index.js
 
 ## Testing
 
