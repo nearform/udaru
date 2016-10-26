@@ -20,7 +20,7 @@
     "coverage": "npm run coverage:service"
   },
   "pre-commit": [
-    "lint"
+    "lint:service"
   ],
   "repository": {
     "type": "git",
