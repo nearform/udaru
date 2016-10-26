@@ -4,18 +4,18 @@ module.exports = [
       [
         {
           'Effect': 'Allow',
-          'Action': ['iam:ChangePassword'],
-          'Resource': ['*']
+          'Action': ['iam:ReadBalanceSheet'],
+          'Resource': ['database:pg01:balancesheet']
         },
         {
-          'Effect': 'Deny',
-          'Action': ['iam:ChangeAdminPassword'],
+          'Effect': 'Allow',
+          'Action': ['iam:ImportBalanceSheet'],
           'Resource': ['*']
         },
         {
           'Effect': 'Allow',
           'Action': [
-            'files:List',
+            'iam:',
             'files:Edit'
           ],
           'Resource': [
