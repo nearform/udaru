@@ -3,11 +3,15 @@
 const test = require('tap').test
 const service = require('../../../service/lib/service')
 
+var opts = {
+  logLevel: 'warn'
+}
+
 // TODO: add checks for rowcounts, in e.g. createUser
 
 test('list of all users', (t) => {
   t.plan(3)
-  service((svc) => {
+  service(opts, (svc) => {
     svc.listAllUsers({}, (err, result) => {
       t.error(err, 'should be no error')
       t.ok(result, 'result should be supplied')
@@ -22,7 +26,7 @@ test('list of all users', (t) => {
 
 test('list of org users', (t) => {
   t.plan(3)
-  service((svc) => {
+  service(opts, (svc) => {
     svc.listOrgUsers([1], (err, result) => {
       t.error(err, 'should be no error')
       t.ok(result, 'result should be supplied')
@@ -36,7 +40,7 @@ test('list of org users', (t) => {
 
 test('create a user by ID', (t) => {
   t.plan(4)
-  service((svc) => {
+  service(opts, (svc) => {
     svc.createUserById([99, 'Mike Teavee', 'WONKA'], (err, result) => {
       t.error(err, 'should be no error creating')
       t.ok(result, 'result should be supplied')
@@ -50,7 +54,7 @@ test('create a user by ID', (t) => {
 
 test('create a user', (t) => {
   t.plan(6)
-  service((svc) => {
+  service(opts, (svc) => {
     svc.createUser(['Grandma Josephine', 'WONKA'], (err, result) => {
       t.error(err, 'should be no error creating')
       t.ok(result, 'result should be supplied')
@@ -70,7 +74,7 @@ test('create a user', (t) => {
 test('update a user', (t) => {
   const data = [99, 'Augustus Gloop', [{'id': 4, 'name': 'Dream Team'}], [{'id': 1, 'name': 'DROP ALL TABLES!'}, { 'id': 2, 'name': 'THROW DESK' }]]
   t.plan(3)
-  service((svc) => {
+  service(opts, (svc) => {
     svc.updateUser(data, (err, result) => {
       t.error(err, 'should be no error')
       t.ok(result, 'result should be supplied')
@@ -83,7 +87,7 @@ test('update a user', (t) => {
 
 test('read a specific user', (t) => {
   t.plan(3)
-  service((svc) => {
+  service(opts, (svc) => {
     svc.readUserById([1], (err, result) => {
       t.error(err, 'should be no error')
       t.ok(result, 'result should be supplied')
@@ -97,7 +101,7 @@ test('read a specific user', (t) => {
 
 test('read a specific user that does not exist', (t) => {
   t.plan(3)
-  service((svc) => {
+  service(opts, (svc) => {
     svc.readUserById([987654321], (err, result) => {
       // console.log(err)
       t.equal(err.message, 'not found')
@@ -112,7 +116,7 @@ test('read a specific user that does not exist', (t) => {
 
 test('delete a user', (t) => {
   t.plan(3)
-  service((svc) => {
+  service(opts, (svc) => {
     svc.deleteUserById([99], (err, result) => {
       t.error(err, 'should be no error')
       t.ok(result, 'result should be supplied')

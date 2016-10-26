@@ -14,35 +14,34 @@
 
 'use strict'
 
-var mu = require('mu')()
-var tcp = require('mu/drivers/tcp')
-var service = require('./lib/service')
+const mu = require('mu')()
+const log = require('pino')()
+const tcp = require('mu/drivers/tcp')
+
+const service = require('./lib/service')
 
 /**
  * options:
  *
- *  port: process.env.SERVICE_PORT || 6000
- *  host: process.env.SERVICE_HOST || 'localhost'
+ *  port
+ *  host
+ *  logLevel
  */
-module.exports = function (options) {
+module.exports = function (opts) {
+  log.level = opts && opts.logLevel || 'info'
+
   function start (cb) {
-    service(function (svc) {
+    service(opts, function (svc) {
       mu.define({role: 'authorization', cmd: 'list', type: 'users'}, function (args, cb) {
-        svc.listAllUsers(args.pattern.params, function (err, result) {
-          if (err) return cb(err, null)
-          return cb(null, result)
-        })
+        svc.listAllUsers(args.pattern.params, cb)
       })
       mu.define({role: 'authorization', cmd: 'create', type: 'user'}, function (args, cb) {
-        svc.createUser(args.pattern.params, function (err, result) {
-          if (err) return cb(err, null)
-          return cb(null, result)
-        })
+        svc.createUser(args.pattern.params, cb)
       })
       mu.define({role: 'authorization', cmd: 'read', type: 'user'}, function (args, cb) {
         svc.readUserById(args.pattern.params, function (err, result) {
-          // console.log("Wiring error:", err)
-          // console.log("Wiring result:", result)
+          log.debug('Wiring error:', err)
+          log.debug('Wiring result:', result)
 
           // temporarily using err.message instead of err, due to mu bug
           if (err) return cb(err.message, null)
@@ -50,63 +49,35 @@ module.exports = function (options) {
         })
       })
       mu.define({role: 'authorization', cmd: 'update', type: 'user'}, function (args, cb) {
-        svc.updateUser(args.pattern.params, function (err, result) {
-          if (err) return cb(err, null)
-          return cb(null, result)
-        })
+        svc.updateUser(args.pattern.params, cb)
       })
       mu.define({role: 'authorization', cmd: 'delete', type: 'user'}, function (args, cb) {
-        svc.deleteUserById(args.pattern.params, function (err, result) {
-          if (err) return cb(err, null)
-          return cb(null, result)
-        })
+        svc.deleteUserById(args.pattern.params, cb)
       })
       mu.define({role: 'authorization', cmd: 'list', type: 'policies'}, function (args, cb) {
-        svc.listAllPolicies(args.pattern.params, function (err, result) {
-          if (err) return cb(err, null)
-          return cb(null, result)
-        })
+        svc.listAllPolicies(args.pattern.params, cb)
       })
       mu.define({role: 'authorization', cmd: 'read', type: 'policy'}, function (args, cb) {
-        svc.readPolicyById(args.pattern.params, function (err, result) {
-          if (err) return cb(err, null)
-          return cb(null, result)
-        })
+        svc.readPolicyById(args.pattern.params, cb)
       })
       mu.define({role: 'authorization', cmd: 'list', type: 'teams'}, function (args, cb) {
-        svc.listAllTeams(args.pattern.params, function (err, result) {
-          if (err) return cb(err, null)
-          return cb(null, result)
-        })
+        svc.listAllTeams(args.pattern.params, cb)
       })
       mu.define({role: 'authorization', cmd: 'create', type: 'team'}, function (args, cb) {
-        svc.createTeam(args.pattern.params, function (err, result) {
-          if (err) return cb(err, null)
-          return cb(null, result)
-        })
+        svc.createTeam(args.pattern.params, cb)
       })
       mu.define({role: 'authorization', cmd: 'read', type: 'team'}, function (args, cb) {
-        svc.readTeamById(args.pattern.params, function (err, result) {
-          if (err) return cb(err, null)
-          return cb(null, result)
-        })
+        svc.readTeamById(args.pattern.params, cb)
       })
       mu.define({role: 'authorization', cmd: 'update', type: 'team'}, function (args, cb) {
-        svc.updateTeam(args.pattern.params, function (err, result) {
-          if (err) return cb(err, null)
-          return cb(null, result)
-        })
+        svc.updateTeam(args.pattern.params, cb)
       })
       mu.define({role: 'authorization', cmd: 'delete', type: 'team'}, function (args, cb) {
-        svc.deleteTeamById(args.pattern.params, function (err, result) {
-          if (err) return cb(err, null)
-          return cb(null, result)
-        })
+        svc.deleteTeamById(args.pattern.params, cb)
       })
-
-
       mu.define({role: 'authorization', cmd: 'done'}, svc.destroy)
-      mu.inbound('*', tcp.server(options))
+
+      mu.inbound('*', tcp.server(opts))
       cb()
     })
   }
