@@ -1,7 +1,14 @@
 export const RECEIVE_POLICIES = 'RECEIVE_POLICIES'
 export const RECEIVE_POLICY = 'RECEIVE_POLICY'
+
 export const RECEIVE_USERS = 'RECEIVE_USERS'
 export const RECEIVE_USER = 'RECEIVE_USER'
 export const DELETE_USER = 'DELETE_USER'
 export const UPDATE_USER = 'UPDATE_USER'
 export const MAKE_USER = 'MAKE_USER'
+
+export const RECEIVE_TEAMS = 'RECEIVE_TEAMS'
+export const RECEIVE_TEAM = 'RECEIVE_TEAM'
+export const DELETE_TEAM = 'DELETE_TEAM'
+export const UPDATE_TEAM = 'UPDATE_TEAM'
+export const MAKE_TEAM = 'MAKE_TEAM'

@@ -1,11 +1,11 @@
 import React from 'react'
 import { Field } from 'redux-form'
 
-const selectOptions = (item) => {
+const selectOptions = (item, i) => {
   return (
     <option name={item.name}
       key={item.id}
-      value={item.id}>
+      value={i + 1}>
       {item.name}
     </option>
   )
@@ -28,23 +28,23 @@ const RenderItems = (props) => {
 
   return (
     <div>
-      <div className='user--flex'>
+      <div className='edit--flex'>
         <label htmlFor={selector}
-          className='user--flex-left'>
+          className='edit--flex-left'>
           {title}:
         </label>
 
         <Field name={selector}
           component='select'
-          className='user--flex-mid user--select'>
+          className='edit--flex-mid edit--select'>
           {available.map(selectOptions)}
         </Field>
 
-        <div className='user--flex-right'>
+        <div className='edit--flex-right'>
           <button name='attach'
             onClick={attach}
             type='button'
-            className='user--applybutton'
+            className='edit--applybutton'
             hidden={available.length === 0}>
             Attach
           </button>
@@ -52,18 +52,18 @@ const RenderItems = (props) => {
       </div>
 
       <div hidden={items.length === 0}
-        className='user--showhidecontainer'
+        className='edit--showhidecontainer'
         onClick={toggleAttachments}>
-        <span className='user--showhide-text'>
+        <span className='edit--showhide-text'>
           {hide ? 'Show' : 'Hide'} {title}
         </span>
-        <i className={hide ? 'user--caret-right' : 'user--caret-down'} />
+        <i className={hide ? 'edit--caret-right' : 'edit--caret-down'} />
       </div>
 
-      <div className='user--attachmentcontainer' hidden={hide}>
-        <div className='user--attachmentflex' hidden={hide}>
+      <div className='edit--attachmentcontainer' hidden={hide}>
+        <div className='edit--attachmentflex' hidden={hide}>
           {fields.map((member, i) =>
-            <span key={i} className='user--attachmentitem'>
+            <span key={i} className='edit--attachmentitem'>
               <Field type='text'
                 component='text'
                 name='attachments'>
@@ -73,7 +73,7 @@ const RenderItems = (props) => {
                 component='text'
                 name='trash'
                 onClick={() => fields.remove(i)}
-                className='user--attachmenttrash'
+                className='edit--attachmenttrash'
               />
             </span>
           )}
@@ -82,22 +82,6 @@ const RenderItems = (props) => {
     </div>
   )
 }
-
-// <button name='attach'
-//   onClick={attach}
-//   type='button'
-//   className='user--applybutton'
-//   hidden={available.length === 0}>
-//   Attach
-// </button>
-
-// <Field name='attach'
-//   component='button'
-//   onClick={attach}
-//   className='user--applybutton'
-//   hidden={available.length === 0}>
-//   Attach
-// </Field>
 
 RenderItems.propTypes = {
   fields: React.PropTypes.object.isRequired,

@@ -8,17 +8,11 @@ export default class List extends Component {
     super(props)
 
     this.state = {
-      selected: null,
       filter: ''
     }
 
-    this.itemSelected = ::this.itemSelected
     this.filterChanged = ::this.filterChanged
-  }
-
-  itemSelected (selected) {
-    this.setState({ selected })
-    this.props.onItemSelect(selected)
+    this.submitNewItem = ::this.submitNewItem
   }
 
   filterChanged (filter) {
@@ -27,7 +21,14 @@ export default class List extends Component {
     })
   }
 
+  submitNewItem (e) {
+    e.preventDefault()
+    this.props.make()
+  }
+
+
   render () {
+    const selectedItem = this.props.selectedItem ? this.props.selectedItem.id : null
     const filtered = this.props.items.filter(item => ~item.name.toLowerCase().indexOf(this.state.filter))
 
     const listItems = filtered.map(item => {
@@ -35,8 +36,8 @@ export default class List extends Component {
         <Item
           key={item.id}
           item={item}
-          selected={item === this.state.selected}
-          onItemSelect={this.itemSelected}
+          selected={item.id === selectedItem}
+          onItemSelect={this.props.onItemSelect}
         />
       )
     })
@@ -44,11 +45,14 @@ export default class List extends Component {
     return (
       <div>
         <Filter filterChanged={this.filterChanged} which={this.props.which} />
+        <div hidden={!this.props.showAddPanel}>
+          <form onSubmit={this.submitNewItem} className='filterlist--createpanel'>
+            Create {this.props.which}
+            <input className='filterlist--createpanel-input' type='text' onChange={this.props.addNameChanged} value={this.props.addNameValue} placeholder='Name ...' />
+            <button className='filterlist--createpanel-button'>Submit</button>
+          </form>
+        </div>
         <ul className='filterlist--list-items'>
-          <li className='filterlist--item'>
-            <i className='fa fa-plus'></i>
-            <span className='filterlist--add-item' onClick={this.props.make}>Add {this.props.which}</span>
-          </li>
           {listItems}
         </ul>
       </div>

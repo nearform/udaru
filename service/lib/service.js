@@ -59,6 +59,22 @@ module.exports = function (done) {
     teamOps.listOrgTeams(db.pool, args, cb)
   }
 
+  function createTeam (args, cb) {
+    teamOps.createTeam(db.pool, args, cb)
+  }
+
+  function readTeamById (args, cb) {
+    teamOps.readTeamById(db.pool, args, cb)
+  }
+
+  function updateTeam (args, cb) {
+    teamOps.updateTeam(db.pool, args, cb)
+  }
+
+  function deleteTeamById (args, cb) {
+    teamOps.deleteTeamById(db.pool, args, cb)
+  }
+
   // simulate resource initialization.
   // give ourselves plenty of time,
   // as less may give intermittent ECONNREFUSED
@@ -76,6 +92,10 @@ module.exports = function (done) {
       updateUser: updateUser,
       listAllTeams: listAllTeams,
       listOrgTeams: listOrgTeams,
+      createTeam: createTeam,
+      readTeamById: readTeamById,
+      updateTeam: updateTeam,
+      deleteTeamById: deleteTeamById,
       destroy: shutdown
     })
   }, 500)

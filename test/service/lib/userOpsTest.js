@@ -49,23 +49,29 @@ test('create a user by ID', (t) => {
 })
 
 test('create a user', (t) => {
-  t.plan(4)
+  t.plan(6)
   service((svc) => {
     svc.createUser(['Grandma Josephine', 'WONKA'], (err, result) => {
       t.error(err, 'should be no error creating')
       t.ok(result, 'result should be supplied')
       t.deepEqual(result.name, 'Grandma Josephine', 'data should be as expected')
-      svc.destroy({}, (err, result) => {
-        t.error(err)
+      // delete the user again, as we don't need it
+      svc.deleteUserById([result.id], (err, result) => {
+        t.error(err, 'should be no error')
+        t.ok(result, 'result should be supplied')
+        svc.destroy({}, (err, result) => {
+          t.error(err)
+        })
       })
     })
   })
 })
 
 test('update a user', (t) => {
+  const data = [99, 'Augustus Gloop', [{'id': 4, 'name': 'Dream Team'}], [{'id': 1, 'name': 'DROP ALL TABLES!'}, { 'id': 2, 'name': 'THROW DESK' }]]
   t.plan(3)
   service((svc) => {
-    svc.updateUser([99, 'Augustus Gloop'], (err, result) => {
+    svc.updateUser(data, (err, result) => {
       t.error(err, 'should be no error')
       t.ok(result, 'result should be supplied')
       svc.destroy({}, (err, result) => {

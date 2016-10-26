@@ -7,7 +7,8 @@ mu.outbound({role: 'authorization'}, tcp.client({port: process.env.SERVICE_PORT 
 
 function handleRoleCommandType (role, command, type, params, request, reply) {
   mu.dispatch({role: role, cmd: command, type: type, params: params}, function (err, res) {
-    if (err) return reply(err).code(500)
+    // TODO: consider using Boom
+    if (err) return reply('Internal Server Error').code(500)
     return reply(res)
   })
 }
@@ -43,11 +44,14 @@ module.exports = function (server) {
     path: '/authorization/user',
     handler: function (request, reply) {
       // console.log("rawPayload: " + request.rawPayload)
-      if (request.payload.name) {
-        console.log('Received POST, name= ' + request.payload.name)
-        // hardcode the org_id for now (as not yet fully implemented)
-        handleRoleCommandType('authorization', 'create', 'user', [request.payload.name, 'WONKA'], request, reply)
-      }
+      if (!request.payload.name) return reply('request payload is missing data').code(400)
+      console.log('Received POST, name= ' + request.payload.name)
+      // hardcode the org_id for now (as not yet fully implemented)
+      mu.dispatch({role: 'authorization', cmd: 'create', type: 'user', params: [request.payload.name, 'WONKA']}, function (err, res) {
+        // console.log(err, res)
+        if (err) return reply(err).code(500)
+        return reply(res).code(201)
+      })
     }
   })
 
@@ -57,25 +61,36 @@ module.exports = function (server) {
     path: '/authorization/user/{id}',
     handler: function (request, reply) {
       // console.log("rawPayload: " + request.rawPayload)
-      if (request.params.id) {
-        console.log('Received DELETE, id=' + request.params.id)
-        handleRoleCommandType('authorization', 'delete', 'user', [request.params.id], request, reply)
-      }
+      if (!request.params.id) return reply('request payload is missing data').code(400)
+      console.log('Received DELETE, id=' + request.params.id)
+      mu.dispatch({role: 'authorization', cmd: 'delete', type: 'user', params: [request.params.id]}, function (err, res) {
+        // console.log(err, res)
+        if (err && err === 'not found') return reply(err).code(410)
+        if (err) return reply(err).code(500)
+        return reply(res).code(204)
+      })
     }
   })
-
-  // curl -X PUT http://localhost:8000/authorization/user/123 -H 'Content-Type: application/json' -d '{"name": "Mrs Beauregarde"}'
+  
+  // curl -X PUT http://localhost:8000/authorization/user/1 -H "Content-Type: application/json" -d '{"id": 1, "name": "Mrs Beauregarde", 
+  // "teams":[{"id": 3, "name": "Dream Team"}], "policies":[{"id": 4, "name": "DROP ALL TABLES!"}, { "id": 2, "name": "THROW DESK" }]}'
   server.route({
     method: 'PUT',
     path: '/authorization/user/{id}',
     handler: function (request, reply) {
-      // console.log("rawPayload: " + request.rawPayload)
-      //
-      // TODO: allow for updating more than just 'name'
-      //
+      
+      const { policies, teams, id, name } = request.payload
+
+      const params = [
+        id,
+        name,
+        teams,
+        policies
+      ]
+      
       if (request.params.id && request.payload.name) {
         console.log('Received PUT, name= ' + request.payload.name + ', id=' + request.params.id)
-        handleRoleCommandType('authorization', 'update', 'user', [request.params.id, request.payload.name], request, reply)
+        handleRoleCommandType('authorization', 'update', 'user', params, request, reply)
       }
     }
   })
@@ -103,4 +118,66 @@ module.exports = function (server) {
       handleRoleCommandType('authorization', 'list', 'teams', null, request, reply)
     }
   })
+
+  // curl http://localhost:8000/authorization/team
+  server.route({
+    method: 'POST',
+    path: '/authorization/team',
+    handler: function (request, reply) {
+      const { name, description } = request.payload
+      const params = [
+        name,
+        description,
+        null, // team_parent_id
+        'WONKA'
+      ]
+
+      handleRoleCommandType('authorization', 'create', 'team', params, request, reply)
+    }
+  })
+
+  // curl http://localhost:8000/authorization/team/123
+  server.route({
+    method: 'GET',
+    path: '/authorization/team/{id}',
+    handler: function (request, reply) {
+      handleRoleCommandType('authorization', 'read', 'team', [request.params.id], request, reply)
+    }
+  })
+
+  // curl -X PUT http://localhost:8000/authorization/team/123 -H 'Content-Type: application/json' -d '{"name": "Team A", "description": "Some description"}'
+  // TODO: allow for updating more than just 'name' and 'description'
+  server.route({
+    method: 'PUT',
+    path: '/authorization/team/{id}',
+    handler: function (request, reply) {
+      const id = request.params.id
+
+      if (!id) {
+        return reply('no team id found in request').code(400)
+      }
+
+      const { name, description } = request.payload
+
+      const params = [
+        id,
+        name,
+        description,
+      ]
+
+      handleRoleCommandType('authorization', 'update', 'team', params, request, reply)
+    }
+  })
+
+  // curl -X DELETE http://localhost:8000/authorization/team/123
+  server.route({
+    method: 'DELETE',
+    path: '/authorization/team/{id}',
+    handler: function (request, reply) {
+      const id = request.params.id
+
+      handleRoleCommandType('authorization', 'delete', 'team', [id], request, reply)
+    }
+  })
+
 }

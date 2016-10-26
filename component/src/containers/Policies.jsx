@@ -22,7 +22,6 @@ export default class Policies extends Component {
   // static propTypes = {
   //   policies: React.PropTypes.array.isRequired
   // }
-
   constructor (props) {
     super(props)
 
