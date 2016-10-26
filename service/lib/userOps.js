@@ -1,7 +1,6 @@
 'use strict'
 const dbUtil = require('./dbUtil')
 const async = require('async')
-const _ = require('lodash')
 
 //
 // TODO: take the org_id from the administrator credentials (or superadmin role?)
@@ -145,14 +144,14 @@ function updateUser (pool, args, cb) {
       client.query('DELETE FROM team_members WHERE user_id = $1', [id], cb)
     })
     task.push((result, cb) => {
-      let stmt = dbUtil.buildInsertStmt('INSERT INTO team_members (team_id, user_id) VALUES ', _.map(teams, p => [p.id, id]))
+      let stmt = dbUtil.buildInsertStmt('INSERT INTO team_members (team_id, user_id) VALUES ', teams.map(p => [p.id, id]))
       client.query(stmt.statement, stmt.params, cb)
     })
     task.push((result, cb) => {
       client.query('DELETE FROM user_policies WHERE user_id = $1', [id], cb)
     })
     task.push((result, cb) => {
-      let stmt = dbUtil.buildInsertStmt('INSERT INTO user_policies (policy_id, user_id) VALUES ', _.map(policies, p => [p.id, id]))
+      let stmt = dbUtil.buildInsertStmt('INSERT INTO user_policies (policy_id, user_id) VALUES ', policies.map(p => [p.id, id]))
       client.query(stmt.statement, stmt.params, cb)
     })
     async.waterfall(task, (err) => {
