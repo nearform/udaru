@@ -21,7 +21,7 @@ function listAllUsers (rsc, args, cb) {
     if (err) return cb(err)
     client.query('SELECT * from users ORDER BY UPPER(name)', function (err, result) {
       done() // release the client back to the pool
-      rsc.log.debug('listAllUsers: count of: ', result.rowCount)
+      rsc.log.debug('listAllUsers: count of: %d', result.rowCount)
       if (err) return cb(err)
       return cb(null, result.rows)
     })
@@ -51,7 +51,7 @@ function createUser (rsc, args, cb) {
     client.query('INSERT INTO users (id, name, org_id) VALUES (DEFAULT, $1, $2) RETURNING id', args, function (err, result) {
       done() // release the client back to the pool
       if (err) return cb(err)
-      rsc.log.debug('create user result: ', result)
+      rsc.log.debug('create user result: %j', result)
       readUserById(rsc, [result.rows[0].id], function (err, result) {
         if (err) return cb(err)
         return cb(null, result)
@@ -70,7 +70,7 @@ function createUserById (rsc, args, cb) {
     client.query('INSERT INTO users (id, name, org_id) VALUES ($1, $2, $3)', args, function (err, result) {
       done() // release the client back to the pool
       if (err) return cb(err)
-      rsc.log.debug('create user result: ', result)
+      rsc.log.debug('create user result: %j', result)
       readUserById(rsc, [args[0]], function (err, result) {
         if (err) return cb(err)
         return cb(null, result)
@@ -175,13 +175,13 @@ function deleteUserById (rsc, args, cb) {
         client.query('DELETE from user_policies WHERE user_id = $1', args, function (err, result) {
           // TODO: need to ensure that a 'not found' response is returned here
           if (err) return cb(dbUtil.rollback(client, done))
-          rsc.log.debug('delete user_policies result: ', result)
+          rsc.log.debug('delete user_policies result: %j', result)
           client.query('DELETE from team_members WHERE user_id = $1', args, function (err, result) {
             if (err) return cb(dbUtil.rollback(client, done))
-            rsc.log.debug('delete team_member result: ', result)
+            rsc.log.debug('delete team_member result: %j', result)
             client.query('DELETE from users WHERE id = $1', args, function (err, result) {
               if (err) return cb(dbUtil.rollback(client, done))
-              rsc.log.debug('delete user result: ', result)
+              rsc.log.debug('delete user result: %j', result)
               client.query('COMMIT', done)
               return cb(null, result.rows)
             })

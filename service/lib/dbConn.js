@@ -29,7 +29,7 @@ function create (log) {
     // this is a rare occurrence but can happen if there is a network partition
     // between your application and the database, the database restarts, etc.
     // and so you might want to handle it and at least log it out
-    log.error('idle client error', err.message, err.stack)
+    log.error(err, 'idle client error')
   })
 
   function shutdown (args, cb) {
