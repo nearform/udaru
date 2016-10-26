@@ -4,9 +4,13 @@ const _ = require('lodash')
 const test = require('tap').test
 const service = require('../../../service/lib/service')
 
+var opts = {
+  logLevel: 'warn'
+}
+
 test('list policies', (t) => {
   t.plan(5)
-  service((svc) => {
+  service(opts, (svc) => {
     svc.listAllPolicies({}, (err, result) => {
       t.error(err, 'should be no error')
       t.ok(result, 'result should be supplied')
@@ -28,7 +32,7 @@ test('list policies', (t) => {
 
 test('list all policies full', (t) => {
   t.plan(5)
-  service((svc) => {
+  service(opts, (svc) => {
     svc.listAllPoliciesDetails({}, (err, result) => {
       t.error(err, 'should be no error')
       t.ok(result, 'result should be supplied')
@@ -54,7 +58,7 @@ test('list all policies full', (t) => {
 
 test('read a specific policy', (t) => {
   t.plan(4)
-  service((svc) => {
+  service(opts, (svc) => {
     svc.readPolicyById([1], (err, result) => {
       t.error(err, 'should be no error')
       t.ok(result, 'result should be supplied')

@@ -4,7 +4,7 @@
 // as currently frequently times out (address in use)
 
 var test = require('tap').test
-var opts = {port: process.env.SERVICE_PORT || 8080, host: process.env.SERVICE_HOST || 'localhost'}
+var opts = {port: process.env.SERVICE_PORT || 8080, host: process.env.SERVICE_HOST || 'localhost', logLevel: process.env.LOG_LEVEL || 'info'}
 var Mu = require('mu')
 var wiring = require('../../service/wiring-mu')(opts)
 var tcp = require('mu/drivers/tcp')

@@ -1,13 +1,13 @@
-var pg = require('pg')
+const pg = require('pg')
 
 var pool = null
 
-function create (opts) {
+function create (log) {
   // create a config to configure both pooling behavior
   // and client options
   // note: all config is optional and the environment variables
   // will be read if the config is not present
-  var config = {
+  const config = {
     user: 'postgres', // env var: PGUSER
     database: 'authorization', // env var: PGDATABASE
     password: 'postgres', // env var: PGPASSWORD
@@ -29,14 +29,14 @@ function create (opts) {
     // this is a rare occurrence but can happen if there is a network partition
     // between your application and the database, the database restarts, etc.
     // and so you might want to handle it and at least log it out
-    console.error('idle client error', err.message, err.stack)
+    log.error(err, 'idle client error')
   })
 
   function shutdown (args, cb) {
     pool.connect(function (err, client, done) {
       if (err) return cb(err)
       client.query('SELECT now()', function (err, result) {
-        if (err) console.error(err) // log and carry on regardless
+        if (err) log.error(err) // log and carry on regardless
         if (client.release) client.release()
         pool.end(function (err, done) {
           if (err) return cb(err)

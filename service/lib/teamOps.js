@@ -5,10 +5,10 @@ const async = require('async')
 /*
 * no query args (but may e.g. sort in future)
 */
-function listAllTeams (pool, args, cb) {
-  pool.connect(function (err, client, done) {
+function listAllTeams (rsc, args, cb) {
+  rsc.pool.connect(function (err, client, done) {
     if (err) return cb(err)
-    client.query('SELECT  id, name, description from teams ORDER BY name', function (err, result) {
+    client.query('SELECT  id, name, description from teams ORDER BY UPPER(name)', function (err, result) {
       done() // release the client back to the pool
       if (err) return cb(err)
       return cb(null, result.rows)
@@ -19,10 +19,10 @@ function listAllTeams (pool, args, cb) {
 /*
 * $1 = org_id
 */
-function listOrgTeams (pool, args, cb) {
-  pool.connect(function (err, client, done) {
+function listOrgTeams (rsc, args, cb) {
+  rsc.pool.connect(function (err, client, done) {
     if (err) return cb(err)
-    client.query('SELECT  id, name, description from teams WHERE org_id = $1 ORDER BY name', args, function (err, result) {
+    client.query('SELECT  id, name, description from teams WHERE org_id = $1 ORDER BY UPPER(name)', args, function (err, result) {
       done() // release the client back to the pool
       if (err) return cb(err)
       return cb(null, result.rows)
@@ -36,8 +36,8 @@ function listOrgTeams (pool, args, cb) {
 * $3 = team_parent_id
 * $4 = org_id
 */
-function createTeam (pool, args, cb) {
-  pool.connect(function (err, client, done) {
+function createTeam (rsc, args, cb) {
+  rsc.pool.connect(function (err, client, done) {
     if (err) return cb(err)
     client.query('INSERT INTO teams (id, name, description, team_parent_id, org_id) VALUES (DEFAULT, $1, $2, $3, $4) RETURNING id', args, function (err, result) {
       done() // release the client back to the pool
@@ -45,7 +45,7 @@ function createTeam (pool, args, cb) {
 
       const team = result.rows[0]
 
-      readTeamById(pool, [team.id], function (err, result) {
+      readTeamById(rsc, [team.id], function (err, result) {
         if (err) return cb(err)
         return cb(null, result)
       })
@@ -56,8 +56,8 @@ function createTeam (pool, args, cb) {
 /*
 * $1 = id
 */
-function readTeamById (pool, args, cb) {
-  pool.connect((err, client, done) => {
+function readTeamById (rsc, args, cb) {
+  rsc.pool.connect((err, client, done) => {
     if (err) return cb(err)
 
     client.query('SELECT id, name, description from teams WHERE id = $1', args, (err, result) => {
@@ -80,8 +80,14 @@ function readTeamById (pool, args, cb) {
 * $4 = users
 * $5 = policies
 */
+<<<<<<< HEAD
 function updateTeam (pool, args, cb) {
   pool.connect(function (err, client, done) {
+=======
+// TODO: Allow updating specific fields only
+function updateTeam (rsc, args, cb) {
+  rsc.pool.connect(function (err, client, done) {
+>>>>>>> 7b7a8e19647a7a3967fc983d2cbea4ce83861c29
     if (err) return cb(err)
 
     const [ id, name, description, users, policies ] = args
@@ -126,8 +132,8 @@ function updateTeam (pool, args, cb) {
 /*
 * $1 = id
 */
-function deleteTeamById (pool, args, cb) {
-  pool.connect(function (err, client, done) {
+function deleteTeamById (rsc, args, cb) {
+  rsc.pool.connect(function (err, client, done) {
     if (err) return cb(err)
 
     client.query('BEGIN', function (err) {

@@ -1,6 +1,8 @@
 'use strict'
-const dbUtil = require('./dbUtil')
+
 const async = require('async')
+
+const dbUtil = require('./dbUtil')
 
 //
 // TODO: take the org_id from the administrator credentials (or superadmin role?)
@@ -14,11 +16,12 @@ const async = require('async')
 /*
 * no query args (but may e.g. sort in future)
 */
-function listAllUsers (pool, args, cb) {
-  pool.connect(function (err, client, done) {
+function listAllUsers (rsc, args, cb) {
+  rsc.pool.connect(function (err, client, done) {
     if (err) return cb(err)
-    client.query('SELECT * from users ORDER BY name', function (err, result) {
+    client.query('SELECT * from users ORDER BY UPPER(name)', function (err, result) {
       done() // release the client back to the pool
+      rsc.log.debug('listAllUsers: count of: %d', result.rowCount)
       if (err) return cb(err)
       return cb(null, result.rows)
     })
@@ -28,10 +31,10 @@ function listAllUsers (pool, args, cb) {
 /*
 * $1 = org_id
 */
-function listOrgUsers (pool, args, cb) {
-  pool.connect(function (err, client, done) {
+function listOrgUsers (rsc, args, cb) {
+  rsc.pool.connect(function (err, client, done) {
     if (err) return cb(err)
-    client.query('SELECT  * from users WHERE org_id = $1 ORDER BY name', args, function (err, result) {
+    client.query('SELECT  * from users WHERE org_id = $1 ORDER BY UPPER(name)', args, function (err, result) {
       done() // release the client back to the pool
       if (err) return cb(err)
       return cb(null, result.rows)
@@ -42,14 +45,14 @@ function listOrgUsers (pool, args, cb) {
 /*
 * $1 = name, $2 = org_id
 */
-function createUser (pool, args, cb) {
-  pool.connect(function (err, client, done) {
+function createUser (rsc, args, cb) {
+  rsc.pool.connect(function (err, client, done) {
     if (err) return cb(err)
     client.query('INSERT INTO users (id, name, org_id) VALUES (DEFAULT, $1, $2) RETURNING id', args, function (err, result) {
       done() // release the client back to the pool
       if (err) return cb(err)
-      // console.log('create user result: ', result)
-      readUserById(pool, [result.rows[0].id], function (err, result) {
+      rsc.log.debug('create user result: %j', result)
+      readUserById(rsc, [result.rows[0].id], function (err, result) {
         if (err) return cb(err)
         return cb(null, result)
       })
@@ -61,14 +64,14 @@ function createUser (pool, args, cb) {
 * $1 = id, $2 = name, $3 = org_id
 * (allows passing in of ID for test purposes)
 */
-function createUserById (pool, args, cb) {
-  pool.connect(function (err, client, done) {
+function createUserById (rsc, args, cb) {
+  rsc.pool.connect(function (err, client, done) {
     if (err) return cb(err)
     client.query('INSERT INTO users (id, name, org_id) VALUES ($1, $2, $3)', args, function (err, result) {
       done() // release the client back to the pool
       if (err) return cb(err)
-      // console.log('create user result: ', result)
-      readUserById(pool, [args[0]], function (err, result) {
+      rsc.log.debug('create user result: %j', result)
+      readUserById(rsc, [args[0]], function (err, result) {
         if (err) return cb(err)
         return cb(null, result)
       })
@@ -79,39 +82,37 @@ function createUserById (pool, args, cb) {
 /*
 * $1 = id
 */
-function readUserById (pool, args, cb) {
+function readUserById (rsc, args, cb) {
   var user = {
     'id': null,
     'name': null,
     teams: [],
     policies: []
   }
-  pool.connect(function (err, client, done) {
+  rsc.pool.connect(function (err, client, done) {
     if (err) return cb(err)
     client.query('SELECT id, name from users WHERE id = $1', args, function (err, result) {
       if (err || (result.rowCount < 1)) {
-        done()
+        done() // release the client back to the pool
         return cb(err || new Error('not found'))
       }
       user.id = result.rows[0].id
       user.name = result.rows[0].name
 
-      client.query('SELECT teams.id, teams.name from team_members mem, teams WHERE mem.user_id = $1 and mem.team_id = teams.id', args, function (err, result) {
+      client.query('SELECT teams.id, teams.name from team_members mem, teams WHERE mem.user_id = $1 and mem.team_id = teams.id ORDER BY UPPER(teams.name)', args, function (err, result) {
         if (err) {
-          done()
+          done() // release the client back to the pool
           return cb(err)
         }
-        // console.log(result)
         result.rows.forEach(function (row) {
           user.teams.push(row)
         })
-        client.query('SELECT pol.id, pol.version, pol.name from user_policies upol, policies pol WHERE upol.user_id = $1 and upol.policy_id = pol.id', args, function (err, result) {
+        client.query('SELECT pol.id, pol.version, pol.name from user_policies upol, policies pol WHERE upol.user_id = $1 and upol.policy_id = pol.id ORDER BY UPPER(pol.name)', args, function (err, result) {
           done() // release the client back to the pool
           if (err) return cb(err)
           result.rows.forEach(function (row) {
             user.policies.push(row)
           })
-          // console.log(user)
           return cb(null, user)
         })
       })
@@ -122,15 +123,15 @@ function readUserById (pool, args, cb) {
 /*
 * $1 = id, $2 = name, $3 = teams, $4 = policies
 */
-function updateUser (pool, args, cb) {
-  pool.connect(function (err, client, done) {
+function updateUser (rsc, args, cb) {
+  rsc.pool.connect(function (err, client, done) {
     if (err) return cb(err)
 
     const [id, name, teams, policies] = args
     const task = []
 
     if (!Array.isArray(teams) || !Array.isArray(policies)) {
-      done()
+      done() // release the client back to the pool
       return cb()
     }
 
@@ -162,12 +163,11 @@ function updateUser (pool, args, cb) {
   })
 }
 
-
 /*
 * $1 = id
 */
-function deleteUserById (pool, args, cb) {
-  pool.connect(function (err, client, done) {
+function deleteUserById (rsc, args, cb) {
+  rsc.pool.connect(function (err, client, done) {
     if (err) return cb(err)
     client.query('BEGIN', function (err) {
       if (err) return cb(dbUtil.rollback(client, done))
@@ -175,13 +175,13 @@ function deleteUserById (pool, args, cb) {
         client.query('DELETE from user_policies WHERE user_id = $1', args, function (err, result) {
           // TODO: need to ensure that a 'not found' response is returned here
           if (err) return cb(dbUtil.rollback(client, done))
-          // console.log('delete user_policies result: ', result)
+          rsc.log.debug('delete user_policies result: %j', result)
           client.query('DELETE from team_members WHERE user_id = $1', args, function (err, result) {
             if (err) return cb(dbUtil.rollback(client, done))
-            // console.log('delete team_member result: ', result)
+            rsc.log.debug('delete team_member result: %j', result)
             client.query('DELETE from users WHERE id = $1', args, function (err, result) {
               if (err) return cb(dbUtil.rollback(client, done))
-              // console.log('delete user result: ', result)
+              rsc.log.debug('delete user result: %j', result)
               client.query('COMMIT', done)
               return cb(null, result.rows)
             })
