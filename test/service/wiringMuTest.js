@@ -88,7 +88,7 @@ test('authorization:user:update', (t) => {
   var mu = Mu()
   mu.outbound('*', tcp.client(opts))
   wiring.start(() => {
-    mu.dispatch({role: 'authorization', cmd: 'update', type: 'user', params: [99, 'Augustus Gloop',  [{'id': 4, 'name': 'Dream Team'}], [{'id': 1, 'name': 'DROP ALL TABLES!'}, { 'id': 2, 'name': 'THROW DESK' }]]}, (err, result) => {
+    mu.dispatch({role: 'authorization', cmd: 'update', type: 'user', params: [99, 'Augustus Gloop', [{'id': 4, 'name': 'Dream Team'}], [{'id': 1, 'name': 'DROP ALL TABLES!'}, { 'id': 2, 'name': 'THROW DESK' }]]}, (err, result) => {
       t.error(err)
       t.ok(result, 'result should be supplied')
       mu.dispatch({role: 'authorization', cmd: 'done'}, (err, result) => {
