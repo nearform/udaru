@@ -14,7 +14,7 @@ const teams = (state = initialState, action) => {
       })
     case RECEIVE_TEAM:
       return Object.assign({}, state, {
-        selectedUser: action.team
+        selectedTeam: action.team
       })
     case DELETE_TEAM:
       const filtered = state.list.filter(item => {
@@ -22,7 +22,7 @@ const teams = (state = initialState, action) => {
       })
       return Object.assign({}, state, {
         list: filtered,
-        selectedUser: null
+        selectedTeam: null
       })
     case UPDATE_TEAM:
       const list = state.list.map(item => {
@@ -31,12 +31,12 @@ const teams = (state = initialState, action) => {
       })
       return Object.assign({}, state, {
         list,
-        selectedUser: action.team
+        selectedTeam: action.team
       })
     case MAKE_TEAM:
       return Object.assign({}, state, {
         list: state.list.concat([action.team]).sort(sortByName),
-        selectedUser: action.team
+        selectedTeam: action.team
       })
     default:
       return state

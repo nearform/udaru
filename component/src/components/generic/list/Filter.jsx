@@ -1,6 +1,6 @@
-import React, { Component } from 'react'
+import React from 'react'
 
-export default (props) => (
+const Filter = (props) => (
   <div className='filterlist--filter-wrapper'>
     <i className='fa fa-search filterlist--filter-icon'></i>
     <input type='text'
@@ -11,3 +11,11 @@ export default (props) => (
     />
   </div>
 )
+
+Filter.propTypes = {
+  filterChanged: React.PropTypes.func.isRequired,
+  which: React.PropTypes.string.isRequired,
+  filter: React.PropTypes.string
+}
+
+export default Filter

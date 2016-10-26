@@ -12,12 +12,12 @@ export default class App extends Component {
 
   render () {
     const { children } = this.props
-
+    // <img src='../images/logo.png' style={{width: '100%' /* Temp */}} />
     return (
       <div>
         <header className='header'>
           <div className='header--logo'>
-            <img src='../images/logo.png' style={{width: '100%' /* Temp */}} />
+            <img src='../images/logo.png' style={{width: '100%'}} />
           </div>
           <div className='header--bar'>
             <div className='header--search-bar'>

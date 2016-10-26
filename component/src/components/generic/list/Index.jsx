@@ -63,6 +63,10 @@ export default class List extends Component {
 List.propTypes = {
   which: React.PropTypes.string.isRequired,
   items: React.PropTypes.array.isRequired,
-  selected: React.PropTypes.object,
-  onItemSelect: React.PropTypes.func.isRequired
+  selectedItem: React.PropTypes.object,
+  showAddPanel: React.PropTypes.bool.isRequired,
+  addNameChanged: React.PropTypes.func.isRequired,
+  addNameValue: React.PropTypes.string.isRequired,
+  onItemSelect: React.PropTypes.func.isRequired,
+  make: React.PropTypes.func.isRequired
 }

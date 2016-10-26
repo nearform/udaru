@@ -4,14 +4,30 @@ import { Field, FieldArray, reduxForm, formValueSelector } from 'redux-form'
 
 import Attachments from '../generic/Attachments'
 
+const selector = formValueSelector('EditUser')
+
+@connect(state => {
+  return {
+    teams: selector(state, 'teams'),
+    policies: selector(state, 'policies'),
+    selectedTeam: selector(state, 'teamSelector'),
+    selectedPolicy: selector(state, 'policySelector')
+  }
+})
+
 class EditUser extends Component {
-  // static propTypes = {
-  //   saveUser: React.PropTypes.func.isRequired,
-  //   initialValues: React.PropTypes.object.isRequired,
-  //   policyList: React.PropTypes.array.isRequired,
-  //   teamList: React.PropTypes.array.isRequired,
-  //   remove: React.PropTypes.func.isRequired
-  // }
+  static propTypes = {
+    remove: React.PropTypes.func.isRequired,
+    selectedTeam: React.PropTypes.string,
+    teams: React.PropTypes.array.isRequired,
+    teamList: React.PropTypes.array.isRequired,
+    policies: React.PropTypes.array.isRequired,
+    policyList: React.PropTypes.array.isRequired,
+    selectedPolicy: React.PropTypes.string,
+    pristine: React.PropTypes.bool.isRequired,
+    handleSubmit: React.PropTypes.func.isRequired,
+    saveUser: React.PropTypes.func.isRequired
+  }
 
   constructor (props) {
     super(props)
@@ -92,18 +108,6 @@ class EditUser extends Component {
   }
 }
 
-EditUser.propTypes = {
-  remove: React.PropTypes.func.isRequired,
-  selectedTeam: React.PropTypes.string,
-  teams: React.PropTypes.array.isRequired,
-  policies: React.PropTypes.array.isRequired,
-  policyList: React.PropTypes.array.isRequired,
-  selectedPolicy: React.PropTypes.string,
-  pristine: React.PropTypes.bool.isRequired,
-  handleSubmit: React.PropTypes.func.isRequired,
-  saveUser: React.PropTypes.func.isRequired
-}
-
 // const validate = values => {
 //   const errors = {}
 //   if (!values.name) {
@@ -111,19 +115,6 @@ EditUser.propTypes = {
 //   }
 //   return errors
 // }
-
-const selector = formValueSelector('EditUser')
-
-EditUser = connect(
-  state => {
-    return {
-      teams: selector(state, 'teams'),
-      policies: selector(state, 'policies'),
-      selectedTeam: selector(state, 'teamSelector'),
-      selectedPolicy: selector(state, 'policySelector')
-    }
-  }
-)(EditUser)
 
 export default reduxForm({
   form: 'EditUser',

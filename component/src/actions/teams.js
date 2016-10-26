@@ -55,7 +55,11 @@ export const makeTeam = (teamname) => {
     callApi({
       method: 'post',
       endpoint: '/authorization/team',
-      data: { name: teamname }
+      data: {
+        name: teamname,
+        users: [],
+        policies: []
+      }
     }).then(team => {
       dispatch({ type: MAKE_TEAM, team })
     })

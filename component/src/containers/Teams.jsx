@@ -14,7 +14,7 @@ import EditTeam from '../components/teams/EditTeam'
 
 @connect(({ users, teams, policies }) => ({
   users: users.list,
-  selectedTeam: users.selectedTeam,
+  selectedTeam: teams.selectedTeam,
   teams: teams.list,
   policies: policies.list
 }), ({
@@ -78,7 +78,7 @@ export default class Policies extends Component {
   }
 
   remove (selected) {
-    this.props.deleteTeam(this.props.selectedUser.id)
+    this.props.deleteTeam(this.props.selectedTeam.id)
   }
 
   make () {

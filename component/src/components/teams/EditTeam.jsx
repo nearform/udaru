@@ -4,15 +4,18 @@ import { Field, FieldArray, reduxForm, formValueSelector } from 'redux-form'
 
 import Attachments from '../generic/Attachments'
 
-class EditTeam extends Component {
-  // static propTypes = {
-  //   saveUser: React.PropTypes.func.isRequired,
-  //   initialValues: React.PropTypes.object.isRequired,
-  //   policyList: React.PropTypes.array.isRequired,
-  //   teamList: React.PropTypes.array.isRequired,
-  //   remove: React.PropTypes.func.isRequired
-  // }
+const selector = formValueSelector('EditTeam')
 
+@connect(state => {
+  return {
+    teams: selector(state, 'teams'),
+    policies: selector(state, 'policies'),
+    selectedUser: selector(state, 'userSelector'),
+    selectedPolicy: selector(state, 'policySelector')
+  }
+})
+
+class EditTeam extends Component {
   constructor (props) {
     super(props)
 
@@ -34,7 +37,7 @@ class EditTeam extends Component {
       <div className=''>
 
         <div className='edit--namecontainer edit--flex'>
-          <label htmlFor='name' className='user--flex-left'>Team Name: </label>
+          <label htmlFor='name' className='edit--flex-left'>Team Name: </label>
           <div className='edit--flex-mid'>
             <Field name='name'
               component='input'
@@ -93,15 +96,17 @@ class EditTeam extends Component {
 }
 
 EditTeam.propTypes = {
-  // remove: React.PropTypes.func.isRequired,
-  // selectedTeam: React.PropTypes.string,
-  // teams: React.PropTypes.array.isRequired,
-  // policies: React.PropTypes.array.isRequired,
-  // policyList: React.PropTypes.array.isRequired,
-  // selectedPolicy: React.PropTypes.string,
-  // pristine: React.PropTypes.bool.isRequired,
-  // handleSubmit: React.PropTypes.func.isRequired,
-  // saveTeam: React.PropTypes.func.isRequired
+  remove: React.PropTypes.func.isRequired,
+  users: React.PropTypes.array.isRequired,
+  userList: React.PropTypes.array.isRequired,
+  policies: React.PropTypes.array.isRequired,
+  policyList: React.PropTypes.array.isRequired,
+  selectedUser: React.PropTypes.string,
+  teamList: React.PropTypes.array.isRequired,
+  selectedPolicy: React.PropTypes.string,
+  pristine: React.PropTypes.bool.isRequired,
+  handleSubmit: React.PropTypes.func.isRequired,
+  saveTeam: React.PropTypes.func.isRequired
 }
 
 // const validate = values => {
@@ -111,19 +116,6 @@ EditTeam.propTypes = {
 //   }
 //   return errors
 // }
-
-const selector = formValueSelector('EditUser')
-
-EditTeam = connect(
-  state => {
-    return {
-      teams: selector(state, 'teams'),
-      policies: selector(state, 'policies'),
-      selectedUser: selector(state, 'userSelector'),
-      selectedPolicy: selector(state, 'policySelector')
-    }
-  }
-)(EditTeam)
 
 export default reduxForm({
   form: 'EditTeam',
