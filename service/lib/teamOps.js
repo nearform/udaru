@@ -90,7 +90,7 @@ function updateTeam (rsc, args, cb) {
 
     if (!Array.isArray(users) || !Array.isArray(policies)) {
       done()
-      return cb()
+      return cb(new Error('Users or policies data missing'))
     }
 
     task.push((cb) => {
