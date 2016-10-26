@@ -14,8 +14,8 @@
     "pg:init": "[ ! -d ./logs ] && mkdir ./logs;./scripts/init/database/db_init.sh | tee ./logs/init-db.log",
     "pg:load-test-data": "./scripts/init/database/db_load.sh | tee ./logs/load-test-data.log",
     "svc:start": "node integration/service.js",
-    "test:service": "tap test/service/**/*Test.js --coverage",
-    "coverage:service": "tap test/service/**/*Test.js --cov --coverage-report=html",
+    "test:service": "tap \"test/**/*Test.js\" --coverage",
+    "coverage:service": "tap \"test/**/*Test.js\" --cov --coverage-report=html",
     "test": "npm run test:service",
     "coverage": "npm run coverage:service"
   },
