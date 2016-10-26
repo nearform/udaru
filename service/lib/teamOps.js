@@ -1,5 +1,6 @@
 'use strict'
 const dbUtil = require('./dbUtil')
+const async = require('async')
 
 /*
 * no query args (but may e.g. sort in future)
@@ -76,18 +77,49 @@ function readTeamById (rsc, args, cb) {
 * $1 = id
 * $2 = name
 * $3 = description
+* $4 = users
+* $5 = policies
 */
 // TODO: Allow updating specific fields only
 function updateTeam (rsc, args, cb) {
   rsc.pool.connect(function (err, client, done) {
     if (err) return cb(err)
-    client.query('UPDATE teams SET name = $2, description = $3 WHERE id = $1 RETURNING id, name, description', args, function (err, result) {
-      done() // release the client back to the pool
-      if (err) return cb(err)
 
-      const team = result.rows[0]
+    const [ id, name, description, users, policies ] = args
+    const task = []
 
-      return cb(null, team)
+    if (!Array.isArray(users) || !Array.isArray(policies)) {
+      done()
+      return cb(new Error('Users or policies data missing'))
+    }
+
+    task.push((cb) => {
+      client.query('BEGIN', cb)
+    })
+    task.push((result, cb) => {
+      client.query('UPDATE teams SET name = $2, description = $3 WHERE id = $1', [id, name, description], cb)
+    })
+    task.push((result, cb) => {
+      client.query('DELETE FROM team_members WHERE team_id = $1', [id], cb)
+    })
+    task.push((result, cb) => {
+      let stmt = dbUtil.buildInsertStmt('INSERT INTO team_members (user_id, team_id) VALUES ', users.map(p => [p.id, id]))
+      client.query(stmt.statement, stmt.params, cb)
+    })
+    task.push((result, cb) => {
+      client.query('DELETE FROM team_policies WHERE team_id = $1', [id], cb)
+    })
+    task.push((result, cb) => {
+      let stmt = dbUtil.buildInsertStmt('INSERT INTO team_policies (policy_id, team_id) VALUES ', policies.map(p => [p.id, id]))
+      client.query(stmt.statement, stmt.params, cb)
+    })
+    async.waterfall(task, (err) => {
+      if (err) return cb(dbUtil.rollback(client, done))
+      client.query('COMMIT', (err) => {
+        if (err) return cb(err)
+        done()
+        return cb(null, {id, name, description, users, policies})
+      })
     })
   })
 }

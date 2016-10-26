@@ -132,7 +132,7 @@ function updateUser (rsc, args, cb) {
 
     if (!Array.isArray(teams) || !Array.isArray(policies)) {
       done() // release the client back to the pool
-      return cb()
+      return cb(new Error('Teams or policies data missing'))
     }
 
     task.push((cb) => {
