@@ -84,7 +84,7 @@ function readTeamById (rsc, args, cb) {
         result.rows.forEach(function (row) {
           team.users.push(row)
         })
-        client.query('SELECT pol.id, pol.version, pol.name from team_policies tpol, policies pol WHERE tpol.team_id = $1 and tpol.policy_id = pol.id ORDER BY UPPER(pol.name)', args, function (err, result) {
+        client.query('SELECT pol.id, pol.name from team_policies tpol, policies pol WHERE tpol.team_id = $1 and tpol.policy_id = pol.id ORDER BY UPPER(pol.name)', args, function (err, result) {
           done() // release the client back to the pool
           if (err) return cb(err)
           result.rows.forEach(function (row) {
