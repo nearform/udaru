@@ -10,6 +10,24 @@ function rollback (client, done) {
   })
 }
 
+function buildInsertStmt (insert, rows) {
+  const params = []
+  const chunks = []
+  rows.forEach(row => {
+    const valueClause = []
+    row.forEach(p => {
+      params.push(p)
+      valueClause.push('$' + params.length)
+    })
+    chunks.push('(' + valueClause.join(', ') + ')')
+  })
+  return {
+    statement: insert + chunks.join(', '),
+    params: params
+  }
+}
+
 module.exports = {
-  rollback: rollback
+  rollback: rollback,
+  buildInsertStmt: buildInsertStmt
 }
