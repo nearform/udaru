@@ -108,16 +108,16 @@ class EditUser extends Component {
   }
 }
 
-// const validate = values => {
-//   const errors = {}
-//   if (!values.name) {
-//     errors.name = 'Required'
-//   }
-//   return errors
-// }
+const validate = values => {
+  const errors = {}
+  if (!values.name) {
+    errors.name = 'Required'
+  }
+  return errors
+}
 
 export default reduxForm({
   form: 'EditUser',
-  // validate,
+  validate,
   enableReinitialize: true
 })(EditUser)
