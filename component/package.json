@@ -1,15 +1,16 @@
 {
-  "name": "frontend-boilerplate",
+  "name": "labs-authorization-component",
   "version": "0.0.1",
-  "description": "",
+  "description": "Full stack authorization Component",
   "main": "dist/index.js",
   "spacey-standard": {
     "parser": "babel-eslint"
   },
   "scripts": {
-    "test": "./node_modules/.bin/lab ./test/",
-    "test-cov-html": "./node_modules/.bin/lab ./test/ -r html -o coverage.html",
+    "start": "npm run dev",
     "lint": "./node_modules/.bin/spacey-standard \"src/**/*.js\" \"src/**/*.jsx\"",
+    "test": "./node_modules/.bin/lab ./test/",
+    "coverage": "./node_modules/.bin/lab ./test/ -r html -o coverage.html",
     "dev": "./node_modules/.bin/webpack-dev-server",
     "build": "npm run lint && ./node_modules/.bin/webpack"
   },

@@ -4,15 +4,18 @@ const test = require('tap').test
 const service = require('../../../service/lib/service')
 
 test('authorize check on a resource and action', (t) => {
-  t.plan(4)
+  t.plan(7)
 
   service((svc) => {
     let testUserId
 
     svc.createUser(['Salman', 'WONKA'], (err, result) => {
+      t.error(err, 'should be no error')
+
       testUserId = result.id
 
       svc.updateUser([testUserId, 'Salman', [{id: 4}], [{id: 1}]], (err, result) => {
+        t.error(err, 'should be no error')
 
         svc.isUserAuthorized({
           userId: testUserId,
@@ -24,9 +27,10 @@ test('authorize check on a resource and action', (t) => {
           t.deepEqual(result.access, true, 'data should be as expected')
 
           svc.deleteUserById([testUserId], (err, result) => {
+            t.error(err, 'should be no error')
 
             svc.destroy({}, (err, result) => {
-              t.error(err)
+              t.error(err, 'should be no error')
             })
           })
         })
