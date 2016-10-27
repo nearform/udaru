@@ -257,7 +257,7 @@ module.exports = function (server) {
         resource
       }
 
-      handleRoleCommandType('authorization', 'list', 'user', params, request, reply)
+      handleRoleCommandType('authorization', 'list', 'authorizations', params, request, reply)
     }
   })
 

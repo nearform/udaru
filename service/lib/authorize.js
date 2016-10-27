@@ -22,6 +22,10 @@ function isUserAuthorized (pool, { resource, action, userId }, cb) {
   })
 }
 
+//
+// TODO: Note: this needs to take 'Deny' into account and also deal with wildcards.
+// as would be worth looking into the pbac module code for reuse opportunity
+//
 function listAuthorizations (pool, {userId, resource}, cb) {
   const data = {}
 
