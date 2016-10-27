@@ -1,6 +1,5 @@
 'use strict'
 
-const _ = require('lodash')
 const test = require('tap').test
 const service = require('../../lib/service')
 
