@@ -1,4 +1,4 @@
-import { RECEIVE_USERS, RECEIVE_USER, DELETE_USER, UPDATE_USER, MAKE_USER } from '../constants'
+import { RECEIVE_TEAMS, RECEIVE_TEAM, DELETE_TEAM, UPDATE_TEAM, MAKE_TEAM } from '../constants'
 
 import sortByName from '../lib/sortByName'
 
@@ -6,41 +6,41 @@ const initialState = {
   list: null
 }
 
-const users = (state = initialState, action) => {
+const teams = (state = initialState, action) => {
   switch (action.type) {
-    case RECEIVE_USERS:
+    case RECEIVE_TEAMS:
       return Object.assign({}, state, {
-        list: action.users
+        list: action.teams
       })
-    case RECEIVE_USER:
+    case RECEIVE_TEAM:
       return Object.assign({}, state, {
-        selectedUser: action.user
+        selectedTeam: action.team
       })
-    case DELETE_USER:
+    case DELETE_TEAM:
       const filtered = state.list.filter(item => {
         if (item.id !== action.id) return item
       })
       return Object.assign({}, state, {
         list: filtered,
-        selectedUser: null
+        selectedTeam: null
       })
-    case UPDATE_USER:
+    case UPDATE_TEAM:
       const list = state.list.map(item => {
-        if (item.id === action.user.id) return action.user
+        if (item.id === action.team.id) return action.team
         return item
       })
       return Object.assign({}, state, {
         list,
-        selectedUser: action.user
+        selectedTeam: action.team
       })
-    case MAKE_USER:
+    case MAKE_TEAM:
       return Object.assign({}, state, {
-        list: state.list.concat([action.user]).sort(sortByName),
-        selectedUser: action.user
+        list: state.list.concat([action.team]).sort(sortByName),
+        selectedTeam: action.team
       })
     default:
       return state
   }
 }
 
-export default users
+export default teams

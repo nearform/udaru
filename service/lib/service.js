@@ -3,6 +3,7 @@
 const log = require('pino')()
 
 const dbConn = require('./dbConn')
+const authorize = require('./authorize')
 const userOps = require('./userOps')
 const teamOps = require('./teamOps')
 const policyOps = require('./policyOps')
@@ -83,6 +84,10 @@ module.exports = function (opts, done) {
     teamOps.deleteTeamById(rsc, args, cb)
   }
 
+  function isUserAuthorized (args, cb) {
+    authorize.isUserAuthorized(db.pool, args, cb)
+  }
+
   // simulate resource initialization.
   // give ourselves plenty of time,
   // as less may give intermittent ECONNREFUSED
@@ -104,6 +109,7 @@ module.exports = function (opts, done) {
       readTeamById: readTeamById,
       updateTeam: updateTeam,
       deleteTeamById: deleteTeamById,
+      isUserAuthorized: isUserAuthorized,
       destroy: shutdown
     })
   }, 500)

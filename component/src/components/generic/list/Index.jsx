@@ -8,48 +8,51 @@ export default class List extends Component {
     super(props)
 
     this.state = {
-      selected: null,
-      filtered: props.items
+      filter: ''
     }
 
-    this.itemSelected = ::this.itemSelected
     this.filterChanged = ::this.filterChanged
-  }
-
-  itemSelected (selected) {
-    this.setState({ selected })
-    this.props.onItemSelect(selected)
+    this.submitNewItem = ::this.submitNewItem
   }
 
   filterChanged (filter) {
-    filter = filter.toLowerCase()
-    const filtered = this.props.items.filter(item => ~item.name.toLowerCase().indexOf(filter))
-
-    this.setState({ filtered })
+    this.setState({
+      filter: filter.target.value
+    })
   }
 
+  submitNewItem (e) {
+    e.preventDefault()
+    this.props.make()
+  }
+
+
   render () {
-    const { filtered, selected } = this.state
+    const selectedItem = this.props.selectedItem ? this.props.selectedItem.id : null
+    const filtered = this.props.items.filter(item => ~item.name.toLowerCase().indexOf(this.state.filter))
 
     const listItems = filtered.map(item => {
       return (
         <Item
           key={item.id}
           item={item}
-          selected={item === selected}
-          onItemSelect={this.itemSelected}
+          selected={item.id === selectedItem}
+          onItemSelect={this.props.onItemSelect}
         />
       )
     })
 
     return (
       <div>
-        <Filter onFilterChange={this.filterChanged} which={this.props.which} />
+        <Filter filterChanged={this.filterChanged} which={this.props.which} />
+        <div hidden={!this.props.showAddPanel}>
+          <form onSubmit={this.submitNewItem} className='filterlist--createpanel'>
+            Create {this.props.which}
+            <input className='filterlist--createpanel-input' type='text' onChange={this.props.addNameChanged} value={this.props.addNameValue} placeholder='Name ...' />
+            <button className='filterlist--createpanel-button'>Submit</button>
+          </form>
+        </div>
         <ul className='filterlist--list-items'>
-          <li className='filterlist--item'>
-            <i className='fa fa-plus'></i>
-            <span className='filterlist--add-item'>Add {this.props.which}</span>
-          </li>
           {listItems}
         </ul>
       </div>
@@ -60,6 +63,10 @@ export default class List extends Component {
 List.propTypes = {
   which: React.PropTypes.string.isRequired,
   items: React.PropTypes.array.isRequired,
-  selected: React.PropTypes.object,
-  onItemSelect: React.PropTypes.func.isRequired
+  selectedItem: React.PropTypes.object,
+  showAddPanel: React.PropTypes.bool.isRequired,
+  addNameChanged: React.PropTypes.func.isRequired,
+  addNameValue: React.PropTypes.string.isRequired,
+  onItemSelect: React.PropTypes.func.isRequired,
+  make: React.PropTypes.func.isRequired
 }

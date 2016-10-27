@@ -4,29 +4,42 @@ import Container from 'muicss/lib/react/container'
 import Row from 'muicss/lib/react/row'
 import Col from 'muicss/lib/react/col'
 import { connect } from 'react-redux'
-// import { push } from 'react-router-redux'
-import { resolve } from 'react-resolver'
 
-import { callApi } from '../middleware/api'
+import { fetchUsers, fetchUser, deleteUser, updateUser, makeUser } from '../actions/users'
+import { fetchPolicies } from '../actions/policies'
+import { fetchTeams } from '../actions/teams'
 
 import List from '../components/generic/list'
 import EditUser from '../components/users/EditUser'
 
-@connect(({ users, policies }) => ({
-  _users: users.list,
-  _policies: policies.list
+@connect(({ users, teams, policies }) => ({
+  users: users.list,
+  selectedUser: users.selectedUser,
+  teams: teams.list,
+  policies: policies.list
+}), ({
+  fetchUser,
+  deleteUser,
+  updateUser,
+  makeUser,
+  fetchUsers,
+  fetchTeams,
+  fetchPolicies
 }))
-@resolve('users', (props) => {
-  // return callApi('/authorization/users').then(data => data)
-  return callApi('/authorization/users').then(data => data)
-})
-@resolve('policies', (props) => {
-  return callApi('/authorization/policies').then(data => data)
-})
-export default class Users extends Component {
+
+export default class Policies extends Component {
   static propTypes = {
-    users: React.PropTypes.array.isRequired,
-    policies: React.PropTypes.array.isRequired
+    fetchUser: React.PropTypes.func.isRequired,
+    deleteUser: React.PropTypes.func.isRequired,
+    updateUser: React.PropTypes.func.isRequired,
+    makeUser: React.PropTypes.func.isRequired,
+    fetchUsers: React.PropTypes.func.isRequired,
+    fetchTeams: React.PropTypes.func.isRequired,
+    fetchPolicies: React.PropTypes.func.isRequired,
+    users: React.PropTypes.array,
+    selectedUser: React.PropTypes.object,
+    teams: React.PropTypes.array,
+    policies: React.PropTypes.array
   }
 
   constructor (props) {
@@ -34,48 +47,71 @@ export default class Users extends Component {
 
     this.state = {
       selected: {},
+      addName: ''
     }
 
     this.edit = ::this.edit
     this.save = ::this.save
+    this.remove = ::this.remove
+    this.make = ::this.make
+    this.addNameChanged = ::this.addNameChanged
   }
 
-  save (data) {
-    // callApi({
-    //   method: 'post', // opt.
-    //   endpoint: '/authorization/user' + selected.id,
-    //   data: data
-    // }).then(res => {
-    //
-    // })
-    console.log('Attempted to save:', data)
+  componentDidMount () {
+    this.props.fetchUsers()
+    // temporary workaround for Hapi back-end issue:
+    // 'Error: reply interface called twice'
+    setTimeout(() => {
+      this.props.fetchPolicies()
+      setTimeout(() => {
+        this.props.fetchTeams()
+      }, 500)
+    }, 500)
   }
 
   edit (selected) {
-    callApi('/authorization/user/' + selected.id).then(user => {
-      this.setState({
-        user
-      })
-    })
+    this.props.fetchUser(selected.id)
+  }
+
+  save (data) {
+    this.props.updateUser(data)
+  }
+
+  remove (selected) {
+    this.props.deleteUser(this.props.selectedUser.id)
+  }
+
+  make () {
+    if (this.state.addName) this.props.makeUser(this.state.addName)
+    this.setState({ addName: '' })
+  }
+
+  addNameChanged (input) {
+    this.setState({ addName: input.target.value })
   }
 
   render () {
-    const { user } = this.state
-
     return (
       <Container fluid className=''>
         <Row>
           <Col md='2'>
-            <List
+            {this.props.users && <List
               which='User'
+              make={this.make}
               items={this.props.users}
               onItemSelect={this.edit}
-            />
+              showAddPanel
+              selectedItem={this.props.selectedUser}
+              addNameChanged={this.addNameChanged}
+              addNameValue={this.state.addName} />
+            }
           </Col>
-          <div className='user'>
-            {user && <EditUser saveUser={this.save}
-              initialValues={user}
+          <div className='edit'>
+            {this.props.selectedUser && <EditUser saveUser={this.save}
+              initialValues={this.props.selectedUser}
               policyList={this.props.policies}
+              teamList={this.props.teams}
+              remove={this.remove}
             />}
           </div>
         </Row>

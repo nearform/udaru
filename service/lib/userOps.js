@@ -182,6 +182,7 @@ function updateUser (rsc, args, cb) {
       client.query('COMMIT', (err) => {
         if (err) return cb(err)
         done()
+
         return cb(null, {id, name, teams, policies})
       })
     })

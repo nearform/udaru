@@ -111,7 +111,7 @@ module.exports = function (server) {
       ]
 
       handleRoleCommandType('authorization', 'update', 'user', params, request, reply)
-      }
+    }
   })
 
    // curl http://localhost:8000/authorization/policies
@@ -225,6 +225,23 @@ module.exports = function (server) {
 
         return reply().code(204)
       })
+    }
+  })
+
+  // curl -X GET http://localhost:8000/authorization/check/<resource>/<action>/<user_id>
+  server.route({
+    method: 'GET',
+    path: '/authorization/check/{resource}/{action}/{userId}',
+    handler: function (request, reply) {
+      const { resource, action, userId } = request.params // TODO: get userId from token
+
+      const params = {
+        userId,
+        action,
+        resource
+      }
+
+      handleRoleCommandType('authorization', 'authorize', 'user', params, request, reply)
     }
   })
 

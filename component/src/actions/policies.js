@@ -3,8 +3,6 @@ import { RECEIVE_POLICIES, RECEIVE_POLICY } from '../constants'
 
 export const fetchPolicy = (id) => {
   return (dispatch, getState) => {
-    const state = getState()
-
     return callApi('/authorization/policy/' + id).then((policy) => {
       dispatch({ type: RECEIVE_POLICY, policy })
 

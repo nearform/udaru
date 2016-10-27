@@ -4,36 +4,36 @@ import { Field, FieldArray, reduxForm, formValueSelector } from 'redux-form'
 
 import Attachments from '../generic/Attachments'
 
-const selector = formValueSelector('EditUser')
+const selector = formValueSelector('EditTeam')
 
 @connect(state => {
   return {
-    teams: selector(state, 'teams'),
+    users: selector(state, 'users'),
     policies: selector(state, 'policies'),
-    selectedTeam: selector(state, 'teamSelector'),
+    selectedUser: selector(state, 'userSelector'),
     selectedPolicy: selector(state, 'policySelector')
   }
 })
 
-class EditUser extends Component {
+class EditTeam extends Component {
   static propTypes = {
     remove: React.PropTypes.func.isRequired,
-    selectedTeam: React.PropTypes.string,
-    teams: React.PropTypes.array.isRequired,
-    teamList: React.PropTypes.array.isRequired,
+    users: React.PropTypes.array.isRequired,
+    userList: React.PropTypes.array.isRequired,
     policies: React.PropTypes.array.isRequired,
     policyList: React.PropTypes.array.isRequired,
+    selectedUser: React.PropTypes.string,
     selectedPolicy: React.PropTypes.string,
     pristine: React.PropTypes.bool.isRequired,
     handleSubmit: React.PropTypes.func.isRequired,
-    saveUser: React.PropTypes.func.isRequired
+    saveTeam: React.PropTypes.func.isRequired
   }
 
   constructor (props) {
     super(props)
 
     this.state = {
-      hideTeams: true,
+      hideUsers: true,
       hidePolicies: true
     }
 
@@ -41,7 +41,7 @@ class EditUser extends Component {
   }
 
   toggle (which) {
-    if (which === 'teams') this.setState({ hideTeams: !this.state.hideTeams })
+    if (which === 'users') this.setState({ hideUsers: !this.state.hideUsers })
     else this.setState({ hidePolicies: !this.state.hidePolicies })
   }
 
@@ -50,7 +50,7 @@ class EditUser extends Component {
       <div className=''>
 
         <div className='edit--namecontainer edit--flex'>
-          <label htmlFor='name' className='edit--flex-left'>User Name: </label>
+          <label htmlFor='name' className='edit--flex-left'>Team Name: </label>
           <div className='edit--flex-mid'>
             <Field name='name'
               component='input'
@@ -65,15 +65,15 @@ class EditUser extends Component {
         </div>
 
         <div className='edit--teamcontainer'>
-          <FieldArray name='teams'
+          <FieldArray name='users'
             component={Attachments}
-            fieldName='teams'
-            items={this.props.teams}
-            available={this.props.teamList}
-            title='Teams'
-            selected={this.props.selectedTeam}
-            selector='teamSelector'
-            hide={this.state.hideTeams}
+            fieldName='users'
+            items={this.props.users}
+            available={this.props.userList}
+            title='Users'
+            selected={this.props.selectedUser}
+            selector='userSelector'
+            hide={this.state.hideUsers}
             toggle={this.toggle}
           />
         </div>
@@ -98,7 +98,7 @@ class EditUser extends Component {
             hidden={this.props.pristine}
             component='button'
             type='button'
-            onClick={this.props.handleSubmit(this.props.saveUser)}>
+            onClick={this.props.handleSubmit(this.props.saveTeam)}>
             Save
           </Field>
         </div>
@@ -117,7 +117,7 @@ const validate = values => {
 }
 
 export default reduxForm({
-  form: 'EditUser',
+  form: 'EditTeam',
   validate,
   enableReinitialize: true
-})(EditUser)
+})(EditTeam)
