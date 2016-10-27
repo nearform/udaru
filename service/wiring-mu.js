@@ -43,8 +43,7 @@ module.exports = function (opts) {
           log.debug(err, 'Wiring error:')
           log.debug('Wiring result: %j', result)
 
-          // temporarily using err.message instead of err, due to mu bug
-          if (err) return cb(err.message, null)
+          if (err) return cb(err, null)
           return cb(null, result)
         })
       })

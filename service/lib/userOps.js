@@ -92,10 +92,16 @@ function readUserById (rsc, args, cb) {
   rsc.pool.connect(function (err, client, done) {
     if (err) return cb(err)
     client.query('SELECT id, name from users WHERE id = $1', args, function (err, result) {
-      if (err || (result.rowCount < 1)) {
+      if (err) {
         done() // release the client back to the pool
-        return cb(err || new Error('not found'))
+        return cb(err)
       }
+
+      if (result.rowCount === 0) {
+        done()
+        return cb('not found')
+      }
+
       user.id = result.rows[0].id
       user.name = result.rows[0].name
 
@@ -132,14 +138,26 @@ function updateUser (rsc, args, cb) {
 
     if (!Array.isArray(teams) || !Array.isArray(policies)) {
       done() // release the client back to the pool
-      return cb(new Error('Teams or policies data missing'))
+      return cb('Teams or policies data missing')
     }
 
     task.push((cb) => {
       client.query('BEGIN', cb)
     })
     task.push((result, cb) => {
-      client.query('UPDATE users SET name = $2 WHERE id = $1', [id, name], cb)
+      client.query('UPDATE users SET name = $2 WHERE id = $1', [id, name], (err, res) => {
+        if (err) {
+          done() // release the client back to the pool
+          return cb(err)
+        }
+
+        if (res.rowCount === 0) {
+          done()
+          return cb('not found')
+        }
+
+        cb(null, res)
+      })
     })
     task.push((result, cb) => {
       client.query('DELETE FROM team_members WHERE user_id = $1', [id], cb)
@@ -156,9 +174,16 @@ function updateUser (rsc, args, cb) {
       client.query(stmt.statement, stmt.params, cb)
     })
     async.waterfall(task, (err) => {
-      if (err) return cb(dbUtil.rollback(client, done))
-      client.query('COMMIT', done)
-      return cb(null, {id, name, teams, policies})
+      if (err) {
+        dbUtil.rollback(client, done)
+        return cb(err)
+      }
+
+      client.query('COMMIT', (err) => {
+        if (err) return cb(err)
+        done()
+        return cb(null, {id, name, teams, policies})
+      })
     })
   })
 }
@@ -169,21 +194,36 @@ function updateUser (rsc, args, cb) {
 function deleteUserById (rsc, args, cb) {
   rsc.pool.connect(function (err, client, done) {
     if (err) return cb(err)
+
     client.query('BEGIN', function (err) {
       if (err) return cb(dbUtil.rollback(client, done))
+
       process.nextTick(function () {
         client.query('DELETE from user_policies WHERE user_id = $1', args, function (err, result) {
-          // TODO: need to ensure that a 'not found' response is returned here
           if (err) return cb(dbUtil.rollback(client, done))
           rsc.log.debug('delete user_policies result: %j', result)
+
           client.query('DELETE from team_members WHERE user_id = $1', args, function (err, result) {
             if (err) return cb(dbUtil.rollback(client, done))
             rsc.log.debug('delete team_member result: %j', result)
+
             client.query('DELETE from users WHERE id = $1', args, function (err, result) {
-              if (err) return cb(dbUtil.rollback(client, done))
+              if (err) {
+                dbUtil.rollback(client, done)
+                return cb(err)
+              }
+
+              if (result.rowCount === 0) {
+                done()
+                return cb('not found')
+              }
+
               rsc.log.debug('delete user result: %j', result)
-              client.query('COMMIT', done)
-              return cb(null, result.rows)
+
+              client.query('COMMIT', () => {
+                done()
+                return cb(null)
+              })
             })
           })
         })

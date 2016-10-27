@@ -61,10 +61,15 @@ function readTeamById (rsc, args, cb) {
     if (err) return cb(err)
 
     client.query('SELECT id, name, description from teams WHERE id = $1', args, (err, result) => {
-      done() // release the client back to the pool
+      if (err) {
+        done() // release the client back to the pool
+        return cb(err)
+      }
 
-      if (err) return cb(err)
-      if (result.rows.length === 0) return cb(null, {})
+      if (result.rowCount === 0) {
+        done()
+        return cb('not found')
+      }
 
       const team = result.rows[0]
 
@@ -90,14 +95,26 @@ function updateTeam (rsc, args, cb) {
 
     if (!Array.isArray(users) || !Array.isArray(policies)) {
       done()
-      return cb(new Error('Users or policies data missing'))
+      return cb('Users or policies data missing')
     }
 
     task.push((cb) => {
       client.query('BEGIN', cb)
     })
     task.push((result, cb) => {
-      client.query('UPDATE teams SET name = $2, description = $3 WHERE id = $1', [id, name, description], cb)
+      client.query('UPDATE teams SET name = $2, description = $3 WHERE id = $1', [id, name, description], (err, res) => {
+        if (err) {
+          done() // release the client back to the pool
+          return cb(err)
+        }
+
+        if (res.rowCount === 0) {
+          done()
+          return cb('not found')
+        }
+
+        cb(null, res)
+      })
     })
     task.push((result, cb) => {
       client.query('DELETE FROM team_members WHERE team_id = $1', [id], cb)
@@ -114,7 +131,11 @@ function updateTeam (rsc, args, cb) {
       client.query(stmt.statement, stmt.params, cb)
     })
     async.waterfall(task, (err) => {
-      if (err) return cb(dbUtil.rollback(client, done))
+      if (err) {
+        dbUtil.rollback(client, done)
+        return cb(err)
+      }
+
       client.query('COMMIT', (err) => {
         if (err) return cb(err)
         done()
@@ -142,11 +163,22 @@ function deleteTeamById (rsc, args, cb) {
             if (err) return cb(dbUtil.rollback(client, done))
 
             client.query('DELETE from teams WHERE id = $1', args, function (err, result) {
-              if (err) return cb(dbUtil.rollback(client, done))
+              if (err) {
+                dbUtil.rollback(client, done)
+                return cb(err)
+              }
 
-              client.query('COMMIT', done)
+              if (result.rowCount === 0) {
+                done()
+                return cb('not found')
+              }
 
-              return cb(null, result.rows)
+              rsc.log.debug('delete team result: %j', result)
+
+              client.query('COMMIT', () => {
+                done()
+                return cb(null)
+              })
             })
           })
         })
