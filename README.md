@@ -2,6 +2,10 @@
 
 A full-stack component providing authorization functionality, designed for use in Labs projects
 
+## Node installation
+
+There are 4 package.json files present in the repository (root, component, service and api), each requiring an npm install if the full stack is to be run.
+
 ## Database
 
 Running the initial demo (first cut of the service) uses Postgres in a Docker running instance, which can be created with:
@@ -50,17 +54,17 @@ npm run pg:load-test-data
 ```
 
 Note: the scripts that initialize and load data into the database require you to have the Postgresql client installed on your machine.
-Not needed to have the full Postgtresql database and dependencies installed.
+It is not necessary to have the full Postgresql database and dependencies installed.
 
 ###pgAdmin database access
 As the Postgresql docker container has its 5432 port forwarded on the local machine the database can be accessed with pgAdmin.
 
-To access the database using the pgAdmin you have to fill in also the container IP beside the database names and access credentials. The conainer IP can be seen with `docker ps`.
+To access the database using the pgAdmin you have to fill in also the container IP beside the database names and access credentials. The container IP can be seen with `docker ps`.
 
 
 ## Service
 
-There is a basic service which will respond to a list users request:
+The service will respond to commands such as a list users request:
 
     {role: 'authorization', cmd: 'list', type: 'users'}
 
@@ -78,14 +82,15 @@ service:
 
 ## API
 
-There is a simple route for fetching all the users: http://localhost:8000/auth/users
-Curl examples for the other routes can be found in services.js
+An example API route for fetching all the users is: http://localhost:8000/auth/users
 
-To expose the reoute start both the service and the API with the following:
+Curl examples for all the routes can be found in api/route.js
 
-    node service/index.js
+To expose the routes start both the service and the API with the following:
 
-    node api/index.js
+    npm start:service
+
+    npm start:api
 
 ## Testing
 
@@ -93,4 +98,4 @@ Tests are supplied for the service interface and the Mu wiring (npm test)
 
 ## Security
 
-Please ignore any security bad practices at the minute!
+Please ignore any security bad practices at the minute, as the security stories have not yet been implemented
