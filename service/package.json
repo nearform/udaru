@@ -1,7 +1,7 @@
 {
-  "name": "labs-authorization-api",
+  "name": "labs-authorization-service",
   "version": "0.0.1",
-  "description": "Full stack authorization API",
+  "description": "Full stack authorization Service",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
@@ -23,11 +23,11 @@
   },
   "homepage": "https://github.com/nearform/labs-authorization#readme",
   "dependencies": {
-    "boom": "^4.2.0",
-    "good": "^6.4.0",
-    "good-console": "^5.1.0",
-    "hapi": "^10.5.0",
-    "mu": "^1.0.2"
+    "async": "^2.0.1",
+    "iam-js": "git+ssh://git@github.com:nearform/iam-js.git",
+    "mu": "^1.0.2",
+    "pg": "^6.1.0",
+    "pino": "^2.13.2"
   },
   "devDependencies": {
     "pre-commit": "^1.1.3",

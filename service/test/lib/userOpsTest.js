@@ -1,7 +1,7 @@
 'use strict'
 
 const test = require('tap').test
-const service = require('../../../service/lib/service')
+const service = require('../../lib/service')
 
 var opts = {
   logLevel: 'warn'
@@ -53,7 +53,7 @@ test('create a user by ID', (t) => {
 })
 
 test('create a user', (t) => {
-  t.plan(6)
+  t.plan(5)
   service(opts, (svc) => {
     svc.createUser(['Grandma Josephine', 'WONKA'], (err, result) => {
       t.error(err, 'should be no error creating')
@@ -62,7 +62,7 @@ test('create a user', (t) => {
       // delete the user again, as we don't need it
       svc.deleteUserById([result.id], (err, result) => {
         t.error(err, 'should be no error')
-        t.ok(result, 'result should be supplied')
+
         svc.destroy({}, (err, result) => {
           t.error(err)
         })
@@ -103,10 +103,9 @@ test('read a specific user that does not exist', (t) => {
   t.plan(3)
   service(opts, (svc) => {
     svc.readUserById([987654321], (err, result) => {
-      // console.log(err)
-      t.equal(err.message, 'not found')
+      t.equal(err, 'not found')
       t.notOk(result, 'result should not be supplied')
-      // t.deepEqual(result, [{ id: 99, name: 'Augustus Gloop' }], 'data should be as expected')
+
       svc.destroy({}, (err, result) => {
         t.error(err)
       })
@@ -115,13 +114,11 @@ test('read a specific user that does not exist', (t) => {
 })
 
 test('delete a user', (t) => {
-  t.plan(3)
+  t.plan(2)
   service(opts, (svc) => {
     svc.deleteUserById([99], (err, result) => {
       t.error(err, 'should be no error')
-      t.ok(result, 'result should be supplied')
-      // t.deepEqual(result, { id: 3, name: 'Veruca Salt' }, 'data should be as expected')
-      // TODO: test correct data exists before and after the call
+
       svc.destroy({}, (err, result) => {
         t.error(err)
       })

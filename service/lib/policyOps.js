@@ -95,8 +95,9 @@ function readPolicyById (rsc, args, cb) {
     if (err) return cb(err)
     client.query('SELECT id, version, name, statements from policies WHERE id = $1', args, function (err, result) {
       done() // release the client back to the pool
+
       if (err) return cb(err)
-      if (result.rows.length === 0) return cb(null, {})
+      if (result.rowCount === 0) return cb('not found')
 
       var policy = result.rows[0]
       return cb(null, {id: policy.id, version: policy.version, name: policy.name, statements: policy.statements.Statement})

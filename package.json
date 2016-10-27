@@ -4,23 +4,30 @@
   "description": "Full stack authorization component",
   "main": "api/index.js",
   "scripts": {
-    "api:start": "node api/index.js",
-    "lint:service": "./node_modules/.bin/spacey-standard \"service/**/*.js\" \"test/**/*.js\"",
-    "lint:component": "./component/node_modules/.bin/spacey-standard --parser babel-eslint \"component/src/**/*.js\" \"component/src/**/*.jsx\"",
-    "lint": "npm run lint:service && npm run lint:component",
     "pg:build": "docker-compose build",
-    "pg:start": "docker-compose up",
+    "pg:start": "docker-compose up -d",
     "pg:stop": "docker-compose down",
     "pg:init": "[ ! -d ./logs ] && mkdir ./logs;./scripts/init/database/db_init.sh | tee ./logs/init-db.log",
     "pg:load-test-data": "./scripts/init/database/db_load.sh | tee ./logs/load-test-data.log",
-    "svc:start": "node service/index.js",
-    "test:service": "tap \"test/**/*Test.js\" --coverage",
-    "coverage:service": "tap \"test/**/*Test.js\" --cov --coverage-report=html",
-    "test": "npm run test:service",
-    "coverage": "npm run coverage:service"
+    "lint:api": "cd api && npm run lint",
+    "lint:service": "cd service && npm run lint",
+    "lint:component": "cd component && npm run lint",
+    "lint": "npm run lint:api && npm run lint:service && npm run lint:component",
+    "start:api": "cd api && npm start",
+    "start:service": "cd service && npm start",
+    "start:component": "cd component && npm start",
+    "start": "echo \"Please use individual start scripts, start:api start:service start:component\" && exit 0",
+    "test:api": "cd api && npm run test",
+    "test:service": "cd service && npm run test",
+    "test:component": "cd component && npm run test",
+    "test": "npm run test:api && npm run test:service && npm run test:component",
+    "coverage:api": "cd api && npm run coverage",
+    "coverage:service": "cd service && npm run coverage",
+    "coverage:component": "cd component && npm run coverage",
+    "coverage": "npm run coverage:api && npm run coverage:service && npm run coverage:component"
   },
   "pre-commit": [
-    "lint:service"
+    "lint"
   ],
   "repository": {
     "type": "git",
@@ -34,17 +41,10 @@
   "homepage": "https://github.com/nearform/labs-authorization#readme",
   "dependencies": {
     "async": "^2.0.1",
-    "hapi": "^15.1.1",
-    "iam-js": "git+ssh://git@github.com:nearform/iam-js.git",
-    "mu": "^1.0.0",
-    "pg": "^6.1.0",
-    "pino": "^2.13.2"
+    "pg": "^6.1.0"
   },
   "devDependencies": {
-    "lodash": "^4.16.4",
     "postgrator": "^2.8.2",
-    "pre-commit": "^1.1.3",
-    "spacey-standard": "^3.0.0",
-    "tap": "^7.1.2"
+    "pre-commit": "^1.1.3"
   }
 }
