@@ -245,7 +245,7 @@ module.exports = function (server) {
     }
   })
 
-  // curl -X GET http://localhost:8000/authorization/action/<resource>/<user_id>
+  // curl -X GET http://localhost:8000/authorization/list/<resource>/<user_id>
   server.route({
     method: 'GET',
     path: '/authorization/list/{resource}/{userId}',
