@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node index.js",
     "lint": "./node_modules/.bin/spacey-standard",
-    "test": "tap \"test/**/authorizeTest.js\" --coverage",
+    "test": "tap \"test/**/*Test.js\" --coverage",
     "coverage": "tap \"test/**/*Test.js\" --cov --coverage-report=html"
   },
   "pre-commit": [
