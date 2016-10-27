@@ -245,4 +245,20 @@ module.exports = function (server) {
     }
   })
 
+  // curl -X GET http://localhost:8000/authorization/action/<resource>/<user_id>
+  server.route({
+    method: 'GET',
+    path: '/authorization/list/{resource}/{userId}',
+    handler: function (request, reply) {
+      const { resource, userId } = request.params // TODO: get userId from token
+
+      const params = {
+        userId,
+        resource
+      }
+
+      handleRoleCommandType('authorization', 'list', 'user', params, request, reply)
+    }
+  })
+
 }
