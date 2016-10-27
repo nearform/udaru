@@ -43,8 +43,7 @@ module.exports = function (opts) {
           log.debug(err, 'Wiring error:')
           log.debug('Wiring result: %j', result)
 
-          // temporarily using err.message instead of err, due to mu bug
-          if (err) return cb(err.message, null)
+          if (err) return cb(err, null)
           return cb(null, result)
         })
       })
@@ -75,6 +74,13 @@ module.exports = function (opts) {
       mu.define({role: 'authorization', cmd: 'delete', type: 'team'}, function (args, cb) {
         svc.deleteTeamById(args.pattern.params, cb)
       })
+      mu.define({role: 'authorization', cmd: 'authorize', type: 'user'}, function (args, cb) {
+        svc.isUserAuthorized(args.pattern.params, (err, result) => {
+          if (err) return cb(err, null)
+          return cb(null, result)
+        })
+      })
+
       mu.define({role: 'authorization', cmd: 'done'}, svc.destroy)
 
       mu.inbound('*', tcp.server(opts))

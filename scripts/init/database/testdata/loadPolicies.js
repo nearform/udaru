@@ -44,7 +44,6 @@ client.connect((err) => {
     if (err) throw err
     client.query('SELECT * FROM policies', (err, result) => {
       if (err) throw err
-      console.log(result.rows)
     })
     // disconnect the client
     client.end((err) => {
