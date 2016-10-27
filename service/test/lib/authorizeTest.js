@@ -1,12 +1,16 @@
 'use strict'
 
 const test = require('tap').test
-const service = require('../../../service/lib/service')
+const service = require('../../lib/service')
+
+var opts = {
+  logLevel: 'warn'
+}
 
 test('authorize check on a resource and action', (t) => {
   t.plan(7)
 
-  service((svc) => {
+  service({}, (svc) => {
     let testUserId
 
     svc.createUser(['Salman', 'WONKA'], (err, result) => {
@@ -19,8 +23,8 @@ test('authorize check on a resource and action', (t) => {
 
         svc.isUserAuthorized({
           userId: testUserId,
-          resource: 'filestore:dev:project-data',
-          action: 'files:List'
+          resource: 'database:pg01:balancesheet',
+          action: 'finance:ReadBalanceSheet'
         }, (err, result) => {
           t.error(err, 'should be no error')
           t.ok(result, 'result should be supplied')

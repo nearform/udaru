@@ -26,7 +26,6 @@
     "axios": "^0.14.0",
     "font-awesome": "^4.6.3",
     "font-awesome-webpack": "0.0.4",
-    "lodash": "^4.16.2",
     "moment": "^2.15.1",
     "muicss": "^0.8.1",
     "normalize.css": "^5.0.0",
