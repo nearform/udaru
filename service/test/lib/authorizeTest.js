@@ -53,11 +53,11 @@ test('authorize get all user actions on a resource', (t) => {
       svc.updateUser([testUserId, 'Salman', [{id: 4}], [{id: 1}]], (err, result) => {
         svc.listAuthorizations({
           userId: testUserId,
-          resource: 'filestore:dev:project-data'
+          resource: 'database:pg01:balancesheet'
         }, (err, result) => {
           t.error(err, 'should be no error')
           t.ok(result, 'result should be supplied')
-          t.deepEqual(result.actions, [ 'files:List', 'files:Edit' ], 'data should be as expected')
+          t.deepEqual(result.actions, [ 'finance:ReadBalanceSheet', 'finance:ImportBalanceSheet' ], 'data should be as expected')
 
           svc.deleteUserById([testUserId], (err, result) => {
             svc.destroy({}, (err, result) => {
