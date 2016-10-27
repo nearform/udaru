@@ -145,24 +145,24 @@ module.exports = function (server) {
     }
   })
 
-  // curl -X PUT http://localhost:8000/authorization/team/123 -H 'Content-Type: application/json' -d '{"name": "Team A", "description": "Some description"}'
-  // TODO: allow for updating more than just 'name' and 'description'
+  // curl -X PUT http://localhost:8000/authorization/team/123 -H 'Content-Type: application/json' -d '{ "id": 9, "name": "Sys Admins", "description": "System administrator team", 
+  // "users": [{ "id": 4, "name": "Tom Watson"}, { "id": 7, "name": "Michael O'Brien"}], "policies": [{ "id": 12, "name": "Financial info access"}]}'
   server.route({
     method: 'PUT',
     path: '/authorization/team/{id}',
     handler: function (request, reply) {
-      const id = request.params.id
+     const { id, name, description, users, policies } = request.payload
 
       if (!id) {
         return reply('no team id found in request').code(400)
       }
 
-      const { name, description } = request.payload
-
       const params = [
         id,
         name,
         description,
+        users,
+        policies
       ]
 
       handleRoleCommandType('authorization', 'update', 'team', params, request, reply)

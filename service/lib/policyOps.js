@@ -58,10 +58,10 @@ function listAllUserPolicies (pool, { userId }, cb) {
 /*
 * no query args (but may e.g. sort in future)
 */
-function listAllPolicies (pool, args, cb) {
-  pool.connect(function (err, client, done) {
+function listAllPolicies (rsc, args, cb) {
+  rsc.pool.connect(function (err, client, done) {
     if (err) return cb(err)
-    client.query('SELECT  id, version, name from policies ORDER BY name', function (err, result) {
+    client.query('SELECT  id, version, name from policies ORDER BY UPPER(name)', function (err, result) {
       done() // release the client back to the pool
       if (err) return cb(err)
       return cb(null, result.rows)
@@ -73,10 +73,10 @@ function listAllPolicies (pool, args, cb) {
 * gathers all policy list including the policy statements
 * no query args (but may e.g. sort in future)
 */
-function listAllPoliciesDetails (pool, args, cb) {
-  pool.connect(function (err, client, done) {
+function listAllPoliciesDetails (rsc, args, cb) {
+  rsc.pool.connect(function (err, client, done) {
     if (err) return cb(err)
-    client.query('SELECT  id, version, name, statements from policies ORDER BY name', function (err, result) {
+    client.query('SELECT  id, version, name, statements from policies ORDER BY UPPER(name)', function (err, result) {
       done() // release the client back to the pool
       if (err) return cb(err)
       var results = result.rows.map((policy) => {
@@ -90,8 +90,8 @@ function listAllPoliciesDetails (pool, args, cb) {
 /*
 * $1 = id
 */
-function readPolicyById (pool, args, cb) {
-  pool.connect(function (err, client, done) {
+function readPolicyById (rsc, args, cb) {
+  rsc.pool.connect(function (err, client, done) {
     if (err) return cb(err)
     client.query('SELECT id, version, name, statements from policies WHERE id = $1', args, function (err, result) {
       done() // release the client back to the pool
