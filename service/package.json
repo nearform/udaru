@@ -1,12 +1,12 @@
 {
   "name": "labs-authorization-service",
   "version": "0.0.1",
-  "description": "Full stack authorization component",
+  "description": "Full stack authorization Service",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
     "lint": "./node_modules/.bin/spacey-standard",
-    "test": "tap \"test/**/*Test.js\" --coverage",
+    "test": "tap \"test/**/authorizeTest.js\" --coverage",
     "coverage": "tap \"test/**/*Test.js\" --cov --coverage-report=html"
   },
   "pre-commit": [

@@ -1,7 +1,7 @@
 {
-  "name": "labs-authorization-service",
+  "name": "labs-authorization-api",
   "version": "0.0.1",
-  "description": "Full stack authorization component",
+  "description": "Full stack authorization API",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
@@ -27,9 +27,7 @@
     "good": "^6.4.0",
     "good-console": "^5.1.0",
     "hapi": "^10.5.0",
-    "inert": "^3.1.0",
-    "mu": "^1.0.2",
-    "vision": "^3.0.0"
+    "mu": "^1.0.2"
   },
   "devDependencies": {
     "pre-commit": "^1.1.3",

@@ -1,7 +1,7 @@
 {
-  "name": "frontend-boilerplate",
+  "name": "labs-authorization-component",
   "version": "0.0.1",
-  "description": "",
+  "description": "Full stack authorization Component",
   "main": "dist/index.js",
   "spacey-standard": {
     "parser": "babel-eslint"
