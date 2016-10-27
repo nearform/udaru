@@ -41,7 +41,7 @@ test('authorize check on a resource and action', (t) => {
 })
 
 
-test('authorize michele', (t) => {
+test('authorize get all user actions on a resource', (t) => {
   t.plan(4)
 
   service({}, (svc) => {
