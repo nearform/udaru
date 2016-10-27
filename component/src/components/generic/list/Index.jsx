@@ -65,8 +65,8 @@ List.propTypes = {
   items: React.PropTypes.array.isRequired,
   selectedItem: React.PropTypes.object,
   showAddPanel: React.PropTypes.bool.isRequired,
-  addNameChanged: React.PropTypes.func.isRequired,
-  addNameValue: React.PropTypes.string.isRequired,
+  addNameChanged: React.PropTypes.func,
+  addNameValue: React.PropTypes.string,
   onItemSelect: React.PropTypes.func.isRequired,
-  make: React.PropTypes.func.isRequired
+  make: React.PropTypes.func
 }

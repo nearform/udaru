@@ -71,14 +71,14 @@ module.exports = function (server) {
       })
     }
   })
-  
-  // curl -X PUT http://localhost:8000/authorization/user/1 -H "Content-Type: application/json" -d '{"id": 1, "name": "Mrs Beauregarde", 
+
+  // curl -X PUT http://localhost:8000/authorization/user/1 -H "Content-Type: application/json" -d '{"id": 1, "name": "Mrs Beauregarde",
   // "teams":[{"id": 3, "name": "Dream Team"}], "policies":[{"id": 4, "name": "DROP ALL TABLES!"}, { "id": 2, "name": "THROW DESK" }]}'
   server.route({
     method: 'PUT',
     path: '/authorization/user/{id}',
     handler: function (request, reply) {
-      
+
       const { policies, teams, id, name } = request.payload
 
       const params = [
@@ -87,7 +87,7 @@ module.exports = function (server) {
         teams,
         policies
       ]
-      
+
       if (request.params.id && request.payload.name) {
         console.log('Received PUT, name= ' + request.payload.name + ', id=' + request.params.id)
         handleRoleCommandType('authorization', 'update', 'user', params, request, reply)
@@ -145,7 +145,7 @@ module.exports = function (server) {
     }
   })
 
-  // curl -X PUT http://localhost:8000/authorization/team/123 -H 'Content-Type: application/json' -d '{ "id": 9, "name": "Sys Admins", "description": "System administrator team", 
+  // curl -X PUT http://localhost:8000/authorization/team/123 -H 'Content-Type: application/json' -d '{ "id": 9, "name": "Sys Admins", "description": "System administrator team",
   // "users": [{ "id": 4, "name": "Tom Watson"}, { "id": 7, "name": "Michael O'Brien"}], "policies": [{ "id": 12, "name": "Financial info access"}]}'
   server.route({
     method: 'PUT',

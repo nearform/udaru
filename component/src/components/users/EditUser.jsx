@@ -33,8 +33,8 @@ class EditUser extends Component {
     super(props)
 
     this.state = {
-      hideTeams: true,
-      hidePolicies: true
+      hideTeams: false,
+      hidePolicies: false
     }
 
     this.toggle = ::this.toggle

@@ -39,6 +39,7 @@ export const deleteUser = (id) => {
 }
 
 export const updateUser = (user) => {
+  console.log(user)
   return (dispatch, getState) => {
     callApi({
       method: 'put',
