@@ -157,8 +157,10 @@ function updateUser (rsc, args, cb) {
     })
     async.waterfall(task, (err) => {
       if (err) return cb(dbUtil.rollback(client, done))
-      client.query('COMMIT', done)
-      return cb(null, {id, name, teams, policies})
+      client.query('COMMIT', () => {
+        done()
+        return cb(null, {id, name, teams, policies})
+      })
     })
   })
 }
