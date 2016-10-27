@@ -17,7 +17,15 @@ import ViewPolicy from '../components/policies/ViewPolicy'
   fetchPolicy,
   fetchPolicies
 }))
+
 export default class Policies extends Component {
+  static propTypes = {
+    policies: React.PropTypes.array.isRequired,
+    fetchPolicies: React.PropTypes.func.isRequired,
+    fetchPolicy: React.PropTypes.func.isRequired,
+    selectedPolicy: React.PropTypes.object.isRequired
+  }
+
   constructor (props) {
     super(props)
 
@@ -43,11 +51,10 @@ export default class Policies extends Component {
       <Container fluid className=''>
         <Row>
           <Col md='2'>
-            { policies && <List
+            {policies && <List
               which='Policy'
               items={policies}
-              onItemSelect={this.viewPolicy} />
-            }
+              onItemSelect={this.viewPolicy} />}
           </Col>
           <Col md='10'>
             {selectedPolicy && <ViewPolicy policy={selectedPolicy} />}
