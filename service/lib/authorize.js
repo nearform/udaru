@@ -8,6 +8,10 @@ const policyOps = require('./policyOps')
 */
 function isUserAuthorized (pool, { resource, action, userId }, cb) {
   policyOps.listAllUserPolicies(pool, { userId }, (err, policies) => {
+    if (err) {
+      return cb(err)
+    }
+
     iam(policies, ({ process }) => {
       process(resource, action, (err, access) => {
         if (err) return cb(err)

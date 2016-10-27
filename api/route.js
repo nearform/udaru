@@ -62,7 +62,7 @@ module.exports = function (server) {
         'WONKA' // TODO: hardcode the org_id for now (as not yet fully implemented)
       ]
 
-      mu.dispatch({role: 'authorization', cmd: 'create', type: 'user', params }, function (err, res) {
+      mu.dispatch({ role: 'authorization', cmd: 'create', type: 'user', params }, function (err, res) {
         if (err) {
           return reply(Boom.badImplementation())
         }
@@ -83,7 +83,7 @@ module.exports = function (server) {
         id
       ]
 
-      mu.dispatch({role: 'authorization', cmd: 'delete', type: 'user', params }, function (err, res) {
+      mu.dispatch({ role: 'authorization', cmd: 'delete', type: 'user', params }, function (err, res) {
         if (err) {
           if (err === 'not found') return reply(Boom.notFound())
           return reply(Boom.badImplementation())
@@ -163,7 +163,7 @@ module.exports = function (server) {
         'WONKA'
       ]
 
-      mu.dispatch({role: 'authorization', cmd: 'create', type: 'team', params }, function (err, res) {
+      mu.dispatch({ role: 'authorization', cmd: 'create', type: 'team', params }, function (err, res) {
         if (err) {
           return reply(Boom.badImplementation())
         }
@@ -217,7 +217,7 @@ module.exports = function (server) {
         request.params.id
       ]
 
-      mu.dispatch({role: 'authorization', cmd: 'delete', type: 'teams', params }, function (err, res) {
+      mu.dispatch({ role: 'authorization', cmd: 'delete', type: 'teams', params }, function (err, res) {
         if (err) {
           if (err === 'not found') return reply(Boom.notFound())
           return reply(Boom.badImplementation())
