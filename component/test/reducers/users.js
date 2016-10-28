@@ -2,7 +2,7 @@ import Lab from 'lab'
 import Code from 'code'
 
 import reducer from '../../src/reducers/users'
-import { RECEIVE_USERS, RECEIVE_USER, DELETE_USER } from '../../src/constants'
+import { RECEIVE_USERS, RECEIVE_USER, DELETE_USER, UPDATE_USER, MAKE_USER } from '../../src/constants'
 
 const lab = exports.lab = Lab.script()
 
@@ -35,6 +35,26 @@ lab.experiment('users', () => {
   const stateWithSelected = {
     list: mockedUsers,
     selectedUser: mockedUser
+  }
+
+  const updatedUser = {
+    id: 1,
+    name: 'AnUpDaTeDuSeR',
+    policies: [{
+      id: 2,
+      name: 'AnOtHeRpOlIcY'
+    }],
+    teams: [{
+      id: 2,
+      name: 'AnOtHeRtEaM'
+    }]
+  }
+
+  const newUser = {
+    id: 3,
+    name: 'AnEwUsEr',
+    policies: [],
+    teams: []
   }
 
   lab.test('should return initial state', (done) => {
@@ -88,5 +108,32 @@ lab.experiment('users', () => {
     done()
   })
 
-  // more to add.
+  lab.test('should handle UPDATE_USER', (done) => {
+    Code.expect(
+      reducer(stateWithSelected, {
+        type: UPDATE_USER,
+        user: updatedUser
+      })
+    ).to.equal({
+      list: [updatedUser, stateWithSelected.list[1]],
+      selectedUser: updatedUser
+    })
+
+    done()
+  })
+
+  lab.test('should handle MAKE_USER', (done) => {
+    Code.expect(
+      reducer(stateWithSelected, {
+        type: MAKE_USER,
+        user: newUser
+      })
+    ).to.equal({
+      list: [newUser, mockedUsers[1], mockedUsers[0]],
+      selectedUser: newUser
+    })
+
+    done()
+  })
+
 })
