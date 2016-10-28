@@ -1,5 +1,10 @@
+const options = {
+  localeMatcher: 'best fit',
+  usage: 'sort',
+  sensitivity: 'case',
+  caseFirst: 'upper'
+}
+
 export default (a, b) => {
-  if (a.name.toLowerCase() < b.name.toLowerCase()) return -1
-  if (a.name.toLowerCase() > b.name.toLowerCase()) return 1
-  return 0
+  return a.name.localeCompare(b.name, 'kf', options)
 }
