@@ -2,7 +2,7 @@
 'use strict'
 
 const test = require('tap').test
-const service = require('../../../service/lib/service')
+const service = require('../../lib/service')
 let testTeamId
 
 var opts = {
@@ -90,11 +90,11 @@ test('update a team', (t) => {
 })
 
 test('delete a team', (t) => {
-  t.plan(3)
+  t.plan(2)
   service(opts, (svc) => {
     svc.deleteTeamById([testTeamId], (err, result) => {
       t.error(err, 'should be no error')
-      t.ok(result, 'result should be supplied')
+
       svc.destroy({}, (err, result) => {
         t.error(err)
       })
