@@ -20,10 +20,10 @@ import ViewPolicy from '../components/policies/ViewPolicy'
 
 export default class Policies extends Component {
   static propTypes = {
-    policies: React.PropTypes.array.isRequired,
+    policies: React.PropTypes.array,
     fetchPolicies: React.PropTypes.func.isRequired,
     fetchPolicy: React.PropTypes.func.isRequired,
-    selectedPolicy: React.PropTypes.object.isRequired
+    selectedPolicy: React.PropTypes.object
   }
 
   constructor (props) {
@@ -54,6 +54,8 @@ export default class Policies extends Component {
             {policies && <List
               which='Policy'
               items={policies}
+              showAddPanel={false}
+              selectedItem={this.props.selectedPolicy}
               onItemSelect={this.viewPolicy} />}
           </Col>
           <Col md='10'>

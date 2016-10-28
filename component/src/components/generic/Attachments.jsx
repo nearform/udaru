@@ -14,8 +14,13 @@ const selectOptions = (item, i) => {
 const RenderItems = (props) => {
   const { fields, items, fieldName, available, title } = props
   const { selected, selector, hide, toggle } = props
+
   const toggleAttachments = () => {
     toggle(fieldName)
+  }
+
+  const _handleClick = (e) => {
+    if (e.target.dataset.name) fields.remove(e.target.dataset.name)
   }
 
   const attach = () => {
@@ -63,7 +68,7 @@ const RenderItems = (props) => {
       <div className='edit--attachmentcontainer' hidden={hide}>
         <div className='edit--attachmentflex' hidden={hide}>
           {fields.map((member, i) =>
-            <span key={i} className='edit--attachmentitem'>
+            <span key={i} className='edit--attachmentitem' onClick={_handleClick}>
               <Field type='text'
                 component='text'
                 name='attachments'>
@@ -72,7 +77,7 @@ const RenderItems = (props) => {
               <Field type='text'
                 component='text'
                 name='trash'
-                onClick={() => fields.remove(i)}
+                data-name={i}
                 className='edit--attachmenttrash'
               />
             </span>

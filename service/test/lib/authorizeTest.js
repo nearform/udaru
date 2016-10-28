@@ -3,10 +3,6 @@
 const test = require('tap').test
 const service = require('../../lib/service')
 
-var opts = {
-  logLevel: 'warn'
-}
-
 test('authorize check on a resource and action', (t) => {
   t.plan(7)
 

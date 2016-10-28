@@ -20,7 +20,6 @@ function handleRoleCommandType (role, cmd, type, params, request, reply) {
 
     return reply(res)
   })
-
 }
 
 // TODO: add input validation

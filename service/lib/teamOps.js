@@ -149,17 +149,21 @@ function updateTeam (rsc, args, cb) {
     task.push((result, cb) => {
       client.query('DELETE FROM team_members WHERE team_id = $1', [id], cb)
     })
-    task.push((result, cb) => {
-      let stmt = dbUtil.buildInsertStmt('INSERT INTO team_members (user_id, team_id) VALUES ', users.map(p => [p.id, id]))
-      client.query(stmt.statement, stmt.params, cb)
-    })
+    if (users.length > 0) {
+      task.push((result, cb) => {
+        let stmt = dbUtil.buildInsertStmt('INSERT INTO team_members (user_id, team_id) VALUES ', users.map(p => [p.id, id]))
+        client.query(stmt.statement, stmt.params, cb)
+      })
+    }
     task.push((result, cb) => {
       client.query('DELETE FROM team_policies WHERE team_id = $1', [id], cb)
     })
-    task.push((result, cb) => {
-      let stmt = dbUtil.buildInsertStmt('INSERT INTO team_policies (policy_id, team_id) VALUES ', policies.map(p => [p.id, id]))
-      client.query(stmt.statement, stmt.params, cb)
-    })
+    if (policies.length > 0) {
+      task.push((result, cb) => {
+        let stmt = dbUtil.buildInsertStmt('INSERT INTO team_policies (policy_id, team_id) VALUES ', policies.map(p => [p.id, id]))
+        client.query(stmt.statement, stmt.params, cb)
+      })
+    }
     async.waterfall(task, (err) => {
       if (err) {
         dbUtil.rollback(client, done)
