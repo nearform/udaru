@@ -88,6 +88,10 @@ module.exports = function (opts, done) {
     authorize.isUserAuthorized(db.pool, args, cb)
   }
 
+  function listAuthorizations (args, cb) {
+    authorize.listAuthorizations(db.pool, args, cb)
+  }
+
   // simulate resource initialization.
   // give ourselves plenty of time,
   // as less may give intermittent ECONNREFUSED
@@ -110,6 +114,7 @@ module.exports = function (opts, done) {
       updateTeam: updateTeam,
       deleteTeamById: deleteTeamById,
       isUserAuthorized: isUserAuthorized,
+      listAuthorizations: listAuthorizations,
       destroy: shutdown
     })
   }, 500)
