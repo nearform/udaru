@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node index.js",
     "lint": "./node_modules/.bin/spacey-standard",
-    "test": "tap \"test/**/*Test.js\" --coverage",
+    "test": "./node_modules/.bin/lab",
     "coverage": "tap \"test/**/*Test.js\" --cov --coverage-report=html"
   },
   "pre-commit": [
@@ -30,6 +30,8 @@
     "mu": "^1.0.2"
   },
   "devDependencies": {
+    "code": "^4.0.0",
+    "lab": "^11.1.0",
     "pre-commit": "^1.1.3",
     "spacey-standard": "^3.0.0",
     "tap": "^7.1.2"
