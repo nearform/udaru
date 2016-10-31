@@ -89,4 +89,14 @@ module.exports = [
         }
       ]}
   ],
+  [0.1, 'Finance Director', 'WONKA', {
+    'Statement':
+      [
+        {
+          'Effect': 'Allow',
+          'Action': ['finance:EditBalanceSheet'],
+          'Resource': ['database:pg01:balancesheet']
+        }
+      ]}
+  ]
 ]
