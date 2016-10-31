@@ -1,10 +1,12 @@
 'use strict'
 
+const mu = require('mu')()
 const test = require('tap').test
 const service = require('../../lib/service')
 
 var opts = {
-  logLevel: 'warn'
+  logLevel: 'warn',
+  mu
 }
 
 // TODO: add checks for rowcounts, in e.g. createUser
@@ -103,7 +105,7 @@ test('read a specific user that does not exist', (t) => {
   t.plan(3)
   service(opts, (svc) => {
     svc.readUserById([987654321], (err, result) => {
-      t.equal(err, 'not found')
+      t.equal(err.output.statusCode, 404)
       t.notOk(result, 'result should not be supplied')
 
       svc.destroy({}, (err, result) => {

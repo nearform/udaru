@@ -1,10 +1,10 @@
-const mu = require('mu')()
 const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
+const mu = require('mu')()
 
 const TestHelper = require('../helper')
-const Policies = require('../../routes/policies')
+const Authorization = require('../../routes/authorization')
 
 let server
 
@@ -18,43 +18,59 @@ lab.before(function (done) {
     mu: muStub
   }
 
-  server = TestHelper.createTestServer(Policies, options, done)
+  server = TestHelper.createTestServer(Authorization, options, done)
 })
 
-lab.experiment('Policies', () => {
-  lab.test('get policy list', (done) => {
-    const policyListStub = [{
-      id: 1,
-      name: 'SysAdmin',
-      version: '0.1'
-    }, {
-      id: 2,
-      name: 'Developer',
-      version: '0.2'
-    }]
-
+lab.experiment('Authorization', () => {
+  lab.test('check authorization should return access true for allowed', (done) => {
     muStub.dispatch = function (pattern, cb) {
       process.nextTick(() => {
-        cb(null, policyListStub)
+        cb(null, {
+          access: true
+        })
       })
     }
 
     const options = {
       method: 'GET',
-      url: '/authorization/policies'
+      url: '/authorization/check/resource_a/action_a/1'
     }
 
     server.inject(options, (response) => {
       const result = response.result
 
       expect(response.statusCode).to.equal(200)
-      expect(result).to.equal(policyListStub)
+      expect(result).to.equal({ access: true })
 
       done()
     })
   })
 
-  lab.test('get policy list should return error for error case', (done) => {
+  lab.test('check authorization should return access false for denied', (done) => {
+    muStub.dispatch = function (pattern, cb) {
+      process.nextTick(() => {
+        cb(null, {
+          access: false
+        })
+      })
+    }
+
+    const options = {
+      method: 'GET',
+      url: '/authorization/check/resource_a/action_a/1'
+    }
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(200)
+      expect(result).to.equal({ access: false })
+
+      done()
+    })
+  })
+
+  lab.test('check authorization should return 500 for error case', (done) => {
     muStub.dispatch = function (pattern, cb) {
       process.nextTick(() => {
         cb(mu.error.badImplementation())
@@ -63,7 +79,7 @@ lab.experiment('Policies', () => {
 
     const options = {
       method: 'GET',
-      url: '/authorization/policies'
+      url: '/authorization/check/resource_a/action_a/1'
     }
 
     server.inject(options, (response) => {
@@ -76,56 +92,36 @@ lab.experiment('Policies', () => {
     })
   })
 
-  lab.test('get single policy', (done) => {
-    const policyStub = {
-      id: 1,
-      name: 'SysAdmin',
-      version: '0.1',
-      statements: [{
-        'Statement': [
-          {
-            'Action': [
-              'finance:ReadBalanceSheet'
-            ],
-            'Effect': 'Allow',
-            'Resource': [
-              'database:pg01:balancesheet'
-            ]
-          },
-          {
-            'Action': [
-              'finance:ImportBalanceSheet'
-            ],
-            'Effect': 'Deny',
-            'Resource': [
-              'database:pg01:balancesheet'
-            ]
-          }
-        ]
-      }]
+  lab.test('list authorizations should return actions allowed for the user', (done) => {
+    const actionListStub = {
+      actions: [
+        'action a',
+        'action b'
+      ]
     }
+
     muStub.dispatch = function (pattern, cb) {
       process.nextTick(() => {
-        cb(null, policyStub)
+        cb(null, actionListStub)
       })
     }
 
     const options = {
       method: 'GET',
-      url: '/authorization/policy/1'
+      url: '/authorization/list/resource_a/1'
     }
 
     server.inject(options, (response) => {
       const result = response.result
 
       expect(response.statusCode).to.equal(200)
-      expect(result).to.equal(policyStub)
+      expect(result).to.equal(actionListStub)
 
       done()
     })
   })
 
-  lab.test('get single policy should return error for error case', (done) => {
+  lab.test('list authorizations should return 500 for error case', (done) => {
     muStub.dispatch = function (pattern, cb) {
       process.nextTick(() => {
         cb(mu.error.badImplementation())
@@ -134,7 +130,7 @@ lab.experiment('Policies', () => {
 
     const options = {
       method: 'GET',
-      url: '/authorization/policy/99'
+      url: '/authorization/list/resource_a/1'
     }
 
     server.inject(options, (response) => {

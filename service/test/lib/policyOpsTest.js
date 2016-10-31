@@ -1,14 +1,17 @@
 'use strict'
 
+const mu = require('mu')()
 const test = require('tap').test
 const service = require('../../lib/service')
 
 var opts = {
-  logLevel: 'warn'
+  logLevel: 'warn',
+  mu
 }
 
 test('list policies', (t) => {
   t.plan(4)
+
   service(opts, (svc) => {
     svc.listAllPolicies({}, (err, result) => {
       t.error(err, 'should be no error')

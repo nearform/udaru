@@ -1,4 +1,4 @@
-const Hapi = require('hapi')
+const mu = require('mu')()
 const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
@@ -18,11 +18,11 @@ lab.before(function (done) {
     mu: muStub
   }
 
-  server = TestHelper.createTestServer(Users, options, done);
-});
+  server = TestHelper.createTestServer(Users, options, done)
+})
 
 lab.experiment('Users', () => {
-  lab.test('get user list', (done) =>  {
+  lab.test('get user list', (done) => {
     muStub.dispatch = function (pattern, cb) {
       process.nextTick(() => {
         cb(null, [{
@@ -56,10 +56,10 @@ lab.experiment('Users', () => {
     })
   })
 
-  lab.test('get user list should return 500 on unknown errors', (done) =>  {
+  lab.test('get user list should return error for error case', (done) => {
     muStub.dispatch = function (pattern, cb) {
       process.nextTick(() => {
-        cb('some weird error')
+        cb(mu.error.badImplementation())
       })
     }
 
@@ -78,7 +78,7 @@ lab.experiment('Users', () => {
     })
   })
 
-  lab.test('get single user', (done) =>  {
+  lab.test('get single user', (done) => {
     muStub.dispatch = function (pattern, cb) {
       process.nextTick(() => {
         cb(null, {
@@ -110,32 +110,10 @@ lab.experiment('Users', () => {
     })
   })
 
-  lab.test('get single user should return 404 for unknown user', (done) =>  {
+  lab.test('get single user should return error for error case', (done) => {
     muStub.dispatch = function (pattern, cb) {
       process.nextTick(() => {
-        cb('not found')
-      })
-    }
-
-    const options = {
-      method: 'GET',
-      url: '/authorization/user/99'
-    }
-
-    server.inject(options, (response) => {
-      const result = response.result
-
-      expect(response.statusCode).to.equal(404)
-      expect(result).to.be.undefined
-
-      done()
-    })
-  })
-
-  lab.test('get single user should return 500 for unknown error', (done) =>  {
-    muStub.dispatch = function (pattern, cb) {
-      process.nextTick(() => {
-        cb('some weird error')
+        cb(mu.error.badImplementation())
       })
     }
 
@@ -154,7 +132,7 @@ lab.experiment('Users', () => {
     })
   })
 
-  lab.test('get single user should return 500 for unknown error', (done) =>  {
+  lab.test('create user should return 201 for success', (done) => {
     const newUserStub = {
       id: 2,
       name: 'Salman',
@@ -186,7 +164,7 @@ lab.experiment('Users', () => {
     })
   })
 
-  lab.test('get single user should return 400 bad request if input validation fails', (done) =>  {
+  lab.test('create user should return 400 bad request if input validation fails', (done) => {
     muStub.dispatch = function (pattern, cb) {
       process.nextTick(() => {
         cb()
@@ -214,7 +192,32 @@ lab.experiment('Users', () => {
     })
   })
 
-  lab.test('delete user should return 204 if success', (done) =>  {
+  lab.test('create user should return error for error case', (done) => {
+    muStub.dispatch = function (pattern, cb) {
+      process.nextTick(() => {
+        cb(mu.error.badImplementation())
+      })
+    }
+
+    const options = {
+      method: 'POST',
+      url: '/authorization/user',
+      payload: {
+        name: 'Salman'
+      }
+    }
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(500)
+      expect(result).to.be.undefined
+
+      done()
+    })
+  })
+
+  lab.test('delete user should return 204 if success', (done) => {
     muStub.dispatch = function (pattern, cb) {
       process.nextTick(() => {
         cb()
@@ -236,10 +239,10 @@ lab.experiment('Users', () => {
     })
   })
 
-  lab.test('delete user should return 500 for unknown errors', (done) =>  {
+  lab.test('delete user should return error for error case', (done) => {
     muStub.dispatch = function (pattern, cb) {
       process.nextTick(() => {
-        cb('some weird error')
+        cb(mu.error.badImplementation())
       })
     }
 
@@ -258,29 +261,7 @@ lab.experiment('Users', () => {
     })
   })
 
-  lab.test('delete user should return 404 for unknown user', (done) =>  {
-    muStub.dispatch = function (pattern, cb) {
-      process.nextTick(() => {
-        cb('not found')
-      })
-    }
-
-    const options = {
-      method: 'DELETE',
-      url: '/authorization/user/1'
-    }
-
-    server.inject(options, (response) => {
-      const result = response.result
-
-      expect(response.statusCode).to.equal(404)
-      expect(result).to.be.undefined
-
-      done()
-    })
-  })
-
-  lab.test('update user should return 200 for success', (done) =>  {
+  lab.test('update user should return 200 for success', (done) => {
     muStub.dispatch = function (pattern, cb) {
       process.nextTick(() => {
         cb(null, {
@@ -311,35 +292,10 @@ lab.experiment('Users', () => {
     })
   })
 
-  lab.test('update user should return 404 for unknown user', (done) =>  {
+  lab.test('update user should return error for error case', (done) => {
     muStub.dispatch = function (pattern, cb) {
       process.nextTick(() => {
-        cb('not found')
-      })
-    }
-
-    const options = {
-      method: 'PUT',
-      url: '/authorization/user/99',
-      payload: {
-        name: 'Joe'
-      }
-    }
-
-    server.inject(options, (response) => {
-      const result = response.result
-
-      expect(response.statusCode).to.equal(404)
-      expect(result).to.be.undefined
-
-      done()
-    })
-  })
-
-  lab.test('update user should return 500 for unknown error', (done) =>  {
-    muStub.dispatch = function (pattern, cb) {
-      process.nextTick(() => {
-        cb('some weird error')
+        cb(mu.error.badImplementation())
       })
     }
 

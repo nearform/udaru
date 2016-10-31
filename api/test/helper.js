@@ -1,4 +1,4 @@
-var Hapi = require('hapi');
+var Hapi = require('hapi')
 
 const API_HOST = process.env.API_HOST || 'localhost'
 const API_PORT = process.env.API_PORT || 8000
@@ -9,18 +9,18 @@ var createTestServer = function (plugin, pluginOptions, done) {
     options: pluginOptions
   }
 
-  var server = new Hapi.Server({ debug: false });
+  var server = new Hapi.Server({ debug: false })
 
   server.connection({
     host: API_HOST,
     port: API_PORT
-  });
+  })
 
-  server.register(registerOptions, done);
+  server.register(registerOptions, done)
 
-  return server;
-};
+  return server
+}
 
 module.exports = {
   createTestServer: createTestServer
-};
+}
