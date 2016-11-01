@@ -13,6 +13,7 @@ function listAllUserPolicies (rsc, { userId }, cb) {
 
         SELECT
           version,
+          name,
           statements
         FROM
           policies p JOIN user_policies up
@@ -25,6 +26,7 @@ function listAllUserPolicies (rsc, { userId }, cb) {
 
         SELECT
           version,
+          name,
           statements
         FROM
           policies p JOIN team_policies tp
@@ -47,6 +49,7 @@ function listAllUserPolicies (rsc, { userId }, cb) {
 
       const userPolicies = result.rows.map(row => ({
         Version: row.version,
+        Name: row.name,
         Statement: row.statements.Statement
       }))
 
