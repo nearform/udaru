@@ -50,7 +50,10 @@ function isUserAuthorized (rsc, { resource, action, userId }, cb) {
 // as would be worth looking into the pbac module code for reuse opportunity
 //
 function listAuthorizations (rsc, { userId, resource }, cb) {
-  const data = {}
+  const data = []
+  var actions = []
+  // build the set of actions in the user's policy set
+  // can't check per resource as requires wildcard processing
 
   policyOps.listAllUserPolicies(rsc, { userId }, (err, policies) => {
     if (err) return cb(rsc.mu.error.wrap(err))
@@ -59,15 +62,25 @@ function listAuthorizations (rsc, { userId, resource }, cb) {
       p.Statement.forEach(s => {
         s.Action.forEach(a => {
           if (s.Resource.indexOf(resource) > -1) {
-            if (!data[a] || data[a] === 'Allow') {
-              data[a] = s.Effect
-            }
+            actions.push(a)
           }
         })
       })
     })
-
-    cb(null, { actions: Object.getOwnPropertyNames(data) })
+    actions = Array.from(new Set(actions)) // dedupe
+    // check each action aginst the resource for this user
+    actions.forEach(action => {
+      iam(policies, ({ process }) => {
+        process(resource, action, (err, access) => {
+          if (err) return cb(err)
+          if (access) {
+            data.push(action)
+          }
+        })
+      })
+    })
+    // return thE allowable actions
+    cb(null, {actions: data})
   })
 }
 
