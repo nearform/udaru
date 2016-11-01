@@ -2,13 +2,19 @@
 /* eslint-disable handle-callback-err */
 
 const async = require('async')
+const mu = require('mu')()
 const test = require('tap').test
 const service = require('../../lib/service')
 
-test('authorize - check on a resource and action', (t) => {
+const opts = {
+  logLevel: 'warn',
+  mu
+}
+
+test('authorize check on a resource and action', (t) => {
   t.plan(7)
 
-  service({}, (svc) => {
+  service(opts, (svc) => {
     let testUserId
 
     svc.createUser(['Salman', 'WONKA'], (err, result) => {
@@ -143,7 +149,6 @@ test('authorize - get all user actions on a resource', (t) => {
     })
   })
 })
-
 
 // test('authorize - get all user actions on a resource', (t) => {
 //   t.plan(10)

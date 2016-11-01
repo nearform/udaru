@@ -30,6 +30,8 @@ const service = require('./lib/service')
 module.exports = function (opts) {
   log.level = opts && opts.logLevel || 'info'
 
+  opts.mu = mu
+
   function start (cb) {
     service(opts, function (svc) {
       mu.define({role: 'authorization', cmd: 'list', type: 'users'}, function (args, cb) {

@@ -1,15 +1,12 @@
 'use strict'
 
-var Boom = require('boom')
-
 exports.register = function (server, options, next) {
   const mu = options.mu
 
   function handleRoleCommandType (role, cmd, type, params, request, reply) {
     mu.dispatch({ role, cmd, type, params }, function (err, res) {
       if (err) {
-        if (err === 'not found') return reply(Boom.notFound())
-        return reply(Boom.badImplementation())
+        return reply(err)
       }
 
       return reply(res)

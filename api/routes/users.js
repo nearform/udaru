@@ -8,8 +8,7 @@ exports.register = function (server, options, next) {
   function handleRoleCommandType (role, cmd, type, params, request, reply) {
     mu.dispatch({ role, cmd, type, params }, function (err, res) {
       if (err) {
-        if (err === 'not found') return reply(Boom.notFound())
-        return reply(Boom.badImplementation())
+        return reply(err)
       }
 
       return reply(res)
@@ -54,7 +53,7 @@ exports.register = function (server, options, next) {
 
       mu.dispatch({ role: 'authorization', cmd: 'create', type: 'user', params }, function (err, res) {
         if (err) {
-          return reply(Boom.badImplementation())
+          return reply(err)
         }
 
         return reply(res).code(201)
@@ -75,8 +74,7 @@ exports.register = function (server, options, next) {
 
       mu.dispatch({ role: 'authorization', cmd: 'delete', type: 'user', params }, function (err, res) {
         if (err) {
-          if (err === 'not found') return reply(Boom.notFound())
-          return reply(Boom.badImplementation())
+          return reply(err)
         }
 
         return reply().code(204)
