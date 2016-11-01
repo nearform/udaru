@@ -18,11 +18,14 @@ const dbUtil = require('./dbUtil')
 */
 function listAllUsers (rsc, args, cb) {
   rsc.pool.connect(function (err, client, done) {
-    if (err) return cb(err)
+    if (err) return cb(rsc.mu.error.badImplementation(err))
+
     client.query('SELECT * from users ORDER BY UPPER(name)', function (err, result) {
       done() // release the client back to the pool
+      if (err) return cb(rsc.mu.error.badImplementation(err))
+
       rsc.log.debug('listAllUsers: count of: %d', result.rowCount)
-      if (err) return cb(err)
+
       return cb(null, result.rows)
     })
   })
@@ -33,10 +36,12 @@ function listAllUsers (rsc, args, cb) {
 */
 function listOrgUsers (rsc, args, cb) {
   rsc.pool.connect(function (err, client, done) {
-    if (err) return cb(err)
+    if (err) return cb(rsc.mu.error.badImplementation(err))
+
     client.query('SELECT  * from users WHERE org_id = $1 ORDER BY UPPER(name)', args, function (err, result) {
       done() // release the client back to the pool
-      if (err) return cb(err)
+      if (err) return cb(rsc.mu.error.badImplementation(err))
+
       return cb(null, result.rows)
     })
   })
@@ -47,13 +52,16 @@ function listOrgUsers (rsc, args, cb) {
 */
 function createUser (rsc, args, cb) {
   rsc.pool.connect(function (err, client, done) {
-    if (err) return cb(err)
+    if (err) return cb(rsc.mu.error.badImplementation(err))
+
     client.query('INSERT INTO users (id, name, org_id) VALUES (DEFAULT, $1, $2) RETURNING id', args, function (err, result) {
       done() // release the client back to the pool
-      if (err) return cb(err)
+      if (err) return cb(rsc.mu.error.badImplementation(err))
+
       rsc.log.debug('create user result: %j', result)
       readUserById(rsc, [result.rows[0].id], function (err, result) {
-        if (err) return cb(err)
+        if (err) return cb(rsc.mu.error.badImplementation(err))
+
         return cb(null, result)
       })
     })
@@ -66,13 +74,16 @@ function createUser (rsc, args, cb) {
 */
 function createUserById (rsc, args, cb) {
   rsc.pool.connect(function (err, client, done) {
-    if (err) return cb(err)
+    if (err) return cb(rsc.mu.error.badImplementation(err))
+
     client.query('INSERT INTO users (id, name, org_id) VALUES ($1, $2, $3)', args, function (err, result) {
       done() // release the client back to the pool
-      if (err) return cb(err)
+      if (err) return cb(rsc.mu.error.badImplementation(err))
+
       rsc.log.debug('create user result: %j', result)
       readUserById(rsc, [args[0]], function (err, result) {
-        if (err) return cb(err)
+        if (err) return cb(rsc.mu.error.badImplementation(err))
+
         return cb(null, result)
       })
     })
@@ -89,17 +100,19 @@ function readUserById (rsc, args, cb) {
     teams: [],
     policies: []
   }
+
   rsc.pool.connect(function (err, client, done) {
-    if (err) return cb(err)
+    if (err) return cb(rsc.mu.error.badImplementation(err))
+
     client.query('SELECT id, name from users WHERE id = $1', args, function (err, result) {
       if (err) {
         done() // release the client back to the pool
-        return cb(err)
+        return cb(rsc.mu.error.badImplementation(err))
       }
 
       if (result.rowCount === 0) {
         done()
-        return cb('not found')
+        return cb(rsc.mu.error.notFound())
       }
 
       user.id = result.rows[0].id
@@ -108,17 +121,21 @@ function readUserById (rsc, args, cb) {
       client.query('SELECT teams.id, teams.name from team_members mem, teams WHERE mem.user_id = $1 and mem.team_id = teams.id ORDER BY UPPER(teams.name)', args, function (err, result) {
         if (err) {
           done() // release the client back to the pool
-          return cb(err)
+          return cb(rsc.mu.error.badImplementation(err))
         }
+
         result.rows.forEach(function (row) {
           user.teams.push(row)
         })
+
         client.query('SELECT pol.id, pol.version, pol.name from user_policies upol, policies pol WHERE upol.user_id = $1 and upol.policy_id = pol.id ORDER BY UPPER(pol.name)', args, function (err, result) {
           done() // release the client back to the pool
-          if (err) return cb(err)
+          if (err) return cb(rsc.mu.error.badImplementation(err))
+
           result.rows.forEach(function (row) {
             user.policies.push(row)
           })
+
           return cb(null, user)
         })
       })
@@ -131,61 +148,76 @@ function readUserById (rsc, args, cb) {
 */
 function updateUser (rsc, args, cb) {
   rsc.pool.connect(function (err, client, done) {
-    if (err) return cb(err)
+    if (err) return cb(rsc.mu.error.badImplementation(err))
 
     const [id, name, teams, policies] = args
     const task = []
 
     if (!Array.isArray(teams) || !Array.isArray(policies)) {
       done() // release the client back to the pool
-      return cb('Teams or policies data missing')
+      return cb(rsc.mu.error.badRequest())
     }
 
-    task.push((cb) => {
-      client.query('BEGIN', cb)
+    task.push((next) => {
+      client.query('BEGIN', next)
     })
-    task.push((result, cb) => {
+
+    task.push((next) => {
       client.query('UPDATE users SET name = $2 WHERE id = $1', [id, name], (err, res) => {
-        if (err) {
-          done() // release the client back to the pool
-          return cb(err)
-        }
+        if (err) return next(rsc.mu.error.badImplementation(err))
+        if (res.rowCount === 0) return next(rsc.mu.error.notFound())
 
-        if (res.rowCount === 0) {
-          done()
-          return cb('not found')
-        }
-
-        cb(null, res)
+        next(null, res)
       })
     })
-    task.push((result, cb) => {
-      client.query('DELETE FROM team_members WHERE user_id = $1', [id], cb)
+
+    task.push((next) => {
+      client.query('DELETE FROM team_members WHERE user_id = $1', [id], (err) => {
+        if (err) return next(rsc.mu.error.badImplementation(err))
+
+        next()
+      })
     })
+
     if (teams.length > 0) {
-      task.push((result, cb) => {
+      task.push((next) => {
         let stmt = dbUtil.buildInsertStmt('INSERT INTO team_members (team_id, user_id) VALUES ', teams.map(p => [p.id, id]))
-        client.query(stmt.statement, stmt.params, cb)
+        client.query(stmt.statement, stmt.params, (err) => {
+          if (err) return next(rsc.mu.error.badImplementation(err))
+
+          next()
+        })
       })
     }
-    task.push((result, cb) => {
-      client.query('DELETE FROM user_policies WHERE user_id = $1', [id], cb)
+
+    task.push((next) => {
+      client.query('DELETE FROM user_policies WHERE user_id = $1', [id], (err) => {
+        if (err) return next(rsc.mu.error.badImplementation(err))
+
+        next()
+      })
     })
+
     if (policies.length > 0) {
-      task.push((result, cb) => {
+      task.push((next) => {
         let stmt = dbUtil.buildInsertStmt('INSERT INTO user_policies (policy_id, user_id) VALUES ', policies.map(p => [p.id, id]))
-        client.query(stmt.statement, stmt.params, cb)
+        client.query(stmt.statement, stmt.params, (err) => {
+          if (err) return next(rsc.mu.error.badImplementation(err))
+
+          next()
+        })
       })
     }
-    async.waterfall(task, (err) => {
+
+    async.series(task, (err) => {
       if (err) {
         dbUtil.rollback(client, done)
         return cb(err)
       }
 
       client.query('COMMIT', (err) => {
-        if (err) return cb(err)
         done()
+        if (err) return cb(rsc.mu.error.badImplementation(err))
 
         return cb(null, {id, name, teams, policies})
       })
@@ -198,34 +230,50 @@ function updateUser (rsc, args, cb) {
 */
 function deleteUserById (rsc, args, cb) {
   rsc.pool.connect(function (err, client, done) {
-    if (err) return cb(err)
+    if (err) return cb(rsc.mu.error.badImplementation(err))
 
-    client.query('BEGIN', function (err) {
-      if (err) return cb(dbUtil.rollback(client, done))
+    client.query('BEGIN', (err) => {
+      if (err) {
+        dbUtil.rollback(client, done)
+        return cb(rsc.mu.error.badImplementation(err))
+      }
 
       process.nextTick(function () {
         client.query('DELETE from user_policies WHERE user_id = $1', args, function (err, result) {
-          if (err) return cb(dbUtil.rollback(client, done))
+          if (err) {
+            dbUtil.rollback(client, done)
+            return cb(rsc.mu.error.badImplementation(err))
+          }
+
           rsc.log.debug('delete user_policies result: %j', result)
 
           client.query('DELETE from team_members WHERE user_id = $1', args, function (err, result) {
-            if (err) return cb(dbUtil.rollback(client, done))
+            if (err) {
+              dbUtil.rollback(client, done)
+              return cb(rsc.mu.error.badImplementation(err))
+            }
+
             rsc.log.debug('delete team_member result: %j', result)
 
             client.query('DELETE from users WHERE id = $1', args, function (err, result) {
               if (err) {
                 dbUtil.rollback(client, done)
-                return cb(err)
+                return cb(rsc.mu.error.badImplementation(err))
               }
 
               if (result.rowCount === 0) {
                 done()
-                return cb('not found')
+                return cb(rsc.mu.error.notFound())
               }
 
               rsc.log.debug('delete user result: %j', result)
 
-              client.query('COMMIT', () => {
+              client.query('COMMIT', (err) => {
+                if (err) {
+                  dbUtil.rollback(client, done)
+                  return cb(rsc.mu.error.badImplementation(err))
+                }
+
                 done()
                 return cb(null)
               })
@@ -237,6 +285,26 @@ function deleteUserById (rsc, args, cb) {
   })
 }
 
+/*
+* $1 = id
+*/
+function getUserByToken (rsc, userId, cb) {
+  rsc.pool.connect((err, client, done) => {
+    if (err) return cb(rsc.mu.error.badImplementation(err))
+
+    client.query('SELECT id, name FROM users WHERE id = $1', [ userId ], (err, result) => {
+      done()
+
+      if (err) return cb(rsc.mu.error.badImplementation(err))
+      if (result.rowCount === 0) return cb(rsc.mu.error.notFound())
+
+      const user = result.rows[0]
+
+      return cb(null, user)
+    })
+  })
+}
+
 module.exports = {
   createUser: createUser,
   createUserById: createUserById,
@@ -244,5 +312,6 @@ module.exports = {
   listAllUsers: listAllUsers,
   listOrgUsers: listOrgUsers,
   readUserById: readUserById,
-  updateUser: updateUser
+  updateUser: updateUser,
+  getUserByToken: getUserByToken
 }

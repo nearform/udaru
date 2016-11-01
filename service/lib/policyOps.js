@@ -3,9 +3,9 @@
 /*
 * $1 = user_id
 */
-function listAllUserPolicies (pool, { userId }, cb) {
-  pool.connect(function (err, client, done) {
-    if (err) return cb(err)
+function listAllUserPolicies (rsc, { userId }, cb) {
+  rsc.pool.connect(function (err, client, done) {
+    if (err) return cb(rsc.mu.error.wrap(err))
 
     /* Query1: For fetching policies attached directly to the user */
     /* Query2: For fetching policies attached to the teams user belongs to */
@@ -43,7 +43,7 @@ function listAllUserPolicies (pool, { userId }, cb) {
 
     client.query(sql, params, function (err, result) {
       done() // release the client back to the pool
-      if (err) return cb(err)
+      if (err) return cb(rsc.mu.error.wrap(err))
 
       const userPolicies = result.rows.map(row => ({
         Version: row.version,
@@ -60,10 +60,12 @@ function listAllUserPolicies (pool, { userId }, cb) {
 */
 function listAllPolicies (rsc, args, cb) {
   rsc.pool.connect(function (err, client, done) {
-    if (err) return cb(err)
+    if (err) return cb(rsc.mu.error.wrap(err))
+
     client.query('SELECT  id, version, name from policies ORDER BY UPPER(name)', function (err, result) {
       done() // release the client back to the pool
-      if (err) return cb(err)
+      if (err) return cb(rsc.mu.error.wrap(err))
+
       return cb(null, result.rows)
     })
   })
@@ -75,13 +77,19 @@ function listAllPolicies (rsc, args, cb) {
 */
 function listAllPoliciesDetails (rsc, args, cb) {
   rsc.pool.connect(function (err, client, done) {
-    if (err) return cb(err)
+    if (err) return cb(rsc.mu.error.wrap(err))
+
     client.query('SELECT  id, version, name, statements from policies ORDER BY UPPER(name)', function (err, result) {
       done() // release the client back to the pool
-      if (err) return cb(err)
-      var results = result.rows.map((policy) => {
-        return {id: policy.id, version: policy.version, name: policy.name, statements: policy.statements.Statement}
-      })
+      if (err) return cb(rsc.mu.error.wrap(err))
+
+      var results = result.rows.map((policy) => ({
+        id: policy.id,
+        name: policy.name,
+        version: policy.version,
+        statements: policy.statements.Statement
+      }))
+
       return cb(null, results)
     })
   })
@@ -92,15 +100,21 @@ function listAllPoliciesDetails (rsc, args, cb) {
 */
 function readPolicyById (rsc, args, cb) {
   rsc.pool.connect(function (err, client, done) {
-    if (err) return cb(err)
+    if (err) return cb(rsc.mu.error.wrap(err))
+
     client.query('SELECT id, version, name, statements from policies WHERE id = $1', args, function (err, result) {
       done() // release the client back to the pool
 
-      if (err) return cb(err)
-      if (result.rowCount === 0) return cb('not found')
+      if (err) return cb(rsc.mu.error.wrap(err))
+      if (result.rowCount === 0) return cb(rsc.mu.error.notFound())
 
       var policy = result.rows[0]
-      return cb(null, {id: policy.id, version: policy.version, name: policy.name, statements: policy.statements.Statement})
+      return cb(null, {
+        id: policy.id,
+        name: policy.name,
+        version: policy.version,
+        statements: policy.statements.Statement
+      })
     })
   })
 }

@@ -1,4 +1,4 @@
-const Hapi = require('hapi')
+const mu = require('mu')()
 const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
@@ -18,11 +18,11 @@ lab.before(function (done) {
     mu: muStub
   }
 
-  server = TestHelper.createTestServer(Teams, options, done);
-});
+  server = TestHelper.createTestServer(Teams, options, done)
+})
 
 lab.experiment('Teams', () => {
-  lab.test('get team list', (done) =>  {
+  lab.test('get team list', (done) => {
     const teamListStub = [{
       id: 1,
       name: 'Team A'
@@ -52,10 +52,10 @@ lab.experiment('Teams', () => {
     })
   })
 
-  lab.test('get team list should return 500 on unknown errors', (done) =>  {
+  lab.test('get team list should return error for error case', (done) => {
     muStub.dispatch = function (pattern, cb) {
       process.nextTick(() => {
-        cb('some weird error')
+        cb(mu.error.badImplementation())
       })
     }
 
@@ -74,7 +74,7 @@ lab.experiment('Teams', () => {
     })
   })
 
-  lab.test('get single team', (done) =>  {
+  lab.test('get single team', (done) => {
     const teamStub = {
       id: 1,
       name: 'Team A',
@@ -103,29 +103,7 @@ lab.experiment('Teams', () => {
     })
   })
 
-  lab.test('get single team should return 404 for unknown team', (done) =>  {
-    muStub.dispatch = function (pattern, cb) {
-      process.nextTick(() => {
-        cb('not found')
-      })
-    }
-
-    const options = {
-      method: 'GET',
-      url: '/authorization/team/99'
-    }
-
-    server.inject(options, (response) => {
-      const result = response.result
-
-      expect(response.statusCode).to.equal(404)
-      expect(result).to.be.undefined
-
-      done()
-    })
-  })
-
-  lab.test('create new team', (done) =>  {
+  lab.test('create new team', (done) => {
     const newTeamStub = {
       id: 2,
       name: 'Team B',
@@ -159,7 +137,33 @@ lab.experiment('Teams', () => {
     })
   })
 
-  lab.test('update team', (done) =>  {
+  lab.test('create new team should return error for error case', (done) => {
+    muStub.dispatch = function (pattern, cb) {
+      process.nextTick(() => {
+        cb(mu.error.badImplementation())
+      })
+    }
+
+    const options = {
+      method: 'POST',
+      url: '/authorization/team',
+      payload: {
+        name: 'Team C',
+        description: 'This is Team C'
+      }
+    }
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(500)
+      expect(result).to.be.undefined
+
+      done()
+    })
+  })
+
+  lab.test('update team', (done) => {
     const teamStub = {
       id: 2,
       name: 'Team C',
@@ -193,10 +197,10 @@ lab.experiment('Teams', () => {
     })
   })
 
-  lab.test('update team should return 500 for unknown errors', (done) =>  {
+  lab.test('update team should return error for error case', (done) => {
     muStub.dispatch = function (pattern, cb) {
       process.nextTick(() => {
-        cb('some weird error')
+        cb(mu.error.badImplementation())
       })
     }
 
@@ -219,33 +223,7 @@ lab.experiment('Teams', () => {
     })
   })
 
-  lab.test('update team should return 404 for unknown errors', (done) =>  {
-    muStub.dispatch = function (pattern, cb) {
-      process.nextTick(() => {
-        cb('not found')
-      })
-    }
-
-    const options = {
-      method: 'PUT',
-      url: '/authorization/team/99',
-      payload: {
-        name: 'Team D',
-        description: 'Updating a team that does not exist'
-      }
-    }
-
-    server.inject(options, (response) => {
-      const result = response.result
-
-      expect(response.statusCode).to.equal(404)
-      expect(result).to.be.undefined
-
-      done()
-    })
-  })
-
-  lab.test('delete team should return 204 for success', (done) =>  {
+  lab.test('delete team should return 204 for success', (done) => {
     muStub.dispatch = function (pattern, cb) {
       process.nextTick(() => {
         cb(null)
@@ -267,32 +245,10 @@ lab.experiment('Teams', () => {
     })
   })
 
-  lab.test('delete team should return 404 for unknown team', (done) =>  {
+  lab.test('delete team should return error for error case', (done) => {
     muStub.dispatch = function (pattern, cb) {
       process.nextTick(() => {
-        cb('not found')
-      })
-    }
-
-    const options = {
-      method: 'DELETE',
-      url: '/authorization/team/99'
-    }
-
-    server.inject(options, (response) => {
-      const result = response.result
-
-      expect(response.statusCode).to.equal(404)
-      expect(result).to.be.undefined
-
-      done()
-    })
-  })
-
-  lab.test('delete team should return 500 for unknown team', (done) =>  {
-    muStub.dispatch = function (pattern, cb) {
-      process.nextTick(() => {
-        cb('some weird error')
+        cb(mu.error.badImplementation())
       })
     }
 

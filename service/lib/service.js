@@ -3,7 +3,7 @@
 const log = require('pino')()
 
 const dbConn = require('./dbConn')
-const authorize = require('./authorize')
+const authorize = require('./authorizeOps')
 const userOps = require('./userOps')
 const teamOps = require('./teamOps')
 const policyOps = require('./policyOps')
@@ -13,7 +13,8 @@ module.exports = function (opts, done) {
   const db = dbConn.create(log)
   const rsc = {
     pool: db.pool,
-    log: log
+    log: log,
+    mu: opts.mu
   }
 
   function listAllUsers (args, cb) {
@@ -85,11 +86,15 @@ module.exports = function (opts, done) {
   }
 
   function isUserAuthorized (args, cb) {
-    authorize.isUserAuthorized(db.pool, args, cb)
+    authorize.isUserAuthorized(rsc, args, cb)
   }
 
   function listAuthorizations (args, cb) {
-    authorize.listAuthorizations(db.pool, args, cb)
+    authorize.listAuthorizations(rsc, args, cb)
+  }
+
+  function getUserByToken (args, cb) {
+    authorize.getUserByToken(rsc, args, cb)
   }
 
   // simulate resource initialization.
@@ -115,6 +120,7 @@ module.exports = function (opts, done) {
       deleteTeamById: deleteTeamById,
       isUserAuthorized: isUserAuthorized,
       listAuthorizations: listAuthorizations,
+      getUserByToken: getUserByToken,
       destroy: shutdown
     })
   }, 500)

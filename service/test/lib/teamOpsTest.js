@@ -1,12 +1,15 @@
 
 'use strict'
 
+const mu = require('mu')()
 const test = require('tap').test
 const service = require('../../lib/service')
+
 let testTeamId
 
 var opts = {
-  logLevel: 'warn'
+  logLevel: 'warn',
+  mu
 }
 
 test('service starts and stops', (t) => {

@@ -7,7 +7,7 @@
     "start": "node index.js",
     "lint": "./node_modules/.bin/spacey-standard",
     "test": "./node_modules/.bin/lab",
-    "coverage": "tap \"test/**/*Test.js\" --cov --coverage-report=html"
+    "coverage": "./node_modules/.bin/lab -r html -o coverage.html"
   },
   "pre-commit": [
     "lint"
@@ -27,7 +27,7 @@
     "good": "^6.4.0",
     "good-console": "^5.1.0",
     "hapi": "^10.5.0",
-    "mu": "^1.0.2"
+    "mu": "^1.1.0"
   },
   "devDependencies": {
     "code": "^4.0.0",

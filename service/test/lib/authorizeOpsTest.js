@@ -1,13 +1,19 @@
 'use strict'
 /* eslint-disable handle-callback-err */
 
+const mu = require('mu')()
 const test = require('tap').test
 const service = require('../../lib/service')
+
+const opts = {
+  logLevel: 'warn',
+  mu
+}
 
 test('authorize check on a resource and action', (t) => {
   t.plan(7)
 
-  service({}, (svc) => {
+  service(opts, (svc) => {
     let testUserId
 
     svc.createUser(['Salman', 'WONKA'], (err, result) => {
