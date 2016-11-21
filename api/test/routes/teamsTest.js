@@ -137,6 +137,21 @@ lab.experiment('Teams', () => {
     })
   })
 
+  lab.test('create new team should return a 400 Bad Request when not providing name or description', (done) => {
+    const options = {
+      method: 'POST',
+      url: '/authorization/team',
+      payload: {
+      }
+    }
+
+    server.inject(options, (response) => {
+      expect(response.statusCode).to.equal(400)
+
+      done()
+    })
+  })
+
   lab.test('create new team should return error for error case', (done) => {
     muStub.dispatch = function (pattern, cb) {
       process.nextTick(() => {

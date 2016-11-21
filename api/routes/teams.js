@@ -1,5 +1,7 @@
 'use strict'
 
+var Boom = require('boom')
+
 exports.register = function (server, options, next) {
   const mu = options.mu
 
@@ -29,6 +31,8 @@ exports.register = function (server, options, next) {
     method: 'POST',
     path: '/authorization/team',
     handler: function (request, reply) {
+      if (!request.payload.name || !request.payload.description) return reply(Boom.badRequest())
+
       const { name, description } = request.payload
 
       const params = [
