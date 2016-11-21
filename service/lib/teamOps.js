@@ -13,7 +13,7 @@ function listAllTeams (rsc, args, cb) {
       done() // release the client back to the pool
       if (err) return cb(rsc.mu.error.badImplementation(err))
 
-      return cb(null, result.rows)
+      return cb(null, result.rows || [])
     })
   })
 }
@@ -29,7 +29,7 @@ function listOrgTeams (rsc, args, cb) {
       done() // release the client back to the pool
       if (err) return cb(rsc.mu.error.badImplementation(err))
 
-      return cb(null, result.rows)
+      return cb(null, result.rows || [])
     })
   })
 }

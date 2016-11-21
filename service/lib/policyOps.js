@@ -47,7 +47,7 @@ function listAllUserPolicies (rsc, { userId }, cb) {
       done() // release the client back to the pool
       if (err) return cb(rsc.mu.error.wrap(err))
 
-      const userPolicies = result.rows.map(row => ({
+      const userPolicies = (result.rows || []).map(row => ({
         Version: row.version,
         Name: row.name,
         Statement: row.statements.Statement
@@ -69,7 +69,7 @@ function listAllPolicies (rsc, args, cb) {
       done() // release the client back to the pool
       if (err) return cb(rsc.mu.error.wrap(err))
 
-      return cb(null, result.rows)
+      return cb(null, result.rows || [])
     })
   })
 }
@@ -86,7 +86,7 @@ function listAllPoliciesDetails (rsc, args, cb) {
       done() // release the client back to the pool
       if (err) return cb(rsc.mu.error.wrap(err))
 
-      var results = result.rows.map((policy) => ({
+      var results = (result.rows || []).map((policy) => ({
         id: policy.id,
         name: policy.name,
         version: policy.version,
