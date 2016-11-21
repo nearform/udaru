@@ -53,9 +53,6 @@ Test data can be added with:
 npm run pg:load-test-data
 ```
 
-Note: the scripts that initialize and load data into the database require you to have the Postgresql client installed on your machine.
-It is not necessary to have the full Postgresql database and dependencies installed.
-
 ###pgAdmin database access
 As the Postgresql docker container has its 5432 port forwarded on the local machine the database can be accessed with pgAdmin.
 
