@@ -3,6 +3,7 @@
 var Hapi = require('hapi')
 var mu = require('mu')()
 var tcp = require('mu/drivers/tcp')
+var buildHandleRoleCommandType = require('./../lib/buildHandleRoleCommandType')
 
 var server = new Hapi.Server()
 
@@ -22,6 +23,11 @@ mu.outbound({role: 'authorization'}, tcp.client({
   port: process.env.SERVICE_PORT || 8080
 }))
 
+var options = {
+  mu,
+  handleRoleCommandType: buildHandleRoleCommandType(mu)
+}
+
 server.register([{
   register: require('good'),
   options: {
@@ -30,16 +36,16 @@ server.register([{
   }
 }, {
   register: require('./routes/users'),
-  options: { mu }
+  options
 }, {
   register: require('./routes/policies'),
-  options: { mu }
+  options
 }, {
   register: require('./routes/teams'),
-  options: { mu }
+  options
 }, {
   register: require('./routes/authorization'),
-  options: { mu }
+  options
 }], function (err) {
   if (err) { throw err }
   server.start(function () {

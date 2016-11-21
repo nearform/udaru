@@ -5,16 +5,6 @@ var Boom = require('boom')
 exports.register = function (server, options, next) {
   const mu = options.mu
 
-  function handleRoleCommandType (role, cmd, type, params, request, reply) {
-    mu.dispatch({ role, cmd, type, params }, function (err, res) {
-      if (err) {
-        return reply(err)
-      }
-
-      return reply(res)
-    })
-  }
-
   // curl http://localhost:8000/authorization/users
   server.route({
     method: 'GET',
@@ -22,7 +12,7 @@ exports.register = function (server, options, next) {
     handler: function (request, reply) {
       const params = null
 
-      handleRoleCommandType('authorization', 'list', 'users', params, request, reply)
+      options.handleRoleCommandType('authorization', 'list', 'users', params, request, reply)
     }
   })
 
@@ -35,7 +25,7 @@ exports.register = function (server, options, next) {
         request.params.id
       ]
 
-      handleRoleCommandType('authorization', 'read', 'user', params, request, reply)
+      options.handleRoleCommandType('authorization', 'read', 'user', params, request, reply)
     }
   })
 
@@ -98,7 +88,7 @@ exports.register = function (server, options, next) {
         policies
       ]
 
-      handleRoleCommandType('authorization', 'update', 'user', params, request, reply)
+      options.handleRoleCommandType('authorization', 'update', 'user', params, request, reply)
     }
   })
 

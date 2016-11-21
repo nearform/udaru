@@ -1,18 +1,6 @@
 'use strict'
 
 exports.register = function (server, options, next) {
-  const mu = options.mu
-
-  function handleRoleCommandType (role, cmd, type, params, request, reply) {
-    mu.dispatch({ role, cmd, type, params }, function (err, res) {
-      if (err) {
-        return reply(err)
-      }
-
-      return reply(res)
-    })
-  }
-
   // curl -X GET http://localhost:8000/authorization/check/<resource>/<action>/<user_id>
   server.route({
     method: 'GET',
@@ -26,7 +14,7 @@ exports.register = function (server, options, next) {
         resource
       }
 
-      handleRoleCommandType('authorization', 'authorize', 'user', params, request, reply)
+      options.handleRoleCommandType('authorization', 'authorize', 'user', params, request, reply)
     }
   })
 
@@ -42,7 +30,7 @@ exports.register = function (server, options, next) {
         resource
       }
 
-      handleRoleCommandType('authorization', 'list', 'authorizations', params, request, reply)
+      options.handleRoleCommandType('authorization', 'list', 'authorizations', params, request, reply)
     }
   })
 
