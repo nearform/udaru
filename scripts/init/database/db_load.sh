@@ -1,6 +1,7 @@
 #!/bin/bash
 # TODO: team_members, team_policies
 # TODO: statement_*
+docker exec labsauthorization_database_1 bash -c "rm -rf /testdata"
 docker cp ./scripts/init/database/testdata labsauthorization_database_1:/testdata
 docker exec -it labsauthorization_database_1 bash -c "PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d authorization <<EOF
 SELECT 'Database installed, schemaversion = ' || MAX(version) from schemaversion;
