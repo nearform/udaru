@@ -82,15 +82,15 @@ service:
 
 ## API
 
-An example API route for fetching all the users is: http://localhost:8000/auth/users
+An example API route for fetching all the users is: http://localhost:8000/authorization/users
 
 Curl examples for all the routes can be found in api/route.js
 
 To expose the routes start both the service and the API with the following:
 
-    npm start:service
+    npm run start:service
 
-    npm start:api
+    npm run start:api
 
 ## Testing
 
