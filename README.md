@@ -89,6 +89,16 @@ To expose the routes start both the service and the API with the following:
 
     npm run start:api
 
+## Frontend
+
+To build the frontend
+
+    cd component && npm run build 
+
+And then in the root directory
+
+    npm run start:component
+
 ## Testing
 
 Tests are supplied for the service interface and the Mu wiring (npm test)
