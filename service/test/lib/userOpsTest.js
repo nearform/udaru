@@ -40,21 +40,26 @@ test('list of org users', (t) => {
   })
 })
 
-test('create a user by ID', (t) => {
-  t.plan(4)
+test('create and delete a user by ID', (t) => {
+  t.plan(5)
   service(opts, (svc) => {
     svc.createUserById([99, 'Mike Teavee', 'WONKA'], (err, result) => {
       t.error(err, 'should be no error creating')
       t.ok(result, 'result should be supplied')
       t.deepEqual(result, { id: 99, name: 'Mike Teavee', teams: [], policies: [] }, 'data should be as expected')
-      svc.destroy({}, (err, result) => {
-        t.error(err)
+      // delete the user again, as we don't need it
+      svc.deleteUserById([99], (err, result) => {
+        t.error(err, 'should be no error')
+
+        svc.destroy({}, (err, result) => {
+          t.error(err)
+        })
       })
     })
   })
 })
 
-test('create a user', (t) => {
+test('create a user (and delete it)', (t) => {
   t.plan(5)
   service(opts, (svc) => {
     svc.createUser(['Grandma Josephine', 'WONKA'], (err, result) => {
@@ -74,7 +79,7 @@ test('create a user', (t) => {
 })
 
 test('update a user', (t) => {
-  const data = [99, 'Augustus Gloop', [{'id': 4, 'name': 'Dream Team'}], [{'id': 1, 'name': 'DROP ALL TABLES!'}, { 'id': 2, 'name': 'THROW DESK' }]]
+  const data = [6, 'Augustus Gloop', [{'id': 4, 'name': 'Dream Team'}], [{'id': 1, 'name': 'DROP ALL TABLES!'}, { 'id': 2, 'name': 'THROW DESK' }]]
   t.plan(3)
   service(opts, (svc) => {
     svc.updateUser(data, (err, result) => {
@@ -107,19 +112,6 @@ test('read a specific user that does not exist', (t) => {
     svc.readUserById([987654321], (err, result) => {
       t.equal(err.output.statusCode, 404)
       t.notOk(result, 'result should not be supplied')
-
-      svc.destroy({}, (err, result) => {
-        t.error(err)
-      })
-    })
-  })
-})
-
-test('delete a user', (t) => {
-  t.plan(2)
-  service(opts, (svc) => {
-    svc.deleteUserById([99], (err, result) => {
-      t.error(err, 'should be no error')
 
       svc.destroy({}, (err, result) => {
         t.error(err)
