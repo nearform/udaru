@@ -44,6 +44,7 @@
     "pg": "^6.1.0"
   },
   "devDependencies": {
+    "mock-require": "^2.0.0",
     "postgrator": "^2.8.2",
     "pre-commit": "^1.1.3"
   }

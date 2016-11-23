@@ -62,7 +62,7 @@ module.exports = function (dbPool, mu, log) {
 
           log.debug('create user result: %j', result)
           userOps.readUserById([result.rows[0].id], function (err, result) {
-            if (err) return cb(mu.error.badImplementation(err))
+            if (err) return cb(err)
 
             return cb(null, result)
           })
@@ -84,7 +84,7 @@ module.exports = function (dbPool, mu, log) {
 
           log.debug('create user result: %j', result)
           userOps.readUserById([args[0]], function (err, result) {
-            if (err) return cb(mu.error.badImplementation(err))
+            if (err) return cb(err)
 
             return cb(null, result)
           })
@@ -149,22 +149,24 @@ module.exports = function (dbPool, mu, log) {
     * $1 = id, $2 = name, $3 = teams, $4 = policies
     */
     updateUser: function updateUser (args, cb) {
+      const [id, name, teams, policies] = args
+      const tasks = []
+
+      if (!Array.isArray(teams) || !Array.isArray(policies)) {
+        return cb(mu.error.badRequest())
+      }
+
       dbPool.connect(function (err, client, done) {
         if (err) return cb(mu.error.badImplementation(err))
 
-        const [id, name, teams, policies] = args
-        const task = []
-
-        if (!Array.isArray(teams) || !Array.isArray(policies)) {
-          done() // release the client back to the pool
-          return cb(mu.error.badRequest())
-        }
-
-        task.push((next) => {
-          client.query('BEGIN', next)
+        tasks.push((next) => {
+          client.query('BEGIN', (err, res) => {
+            if (err) return next(mu.error.badImplementation(err))
+            next()
+          })
         })
 
-        task.push((next) => {
+        tasks.push((next) => {
           client.query('UPDATE users SET name = $2 WHERE id = $1', [id, name], (err, res) => {
             if (err) return next(mu.error.badImplementation(err))
             if (res.rowCount === 0) return next(mu.error.notFound())
@@ -173,7 +175,7 @@ module.exports = function (dbPool, mu, log) {
           })
         })
 
-        task.push((next) => {
+        tasks.push((next) => {
           client.query('DELETE FROM team_members WHERE user_id = $1', [id], (err) => {
             if (err) return next(mu.error.badImplementation(err))
 
@@ -182,7 +184,7 @@ module.exports = function (dbPool, mu, log) {
         })
 
         if (teams.length > 0) {
-          task.push((next) => {
+          tasks.push((next) => {
             let stmt = dbUtil.buildInsertStmt('INSERT INTO team_members (team_id, user_id) VALUES ', teams.map(p => [p.id, id]))
             client.query(stmt.statement, stmt.params, (err) => {
               if (err) return next(mu.error.badImplementation(err))
@@ -192,7 +194,7 @@ module.exports = function (dbPool, mu, log) {
           })
         }
 
-        task.push((next) => {
+        tasks.push((next) => {
           client.query('DELETE FROM user_policies WHERE user_id = $1', [id], (err) => {
             if (err) return next(mu.error.badImplementation(err))
 
@@ -201,7 +203,7 @@ module.exports = function (dbPool, mu, log) {
         })
 
         if (policies.length > 0) {
-          task.push((next) => {
+          tasks.push((next) => {
             let stmt = dbUtil.buildInsertStmt('INSERT INTO user_policies (policy_id, user_id) VALUES ', policies.map(p => [p.id, id]))
             client.query(stmt.statement, stmt.params, (err) => {
               if (err) return next(mu.error.badImplementation(err))
@@ -211,18 +213,22 @@ module.exports = function (dbPool, mu, log) {
           })
         }
 
-        async.series(task, (err) => {
+        tasks.push((next) => {
+          client.query('COMMIT', (err) => {
+            if (err) return next(mu.error.badImplementation(err))
+
+            next()
+          })
+        })
+
+        async.series(tasks, (err) => {
           if (err) {
             dbUtil.rollback(client, done)
             return cb(err)
           }
 
-          client.query('COMMIT', (err) => {
-            done()
-            if (err) return cb(mu.error.badImplementation(err))
-
-            return cb(null, {id, name, teams, policies})
-          })
+          done()
+          return cb(null, {id, name, teams, policies})
         })
       })
     },
@@ -231,58 +237,55 @@ module.exports = function (dbPool, mu, log) {
     * $1 = id
     */
     deleteUserById: function deleteUserById (args, cb) {
+      const tasks = []
       dbPool.connect(function (err, client, done) {
         if (err) return cb(mu.error.badImplementation(err))
 
-        client.query('BEGIN', (err) => {
+        tasks.push((next) => {
+          client.query('BEGIN', (err, res) => {
+            if (err) return next(mu.error.badImplementation(err))
+            next()
+          })
+        })
+
+        tasks.push((next) => {
+          client.query('DELETE from user_policies WHERE user_id = $1', args, function (err, result) {
+            if (err) return next(mu.error.badImplementation(err))
+            next()
+          })
+        })
+
+        tasks.push((next) => {
+          client.query('DELETE from team_members WHERE user_id = $1', args, function (err, result) {
+            if (err) return next(mu.error.badImplementation(err))
+            next()
+          })
+        })
+
+        tasks.push((next) => {
+          client.query('DELETE from users WHERE id = $1', args, function (err, result) {
+            if (err) return next(mu.error.badImplementation(err))
+            if (result.rowCount === 0) return next(mu.error.notFound())
+
+            next()
+          })
+        })
+
+        tasks.push((next) => {
+          client.query('COMMIT', function (err, result) {
+            if (err) return next(mu.error.badImplementation(err))
+            next()
+          })
+        })
+
+        async.series(tasks, (err) => {
           if (err) {
             dbUtil.rollback(client, done)
-            return cb(mu.error.badImplementation(err))
+            return cb(err)
           }
 
-          process.nextTick(function () {
-            client.query('DELETE from user_policies WHERE user_id = $1', args, function (err, result) {
-              if (err) {
-                dbUtil.rollback(client, done)
-                return cb(mu.error.badImplementation(err))
-              }
-
-              log.debug('delete user_policies result: %j', result)
-
-              client.query('DELETE from team_members WHERE user_id = $1', args, function (err, result) {
-                if (err) {
-                  dbUtil.rollback(client, done)
-                  return cb(mu.error.badImplementation(err))
-                }
-
-                log.debug('delete team_member result: %j', result)
-
-                client.query('DELETE from users WHERE id = $1', args, function (err, result) {
-                  if (err) {
-                    dbUtil.rollback(client, done)
-                    return cb(mu.error.badImplementation(err))
-                  }
-
-                  if (result.rowCount === 0) {
-                    done()
-                    return cb(mu.error.notFound())
-                  }
-
-                  log.debug('delete user result: %j', result)
-
-                  client.query('COMMIT', (err) => {
-                    if (err) {
-                      dbUtil.rollback(client, done)
-                      return cb(mu.error.badImplementation(err))
-                    }
-
-                    done()
-                    return cb(null)
-                  })
-                })
-              })
-            })
-          })
+          done()
+          return cb(null)
         })
       })
     },
