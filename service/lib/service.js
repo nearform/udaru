@@ -3,46 +3,49 @@
 const log = require('pino')()
 
 const dbConn = require('./dbConn')
-const authorize = require('./authorizeOps')
-const userOps = require('./userOps')
-const teamOps = require('./teamOps')
-const policyOps = require('./policyOps')
+const UserOps = require('./userOps')
+const PolicyOps = require('./policyOps')
+const TeamOps = require('./teamOps')
+const Authorize = require('./authorizeOps')
 
 module.exports = function (opts, done) {
   log.level = opts && opts.logLevel || 'info'
   const db = dbConn.create(log)
-  const rsc = {
-    pool: db.pool,
-    log: log,
-    mu: opts.mu
-  }
+  const userOps = UserOps(db.pool, opts.mu, log)
+  const policyOps = PolicyOps(db.pool, opts.mu)
+  const teamOps = TeamOps(db.pool, opts.mu, log)
+  const authorize = Authorize(userOps, policyOps, opts.mu)
 
   function listAllUsers (args, cb) {
-    userOps.listAllUsers(rsc, args, cb)
+    userOps.listAllUsers(args, cb)
   }
 
   function listOrgUsers (args, cb) {
-    userOps.listOrgUsers(rsc, args, cb)
+    userOps.listOrgUsers(args, cb)
   }
 
   function createUser (args, cb) {
-    userOps.createUser(rsc, args, cb)
+    userOps.createUser(args, cb)
   }
 
   function createUserById (args, cb) {
-    userOps.createUserById(rsc, args, cb)
+    userOps.createUserById(args, cb)
   }
 
   function readUserById (args, cb) {
-    userOps.readUserById(rsc, args, cb)
+    userOps.readUserById(args, cb)
   }
 
   function updateUser (args, cb) {
-    userOps.updateUser(rsc, args, cb)
+    userOps.updateUser(args, cb)
   }
 
   function deleteUserById (args, cb) {
-    userOps.deleteUserById(rsc, args, cb)
+    userOps.deleteUserById(args, cb)
+  }
+
+  function getUserByToken (args, cb) {
+    userOps.getUserByToken(args, cb)
   }
 
   function shutdown (args, cb) {
@@ -50,51 +53,47 @@ module.exports = function (opts, done) {
   }
 
   function listAllPolicies (args, cb) {
-    policyOps.listAllPolicies(rsc, args, cb)
+    policyOps.listAllPolicies(args, cb)
   }
 
   function listAllPoliciesDetails (args, cb) {
-    policyOps.listAllPoliciesDetails(rsc, args, cb)
+    policyOps.listAllPoliciesDetails(args, cb)
   }
 
   function readPolicyById (args, cb) {
-    policyOps.readPolicyById(rsc, args, cb)
+    policyOps.readPolicyById(args, cb)
   }
 
   function listAllTeams (args, cb) {
-    teamOps.listAllTeams(rsc, args, cb)
+    teamOps.listAllTeams(args, cb)
   }
 
   function listOrgTeams (args, cb) {
-    teamOps.listOrgTeams(rsc, args, cb)
+    teamOps.listOrgTeams(args, cb)
   }
 
   function createTeam (args, cb) {
-    teamOps.createTeam(rsc, args, cb)
+    teamOps.createTeam(args, cb)
   }
 
   function readTeamById (args, cb) {
-    teamOps.readTeamById(rsc, args, cb)
+    teamOps.readTeamById(args, cb)
   }
 
   function updateTeam (args, cb) {
-    teamOps.updateTeam(rsc, args, cb)
+    teamOps.updateTeam(args, cb)
   }
 
   function deleteTeamById (args, cb) {
-    teamOps.deleteTeamById(rsc, args, cb)
+    teamOps.deleteTeamById(args, cb)
   }
 
   function isUserAuthorized (args, cb) {
-    authorize.isUserAuthorized(rsc, args, cb)
+    authorize.isUserAuthorized(args, cb)
   }
 
   function listAuthorizations (args, cb) {
-    authorize.listAuthorizations(rsc, args, cb)
-  }
-
-  function getUserByToken (args, cb) {
-    authorize.getUserByToken(rsc, args, cb)
+    authorize.listAuthorizations(args, cb)
   }
 
   // simulate resource initialization.
