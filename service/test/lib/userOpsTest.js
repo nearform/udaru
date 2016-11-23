@@ -119,3 +119,17 @@ test('read a specific user that does not exist', (t) => {
     })
   })
 })
+
+test('read a specific user by token', (t) => {
+  t.plan(3)
+  service(opts, (svc) => {
+    svc.getUserByToken(1, (err, result) => {
+      t.error(err, 'should be no error')
+      t.ok(result, 'result should be supplied')
+      // t.deepEqual(result, [{ id: 99, name: 'Augustus Gloop' }], 'data should be as expected')
+      svc.destroy({}, (err, result) => {
+        t.error(err)
+      })
+    })
+  })
+})
