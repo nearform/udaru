@@ -11,15 +11,10 @@ const Authorize = require('./authorizeOps')
 module.exports = function (opts, done) {
   log.level = opts && opts.logLevel || 'info'
   const db = dbConn.create(log)
-  const rsc = {
-    pool: db.pool,
-    log: log,
-    mu: opts.mu
-  }
-  const userOps = UserOps(rsc)
-  const policyOps = PolicyOps(rsc)
-  const teamOps = TeamOps(rsc)
-  const authorize = Authorize(rsc)
+  const userOps = UserOps(db.pool, opts.mu, log)
+  const policyOps = PolicyOps(db.pool, opts.mu)
+  const teamOps = TeamOps(db.pool, opts.mu, log)
+  const authorize = Authorize(userOps, policyOps, opts.mu)
 
   function listAllUsers (args, cb) {
     userOps.listAllUsers(args, cb)

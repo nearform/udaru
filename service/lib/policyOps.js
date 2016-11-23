@@ -1,14 +1,14 @@
 'use strict'
 
-module.exports = function (opts) {
+module.exports = function (dbPool, mu) {
   return {
 
     /*
     * $1 = user_id
     */
     listAllUserPolicies: function listAllUserPolicies ({ userId }, cb) {
-      opts.pool.connect(function (err, client, done) {
-        if (err) return cb(opts.mu.error.wrap(err))
+      dbPool.connect(function (err, client, done) {
+        if (err) return cb(mu.error.wrap(err))
 
         /* Query1: For fetching policies attached directly to the user */
         /* Query2: For fetching policies attached to the teams user belongs to */
@@ -48,7 +48,7 @@ module.exports = function (opts) {
 
         client.query(sql, params, function (err, result) {
           done() // release the client back to the pool
-          if (err) return cb(opts.mu.error.wrap(err))
+          if (err) return cb(mu.error.wrap(err))
 
           const userPolicies = result.rows.map(row => ({
             Version: row.version,
@@ -65,12 +65,12 @@ module.exports = function (opts) {
     * no query args (but may e.g. sort in future)
     */
     listAllPolicies: function listAllPolicies (args, cb) {
-      opts.pool.connect(function (err, client, done) {
-        if (err) return cb(opts.mu.error.wrap(err))
+      dbPool.connect(function (err, client, done) {
+        if (err) return cb(mu.error.wrap(err))
 
         client.query('SELECT  id, version, name from policies ORDER BY UPPER(name)', function (err, result) {
           done() // release the client back to the pool
-          if (err) return cb(opts.mu.error.wrap(err))
+          if (err) return cb(mu.error.wrap(err))
 
           return cb(null, result.rows)
         })
@@ -82,12 +82,12 @@ module.exports = function (opts) {
     * no query args (but may e.g. sort in future)
     */
     listAllPoliciesDetails: function listAllPoliciesDetails (args, cb) {
-      opts.pool.connect(function (err, client, done) {
-        if (err) return cb(opts.mu.error.wrap(err))
+      dbPool.connect(function (err, client, done) {
+        if (err) return cb(mu.error.wrap(err))
 
         client.query('SELECT  id, version, name, statements from policies ORDER BY UPPER(name)', function (err, result) {
           done() // release the client back to the pool
-          if (err) return cb(opts.mu.error.wrap(err))
+          if (err) return cb(mu.error.wrap(err))
 
           var results = result.rows.map((policy) => ({
             id: policy.id,
@@ -105,14 +105,14 @@ module.exports = function (opts) {
     * $1 = id
     */
     readPolicyById: function readPolicyById (args, cb) {
-      opts.pool.connect(function (err, client, done) {
-        if (err) return cb(opts.mu.error.wrap(err))
+      dbPool.connect(function (err, client, done) {
+        if (err) return cb(mu.error.wrap(err))
 
         client.query('SELECT id, version, name, statements from policies WHERE id = $1', args, function (err, result) {
           done() // release the client back to the pool
 
-          if (err) return cb(opts.mu.error.wrap(err))
-          if (result.rowCount === 0) return cb(opts.mu.error.notFound())
+          if (err) return cb(mu.error.wrap(err))
+          if (result.rowCount === 0) return cb(mu.error.notFound())
 
           var policy = result.rows[0]
           return cb(null, {

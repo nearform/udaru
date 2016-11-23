@@ -2,18 +2,13 @@
 /* eslint-disable handle-callback-err */
 const iam = require('iam-js')
 const async = require('async')
-const UserOps = require('./userOps')
-const PolicyOps = require('./policyOps')
 
-module.exports = function (opts) {
+module.exports = function (userOps, policyOps, mu) {
   return {
     /*
     * Auth.canDo(user policy set, resource, action) returns "allow" or "deny"
     */
     isUserAuthorized: function isUserAuthorized ({ resource, action, userId }, cb) {
-      const userOps = UserOps(opts)
-      const policyOps = PolicyOps(opts)
-
       async.waterfall([
         (next) => {
           userOps.getUserByToken(userId, (err, user) => {
@@ -55,14 +50,13 @@ module.exports = function (opts) {
     // as would be worth looking into the pbac module code for reuse opportunity
     //
     listAuthorizations: function listAuthorizations ({ userId, resource }, cb) {
-      const policyOps = PolicyOps(opts)
       const data = []
       var actions = []
       // build the set of actions in the user's policy set
       // can't check per resource as requires wildcard processing
 
       policyOps.listAllUserPolicies({ userId }, (err, policies) => {
-        if (err) return cb(opts.mu.error.wrap(err))
+        if (err) return cb(mu.error.wrap(err))
 
         policies.forEach(p => {
           p.Statement.forEach(s => {
@@ -73,12 +67,13 @@ module.exports = function (opts) {
             })
           })
         })
+
         actions = Array.from(new Set(actions)) // dedupe
         // check each action aginst the resource for this user
         actions.forEach(action => {
           iam(policies, ({ process }) => {
             process(resource, action, (err, access) => {
-              if (err) return cb(err)
+              if (err) return cb(mu.error.wrap(err))
               if (access) {
                 data.push(action)
               }
