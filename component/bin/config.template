@@ -1,0 +1,5 @@
+'use strict'
+
+const Reconfig = require('reconfig')
+
+module.exports = new Reconfig({{config}})
