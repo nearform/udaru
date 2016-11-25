@@ -27,7 +27,8 @@
     "good": "^6.4.0",
     "good-console": "^5.1.0",
     "hapi": "^10.5.0",
-    "mu": "^1.1.0"
+    "mu": "^1.1.0",
+    "reconfig": "^3.2.0"
   },
   "devDependencies": {
     "code": "^4.0.0",

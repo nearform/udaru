@@ -2,9 +2,10 @@
 
 var mu = require('mu')()
 var tcp = require('mu/drivers/tcp')
+var config = require('./lib/config')
 var Boom = require('boom')
 
-mu.outbound({role: 'authorization'}, tcp.client({port: process.env.SERVICE_PORT || 8080, host: process.env.SERVICE_HOST || 'localhost'}))
+mu.outbound({role: 'authorization'}, tcp.client(config.get('mu')))
 
 function handleRoleCommandType (role, cmd, type, params, request, reply) {
   mu.dispatch({
