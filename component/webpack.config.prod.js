@@ -41,7 +41,11 @@ module.exports = {
   ],
 
   resolve: {
-    extensions: ['', '.js', '.jsx']
+    extensions: ['', '.js', '.jsx'],
+    root: path.resolve(__dirname),
+    alias: {
+      appConfig: 'config.prod.js'
+    }
   },
 
   output: {
