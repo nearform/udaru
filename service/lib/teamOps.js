@@ -125,33 +125,35 @@ module.exports = function (dbPool, mu, log) {
     */
     // TODO: Allow updating specific fields only
     updateTeam: function updateTeam (args, cb) {
+      const [ id, name, description, users, policies ] = args
+      const tasks = []
+
+      if (!Array.isArray(users) || !Array.isArray(policies)) {
+        return cb(mu.error.badRequest())
+      }
+
       dbPool.connect(function (err, client, done) {
         if (err) {
           return cb(mu.error.badImplementation(err))
         }
 
-        const [ id, name, description, users, policies ] = args
-        const task = []
-
-        if (!Array.isArray(users) || !Array.isArray(policies)) {
-          done()
-          return cb(mu.error.badRequest())
-        }
-
-        task.push((next) => {
-          client.query('BEGIN', next)
+        tasks.push((next) => {
+          client.query('BEGIN', (err, res) => {
+            if (err) return next(mu.error.badImplementation(err))
+            next()
+          })
         })
 
-        task.push((next) => {
+        tasks.push((next) => {
           client.query('UPDATE teams SET name = $2, description = $3 WHERE id = $1', [id, name, description], (err, res) => {
-            if (err) return next(err)
+            if (err) return next(mu.error.badImplementation(err))
             if (res.rowCount === 0) return next(mu.error.notFound())
 
             next()
           })
         })
 
-        task.push((next) => {
+        tasks.push((next) => {
           client.query('DELETE FROM team_members WHERE team_id = $1', [id], (err) => {
             if (err) return next(mu.error.badImplementation(err))
 
@@ -160,7 +162,7 @@ module.exports = function (dbPool, mu, log) {
         })
 
         if (users.length > 0) {
-          task.push((next) => {
+          tasks.push((next) => {
             const stmt = dbUtil.buildInsertStmt('INSERT INTO team_members (user_id, team_id) VALUES ', users.map(p => [p.id, id]))
             client.query(stmt.statement, stmt.params, (err) => {
               if (err) return next(mu.error.badImplementation(err))
@@ -170,7 +172,7 @@ module.exports = function (dbPool, mu, log) {
           })
         }
 
-        task.push((next) => {
+        tasks.push((next) => {
           client.query('DELETE FROM team_policies WHERE team_id = $1', [id], (err) => {
             if (err) return next(mu.error.badImplementation(err))
 
@@ -179,7 +181,7 @@ module.exports = function (dbPool, mu, log) {
         })
 
         if (policies.length > 0) {
-          task.push((next) => {
+          tasks.push((next) => {
             const stmt = dbUtil.buildInsertStmt('INSERT INTO team_policies (policy_id, team_id) VALUES ', policies.map(p => [p.id, id]))
             client.query(stmt.statement, stmt.params, (err) => {
               if (err) return next(mu.error.badImplementation(err))
@@ -189,18 +191,22 @@ module.exports = function (dbPool, mu, log) {
           })
         }
 
-        async.series(task, (err) => {
+        tasks.push((next) => {
+          client.query('COMMIT', (err) => {
+            if (err) return next(mu.error.badImplementation(err))
+
+            next()
+          })
+        })
+
+        async.series(tasks, (err) => {
           if (err) {
-            dbUtil.rollback(client, done) // done here; release the client
+            dbUtil.rollback(client, done)
             return cb(err)
           }
 
-          client.query('COMMIT', (err) => {
-            done()
-            if (err) return cb(mu.error.badImplementation(err))
-
-            return cb(null, {id, name, description, users, policies})
-          })
+          done()
+          return cb(null, {id, name, description, users, policies})
         })
       })
     },
@@ -209,52 +215,57 @@ module.exports = function (dbPool, mu, log) {
     * $1 = id
     */
     deleteTeamById: function deleteTeamById (args, cb) {
+      const tasks = []
       dbPool.connect(function (err, client, done) {
         if (err) return cb(mu.error.badImplementation(err))
 
-
-        client.query('BEGIN', (err) => {
-          if (err) return cb(dbUtil.rollback(client, done))
-
-          process.nextTick(() => {
-            client.query('DELETE from team_members WHERE team_id = $1', args, (err, result) => {
-              if (err) {
-                dbUtil.rollback(client, done)
-                return cb(mu.error.badImplementation(err))
-              }
-
-              client.query('DELETE from team_policies WHERE team_id = $1', args, (err, result) => {
-                if (err) {
-                  dbUtil.rollback(client, done)
-                  return cb(mu.error.badImplementation(err))
-                }
-
-                client.query('DELETE from teams WHERE id = $1', args, (err, result) => {
-                  if (err) {
-                    dbUtil.rollback(client, done)
-                    return cb(mu.error.badImplementation(err))
-                  }
-
-                  if (result.rowCount === 0) {
-                    done()
-                    return cb(mu.error.notFound())
-                  }
-
-                  log.debug('delete team result: %j', result)
-
-                  client.query('COMMIT', (err) => {
-                    if (err) {
-                      dbUtil.rollback(client, done)
-                      return cb(mu.error.badImplementation(err))
-                    }
-
-                    done()
-                    return cb(null)
-                  })
-                })
-              })
-            })
+        tasks.push((next) => {
+          client.query('BEGIN', (err) => {
+            if (err) return next(mu.error.badImplementation(err))
+            next()
           })
+        })
+
+        tasks.push((next) => {
+          client.query('DELETE from team_members WHERE team_id = $1', args, (err, result) => {
+            if (err) return next(mu.error.badImplementation(err))
+            next()
+          })
+        })
+
+        tasks.push((next) => {
+          client.query('DELETE from team_policies WHERE team_id = $1', args, (err, result) => {
+            if (err) return next(mu.error.badImplementation(err))
+            next()
+          })
+        })
+
+        tasks.push((next) => {
+          client.query('DELETE from teams WHERE id = $1', args, (err, result) => {
+            if (err) return next(mu.error.badImplementation(err))
+            if (result.rowCount === 0) return next(mu.error.notFound())
+
+            log.debug('delete team result: %j', result)
+
+            next()
+          })
+        })
+
+        tasks.push((next) => {
+          client.query('COMMIT', (err) => {
+            if (err) return next(mu.error.badImplementation(err))
+            next()
+          })
+        })
+
+        async.series(tasks, (err) => {
+          if (err) {
+            dbUtil.rollback(client, done) // done here; release the client
+            return cb(err)
+          }
+
+          done()
+          return cb()
         })
       })
     }

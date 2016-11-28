@@ -52,6 +52,7 @@ module.exports = function (userOps, policyOps, mu) {
     listAuthorizations: function listAuthorizations ({ userId, resource }, cb) {
       const data = []
       var actions = []
+      var errors = []
       // build the set of actions in the user's policy set
       // can't check per resource as requires wildcard processing
 
@@ -73,13 +74,15 @@ module.exports = function (userOps, policyOps, mu) {
         actions.forEach(action => {
           iam(policies, ({ process }) => {
             process(resource, action, (err, access) => {
-              if (err) return cb(mu.error.wrap(err))
+              if (err) return errors.push(err)
               if (access) {
                 data.push(action)
               }
             })
           })
         })
+
+        if (errors.length > 0) return cb(mu.error.wrap(errors.shift()))
         // return thE allowable actions
         cb(null, {actions: data})
       })

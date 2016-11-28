@@ -1,17 +1,132 @@
 'use strict'
 /* eslint-disable handle-callback-err */
 
+var mock = require('mock-require')
+var iamMock = require('../mocks/iamMock')
+mock('iam-js', iamMock)
+
 const async = require('async')
 const mu = require('mu')()
 const test = require('tap').test
 const service = require('../../lib/service')
+const Authorize = require('../../lib/authorizeOps')
 
 const opts = {
   logLevel: 'warn',
   mu
 }
 
-test('authorize check on a resource and action', (t) => {
+test('authorize isUserAuthorized - should return an error if fetching the user returns and error', (t) => {
+  t.plan(3)
+
+  var policyOps = {}
+  var userOps = {getUserByToken: function (userId, cb) {
+    return cb(new Error('test error'))
+  }}
+
+  var authorizeOps = Authorize(userOps, policyOps, mu)
+  authorizeOps.isUserAuthorized({
+    userId: 1,
+    resource: 'database:pg01:balancesheet',
+    action: 'finance:ReadBalanceSheet'
+  }, (err, result) => {
+    t.ok(err, 'should be error')
+    t.notOk(result, 'result should not be supplied')
+    t.equal(err.message, 'test error', 'error should be as expected')
+  })
+})
+
+test('authorize isUserAuthorized - should return an error if fetching the user policies returns and error', (t) => {
+  t.plan(3)
+
+  var policyOps = {listAllUserPolicies: function (userId, cb) {
+    return cb(new Error('test error'))
+  }}
+  var userOps = {getUserByToken: function (userId, cb) {
+    return cb(null, {id: 1234})
+  }}
+
+  var authorizeOps = Authorize(userOps, policyOps, mu)
+  authorizeOps.isUserAuthorized({
+    userId: 1,
+    resource: 'database:pg01:balancesheet',
+    action: 'finance:ReadBalanceSheet'
+  }, (err, result) => {
+    t.ok(err, 'should be error')
+    t.notOk(result, 'result should not be supplied')
+    t.equal(err.message, 'test error', 'error should be as expected')
+  })
+})
+
+test('authorize isUserAuthorized - should return an error if iam-js returns an error', (t) => {
+  t.plan(3)
+
+  var policyOps = {listAllUserPolicies: function (userId, cb) {
+    return cb(null, {policyMock: true})
+  }}
+  var userOps = {getUserByToken: function (userId, cb) {
+    return cb(null, {id: 1234})
+  }}
+
+  var authorizeOps = Authorize(userOps, policyOps, mu)
+  authorizeOps.isUserAuthorized({
+    userId: 1,
+    resource: 'database:pg01:balancesheet',
+    action: 'finance:ReadBalanceSheet'
+  }, (err, result) => {
+    t.ok(err, 'should be error')
+    t.notOk(result, 'result should not be supplied')
+    t.equal(err.message, 'policyMock test error', 'error should be as expected')
+  })
+
+})
+
+test('authorize listAuthorizations - should return an error if fetching the user policies returns and error', (t) => {
+  t.plan(3)
+
+  var policyOps = {listAllUserPolicies: function (userId, cb) {
+    return cb(new Error('test error'))
+  }}
+  var userOps = {}
+
+  var authorizeOps = Authorize(userOps, policyOps, mu)
+  authorizeOps.listAuthorizations({
+    userId: 1,
+    resource: 'database:pg01:balancesheet',
+    action: 'finance:ReadBalanceSheet'
+  }, (err, result) => {
+    t.ok(err, 'should be error')
+    t.notOk(result, 'result should not be supplied')
+    t.equal(err.message, 'test error', 'error should be as expected')
+  })
+})
+
+test('authorize isUserAuthorized - should return an error if iam-js returns an error', (t) => {
+  t.plan(3)
+
+  var policyOps = {listAllUserPolicies: function (userId, cb) {
+    let policies = [{Statement: [{Action: ['finance:ReadBalanceSheet'], Resource: ['database:pg01:balancesheet'], Effect: 'Allow'}]}]
+    policies.policyMock = true
+    return cb(null, policies)
+  }}
+  var userOps = {getUserByToken: function (userId, cb) {
+    return cb(null, {id: 1234})
+  }}
+
+  var authorizeOps = Authorize(userOps, policyOps, mu)
+  authorizeOps.listAuthorizations({
+    userId: 1,
+    resource: 'database:pg01:balancesheet',
+    action: 'finance:ReadBalanceSheet'
+  }, (err, result) => {
+    t.ok(err, 'should be error')
+    t.notOk(result, 'result should not be supplied')
+    t.equal(err.message, 'policyMock test error', 'error should be as expected')
+  })
+
+})
+
+test('authorize isUserAuthorized - check on a resource and action', (t) => {
   t.plan(7)
 
   service(opts, (svc) => {
@@ -47,7 +162,7 @@ test('authorize check on a resource and action', (t) => {
   })
 })
 
-test('authorize - get all user actions on a resource', (t) => {
+test('authorize listAuthorizations - get all user actions on a resource', (t) => {
   t.plan(13)
 
   service({}, (svc) => {
