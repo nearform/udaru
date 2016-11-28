@@ -127,37 +127,396 @@ test('authorize isUserAuthorized - should return an error if iam-js returns an e
 })
 
 test('authorize isUserAuthorized - check on a resource and action', (t) => {
-  t.plan(7)
+  t.plan(5)
+  const tasks = []
 
   service(opts, (svc) => {
     let testUserId
 
-    svc.createUser(['Salman', 'WONKA'], (err, result) => {
-      t.error(err, 'should be no error')
+    tasks.push((next) => {
+      svc.createUser(['Salman', 'WONKA'], (err, result) => {
+        if (err) next(err)
+        testUserId = result.id
 
-      testUserId = result.id
-
-      svc.updateUser([testUserId, 'Salman', [{id: 4}], [{id: 1}]], (err, result) => {
-        t.error(err, 'should be no error')
-
-        svc.isUserAuthorized({
-          userId: testUserId,
-          resource: 'database:pg01:balancesheet',
-          action: 'finance:ReadBalanceSheet'
-        }, (err, result) => {
-          t.error(err, 'should be no error')
-          t.ok(result, 'result should be supplied')
-          t.deepEqual(result.access, true, 'data should be as expected')
-
-          svc.deleteUserById([testUserId], (err, result) => {
-            t.error(err, 'should be no error')
-
-            svc.destroy({}, (err, result) => {
-              t.error(err, 'should be no error')
-            })
-          })
-        })
+        next(err)
       })
+    })
+
+    tasks.push((next) => {
+      svc.updateUser([testUserId, 'Salman', [{id: 4}], [{id: 1}]], (err, result) => {
+        if (err) next(err)
+        next()
+      })
+    })
+
+    tasks.push((next) => {
+      svc.isUserAuthorized({userId: testUserId, resource: 'database:pg01:balancesheet', action: 'finance:ReadBalanceSheet'}, (err, result) => {
+        if (err) next(err)
+
+        t.error(err, 'should be no error')
+        t.ok(result, 'result should be supplied')
+        t.deepEqual(result.access, true, 'data should be as expected')
+        next()
+      })
+    })
+
+    tasks.push((next) => {
+      svc.deleteUserById([testUserId], (err, result) => {
+        t.error(err, 'should be no error')
+        next()
+      })
+    })
+
+    tasks.push((next) => {
+      svc.destroy({}, (err, result) => {
+        t.error(err, 'should be no error')
+        next()
+      })
+    })
+
+    async.series(tasks, (err) => {
+      if (err) {
+        t.end('test failed due to error: ', err)
+      }
+    })
+  })
+})
+
+test('authorize isUserAuthorized - check on a resource and action with wildcards both in action and resource', (t) => {
+  t.plan(5)
+  const tasks = []
+
+  service(opts, (svc) => {
+    let testUserId
+
+    tasks.push((next) => {
+      svc.createUser(['Salman', 'WONKA'], (err, result) => {
+        if (err) next(err)
+        testUserId = result.id
+
+        next()
+      })
+    })
+
+    tasks.push((next) => {
+      svc.updateUser([testUserId, 'Salman', [{id: 4}], [{id: 5}]], (err, result) => {
+        if (err) next(err)
+        next()
+      })
+    })
+
+    tasks.push((next) => {
+      svc.isUserAuthorized({userId: testUserId, resource: 'database:pg01:balancesheet', action: 'database:dropTable'}, (err, result) => {
+        if (err) next(err)
+
+        t.error(err, 'should be no error')
+        t.ok(result, 'result should be supplied')
+        t.deepEqual(result.access, true, 'data should be as expected')
+        next()
+      })
+    })
+
+    tasks.push((next) => {
+      svc.deleteUserById([testUserId], (err, result) => {
+        t.error(err, 'should be no error')
+        next()
+      })
+    })
+
+    tasks.push((next) => {
+      svc.destroy({}, (err, result) => {
+        t.error(err, 'should be no error')
+        next()
+      })
+    })
+
+    async.series(tasks, (err) => {
+      if (err) {
+        t.end('test failed due to error: ', err)
+      }
+    })
+  })
+})
+
+test('authorize isUserAuthorized - check on a resource and action with wildcards only for resource', (t) => {
+  t.plan(5)
+  const tasks = []
+
+  service(opts, (svc) => {
+    let testUserId
+
+    tasks.push((next) => {
+      svc.createUser(['Salman', 'WONKA'], (err, result) => {
+        if (err) next(err)
+        testUserId = result.id
+
+        next()
+      })
+    })
+
+    tasks.push((next) => {
+      svc.updateUser([testUserId, 'Salman', [{id: 4}], [{id: 6}]], (err, result) => {
+        if (err) next(err)
+        next()
+      })
+    })
+
+    tasks.push((next) => {
+      svc.isUserAuthorized({userId: testUserId, resource: 'database:pg01:balancesheet', action: 'database:Read'}, (err, result) => {
+        if (err) next(err)
+
+        t.error(err, 'should be no error')
+        t.ok(result, 'result should be supplied')
+        t.deepEqual(result.access, true, 'data should be as expected')
+
+        next()
+      })
+    })
+
+    tasks.push((next) => {
+      svc.deleteUserById([testUserId], (err, result) => {
+        t.error(err, 'should be no error')
+        next()
+      })
+    })
+
+    tasks.push((next) => {
+      svc.destroy({}, (err, result) => {
+        t.error(err, 'should be no error')
+        next()
+      })
+    })
+
+    async.series(tasks, (err) => {
+      if (err) {
+        t.end('test failed due to error: ', err)
+      }
+    })
+  })
+})
+
+test('authorize isUserAuthorized - check on a resource and action with wildcards only for action', (t) => {
+  t.plan(5)
+  const tasks = []
+
+  service(opts, (svc) => {
+    let testUserId
+
+    tasks.push((next) => {
+      svc.createUser(['Salman', 'WONKA'], (err, result) => {
+        if (err) next(err)
+        testUserId = result.id
+
+        next()
+      })
+    })
+
+    tasks.push((next) => {
+      svc.updateUser([testUserId, 'Salman', [{id: 4}], [{id: 7}]], (err, result) => {
+        if (err) next(err)
+        next()
+      })
+    })
+
+    tasks.push((next) => {
+      svc.isUserAuthorized({userId: testUserId, resource: 'database:pg01:balancesheet', action: 'database:Delete'}, (err, result) => {
+        if (err) next(err)
+
+        t.error(err, 'should be no error')
+        t.ok(result, 'result should be supplied')
+        t.deepEqual(result.access, true, 'data should be as expected')
+
+        next()
+      })
+    })
+
+    tasks.push((next) => {
+      svc.deleteUserById([testUserId], (err, result) => {
+        t.error(err, 'should be no error')
+        next()
+      })
+    })
+
+    tasks.push((next) => {
+      svc.destroy({}, (err, result) => {
+        t.error(err, 'should be no error')
+        next()
+      })
+    })
+
+    async.series(tasks, (err) => {
+      if (err) {
+        t.end('test failed due to error: ', err)
+      }
+    })
+  })
+})
+
+test('authorize isUserAuthorized - check on a resource and action with wildcards for URL resource', (t) => {
+  t.plan(5)
+  const tasks = []
+
+  service(opts, (svc) => {
+    let testUserId
+
+    tasks.push((next) => {
+      svc.createUser(['Salman', 'WONKA'], (err, result) => {
+        if (err) next(err)
+        testUserId = result.id
+
+        next()
+      })
+    })
+
+    tasks.push((next) => {
+      svc.updateUser([testUserId, 'Salman', [{id: 4}], [{id: 8}]], (err, result) => {
+        if (err) next(err)
+        next()
+      })
+    })
+
+    tasks.push((next) => {
+      svc.isUserAuthorized({userId: testUserId, resource: '/my/site/i/should/read/this', action: 'Read'}, (err, result) => {
+        if (err) next(err)
+
+        t.error(err, 'should be no error')
+        t.ok(result, 'result should be supplied')
+        t.deepEqual(result.access, true, 'data should be as expected')
+
+        next()
+      })
+    })
+
+    tasks.push((next) => {
+      svc.deleteUserById([testUserId], (err, result) => {
+        t.error(err, 'should be no error')
+        next()
+      })
+    })
+
+    tasks.push((next) => {
+      svc.destroy({}, (err, result) => {
+        t.error(err, 'should be no error')
+        next()
+      })
+    })
+
+    async.series(tasks, (err) => {
+      if (err) {
+        t.end('test failed due to error: ', err)
+      }
+    })
+  })
+})
+
+test('authorize isUserAuthorized - should return false if the policies has a wildcard on the resource but we are asking for the wrong action', (t) => {
+  t.plan(5)
+  const tasks = []
+
+  service(opts, (svc) => {
+    let testUserId
+
+    tasks.push((next) => {
+      svc.createUser(['Salman', 'WONKA'], (err, result) => {
+        if (err) next(err)
+        testUserId = result.id
+
+        next()
+      })
+    })
+
+    tasks.push((next) => {
+      svc.updateUser([testUserId, 'Salman', [{id: 4}], [{id: 6}]], (err, result) => {
+        if (err) next(err)
+        next()
+      })
+    })
+
+    tasks.push((next) => {
+      svc.isUserAuthorized({userId: testUserId, resource: 'database:pg01:balancesheet', action: 'database:Write'}, (err, result) => {
+        if (err) next(err)
+
+        t.error(err, 'should be no error')
+        t.ok(result, 'result should be supplied')
+        t.deepEqual(result.access, false, 'data should be as expected')
+        next()
+      })
+    })
+
+    tasks.push((next) => {
+      svc.deleteUserById([testUserId], (err, result) => {
+        t.error(err, 'should be no error')
+        next()
+      })
+    })
+
+    tasks.push((next) => {
+      svc.destroy({}, (err, result) => {
+        t.error(err, 'should be no error')
+        next()
+      })
+    })
+
+    async.series(tasks, (err) => {
+      if (err) {
+        t.end('test failed due to error: ', err)
+      }
+    })
+  })
+})
+
+test('authorize isUserAuthorized - should return false if the policies has a wildcard on the action but we are asking for the wrong resource', (t) => {
+  t.plan(5)
+  const tasks = []
+
+  service(opts, (svc) => {
+    let testUserId
+
+    tasks.push((next) => {
+      svc.createUser(['Salman', 'WONKA'], (err, result) => {
+        if (err) next(err)
+        testUserId = result.id
+
+        next()
+      })
+    })
+
+    tasks.push((next) => {
+      svc.updateUser([testUserId, 'Salman', [{id: 4}], [{id: 6}]], (err, result) => {
+        if (err) next(err)
+        next()
+      })
+    })
+
+    tasks.push((next) => {
+      svc.isUserAuthorized({userId: testUserId, resource: 'database:pg01:notMyTable', action: 'database:Write'}, (err, result) => {
+        if (err) next(err)
+
+        t.error(err, 'should be no error')
+        t.ok(result, 'result should be supplied')
+        t.deepEqual(result.access, false, 'data should be as expected')
+        next()
+      })
+    })
+
+    tasks.push((next) => {
+      svc.deleteUserById([testUserId], (err, result) => {
+        t.error(err, 'should be no error')
+        next()
+      })
+    })
+
+    tasks.push((next) => {
+      svc.destroy({}, (err, result) => {
+        t.error(err, 'should be no error')
+        next()
+      })
+    })
+
+    async.series(tasks, (err) => {
+      if (err) {
+        t.end('test failed due to error: ', err)
+      }
     })
   })
 })

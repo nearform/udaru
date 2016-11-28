@@ -98,5 +98,45 @@ module.exports = [
           'Resource': ['database:pg01:balancesheet']
         }
       ]}
+  ],
+  [0.1, 'DB Admin', 'WONKA', {
+    'Statement':
+      [
+        {
+          'Effect': 'Allow',
+          'Action': ['database:*'],
+          'Resource': ['database:pg01:*']
+        }
+      ]}
+  ],
+  [0.1, 'DB Only Read', 'WONKA', {
+    'Statement':
+      [
+        {
+          'Effect': 'Allow',
+          'Action': ['database:Read'],
+          'Resource': ['database:pg01:*']
+        }
+      ]}
+  ],
+  [0.1, 'DB only one table', 'WONKA', {
+    'Statement':
+      [
+        {
+          'Effect': 'Allow',
+          'Action': ['database:*'],
+          'Resource': ['database:pg01:balancesheet']
+        }
+      ]}
+  ],
+  [0.1, 'URI read', 'WONKA', {
+    'Statement':
+      [
+        {
+          'Effect': 'Allow',
+          'Action': ['Read'],
+          'Resource': ['/my/site/*']
+        }
+      ]}
   ]
 ]
