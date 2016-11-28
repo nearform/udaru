@@ -9,9 +9,9 @@ The main roles for the core Administration are:
 * SuperUser: can do anything and change anything, this is full access to all actions on all resouces.
 * Organization Administrator: can do anything in an Organization, i.e. full access to all actions in their Organization resource.
 
-## Actions & Resources 
+## Actions & Resources
 
-For both Actions and Resources we'll use a namespace called 'authorization'. 
+For both Actions and Resources we'll use a namespace called 'authorization'.
 
 The following actions should cover the core Administrator functionality:
 
@@ -39,13 +39,13 @@ authorization:policy:delete
 
 ```
 
-Note that Policies will never be created directly, i.e. there is no public api to create a policy, instead they are created in application logic. This is true for both Applications using Authorization service and also for the internal implementation of Authorization itself. 
+Note that Policies will never be created directly, i.e. there is no public api to create a policy, instead they are created in application logic. This is true for both Applications using Authorization service and also for the internal implementation of Authorization itself.
 
 The Resource uri format proposed is as follows:
 
 `authorization/<organization-id>/<team-id>/<user-id>`
 
-e.g `authorization/foo-org-xyz` references the Foo Organization. 
+e.g `authorization/foo-org-xyz` references the Foo Organization.
 
 ## Inception
 
@@ -71,7 +71,7 @@ Pseudocode for some typical workflows:
 
 ### Organization Management
 
-SuperUser logs in and creates a new Organization, giving it a name and an OrgAdmin user. The backend logic then is as follows:
+SuperUser logs in[1][2] and creates a new Organization[3], giving it a name and an OrgAdmin user. The backend logic then is as follows:
 
 * lookup user and get all the Policies attached to the user
 * check if any of the policies grant the user access to the 'authorization:organization:create' action on the 'authorization:' resource
@@ -87,13 +87,17 @@ Resource: ['authorization/<org-id>/*']
 
 Similar logic can be applied to listing, reading, deleting & updating Organizations by the SuperAdmin user.
 
+[1] https://github.com/nearform/labs-authorization/issues/27
+[2] https://github.com/nearform/labs-authorization/issues/14
+[3] https://github.com/nearform/labs-authorization/issues/2
+
 ### Team & User Management
 
 OrgAdmin (somehow) logs in to the <org-id> (created above) and creates a new Team, giving it a name and possibly a TeamAdmin user also. The backend logic then is as follows:
 
 * lookup user and get all the Policies attached to the user
 * check if any of the policies grant the user access to the 'authorization:organization:team:create' action on the 'authorization:<org-id>' resource
-* if it is the OrgAdmin user they will have the above policy attached and they will be allowed to proceed 
+* if it is the OrgAdmin user they will have the above policy attached and they will be allowed to proceed
 * a new Team is created, returning the team-id
 * If a user is passed then that user will become a TeamAdmin - unlike the Create Organization flow above, this may be optional
 * a new User is created (or looked up if exists already, etc)
@@ -112,9 +116,9 @@ Note it may be necessary to facilitate Application specific Policies being attac
 
 ### Application specific Policies
 
-A set of stock Policies will be created by the Application developers; these are general policies that govern basic user access to generic resources, e.g. a user can take any action on a resource they created, a user has readonly access to a certain number of 'public' resources, etc. 
+A set of stock Policies will be created by the Application developers; these are general policies that govern basic user access to generic resources, e.g. a user can take any action on a resource they created, a user has readonly access to a certain number of 'public' resources, etc.
 
-This initial set of Policies are all application specific, and again are created by developers at installation time. These are typically they are not surfaced as raw policies to the OrgAdmin and TeamAdmin users who will use the Applications Administration user interface, i.e. something like a 'CanReadResource' policy may be tick box that makes sense in the context of the Applications AdminUI. 
+This initial set of Policies are all application specific, and again are created by developers at installation time. These are typically they are not surfaced as raw policies to the OrgAdmin and TeamAdmin users who will use the Applications Administration user interface, i.e. something like a 'CanReadResource' policy may be tick box that makes sense in the context of the Applications AdminUI.
 
 However, the default Authorization interface should make it possible to list these policies and attach them to Teams/Users.
 
@@ -122,4 +126,3 @@ However, the default Authorization interface should make it possible to list the
 * lookup user (making the request) and get all the Policies attached to the user
 * check if any of the policies grant the user access to the 'authorization:organization:team:update' action on the 'authorization/<org-id>/<team-id>' resource
 * etc..
-
