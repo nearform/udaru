@@ -87,9 +87,9 @@ Resource: ['authorization/<org-id>/*']
 
 Similar logic can be applied to listing, reading, deleting & updating Organizations by the SuperAdmin user.
 
-[1] https://github.com/nearform/labs-authorization/issues/27
-[2] https://github.com/nearform/labs-authorization/issues/14
-[3] https://github.com/nearform/labs-authorization/issues/2
+- [1] https://github.com/nearform/labs-authorization/issues/27
+- [2] https://github.com/nearform/labs-authorization/issues/14
+- [3] https://github.com/nearform/labs-authorization/issues/2
 
 ### Team & User Management
 
