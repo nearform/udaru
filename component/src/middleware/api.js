@@ -1,13 +1,13 @@
 import request from 'axios'
+import config from 'appConfig'
 
-const API_BASE = 'http://localhost:8000'
 const URL_REGEX = /^(https?:\/\/)/
 
 export const callApi = (options) => {
   const { method = 'get', data, params } = options
   const endpoint = typeof options === 'string' ? options : options.endpoint
 
-  const fullUrl = URL_REGEX.test(endpoint) ? endpoint : API_BASE + endpoint
+  const fullUrl = URL_REGEX.test(endpoint) ? endpoint : config.get('api.basUrl') + endpoint
 
   options = {
     method: method || (data ? 'post' : 'get'),
