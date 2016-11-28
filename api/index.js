@@ -3,25 +3,20 @@
 var Hapi = require('hapi')
 var mu = require('mu')()
 var tcp = require('mu/drivers/tcp')
-var buildHandleRoleCommandType = require('./../lib/buildHandleRoleCommandType')
+var config = require('./lib/config')
+var buildHandleRoleCommandType = require('./lib/buildHandleRoleCommandType')
 
 var server = new Hapi.Server()
 
-const API_PORT = process.env.API_PORT || 8000
-const API_HOST = process.env.API_HOST || 'localhost'
-
 server.connection({
-  port: Number(API_PORT),
-  host: API_HOST,
+  port: Number(config.get('server.port')),
+  host: config.get('server.host'),
   routes: {
     cors: true
   }
 })
 
-mu.outbound({role: 'authorization'}, tcp.client({
-  host: process.env.SERVICE_HOST || 'localhost',
-  port: process.env.SERVICE_PORT || 8080
-}))
+mu.outbound({role: 'authorization'}, tcp.client(config.get('mu')))
 
 var options = {
   mu,
@@ -49,7 +44,7 @@ server.register([{
 }], function (err) {
   if (err) { throw err }
   server.start(function () {
-    console.log('hapi server listening on port: ' + API_PORT)
+    console.log('hapi server listening on port: ' + config.get('server.port'))
   })
 })
 

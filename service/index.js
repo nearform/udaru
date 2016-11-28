@@ -1,11 +1,9 @@
 'use strict'
 
-const SERVICE_PORT = process.env.SERVICE_PORT || 8080
-const SERVICE_HOST = process.env.SERVICE_HOST || 'localhost'
+var config = require('./lib/config')
 
-var opts = {port: SERVICE_PORT, host: SERVICE_HOST}
-const wiring = require('../service/wiring-mu')(opts)
+const wiring = require('../service/wiring-mu')(config.get('mu'))
 
 wiring.start(() => {
-  console.log(`service listening on port: ${opts.port}`)
+  console.log(`service listening on port: ${config.get('mu').port}`)
 })

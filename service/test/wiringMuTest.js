@@ -6,14 +6,14 @@
 var test = require('tap').test
 var mu = require('mu')()
 var tcp = require('mu/drivers/tcp')
+var config = require('./../lib/config')
 
-var opts = { port: process.env.SERVICE_PORT || 8080, host: process.env.SERVICE_HOST || 'localhost', logLevel: process.env.LOG_LEVEL || 'info' }
-var wiring = require('../wiring-mu')(opts)
+var wiring = require('../wiring-mu')(config.get('mu'))
 
 test('wiring test', (t) => {
   t.plan(1)
 
-  mu.outbound('*', tcp.client(opts))
+  mu.outbound('*', tcp.client(config.get('mu')))
   wiring.start(() => {
     mu.dispatch({role: 'authorization', cmd: 'done'}, (err, result) => {
       t.error(err)

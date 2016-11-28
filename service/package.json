@@ -27,7 +27,8 @@
     "iam-js": "git+ssh://git@github.com:nearform/iam-js.git",
     "mu": "^1.1.0",
     "pg": "^6.1.0",
-    "pino": "^2.13.2"
+    "pino": "^2.13.2",
+    "reconfig": "^3.2.0"
   },
   "devDependencies": {
     "pre-commit": "^1.1.3",
