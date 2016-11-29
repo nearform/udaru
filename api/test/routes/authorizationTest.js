@@ -33,7 +33,7 @@ lab.experiment('Authorization', () => {
 
     const options = {
       method: 'GET',
-      url: '/authorization/check/resource_a/action_a/1'
+      url: '/authorization/check/1/action_a/resource_a'
     }
 
     server.inject(options, (response) => {
@@ -57,7 +57,7 @@ lab.experiment('Authorization', () => {
 
     const options = {
       method: 'GET',
-      url: '/authorization/check/resource_a/action_a/1'
+      url: '/authorization/check/1/action_a/resource_a'
     }
 
     server.inject(options, (response) => {
@@ -79,7 +79,7 @@ lab.experiment('Authorization', () => {
 
     const options = {
       method: 'GET',
-      url: '/authorization/check/resource_a/action_a/1'
+      url: '/authorization/check/action_a/1/resource_a'
     }
 
     server.inject(options, (response) => {
@@ -108,7 +108,7 @@ lab.experiment('Authorization', () => {
 
     const options = {
       method: 'GET',
-      url: '/authorization/list/resource_a/1'
+      url: '/authorization/list/1/resource_a'
     }
 
     server.inject(options, (response) => {
@@ -130,7 +130,7 @@ lab.experiment('Authorization', () => {
 
     const options = {
       method: 'GET',
-      url: '/authorization/list/resource_a/1'
+      url: '/authorization/list/1/resource_a'
     }
 
     server.inject(options, (response) => {
@@ -138,6 +138,59 @@ lab.experiment('Authorization', () => {
 
       expect(response.statusCode).to.equal(500)
       expect(result).to.be.undefined
+
+      done()
+    })
+  })
+
+  lab.test('list authorizations should return actions allowed for the user when using an URI', (done) => {
+    const actionListStub = {
+      actions: [
+        'action a',
+        'action b'
+      ]
+    }
+
+    muStub.dispatch = function (pattern, cb) {
+      process.nextTick(() => {
+        cb(null, actionListStub)
+      })
+    }
+
+    const options = {
+      method: 'GET',
+      url: '/authorization/list/1/my/resource/uri'
+    }
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(200)
+      expect(result).to.equal(actionListStub)
+
+      done()
+    })
+  })
+
+  lab.test('check authorization should return access true for allowed on URI resource', (done) => {
+    muStub.dispatch = function (pattern, cb) {
+      process.nextTick(() => {
+        cb(null, {
+          access: true
+        })
+      })
+    }
+
+    const options = {
+      method: 'GET',
+      url: '/authorization/check/1/action_a//my/resource/uri'
+    }
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(200)
+      expect(result).to.equal({ access: true })
 
       done()
     })
