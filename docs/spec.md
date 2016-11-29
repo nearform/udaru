@@ -108,8 +108,10 @@ OrgAdmin (somehow) logs in to the <org-id> (created above) and creates a new Tea
 * a new User is created (or looked up if exists already, etc)
 * a new TeamAdmin Policy is created for this new Team, something like:
 
+```
 Action: ['authorization:team:read', 'authorization:team:update'],
 Resource: ['authorization/<org-id>/<team-id>/*']
+```
 
 * this new Policy is associated with the user, who can henceforth perform TeamAdmin actions
 
