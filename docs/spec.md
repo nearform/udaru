@@ -82,8 +82,10 @@ SuperUser logs in[1][2] and creates a new Organization[3], giving it a name and 
 * a new User is created (or looked up if exists already, etc)
 * a new OrgAdmin Policy is created for this new Organization, something like:
 
+```
 Action: ['authorization:organization:read', 'authorization:organization:update'],
 Resource: ['authorization/<org-id>/*']
+```
 
 * this new Policy is associated with the user, who can henceforth perform OrgAdmin actions
 
