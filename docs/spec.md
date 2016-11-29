@@ -73,7 +73,7 @@ Pseudocode for some typical workflows:
 
 ### Organization Management
 
-SuperUser logs in[1][2] and creates a new Organization[3], giving it a name and an OrgAdmin user. The backend logic then is as follows:
+SuperUser logs in[1][2] and creates a new Organization[3][4], giving it a name and an OrgAdmin user. The backend logic then is as follows:
 
 * lookup user and get all the Policies attached to the user
 * check if any of the policies grant the user access to the 'authorization:organization:create' action on the 'authorization:' resource
@@ -94,6 +94,7 @@ Similar logic can be applied to listing, reading, deleting & updating Organizati
 - [1] https://github.com/nearform/labs-authorization/issues/27
 - [2] https://github.com/nearform/labs-authorization/issues/14
 - [3] https://github.com/nearform/labs-authorization/issues/2
+- [4] https://github.com/nearform/labs-authorization/issues/62
 
 ### Team & User Management
 
@@ -120,7 +121,7 @@ Note it may be necessary to facilitate Application specific Policies being attac
 
 ### Application specific Policies
 
-A set of stock Policies will be created by the Application developers; these are general policies that govern basic user access to generic resources, e.g. a user can take any action on a resource they created, a user has readonly access to a certain number of 'public' resources, etc.
+A set of stock Policies[1] will be created by the Application developers; these are general policies that govern basic user access to generic resources, e.g. a user can take any action on a resource they created, a user has readonly access to a certain number of 'public' resources, etc.
 
 This initial set of Policies are all application specific, and again are created by developers at installation time. These are typically they are not surfaced as raw policies to the OrgAdmin and TeamAdmin users who will use the Applications Administration user interface, i.e. something like a 'CanReadResource' policy may be tick box that makes sense in the context of the Applications AdminUI.
 
@@ -130,3 +131,7 @@ However, the default Authorization interface should make it possible to list the
 * lookup user (making the request) and get all the Policies attached to the user
 * check if any of the policies grant the user access to the 'authorization:organization:team:update' action on the 'authorization/<org-id>/<team-id>' resource
 * etc..
+
+
+- [1] https://github.com/nearform/labs-authorization/issues/67
+
