@@ -1,0 +1,7 @@
+build:
+  image: node:6.9
+  commands:
+    - cd api
+    - npm install --development
+    - npm test
+
