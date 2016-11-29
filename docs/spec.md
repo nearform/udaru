@@ -53,6 +53,7 @@ The SuperUser is created at first install, this is simply a normal user with the
 
 The SuperUser policy will look as follows, it simply allows all actions on all resources:
 
+```
 {
   Name: 'SuperUser',
   Version: '2106-10-17',
@@ -62,6 +63,7 @@ The SuperUser policy will look as follows, it simply allows all actions on all r
 	Resource: ['*']
   }]
 }
+```
 
 This policy can also be attached to other Users as and if required.
 
