@@ -1,10 +1,10 @@
 'use strict'
 
 exports.register = function (server, options, next) {
-  // curl -X GET http://localhost:8000/authorization/check/<resource>/<action>/<user_id>
+  // curl -X GET http://localhost:8000/authorization/check/<user_id>/<action>/<resource>
   server.route({
     method: 'GET',
-    path: '/authorization/check/{resource}/{action}/{userId}',
+    path: '/authorization/check/{userId}/{action}/{resource*}',
     handler: function (request, reply) {
       const { resource, action, userId } = request.params // TODO: get userId from token
 
@@ -18,10 +18,10 @@ exports.register = function (server, options, next) {
     }
   })
 
-  // curl -X GET http://localhost:8000/authorization/list/<resource>/<user_id>
+  // curl -X GET http://localhost:8000/authorization/list/<user_id>/<resource>
   server.route({
     method: 'GET',
-    path: '/authorization/list/{resource}/{userId}',
+    path: '/authorization/list/{userId}/{resource*}',
     handler: function (request, reply) {
       const { resource, userId } = request.params // TODO: get userId from token
 
