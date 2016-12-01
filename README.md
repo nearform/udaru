@@ -1,6 +1,6 @@
 # labs-authorization
 
-A full-stack component providing authorization functionality, designed for use in Labs projects
+A full-stack component providing authorization functionality, designed for use in Labs projects.
 
 ## Node installation
 
@@ -108,3 +108,16 @@ The test data in the database are going to be reloaded when running `npm test` f
 ## Security
 
 Please ignore any security bad practices at the minute, as the security stories have not yet been implemented
+
+## Solution Usage
+
+There are three interfaces for using Authorization:
+
+* Frontend react components: that can help build a an Administration tool for a Solution.
+* Public facing REST API: direct API usage, from admin scripts or a custom Administration tool.
+* Backend microservice API: direct internal usage of the Authorization service.
+
+This looks somewhat as follows: 
+
+![Authorization Architecture](./docs/authorization.png)
+
