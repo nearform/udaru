@@ -46,11 +46,11 @@ server.register(
     {
       register: require('./routes/public/authorization'),
       options
+    },
+    {
+      register: require('./routes/private/policies'),
+      options
     }
-    // {
-    //   register: require('./routes/private/policies'),
-    //   options
-    // },
   ],
   function (err) {
     if (err) { throw err }

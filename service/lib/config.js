@@ -18,5 +18,12 @@ module.exports = new Reconfig({
     pino: {
       level: 'info'
     }
+  },
+  security: {
+    api_service_keys: {
+      private: [
+        '123456789'
+      ]
+    }
   }
 }, { envPrefix: 'LABS_AUTH_SERVICE' })
