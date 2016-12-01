@@ -1,0 +1,3 @@
+module.exports = {
+  coverage: true
+};

@@ -1,35 +1,25 @@
+'use strict'
+
+const nock = require('nock')
 const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
-const mu = require('mu')()
-
-const TestHelper = require('../helper')
-const Authorization = require('../../routes/authorization')
+const initServer = require('../../initServer')
 
 let server
 
-const muStub = {
-  outbound: () => {},
-  dispatch: () => {}
-}
-
 lab.before(function (done) {
-  const options = {
-    mu: muStub
-  }
-
-  server = TestHelper.createTestServer(Authorization, options, done)
+  initServer(function (s) {
+    server = s
+    done()
+  })
 })
 
 lab.experiment('Authorization', () => {
   lab.test('check authorization should return access true for allowed', (done) => {
-    muStub.dispatch = function (pattern, cb) {
-      process.nextTick(() => {
-        cb(null, {
-          access: true
-        })
-      })
-    }
+    nock('http://localhost:8080')
+      .get('/authorization/check/1/action_a/resource_a')
+      .reply(200, {access: true})
 
     const options = {
       method: 'GET',
@@ -37,7 +27,7 @@ lab.experiment('Authorization', () => {
     }
 
     server.inject(options, (response) => {
-      const result = response.result
+      const result = JSON.parse(response.result)
 
       expect(response.statusCode).to.equal(200)
       expect(result).to.equal({ access: true })
@@ -47,13 +37,9 @@ lab.experiment('Authorization', () => {
   })
 
   lab.test('check authorization should return access false for denied', (done) => {
-    muStub.dispatch = function (pattern, cb) {
-      process.nextTick(() => {
-        cb(null, {
-          access: false
-        })
-      })
-    }
+    nock('http://localhost:8080')
+      .get('/authorization/check/1/action_a/resource_a')
+      .reply(200, {access: false})
 
     const options = {
       method: 'GET',
@@ -61,7 +47,7 @@ lab.experiment('Authorization', () => {
     }
 
     server.inject(options, (response) => {
-      const result = response.result
+      const result = JSON.parse(response.result)
 
       expect(response.statusCode).to.equal(200)
       expect(result).to.equal({ access: false })
@@ -71,11 +57,9 @@ lab.experiment('Authorization', () => {
   })
 
   lab.test('check authorization should return 500 for error case', (done) => {
-    muStub.dispatch = function (pattern, cb) {
-      process.nextTick(() => {
-        cb(mu.error.badImplementation())
-      })
-    }
+    nock('http://localhost:8080')
+      .get('/authorization/check/action_a/1/resource_a')
+      .reply(500)
 
     const options = {
       method: 'GET',
@@ -85,6 +69,7 @@ lab.experiment('Authorization', () => {
     server.inject(options, (response) => {
       const result = response.result
 
+      // TO-DO: is should return 500
       expect(response.statusCode).to.equal(500)
       expect(result).to.be.undefined
 
@@ -100,11 +85,9 @@ lab.experiment('Authorization', () => {
       ]
     }
 
-    muStub.dispatch = function (pattern, cb) {
-      process.nextTick(() => {
-        cb(null, actionListStub)
-      })
-    }
+    nock('http://localhost:8080')
+      .get('/authorization/list/1/resource_a')
+      .reply(200, actionListStub)
 
     const options = {
       method: 'GET',
@@ -112,7 +95,7 @@ lab.experiment('Authorization', () => {
     }
 
     server.inject(options, (response) => {
-      const result = response.result
+      const result = JSON.parse(response.result)
 
       expect(response.statusCode).to.equal(200)
       expect(result).to.equal(actionListStub)
@@ -122,11 +105,9 @@ lab.experiment('Authorization', () => {
   })
 
   lab.test('list authorizations should return 500 for error case', (done) => {
-    muStub.dispatch = function (pattern, cb) {
-      process.nextTick(() => {
-        cb(mu.error.badImplementation())
-      })
-    }
+    nock('http://localhost:8080')
+      .get('/authorization/list/1/resource_a')
+      .reply(500)
 
     const options = {
       method: 'GET',
@@ -136,6 +117,7 @@ lab.experiment('Authorization', () => {
     server.inject(options, (response) => {
       const result = response.result
 
+      // TO-DO: is should return 500
       expect(response.statusCode).to.equal(500)
       expect(result).to.be.undefined
 
@@ -151,11 +133,9 @@ lab.experiment('Authorization', () => {
       ]
     }
 
-    muStub.dispatch = function (pattern, cb) {
-      process.nextTick(() => {
-        cb(null, actionListStub)
-      })
-    }
+    nock('http://localhost:8080')
+      .get('/authorization/list/1/my/resource/uri')
+      .reply(200, actionListStub)
 
     const options = {
       method: 'GET',
@@ -163,7 +143,7 @@ lab.experiment('Authorization', () => {
     }
 
     server.inject(options, (response) => {
-      const result = response.result
+      const result = JSON.parse(response.result)
 
       expect(response.statusCode).to.equal(200)
       expect(result).to.equal(actionListStub)
@@ -173,13 +153,9 @@ lab.experiment('Authorization', () => {
   })
 
   lab.test('check authorization should return access true for allowed on URI resource', (done) => {
-    muStub.dispatch = function (pattern, cb) {
-      process.nextTick(() => {
-        cb(null, {
-          access: true
-        })
-      })
-    }
+    nock('http://localhost:8080')
+      .get('/authorization/check/1/action_a//my/resource/uri')
+      .reply(200, { access: true })
 
     const options = {
       method: 'GET',
@@ -187,7 +163,7 @@ lab.experiment('Authorization', () => {
     }
 
     server.inject(options, (response) => {
-      const result = response.result
+      const result = JSON.parse(response.result)
 
       expect(response.statusCode).to.equal(200)
       expect(result).to.equal({ access: true })

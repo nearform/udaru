@@ -79,7 +79,7 @@ lab.experiment('Users', () => {
 
     const options = {
       method: 'GET',
-      url: '/authorization/user/1'
+      url: '/authorization/users/1'
     }
 
     server.inject(options, (response) => {
@@ -101,7 +101,7 @@ lab.experiment('Users', () => {
 
     const options = {
       method: 'GET',
-      url: '/authorization/user/99'
+      url: '/authorization/users/99'
     }
 
     server.inject(options, (response) => {
@@ -130,7 +130,7 @@ lab.experiment('Users', () => {
 
     const options = {
       method: 'POST',
-      url: '/authorization/user',
+      url: '/authorization/users',
       payload: {
         name: 'Salman'
       }
@@ -149,7 +149,7 @@ lab.experiment('Users', () => {
   lab.test('create user should return 400 bad request if input validation fails', (done) => {
     const options = {
       method: 'POST',
-      url: '/authorization/user',
+      url: '/authorization/users',
       payload: {
 
       }
@@ -177,7 +177,7 @@ lab.experiment('Users', () => {
 
     const options = {
       method: 'POST',
-      url: '/authorization/user',
+      url: '/authorization/users',
       payload: {
         name: 'Salman'
       }
@@ -202,7 +202,7 @@ lab.experiment('Users', () => {
 
     const options = {
       method: 'DELETE',
-      url: '/authorization/user/1'
+      url: '/authorization/users/1'
     }
 
     server.inject(options, (response) => {
@@ -224,7 +224,7 @@ lab.experiment('Users', () => {
 
     const options = {
       method: 'DELETE',
-      url: '/authorization/user/1'
+      url: '/authorization/users/1'
     }
 
     server.inject(options, (response) => {
@@ -249,7 +249,7 @@ lab.experiment('Users', () => {
 
     const options = {
       method: 'PUT',
-      url: '/authorization/user/3',
+      url: '/authorization/users/3',
       payload: {
         name: 'Joe'
       }
@@ -277,7 +277,7 @@ lab.experiment('Users', () => {
 
     const options = {
       method: 'PUT',
-      url: '/authorization/user/1',
+      url: '/authorization/users/1',
       payload: {
         name: 'Joe'
       }

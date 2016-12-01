@@ -15,10 +15,10 @@ exports.register = function (server, options, next) {
     }
   })
 
-  // curl http://localhost:8080/authorization/user/123
+  // curl http://localhost:8080/authorization/users/123
   server.route({
     method: 'GET',
-    path: '/authorization/user/{id}',
+    path: '/authorization/users/{id}',
     handler: function (request, reply) {
       const params = [
         request.params.id
@@ -28,10 +28,10 @@ exports.register = function (server, options, next) {
     }
   })
 
-  // curl http://localhost:8080/authorization/user -X POST -H 'Content-Type: application/json' -d '{"name":"Violet Beauregarde"}'
+  // curl http://localhost:8080/authorization/users -X POST -H 'Content-Type: application/json' -d '{"name":"Violet Beauregarde"}'
   server.route({
     method: 'POST',
-    path: '/authorization/user',
+    path: '/authorization/users',
     handler: function (request, reply) {
       if (!request.payload.name) return reply(Boom.badRequest())
 
@@ -50,10 +50,10 @@ exports.register = function (server, options, next) {
     }
   })
 
-  // curl -X DELETE http://localhost:8080/authorization/user/123
+  // curl -X DELETE http://localhost:8080/authorization/users/123
   server.route({
     method: 'DELETE',
-    path: '/authorization/user/{id}',
+    path: '/authorization/users/{id}',
     handler: function (request, reply) {
       const params = [
         request.params.id
@@ -69,11 +69,11 @@ exports.register = function (server, options, next) {
     }
   })
 
-  // curl -X PUT http://localhost:8080/authorization/user/1 -H "Content-Type: application/json" -d '{"id": 1, "name": "Mrs Beauregarde",
+  // curl -X PUT http://localhost:8080/authorization/users/1 -H "Content-Type: application/json" -d '{"id": 1, "name": "Mrs Beauregarde",
   // "teams":[{"id": 3, "name": "Dream Team"}], "policies":[{"id": 4, "name": "DROP ALL TABLES!"}, { "id": 2, "name": "THROW DESK" }]}'
   server.route({
     method: 'PUT',
-    path: '/authorization/user/{id}',
+    path: '/authorization/users/{id}',
     handler: function (request, reply) {
       const id = request.params.id
       const { policies, teams, name } = request.payload

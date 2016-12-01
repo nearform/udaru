@@ -5,8 +5,16 @@ module.exports = new Reconfig({
     port: 8000,
     host: 'localhost'
   },
-  mu: {
+  service: {
     port: 8080,
     host: 'localhost'
+  },
+  logger: {
+    good: {
+      options: {
+        opsInterval: 1000,
+        reporters: [{ reporter: 'good-console', events: { log: '*', response: '*' } }]
+      }
+    }
   }
 }, { envPrefix: 'LABS_AUTH_API' })

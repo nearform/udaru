@@ -18,7 +18,7 @@ exports.register = function (server, options, next) {
   // curl http://localhost:8080/authorization/team
   server.route({
     method: 'POST',
-    path: '/authorization/team',
+    path: '/authorization/teams',
     handler: function (request, reply) {
       if (!request.payload.name || !request.payload.description) return reply(Boom.badRequest())
 
@@ -44,7 +44,7 @@ exports.register = function (server, options, next) {
   // curl http://localhost:8080/authorization/team/123
   server.route({
     method: 'GET',
-    path: '/authorization/team/{id}',
+    path: '/authorization/teams/{id}',
     handler: function (request, reply) {
       const params = [
         request.params.id
@@ -58,7 +58,7 @@ exports.register = function (server, options, next) {
   // "users": [{ "id": 4, "name": "Tom Watson"}, { "id": 7, "name": "Michael O'Brien"}], "policies": [{ "id": 12, "name": "Financial info access"}]}'
   server.route({
     method: 'PUT',
-    path: '/authorization/team/{id}',
+    path: '/authorization/teams/{id}',
     handler: function (request, reply) {
       const id = request.params.id
 
@@ -79,7 +79,7 @@ exports.register = function (server, options, next) {
   // curl -X DELETE http://localhost:8080/authorization/team/123
   server.route({
     method: 'DELETE',
-    path: '/authorization/team/{id}',
+    path: '/authorization/teams/{id}',
     handler: function (request, reply) {
       const params = [
         request.params.id

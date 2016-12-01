@@ -1,39 +1,33 @@
-const mu = require('mu')()
+'use strict'
+
+const nock = require('nock')
 const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
-
-const TestHelper = require('../helper')
-const Users = require('../../routes/users')
+const initServer = require('../../initServer')
 
 let server
 
-const muStub = {
-  outbound: () => {},
-  dispatch: () => {}
-}
-
 lab.before(function (done) {
-  const options = {
-    mu: muStub
-  }
-
-  server = TestHelper.createTestServer(Users, options, done)
+  initServer(function (s) {
+    server = s
+    done()
+  })
 })
 
 lab.experiment('Users', () => {
   lab.test('get user list', (done) => {
-    muStub.dispatch = function (pattern, cb) {
-      process.nextTick(() => {
-        cb(null, [{
-          id: 1,
-          name: 'John'
-        }, {
-          id: 2,
-          name: 'Jack'
-        }])
-      })
-    }
+    let list = [{
+      id: 1,
+      name: 'John'
+    }, {
+      id: 2,
+      name: 'Jack'
+    }]
+
+    nock('http://localhost:8080')
+      .get('/authorization/users')
+      .reply(200, list)
 
     const options = {
       method: 'GET',
@@ -41,27 +35,19 @@ lab.experiment('Users', () => {
     }
 
     server.inject(options, (response) => {
-      const result = response.result
+      const result = JSON.parse(response.result)
 
       expect(response.statusCode).to.equal(200)
-      expect(result).to.equal([{
-        id: 1,
-        name: 'John'
-      }, {
-        id: 2,
-        name: 'Jack'
-      }])
+      expect(result).to.equal(list)
 
       done()
     })
   })
 
   lab.test('get user list should return error for error case', (done) => {
-    muStub.dispatch = function (pattern, cb) {
-      process.nextTick(() => {
-        cb(mu.error.badImplementation())
-      })
-    }
+    nock('http://localhost:8080')
+      .get('/authorization/users')
+      .reply(500)
 
     const options = {
       method: 'GET',
@@ -79,47 +65,40 @@ lab.experiment('Users', () => {
   })
 
   lab.test('get single user', (done) => {
-    muStub.dispatch = function (pattern, cb) {
-      process.nextTick(() => {
-        cb(null, {
-          id: 1,
-          name: 'John',
-          policies: [],
-          team: []
-        })
-      })
+    let user = {
+      id: 1,
+      name: 'John',
+      policies: [],
+      team: []
     }
+
+    nock('http://localhost:8080')
+      .get('/authorization/users/1')
+      .reply(200, user)
 
     const options = {
       method: 'GET',
-      url: '/authorization/user/1'
+      url: '/authorization/users/1'
     }
 
     server.inject(options, (response) => {
-      const result = response.result
+      const result = JSON.parse(response.result)
 
       expect(response.statusCode).to.equal(200)
-      expect(result).to.equal({
-        id: 1,
-        name: 'John',
-        policies: [],
-        team: []
-      })
+      expect(result).to.equal(user)
 
       done()
     })
   })
 
   lab.test('get single user should return error for error case', (done) => {
-    muStub.dispatch = function (pattern, cb) {
-      process.nextTick(() => {
-        cb(mu.error.badImplementation())
-      })
-    }
+    nock('http://localhost:8080')
+      .get('/authorization/users/99')
+      .reply(500)
 
     const options = {
       method: 'GET',
-      url: '/authorization/user/99'
+      url: '/authorization/users/99'
     }
 
     server.inject(options, (response) => {
@@ -140,22 +119,20 @@ lab.experiment('Users', () => {
       team: []
     }
 
-    muStub.dispatch = function (pattern, cb) {
-      process.nextTick(() => {
-        cb(null, newUserStub)
-      })
-    }
+    nock('http://localhost:8080')
+      .post('/authorization/users')
+      .reply(201, newUserStub)
 
     const options = {
       method: 'POST',
-      url: '/authorization/user',
+      url: '/authorization/users',
       payload: {
         name: 'Salman'
       }
     }
 
     server.inject(options, (response) => {
-      const result = response.result
+      const result = JSON.parse(response.result)
 
       expect(response.statusCode).to.equal(201)
       expect(result).to.equal(newUserStub)
@@ -165,43 +142,31 @@ lab.experiment('Users', () => {
   })
 
   lab.test('create user should return 400 bad request if input validation fails', (done) => {
-    muStub.dispatch = function (pattern, cb) {
-      process.nextTick(() => {
-        cb()
-      })
-    }
+    nock('http://localhost:8080')
+      .post('/authorization/users')
+      .reply(400)
 
     const options = {
       method: 'POST',
-      url: '/authorization/user',
-      payload: {
-
-      }
+      url: '/authorization/users',
+      payload: {}
     }
 
     server.inject(options, (response) => {
-      const result = response.result
-
       expect(response.statusCode).to.equal(400)
-      expect(result).to.equal({
-        statusCode: 400,
-        error: 'Bad Request'
-      })
 
       done()
     })
   })
 
   lab.test('create user should return error for error case', (done) => {
-    muStub.dispatch = function (pattern, cb) {
-      process.nextTick(() => {
-        cb(mu.error.badImplementation())
-      })
-    }
+    nock('http://localhost:8080')
+      .post('/authorization/users')
+      .reply(500)
 
     const options = {
       method: 'POST',
-      url: '/authorization/user',
+      url: '/authorization/users',
       payload: {
         name: 'Salman'
       }
@@ -218,15 +183,13 @@ lab.experiment('Users', () => {
   })
 
   lab.test('delete user should return 204 if success', (done) => {
-    muStub.dispatch = function (pattern, cb) {
-      process.nextTick(() => {
-        cb()
-      })
-    }
+    nock('http://localhost:8080')
+      .delete('/authorization/users/1')
+      .reply(204)
 
     const options = {
       method: 'DELETE',
-      url: '/authorization/user/1'
+      url: '/authorization/users/1'
     }
 
     server.inject(options, (response) => {
@@ -240,15 +203,13 @@ lab.experiment('Users', () => {
   })
 
   lab.test('delete user should return error for error case', (done) => {
-    muStub.dispatch = function (pattern, cb) {
-      process.nextTick(() => {
-        cb(mu.error.badImplementation())
-      })
-    }
+    nock('http://localhost:8080')
+      .delete('/authorization/users/1')
+      .reply(500)
 
     const options = {
       method: 'DELETE',
-      url: '/authorization/user/1'
+      url: '/authorization/users/1'
     }
 
     server.inject(options, (response) => {
@@ -262,25 +223,25 @@ lab.experiment('Users', () => {
   })
 
   lab.test('update user should return 200 for success', (done) => {
-    muStub.dispatch = function (pattern, cb) {
-      process.nextTick(() => {
-        cb(null, {
-          id: 3,
-          name: 'Joe'
-        })
-      })
+    let user = {
+      id: 3,
+      name: 'Joe'
     }
+
+    nock('http://localhost:8080')
+      .put('/authorization/users/3')
+      .reply(200, user)
 
     const options = {
       method: 'PUT',
-      url: '/authorization/user/3',
+      url: '/authorization/users/3',
       payload: {
         name: 'Joe'
       }
     }
 
     server.inject(options, (response) => {
-      const result = response.result
+      const result = JSON.parse(response.result)
 
       expect(response.statusCode).to.equal(200)
       expect(result).to.equal({
@@ -293,15 +254,13 @@ lab.experiment('Users', () => {
   })
 
   lab.test('update user should return error for error case', (done) => {
-    muStub.dispatch = function (pattern, cb) {
-      process.nextTick(() => {
-        cb(mu.error.badImplementation())
-      })
-    }
+    nock('http://localhost:8080')
+      .put('/authorization/users/1')
+      .reply(500)
 
     const options = {
       method: 'PUT',
-      url: '/authorization/user/1',
+      url: '/authorization/users/1',
       payload: {
         name: 'Joe'
       }

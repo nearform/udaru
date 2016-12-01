@@ -17,7 +17,7 @@ exports.register = function (server, options, next) {
   // curl http://localhost:8080/authorization/policy/123
   server.route({
     method: 'GET',
-    path: '/authorization/policy/{id}',
+    path: '/authorization/policies/{id}',
     handler: function (request, reply) {
       const params = [
         request.params.id

@@ -1,27 +1,23 @@
 'use strict'
 
+const config = require('../lib/config')
+
 exports.register = function (server, options, next) {
    // curl http://localhost:8000/authorization/policies
   server.route({
     method: 'GET',
     path: '/authorization/policies',
     handler: function (request, reply) {
-      const params = null
-
-      options.handleRoleCommandType('authorization', 'list', 'policies', params, request, reply)
+      return reply.proxy(config.get('service'))
     }
   })
 
   // curl http://localhost:8000/authorization/policy/123
   server.route({
     method: 'GET',
-    path: '/authorization/policy/{id}',
+    path: '/authorization/policies/{id}',
     handler: function (request, reply) {
-      const params = [
-        request.params.id
-      ]
-
-      options.handleRoleCommandType('authorization', 'read', 'policy', params, request, reply)
+      return reply.proxy(config.get('service'))
     }
   })
 

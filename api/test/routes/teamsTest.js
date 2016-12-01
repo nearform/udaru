@@ -1,24 +1,18 @@
-const mu = require('mu')()
+'use strict'
+
+const nock = require('nock')
 const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
-
-const TestHelper = require('../helper')
-const Teams = require('../../routes/teams')
+const initServer = require('../../initServer')
 
 let server
 
-const muStub = {
-  outbound: () => {},
-  dispatch: () => {}
-}
-
 lab.before(function (done) {
-  const options = {
-    mu: muStub
-  }
-
-  server = TestHelper.createTestServer(Teams, options, done)
+  initServer(function (s) {
+    server = s
+    done()
+  })
 })
 
 lab.experiment('Teams', () => {
@@ -31,11 +25,10 @@ lab.experiment('Teams', () => {
       name: 'Team B'
     }]
 
-    muStub.dispatch = function (pattern, cb) {
-      process.nextTick(() => {
-        cb(null, teamListStub)
-      })
-    }
+    nock('http://localhost:8080')
+      .get('/authorization/teams')
+      .reply(200, teamListStub)
+
 
     const options = {
       method: 'GET',
@@ -43,7 +36,7 @@ lab.experiment('Teams', () => {
     }
 
     server.inject(options, (response) => {
-      const result = response.result
+      const result = JSON.parse(response.result)
 
       expect(response.statusCode).to.equal(200)
       expect(result).to.equal(teamListStub)
@@ -53,11 +46,9 @@ lab.experiment('Teams', () => {
   })
 
   lab.test('get team list should return error for error case', (done) => {
-    muStub.dispatch = function (pattern, cb) {
-      process.nextTick(() => {
-        cb(mu.error.badImplementation())
-      })
-    }
+    nock('http://localhost:8080')
+      .get('/authorization/teams')
+      .reply(500)
 
     const options = {
       method: 'GET',
@@ -82,19 +73,17 @@ lab.experiment('Teams', () => {
       policies: []
     }
 
-    muStub.dispatch = function (pattern, cb) {
-      process.nextTick(() => {
-        cb(null, teamStub)
-      })
-    }
+    nock('http://localhost:8080')
+      .get('/authorization/teams/1')
+      .reply(200, teamStub)
 
     const options = {
       method: 'GET',
-      url: '/authorization/team/1'
+      url: '/authorization/teams/1'
     }
 
     server.inject(options, (response) => {
-      const result = response.result
+      const result = JSON.parse(response.result)
 
       expect(response.statusCode).to.equal(200)
       expect(result).to.equal(teamStub)
@@ -112,15 +101,13 @@ lab.experiment('Teams', () => {
       policies: []
     }
 
-    muStub.dispatch = function (pattern, cb) {
-      process.nextTick(() => {
-        cb(null, newTeamStub)
-      })
-    }
+    nock('http://localhost:8080')
+      .post('/authorization/teams')
+      .reply(201, newTeamStub)
 
     const options = {
       method: 'POST',
-      url: '/authorization/team',
+      url: '/authorization/teams',
       payload: {
         name: 'Team B',
         description: 'This is Team B'
@@ -128,7 +115,7 @@ lab.experiment('Teams', () => {
     }
 
     server.inject(options, (response) => {
-      const result = response.result
+      const result = JSON.parse(response.result)
 
       expect(response.statusCode).to.equal(201)
       expect(result).to.equal(newTeamStub)
@@ -140,10 +127,13 @@ lab.experiment('Teams', () => {
   lab.test('create new team should return a 400 Bad Request when not providing name or description', (done) => {
     const options = {
       method: 'POST',
-      url: '/authorization/team',
-      payload: {
-      }
+      url: '/authorization/teams',
+      payload: {}
     }
+
+    nock('http://localhost:8080')
+      .post('/authorization/teams')
+      .reply(400)
 
     server.inject(options, (response) => {
       expect(response.statusCode).to.equal(400)
@@ -153,15 +143,13 @@ lab.experiment('Teams', () => {
   })
 
   lab.test('create new team should return error for error case', (done) => {
-    muStub.dispatch = function (pattern, cb) {
-      process.nextTick(() => {
-        cb(mu.error.badImplementation())
-      })
-    }
+    nock('http://localhost:8080')
+      .post('/authorization/teams')
+      .reply(500)
 
     const options = {
       method: 'POST',
-      url: '/authorization/team',
+      url: '/authorization/teams',
       payload: {
         name: 'Team C',
         description: 'This is Team C'
@@ -187,15 +175,13 @@ lab.experiment('Teams', () => {
       policies: []
     }
 
-    muStub.dispatch = function (pattern, cb) {
-      process.nextTick(() => {
-        cb(null, teamStub)
-      })
-    }
+    nock('http://localhost:8080')
+      .put('/authorization/teams/2')
+      .reply(200, teamStub)
 
     const options = {
       method: 'PUT',
-      url: '/authorization/team/2',
+      url: '/authorization/teams/2',
       payload: {
         name: 'Team C',
         description: 'Team B is now Team C'
@@ -203,7 +189,7 @@ lab.experiment('Teams', () => {
     }
 
     server.inject(options, (response) => {
-      const result = response.result
+      const result = JSON.parse(response.result)
 
       expect(response.statusCode).to.equal(200)
       expect(result).to.equal(teamStub)
@@ -213,15 +199,13 @@ lab.experiment('Teams', () => {
   })
 
   lab.test('update team should return error for error case', (done) => {
-    muStub.dispatch = function (pattern, cb) {
-      process.nextTick(() => {
-        cb(mu.error.badImplementation())
-      })
-    }
+    nock('http://localhost:8080')
+      .put('/authorization/teams/2')
+      .reply(500)
 
     const options = {
       method: 'PUT',
-      url: '/authorization/team/2',
+      url: '/authorization/teams/2',
       payload: {
         name: 'Team D',
         description: 'Can Team C become Team D?'
@@ -239,15 +223,13 @@ lab.experiment('Teams', () => {
   })
 
   lab.test('delete team should return 204 for success', (done) => {
-    muStub.dispatch = function (pattern, cb) {
-      process.nextTick(() => {
-        cb(null)
-      })
-    }
+    nock('http://localhost:8080')
+      .delete('/authorization/teams/1')
+      .reply(204)
 
     const options = {
       method: 'DELETE',
-      url: '/authorization/team/1'
+      url: '/authorization/teams/1'
     }
 
     server.inject(options, (response) => {
@@ -261,15 +243,13 @@ lab.experiment('Teams', () => {
   })
 
   lab.test('delete team should return error for error case', (done) => {
-    muStub.dispatch = function (pattern, cb) {
-      process.nextTick(() => {
-        cb(mu.error.badImplementation())
-      })
-    }
+    nock('http://localhost:8080')
+      .delete('/authorization/teams/1')
+      .reply(500)
 
     const options = {
       method: 'DELETE',
-      url: '/authorization/team/1'
+      url: '/authorization/teams/1'
     }
 
     server.inject(options, (response) => {

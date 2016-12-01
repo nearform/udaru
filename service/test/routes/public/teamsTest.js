@@ -79,7 +79,7 @@ lab.experiment('Teams', () => {
 
     const options = {
       method: 'GET',
-      url: '/authorization/team/1'
+      url: '/authorization/teams/1'
     }
 
     server.inject(options, (response) => {
@@ -109,7 +109,7 @@ lab.experiment('Teams', () => {
 
     const options = {
       method: 'POST',
-      url: '/authorization/team',
+      url: '/authorization/teams',
       payload: {
         name: 'Team B',
         description: 'This is Team B'
@@ -129,7 +129,7 @@ lab.experiment('Teams', () => {
   lab.test('create new team should return a 400 Bad Request when not providing name or description', (done) => {
     const options = {
       method: 'POST',
-      url: '/authorization/team',
+      url: '/authorization/teams',
       payload: {}
     }
 
@@ -149,7 +149,7 @@ lab.experiment('Teams', () => {
 
     const options = {
       method: 'POST',
-      url: '/authorization/team',
+      url: '/authorization/teams',
       payload: {
         name: 'Team C',
         description: 'This is Team C'
@@ -183,7 +183,7 @@ lab.experiment('Teams', () => {
 
     const options = {
       method: 'PUT',
-      url: '/authorization/team/2',
+      url: '/authorization/teams/2',
       payload: {
         name: 'Team C',
         description: 'Team B is now Team C'
@@ -209,7 +209,7 @@ lab.experiment('Teams', () => {
 
     const options = {
       method: 'PUT',
-      url: '/authorization/team/2',
+      url: '/authorization/teams/2',
       payload: {
         name: 'Team D',
         description: 'Can Team C become Team D?'
@@ -235,7 +235,7 @@ lab.experiment('Teams', () => {
 
     const options = {
       method: 'DELETE',
-      url: '/authorization/team/1'
+      url: '/authorization/teams/1'
     }
 
     server.inject(options, (response) => {
@@ -257,7 +257,7 @@ lab.experiment('Teams', () => {
 
     const options = {
       method: 'DELETE',
-      url: '/authorization/team/1'
+      url: '/authorization/teams/1'
     }
 
     server.inject(options, (response) => {

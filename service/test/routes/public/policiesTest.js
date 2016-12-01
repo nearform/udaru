@@ -100,7 +100,7 @@ lab.experiment('Policies', () => {
 
     const options = {
       method: 'GET',
-      url: '/authorization/policy/1'
+      url: '/authorization/policies/1'
     }
 
     server.inject(options, (response) => {
@@ -121,7 +121,7 @@ lab.experiment('Policies', () => {
     }
     const options = {
       method: 'GET',
-      url: '/authorization/policy/99'
+      url: '/authorization/policies/99'
     }
 
     server.inject(options, (response) => {

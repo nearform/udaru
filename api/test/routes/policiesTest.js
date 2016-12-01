@@ -1,24 +1,18 @@
-const mu = require('mu')()
+'use strict'
+
+const nock = require('nock')
 const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
-
-const TestHelper = require('../helper')
-const Policies = require('../../routes/policies')
+const initServer = require('../../initServer')
 
 let server
 
-const muStub = {
-  outbound: () => {},
-  dispatch: () => {}
-}
-
 lab.before(function (done) {
-  const options = {
-    mu: muStub
-  }
-
-  server = TestHelper.createTestServer(Policies, options, done)
+  initServer(function (s) {
+    server = s
+    done()
+  })
 })
 
 lab.experiment('Policies', () => {
@@ -33,11 +27,9 @@ lab.experiment('Policies', () => {
       version: '0.2'
     }]
 
-    muStub.dispatch = function (pattern, cb) {
-      process.nextTick(() => {
-        cb(null, policyListStub)
-      })
-    }
+    nock('http://localhost:8080')
+      .get('/authorization/policies')
+      .reply(200, policyListStub)
 
     const options = {
       method: 'GET',
@@ -45,7 +37,7 @@ lab.experiment('Policies', () => {
     }
 
     server.inject(options, (response) => {
-      const result = response.result
+      const result = JSON.parse(response.result)
 
       expect(response.statusCode).to.equal(200)
       expect(result).to.equal(policyListStub)
@@ -55,11 +47,9 @@ lab.experiment('Policies', () => {
   })
 
   lab.test('get policy list should return error for error case', (done) => {
-    muStub.dispatch = function (pattern, cb) {
-      process.nextTick(() => {
-        cb(mu.error.badImplementation())
-      })
-    }
+    nock('http://localhost:8080')
+      .get('/authorization/policies')
+      .reply(500)
 
     const options = {
       method: 'GET',
@@ -104,19 +94,18 @@ lab.experiment('Policies', () => {
         ]
       }]
     }
-    muStub.dispatch = function (pattern, cb) {
-      process.nextTick(() => {
-        cb(null, policyStub)
-      })
-    }
+
+    nock('http://localhost:8080')
+      .get('/authorization/policies/1')
+      .reply(200, policyStub)
 
     const options = {
       method: 'GET',
-      url: '/authorization/policy/1'
+      url: '/authorization/policies/1'
     }
 
     server.inject(options, (response) => {
-      const result = response.result
+      const result = JSON.parse(response.result)
 
       expect(response.statusCode).to.equal(200)
       expect(result).to.equal(policyStub)
@@ -126,15 +115,13 @@ lab.experiment('Policies', () => {
   })
 
   lab.test('get single policy should return error for error case', (done) => {
-    muStub.dispatch = function (pattern, cb) {
-      process.nextTick(() => {
-        cb(mu.error.badImplementation())
-      })
-    }
+    nock('http://localhost:8080')
+      .get('/authorization/policies/99')
+      .reply(500)
 
     const options = {
       method: 'GET',
-      url: '/authorization/policy/99'
+      url: '/authorization/policies/99'
     }
 
     server.inject(options, (response) => {
