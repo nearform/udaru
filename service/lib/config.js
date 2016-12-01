@@ -14,5 +14,14 @@ module.exports = new Reconfig({
     port: 8080,
     host: 'localhost',
     logLevel: 'info'
+  },
+  hapi: {
+    port: 8080,
+    host: 'localhost'
+  },
+  logger: {
+    pino: {
+      level: 'info'
+    }
   }
 }, { envPrefix: 'LABS_AUTH_SERVICE' })

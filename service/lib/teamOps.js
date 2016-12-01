@@ -1,19 +1,21 @@
 'use strict'
+
+const Boom = require('boom')
 const dbUtil = require('./dbUtil')
 const async = require('async')
 
-module.exports = function (dbPool, mu, log) {
+module.exports = function (dbPool, log) {
   var TeamOps = {
     /*
     * no query args (but may e.g. sort in future)
     */
     listAllTeams: function listAllTeams (args, cb) {
       dbPool.connect(function (err, client, done) {
-        if (err) return cb(mu.error.badImplementation(err))
+        if (err) return cb(Boom.badImplementation(err))
 
         client.query('SELECT  id, name, description from teams ORDER BY UPPER(name)', function (err, result) {
           done() // release the client back to the pool
-          if (err) return cb(mu.error.badImplementation(err))
+          if (err) return cb(Boom.badImplementation(err))
 
           return cb(null, result.rows)
         })
@@ -25,11 +27,11 @@ module.exports = function (dbPool, mu, log) {
     */
     listOrgTeams: function listOrgTeams (args, cb) {
       dbPool.connect(function (err, client, done) {
-        if (err) return cb(mu.error.badImplementation(err))
+        if (err) return cb(Boom.badImplementation(err))
 
         client.query('SELECT  id, name, description from teams WHERE org_id = $1 ORDER BY UPPER(name)', args, function (err, result) {
           done() // release the client back to the pool
-          if (err) return cb(mu.error.badImplementation(err))
+          if (err) return cb(Boom.badImplementation(err))
 
           return cb(null, result.rows)
         })
@@ -44,16 +46,16 @@ module.exports = function (dbPool, mu, log) {
     */
     createTeam: function createTeam (args, cb) {
       dbPool.connect(function (err, client, done) {
-        if (err) return cb(mu.error.badImplementation(err))
+        if (err) return cb(Boom.badImplementation(err))
 
         client.query('INSERT INTO teams (id, name, description, team_parent_id, org_id) VALUES (DEFAULT, $1, $2, $3, $4) RETURNING id', args, function (err, result) {
           done() // release the client back to the pool
-          if (err) return cb(mu.error.badImplementation(err))
+          if (err) return cb(Boom.badImplementation(err))
 
           const team = result.rows[0]
 
           TeamOps.readTeamById([team.id], function (err, result) {
-            if (err) return cb(mu.error.badImplementation(err))
+            if (err) return cb(Boom.badImplementation(err))
 
             return cb(null, result)
           })
@@ -74,17 +76,17 @@ module.exports = function (dbPool, mu, log) {
       }
 
       dbPool.connect((err, client, done) => {
-        if (err) return cb(mu.error.badImplementation(err))
+        if (err) return cb(Boom.badImplementation(err))
 
         client.query('SELECT id, name, description from teams WHERE id = $1', args, (err, result) => {
           if (err) {
             done() // release the client back to the pool
-            return cb(mu.error.badImplementation(err))
+            return cb(Boom.badImplementation(err))
           }
 
           if (result.rowCount === 0) {
             done()
-            return cb(mu.error.notFound())
+            return cb(Boom.notFound())
           }
 
           team.id = result.rows[0].id
@@ -94,7 +96,7 @@ module.exports = function (dbPool, mu, log) {
           client.query('SELECT users.id, users.name from team_members mem, users WHERE mem.team_id = $1 and mem.user_id = users.id ORDER BY UPPER(users.name)', args, function (err, result) {
             if (err) {
               done() // release the client back to the pool
-              return cb(mu.error.badImplementation(err))
+              return cb(Boom.badImplementation(err))
             }
 
             result.rows.forEach(function (row) {
@@ -103,7 +105,7 @@ module.exports = function (dbPool, mu, log) {
 
             client.query('SELECT pol.id, pol.name from team_policies tpol, policies pol WHERE tpol.team_id = $1 and tpol.policy_id = pol.id ORDER BY UPPER(pol.name)', args, function (err, result) {
               done() // release the client back to the pool
-              if (err) return cb(mu.error.badImplementation(err))
+              if (err) return cb(Boom.badImplementation(err))
 
               result.rows.forEach(function (row) {
                 team.policies.push(row)
@@ -129,25 +131,25 @@ module.exports = function (dbPool, mu, log) {
       const tasks = []
 
       if (!Array.isArray(users) || !Array.isArray(policies)) {
-        return cb(mu.error.badRequest())
+        return cb(Boom.badRequest())
       }
 
       dbPool.connect(function (err, client, done) {
         if (err) {
-          return cb(mu.error.badImplementation(err))
+          return cb(Boom.badImplementation(err))
         }
 
         tasks.push((next) => {
           client.query('BEGIN', (err, res) => {
-            if (err) return next(mu.error.badImplementation(err))
+            if (err) return next(Boom.badImplementation(err))
             next()
           })
         })
 
         tasks.push((next) => {
           client.query('UPDATE teams SET name = $2, description = $3 WHERE id = $1', [id, name, description], (err, res) => {
-            if (err) return next(mu.error.badImplementation(err))
-            if (res.rowCount === 0) return next(mu.error.notFound())
+            if (err) return next(Boom.badImplementation(err))
+            if (res.rowCount === 0) return next(Boom.notFound())
 
             next()
           })
@@ -155,7 +157,7 @@ module.exports = function (dbPool, mu, log) {
 
         tasks.push((next) => {
           client.query('DELETE FROM team_members WHERE team_id = $1', [id], (err) => {
-            if (err) return next(mu.error.badImplementation(err))
+            if (err) return next(Boom.badImplementation(err))
 
             next()
           })
@@ -165,7 +167,7 @@ module.exports = function (dbPool, mu, log) {
           tasks.push((next) => {
             const stmt = dbUtil.buildInsertStmt('INSERT INTO team_members (user_id, team_id) VALUES ', users.map(p => [p.id, id]))
             client.query(stmt.statement, stmt.params, (err) => {
-              if (err) return next(mu.error.badImplementation(err))
+              if (err) return next(Boom.badImplementation(err))
 
               next()
             })
@@ -174,7 +176,7 @@ module.exports = function (dbPool, mu, log) {
 
         tasks.push((next) => {
           client.query('DELETE FROM team_policies WHERE team_id = $1', [id], (err) => {
-            if (err) return next(mu.error.badImplementation(err))
+            if (err) return next(Boom.badImplementation(err))
 
             next()
           })
@@ -184,7 +186,7 @@ module.exports = function (dbPool, mu, log) {
           tasks.push((next) => {
             const stmt = dbUtil.buildInsertStmt('INSERT INTO team_policies (policy_id, team_id) VALUES ', policies.map(p => [p.id, id]))
             client.query(stmt.statement, stmt.params, (err) => {
-              if (err) return next(mu.error.badImplementation(err))
+              if (err) return next(Boom.badImplementation(err))
 
               next()
             })
@@ -193,7 +195,7 @@ module.exports = function (dbPool, mu, log) {
 
         tasks.push((next) => {
           client.query('COMMIT', (err) => {
-            if (err) return next(mu.error.badImplementation(err))
+            if (err) return next(Boom.badImplementation(err))
 
             next()
           })
@@ -217,33 +219,33 @@ module.exports = function (dbPool, mu, log) {
     deleteTeamById: function deleteTeamById (args, cb) {
       const tasks = []
       dbPool.connect(function (err, client, done) {
-        if (err) return cb(mu.error.badImplementation(err))
+        if (err) return cb(Boom.badImplementation(err))
 
         tasks.push((next) => {
           client.query('BEGIN', (err) => {
-            if (err) return next(mu.error.badImplementation(err))
+            if (err) return next(Boom.badImplementation(err))
             next()
           })
         })
 
         tasks.push((next) => {
           client.query('DELETE from team_members WHERE team_id = $1', args, (err, result) => {
-            if (err) return next(mu.error.badImplementation(err))
+            if (err) return next(Boom.badImplementation(err))
             next()
           })
         })
 
         tasks.push((next) => {
           client.query('DELETE from team_policies WHERE team_id = $1', args, (err, result) => {
-            if (err) return next(mu.error.badImplementation(err))
+            if (err) return next(Boom.badImplementation(err))
             next()
           })
         })
 
         tasks.push((next) => {
           client.query('DELETE from teams WHERE id = $1', args, (err, result) => {
-            if (err) return next(mu.error.badImplementation(err))
-            if (result.rowCount === 0) return next(mu.error.notFound())
+            if (err) return next(Boom.badImplementation(err))
+            if (result.rowCount === 0) return next(Boom.notFound())
 
             log.debug('delete team result: %j', result)
 
@@ -253,7 +255,7 @@ module.exports = function (dbPool, mu, log) {
 
         tasks.push((next) => {
           client.query('COMMIT', (err) => {
-            if (err) return next(mu.error.badImplementation(err))
+            if (err) return next(Boom.badImplementation(err))
             next()
           })
         })
