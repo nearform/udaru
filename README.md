@@ -93,7 +93,7 @@ To expose the routes start both the service and the API with the following:
 
 To build the frontend
 
-    cd component && npm run build 
+    cd component && npm run build
 
 And then in the root directory
 
@@ -101,7 +101,9 @@ And then in the root directory
 
 ## Testing
 
-Tests are supplied for the service interface and the Mu wiring (npm test)
+Tests are supplied for the service interface and the Hapi wiring (npm test).
+
+The test data in the database are going to be reloaded when running `npm test` form the project root.
 
 ## Security
 

@@ -35,7 +35,7 @@ function getDbPollFirstQueryError () {
  * @param  {String} startsWith
  * @param  {Object} result
  */
-function getDbPoolErrorForQueryOrRowCount (startsWith, options = {testRollback: false, t: undefined}, result = {rowCount: 1, rows: []}) {
+function getDbPoolErrorForQueryOrRowCount (startsWith, options = {testRollback: false, expect: undefined}, result = {rowCount: 1, rows: []}) {
   return {connect: function (cb) {
     var client = {query: (sql, params, cb) => {
       cb = cb || params
@@ -43,7 +43,7 @@ function getDbPoolErrorForQueryOrRowCount (startsWith, options = {testRollback: 
         return cb(new Error('query error test'))
       }
       if (options.testRollback && sql.startsWith('ROLLBACK')) {
-        options.t.equal('ROLLBACK', sql)
+        options.expect(sql).to.equal('ROLLBACK')
       }
       cb(undefined, result)
     }}
@@ -57,11 +57,13 @@ function getDbPoolErrorForQueryOrRowCount (startsWith, options = {testRollback: 
  * @param  {Object} t
  * @param  {String} errorString
  */
-function testError (t, errorString) {
+function testError (expect, errorString, cb) {
   return (err, result) => {
-    t.ok(err, 'should be error')
-    t.equal(err.message, errorString, 'correct error message')
-    t.notOk(result, 'result should not be supplied')
+    expect(err).to.exist()
+    expect(result).to.not.exist()
+    expect(err.message).to.equal(errorString)
+
+    cb()
   }
 }
 

@@ -1,9 +1,10 @@
 'use strict'
 /* eslint-disable handle-callback-err */
+const Boom = require('boom')
 const iam = require('iam-js')
 const async = require('async')
 
-module.exports = function (userOps, policyOps, mu) {
+module.exports = function (userOps, policyOps) {
   return {
     /*
     * Auth.canDo(user policy set, resource, action) returns "allow" or "deny"
@@ -57,7 +58,7 @@ module.exports = function (userOps, policyOps, mu) {
       // can't check per resource as requires wildcard processing
 
       policyOps.listAllUserPolicies({ userId }, (err, policies) => {
-        if (err) return cb(mu.error.wrap(err))
+        if (err) return cb(Boom.wrap(err))
 
         policies.forEach(p => {
           p.Statement.forEach(s => {
@@ -82,7 +83,7 @@ module.exports = function (userOps, policyOps, mu) {
           })
         })
 
-        if (errors.length > 0) return cb(mu.error.wrap(errors.shift()))
+        if (errors.length > 0) return cb(Boom.wrap(errors.shift()))
         // return thE allowable actions
         cb(null, {actions: data})
       })

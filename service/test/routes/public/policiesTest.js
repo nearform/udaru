@@ -1,19 +1,14 @@
 'use strict'
 
-const nock = require('nock')
 const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
-const initServer = require('../../initServer')
+const Boom = require('boom')
+var proxyquire = require('proxyquire')
 
-let server
-
-lab.before(function (done) {
-  initServer(function (s) {
-    server = s
-    done()
-  })
-})
+var policyOps = {}
+var policiesRoutes = proxyquire('./../../../routes/public/policies', { './../../lib/policyOps': () => policyOps })
+var server = proxyquire('./../../../wiring-hapi', { './routes/public/policies': policiesRoutes })
 
 lab.experiment('Policies', () => {
   lab.test('get policy list', (done) => {
@@ -27,9 +22,9 @@ lab.experiment('Policies', () => {
       version: '0.2'
     }]
 
-    nock('http://localhost:8080')
-      .get('/authorization/policies')
-      .reply(200, policyListStub)
+    policyOps.listAllPolicies = (params, cb) => {
+      cb(null, policyListStub)
+    }
 
     const options = {
       method: 'GET',
@@ -37,7 +32,7 @@ lab.experiment('Policies', () => {
     }
 
     server.inject(options, (response) => {
-      const result = JSON.parse(response.result)
+      const result = response.result
 
       expect(response.statusCode).to.equal(200)
       expect(result).to.equal(policyListStub)
@@ -47,9 +42,11 @@ lab.experiment('Policies', () => {
   })
 
   lab.test('get policy list should return error for error case', (done) => {
-    nock('http://localhost:8080')
-      .get('/authorization/policies')
-      .reply(500)
+    policyOps.listAllPolicies = (params, cb) => {
+      process.nextTick(() => {
+        cb(Boom.badImplementation())
+      })
+    }
 
     const options = {
       method: 'GET',
@@ -95,9 +92,11 @@ lab.experiment('Policies', () => {
       }]
     }
 
-    nock('http://localhost:8080')
-      .get('/authorization/policies/1')
-      .reply(200, policyStub)
+    policyOps.readPolicyById = (params, cb) => {
+      process.nextTick(() => {
+        cb(null, policyStub)
+      })
+    }
 
     const options = {
       method: 'GET',
@@ -105,7 +104,7 @@ lab.experiment('Policies', () => {
     }
 
     server.inject(options, (response) => {
-      const result = JSON.parse(response.result)
+      const result = response.result
 
       expect(response.statusCode).to.equal(200)
       expect(result).to.equal(policyStub)
@@ -115,10 +114,11 @@ lab.experiment('Policies', () => {
   })
 
   lab.test('get single policy should return error for error case', (done) => {
-    nock('http://localhost:8080')
-      .get('/authorization/policies/99')
-      .reply(500)
-
+    policyOps.readPolicyById = (params, cb) => {
+      process.nextTick(() => {
+        cb(Boom.badImplementation())
+      })
+    }
     const options = {
       method: 'GET',
       url: '/authorization/policies/99'

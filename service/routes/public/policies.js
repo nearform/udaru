@@ -1,23 +1,29 @@
 'use strict'
 
-const config = require('../lib/config')
+const PolicyOps = require('./../../lib/policyOps')
 
 exports.register = function (server, options, next) {
-   // curl http://localhost:8000/authorization/policies
+  const policyOps = PolicyOps(options.dbPool)
+
+   // curl http://localhost:8080/authorization/policies
   server.route({
     method: 'GET',
     path: '/authorization/policies',
     handler: function (request, reply) {
-      return reply.proxy(config.get('service'))
+      policyOps.listAllPolicies([], reply)
     }
   })
 
-  // curl http://localhost:8000/authorization/policy/123
+  // curl http://localhost:8080/authorization/policy/123
   server.route({
     method: 'GET',
     path: '/authorization/policies/{id}',
     handler: function (request, reply) {
-      return reply.proxy(config.get('service'))
+      const params = [
+        request.params.id
+      ]
+
+      policyOps.readPolicyById(params, reply)
     }
   })
 

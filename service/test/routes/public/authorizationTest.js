@@ -1,25 +1,22 @@
 'use strict'
 
-const nock = require('nock')
 const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
-const initServer = require('../../initServer')
+const Boom = require('boom')
+var proxyquire = require('proxyquire')
 
-let server
-
-lab.before(function (done) {
-  initServer(function (s) {
-    server = s
-    done()
-  })
-})
+var authorizeMock = {}
+var authRoutes = proxyquire('./../../../routes/public/authorization', { './../../lib/authorizeOps': () => authorizeMock })
+var server = proxyquire('./../../../wiring-hapi', { './routes/public/authorization': authRoutes })
 
 lab.experiment('Authorization', () => {
   lab.test('check authorization should return access true for allowed', (done) => {
-    nock('http://localhost:8080')
-      .get('/authorization/check/1/action_a/resource_a')
-      .reply(200, {access: true})
+    authorizeMock.isUserAuthorized = (params, cb) => {
+      process.nextTick(() => {
+        cb(null, {access: true})
+      })
+    }
 
     const options = {
       method: 'GET',
@@ -27,7 +24,7 @@ lab.experiment('Authorization', () => {
     }
 
     server.inject(options, (response) => {
-      const result = JSON.parse(response.result)
+      const result = response.result
 
       expect(response.statusCode).to.equal(200)
       expect(result).to.equal({ access: true })
@@ -37,9 +34,11 @@ lab.experiment('Authorization', () => {
   })
 
   lab.test('check authorization should return access false for denied', (done) => {
-    nock('http://localhost:8080')
-      .get('/authorization/check/1/action_a/resource_a')
-      .reply(200, {access: false})
+    authorizeMock.isUserAuthorized = (params, cb) => {
+      process.nextTick(() => {
+        cb(null, {access: false})
+      })
+    }
 
     const options = {
       method: 'GET',
@@ -47,7 +46,7 @@ lab.experiment('Authorization', () => {
     }
 
     server.inject(options, (response) => {
-      const result = JSON.parse(response.result)
+      const result = response.result
 
       expect(response.statusCode).to.equal(200)
       expect(result).to.equal({ access: false })
@@ -57,9 +56,11 @@ lab.experiment('Authorization', () => {
   })
 
   lab.test('check authorization should return 500 for error case', (done) => {
-    nock('http://localhost:8080')
-      .get('/authorization/check/action_a/1/resource_a')
-      .reply(500)
+    authorizeMock.isUserAuthorized = (params, cb) => {
+      process.nextTick(() => {
+        cb(Boom.badImplementation())
+      })
+    }
 
     const options = {
       method: 'GET',
@@ -69,7 +70,6 @@ lab.experiment('Authorization', () => {
     server.inject(options, (response) => {
       const result = response.result
 
-      // TO-DO: is should return 500
       expect(response.statusCode).to.equal(500)
       expect(result).to.be.undefined
 
@@ -85,29 +85,11 @@ lab.experiment('Authorization', () => {
       ]
     }
 
-    nock('http://localhost:8080')
-      .get('/authorization/list/1/resource_a')
-      .reply(200, actionListStub)
-
-    const options = {
-      method: 'GET',
-      url: '/authorization/list/1/resource_a'
+    authorizeMock.listAuthorizations = (params, cb) => {
+      process.nextTick(() => {
+        cb(null, actionListStub)
+      })
     }
-
-    server.inject(options, (response) => {
-      const result = JSON.parse(response.result)
-
-      expect(response.statusCode).to.equal(200)
-      expect(result).to.equal(actionListStub)
-
-      done()
-    })
-  })
-
-  lab.test('list authorizations should return 500 for error case', (done) => {
-    nock('http://localhost:8080')
-      .get('/authorization/list/1/resource_a')
-      .reply(500)
 
     const options = {
       method: 'GET',
@@ -117,7 +99,28 @@ lab.experiment('Authorization', () => {
     server.inject(options, (response) => {
       const result = response.result
 
-      // TO-DO: is should return 500
+      expect(response.statusCode).to.equal(200)
+      expect(result).to.equal(actionListStub)
+
+      done()
+    })
+  })
+
+  lab.test('list authorizations should return 500 for error case', (done) => {
+    authorizeMock.listAuthorizations = (params, cb) => {
+      process.nextTick(() => {
+        cb(Boom.badImplementation())
+      })
+    }
+
+    const options = {
+      method: 'GET',
+      url: '/authorization/list/1/resource_a'
+    }
+
+    server.inject(options, (response) => {
+      const result = response.result
+
       expect(response.statusCode).to.equal(500)
       expect(result).to.be.undefined
 
@@ -133,9 +136,11 @@ lab.experiment('Authorization', () => {
       ]
     }
 
-    nock('http://localhost:8080')
-      .get('/authorization/list/1/my/resource/uri')
-      .reply(200, actionListStub)
+    authorizeMock.listAuthorizations = (params, cb) => {
+      process.nextTick(() => {
+        cb(null, actionListStub)
+      })
+    }
 
     const options = {
       method: 'GET',
@@ -143,7 +148,7 @@ lab.experiment('Authorization', () => {
     }
 
     server.inject(options, (response) => {
-      const result = JSON.parse(response.result)
+      const result = response.result
 
       expect(response.statusCode).to.equal(200)
       expect(result).to.equal(actionListStub)
@@ -153,9 +158,15 @@ lab.experiment('Authorization', () => {
   })
 
   lab.test('check authorization should return access true for allowed on URI resource', (done) => {
-    nock('http://localhost:8080')
-      .get('/authorization/check/1/action_a//my/resource/uri')
-      .reply(200, { access: true })
+    authorizeMock.isUserAuthorized = (params, cb) => {
+      expect(params.userId).to.equal('1')
+      expect(params.action).to.equal('action_a')
+      expect(params.resource).to.equal('/my/resource/uri')
+
+      process.nextTick(() => {
+        cb(null, {access: true})
+      })
+    }
 
     const options = {
       method: 'GET',
@@ -163,7 +174,7 @@ lab.experiment('Authorization', () => {
     }
 
     server.inject(options, (response) => {
-      const result = JSON.parse(response.result)
+      const result = response.result
 
       expect(response.statusCode).to.equal(200)
       expect(result).to.equal({ access: true })

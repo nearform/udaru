@@ -6,8 +6,8 @@
   "scripts": {
     "start": "node index.js",
     "lint": "./node_modules/.bin/spacey-standard",
-    "test": "tap \"test/**/*Test.js\" --coverage",
-    "coverage": "tap \"test/**/*Test.js\" --cov --coverage-report=html"
+    "test": "LABS_AUTH_SERVICE_logger_pino_level=silent ./node_modules/.bin/lab",
+    "coverage": "LABS_AUTH_SERVICE_logger_pino_level=silent ./node_modules/.bin/lab -r html -o coverage.html"
   },
   "pre-commit": [
     "lint"
@@ -24,14 +24,18 @@
   "homepage": "https://github.com/nearform/labs-authorization#readme",
   "dependencies": {
     "async": "^2.0.1",
+    "hapi": "^15.2.0",
+    "hapi-pino": "^1.3.0",
     "iam-js": "git+ssh://git@github.com:nearform/iam-js.git",
-    "mu": "^1.1.0",
     "pg": "^6.1.0",
-    "pino": "^2.13.2",
     "reconfig": "^3.2.0"
   },
   "devDependencies": {
+    "code": "^4.0.0",
+    "lab": "^11.2.1",
+    "pino": "^3.0.2",
     "pre-commit": "^1.1.3",
+    "proxyquire": "^1.7.10",
     "spacey-standard": "^3.0.0",
     "tap": "^7.1.2"
   }

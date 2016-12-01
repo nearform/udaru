@@ -20,7 +20,7 @@
     "test:api": "cd api && npm run test",
     "test:service": "cd service && npm run test",
     "test:component": "cd component && npm run test",
-    "test": "npm run test:api && npm run test:service && npm run test:component",
+    "test": "npm run pg:init && npm run pg:load-test-data && npm run test:api && npm run test:service && npm run test:component",
     "coverage:api": "cd api && npm run coverage",
     "coverage:service": "cd service && npm run coverage",
     "coverage:component": "cd component && npm run coverage",

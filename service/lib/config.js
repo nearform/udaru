@@ -10,9 +10,13 @@ module.exports = new Reconfig({
     max: 10,
     idleTimeoutMillis: 30000
   },
-  mu: {
+  hapi: {
     port: 8080,
-    host: 'localhost',
-    logLevel: 'info'
+    host: 'localhost'
+  },
+  logger: {
+    pino: {
+      level: 'info'
+    }
   }
 }, { envPrefix: 'LABS_AUTH_SERVICE' })

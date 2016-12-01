@@ -1,9 +1,7 @@
 'use strict'
 
-var config = require('./lib/config')
-
-const wiring = require('../service/wiring-mu')(config.get('mu'))
+const wiring = require('./wiring-hapi')
 
 wiring.start(() => {
-  console.log(`service listening on port: ${config.get('mu').port}`)
+  console.log('service listening...')
 })

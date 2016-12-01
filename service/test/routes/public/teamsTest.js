@@ -1,19 +1,14 @@
 'use strict'
 
-const nock = require('nock')
 const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
-const initServer = require('../../initServer')
+const Boom = require('boom')
+var proxyquire = require('proxyquire')
 
-let server
-
-lab.before(function (done) {
-  initServer(function (s) {
-    server = s
-    done()
-  })
-})
+var teamOps = {}
+var teamsRoutes = proxyquire('./../../../routes/public/teams', { './../../lib/teamOps': () => teamOps })
+var server = proxyquire('./../../../wiring-hapi', { './routes/public/teams': teamsRoutes })
 
 lab.experiment('Teams', () => {
   lab.test('get team list', (done) => {
@@ -25,10 +20,11 @@ lab.experiment('Teams', () => {
       name: 'Team B'
     }]
 
-    nock('http://localhost:8080')
-      .get('/authorization/teams')
-      .reply(200, teamListStub)
-
+    teamOps.listAllTeams = (params, cb) => {
+      process.nextTick(() => {
+        cb(null, teamListStub)
+      })
+    }
 
     const options = {
       method: 'GET',
@@ -36,7 +32,7 @@ lab.experiment('Teams', () => {
     }
 
     server.inject(options, (response) => {
-      const result = JSON.parse(response.result)
+      const result = response.result
 
       expect(response.statusCode).to.equal(200)
       expect(result).to.equal(teamListStub)
@@ -46,9 +42,11 @@ lab.experiment('Teams', () => {
   })
 
   lab.test('get team list should return error for error case', (done) => {
-    nock('http://localhost:8080')
-      .get('/authorization/teams')
-      .reply(500)
+    teamOps.listAllTeams = (params, cb) => {
+      process.nextTick(() => {
+        cb(Boom.badImplementation())
+      })
+    }
 
     const options = {
       method: 'GET',
@@ -73,9 +71,11 @@ lab.experiment('Teams', () => {
       policies: []
     }
 
-    nock('http://localhost:8080')
-      .get('/authorization/teams/1')
-      .reply(200, teamStub)
+    teamOps.readTeamById = (params, cb) => {
+      process.nextTick(() => {
+        cb(null, teamStub)
+      })
+    }
 
     const options = {
       method: 'GET',
@@ -83,7 +83,7 @@ lab.experiment('Teams', () => {
     }
 
     server.inject(options, (response) => {
-      const result = JSON.parse(response.result)
+      const result = response.result
 
       expect(response.statusCode).to.equal(200)
       expect(result).to.equal(teamStub)
@@ -101,9 +101,11 @@ lab.experiment('Teams', () => {
       policies: []
     }
 
-    nock('http://localhost:8080')
-      .post('/authorization/teams')
-      .reply(201, newTeamStub)
+    teamOps.createTeam = (params, cb) => {
+      process.nextTick(() => {
+        cb(null, newTeamStub)
+      })
+    }
 
     const options = {
       method: 'POST',
@@ -115,7 +117,7 @@ lab.experiment('Teams', () => {
     }
 
     server.inject(options, (response) => {
-      const result = JSON.parse(response.result)
+      const result = response.result
 
       expect(response.statusCode).to.equal(201)
       expect(result).to.equal(newTeamStub)
@@ -131,10 +133,6 @@ lab.experiment('Teams', () => {
       payload: {}
     }
 
-    nock('http://localhost:8080')
-      .post('/authorization/teams')
-      .reply(400)
-
     server.inject(options, (response) => {
       expect(response.statusCode).to.equal(400)
 
@@ -143,9 +141,11 @@ lab.experiment('Teams', () => {
   })
 
   lab.test('create new team should return error for error case', (done) => {
-    nock('http://localhost:8080')
-      .post('/authorization/teams')
-      .reply(500)
+    teamOps.createTeam = (params, cb) => {
+      process.nextTick(() => {
+        cb(Boom.badImplementation())
+      })
+    }
 
     const options = {
       method: 'POST',
@@ -175,9 +175,11 @@ lab.experiment('Teams', () => {
       policies: []
     }
 
-    nock('http://localhost:8080')
-      .put('/authorization/teams/2')
-      .reply(200, teamStub)
+    teamOps.updateTeam = (params, cb) => {
+      process.nextTick(() => {
+        cb(null, teamStub)
+      })
+    }
 
     const options = {
       method: 'PUT',
@@ -189,7 +191,7 @@ lab.experiment('Teams', () => {
     }
 
     server.inject(options, (response) => {
-      const result = JSON.parse(response.result)
+      const result = response.result
 
       expect(response.statusCode).to.equal(200)
       expect(result).to.equal(teamStub)
@@ -199,9 +201,11 @@ lab.experiment('Teams', () => {
   })
 
   lab.test('update team should return error for error case', (done) => {
-    nock('http://localhost:8080')
-      .put('/authorization/teams/2')
-      .reply(500)
+    teamOps.updateTeam = (params, cb) => {
+      process.nextTick(() => {
+        cb(Boom.badImplementation())
+      })
+    }
 
     const options = {
       method: 'PUT',
@@ -223,9 +227,11 @@ lab.experiment('Teams', () => {
   })
 
   lab.test('delete team should return 204 for success', (done) => {
-    nock('http://localhost:8080')
-      .delete('/authorization/teams/1')
-      .reply(204)
+    teamOps.deleteTeamById = (params, cb) => {
+      process.nextTick(() => {
+        cb(null)
+      })
+    }
 
     const options = {
       method: 'DELETE',
@@ -243,9 +249,11 @@ lab.experiment('Teams', () => {
   })
 
   lab.test('delete team should return error for error case', (done) => {
-    nock('http://localhost:8080')
-      .delete('/authorization/teams/1')
-      .reply(500)
+    teamOps.deleteTeamById = (params, cb) => {
+      process.nextTick(() => {
+        cb(Boom.badImplementation())
+      })
+    }
 
     const options = {
       method: 'DELETE',

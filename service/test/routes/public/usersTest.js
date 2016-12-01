@@ -1,23 +1,18 @@
 'use strict'
 
-const nock = require('nock')
 const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
-const initServer = require('../../initServer')
+const Boom = require('boom')
+var proxyquire = require('proxyquire')
 
-let server
-
-lab.before(function (done) {
-  initServer(function (s) {
-    server = s
-    done()
-  })
-})
+var userOps = {}
+var usersRoutes = proxyquire('./../../../routes/public/users', { './../../lib/userOps': () => userOps })
+var server = proxyquire('./../../../wiring-hapi', { './routes/public/users': usersRoutes })
 
 lab.experiment('Users', () => {
   lab.test('get user list', (done) => {
-    let list = [{
+    var expected = [{
       id: 1,
       name: 'John'
     }, {
@@ -25,9 +20,11 @@ lab.experiment('Users', () => {
       name: 'Jack'
     }]
 
-    nock('http://localhost:8080')
-      .get('/authorization/users')
-      .reply(200, list)
+    userOps.listAllUsers = function (params, cb) {
+      process.nextTick(() => {
+        cb(null, expected)
+      })
+    }
 
     const options = {
       method: 'GET',
@@ -35,19 +32,21 @@ lab.experiment('Users', () => {
     }
 
     server.inject(options, (response) => {
-      const result = JSON.parse(response.result)
+      const result = response.result
 
       expect(response.statusCode).to.equal(200)
-      expect(result).to.equal(list)
+      expect(result).to.equal(expected)
 
       done()
     })
   })
 
   lab.test('get user list should return error for error case', (done) => {
-    nock('http://localhost:8080')
-      .get('/authorization/users')
-      .reply(500)
+    userOps.listAllUsers = function (params, cb) {
+      process.nextTick(() => {
+        cb(Boom.badImplementation())
+      })
+    }
 
     const options = {
       method: 'GET',
@@ -65,16 +64,18 @@ lab.experiment('Users', () => {
   })
 
   lab.test('get single user', (done) => {
-    let user = {
+    let expected = {
       id: 1,
       name: 'John',
       policies: [],
       team: []
     }
 
-    nock('http://localhost:8080')
-      .get('/authorization/users/1')
-      .reply(200, user)
+    userOps.readUserById = function (params, cb) {
+      process.nextTick(() => {
+        cb(null, expected)
+      })
+    }
 
     const options = {
       method: 'GET',
@@ -82,19 +83,21 @@ lab.experiment('Users', () => {
     }
 
     server.inject(options, (response) => {
-      const result = JSON.parse(response.result)
+      const result = response.result
 
       expect(response.statusCode).to.equal(200)
-      expect(result).to.equal(user)
+      expect(result).to.equal(expected)
 
       done()
     })
   })
 
   lab.test('get single user should return error for error case', (done) => {
-    nock('http://localhost:8080')
-      .get('/authorization/users/99')
-      .reply(500)
+    userOps.readUserById = function (params, cb) {
+      process.nextTick(() => {
+        cb(Boom.badImplementation())
+      })
+    }
 
     const options = {
       method: 'GET',
@@ -119,9 +122,11 @@ lab.experiment('Users', () => {
       team: []
     }
 
-    nock('http://localhost:8080')
-      .post('/authorization/users')
-      .reply(201, newUserStub)
+    userOps.createUser = function (params, cb) {
+      process.nextTick(() => {
+        cb(null, newUserStub)
+      })
+    }
 
     const options = {
       method: 'POST',
@@ -132,7 +137,7 @@ lab.experiment('Users', () => {
     }
 
     server.inject(options, (response) => {
-      const result = JSON.parse(response.result)
+      const result = response.result
 
       expect(response.statusCode).to.equal(201)
       expect(result).to.equal(newUserStub)
@@ -142,27 +147,33 @@ lab.experiment('Users', () => {
   })
 
   lab.test('create user should return 400 bad request if input validation fails', (done) => {
-    nock('http://localhost:8080')
-      .post('/authorization/users')
-      .reply(400)
-
     const options = {
       method: 'POST',
       url: '/authorization/users',
-      payload: {}
+      payload: {
+
+      }
     }
 
     server.inject(options, (response) => {
+      const result = response.result
+
       expect(response.statusCode).to.equal(400)
+      expect(result).to.equal({
+        statusCode: 400,
+        error: 'Bad Request'
+      })
 
       done()
     })
   })
 
   lab.test('create user should return error for error case', (done) => {
-    nock('http://localhost:8080')
-      .post('/authorization/users')
-      .reply(500)
+    userOps.createUser = function (params, cb) {
+      process.nextTick(() => {
+        cb(Boom.badImplementation())
+      })
+    }
 
     const options = {
       method: 'POST',
@@ -183,9 +194,11 @@ lab.experiment('Users', () => {
   })
 
   lab.test('delete user should return 204 if success', (done) => {
-    nock('http://localhost:8080')
-      .delete('/authorization/users/1')
-      .reply(204)
+    userOps.deleteUserById = function (params, cb) {
+      process.nextTick(() => {
+        cb()
+      })
+    }
 
     const options = {
       method: 'DELETE',
@@ -203,9 +216,11 @@ lab.experiment('Users', () => {
   })
 
   lab.test('delete user should return error for error case', (done) => {
-    nock('http://localhost:8080')
-      .delete('/authorization/users/1')
-      .reply(500)
+    userOps.deleteUserById = function (params, cb) {
+      process.nextTick(() => {
+        cb(Boom.badImplementation())
+      })
+    }
 
     const options = {
       method: 'DELETE',
@@ -223,14 +238,14 @@ lab.experiment('Users', () => {
   })
 
   lab.test('update user should return 200 for success', (done) => {
-    let user = {
-      id: 3,
-      name: 'Joe'
+    userOps.updateUser = function (params, cb) {
+      process.nextTick(() => {
+        cb(null, {
+          id: 3,
+          name: 'Joe'
+        })
+      })
     }
-
-    nock('http://localhost:8080')
-      .put('/authorization/users/3')
-      .reply(200, user)
 
     const options = {
       method: 'PUT',
@@ -241,7 +256,7 @@ lab.experiment('Users', () => {
     }
 
     server.inject(options, (response) => {
-      const result = JSON.parse(response.result)
+      const result = response.result
 
       expect(response.statusCode).to.equal(200)
       expect(result).to.equal({
@@ -254,9 +269,11 @@ lab.experiment('Users', () => {
   })
 
   lab.test('update user should return error for error case', (done) => {
-    nock('http://localhost:8080')
-      .put('/authorization/users/1')
-      .reply(500)
+    userOps.updateUser = function (params, cb) {
+      process.nextTick(() => {
+        cb(Boom.badImplementation())
+      })
+    }
 
     const options = {
       method: 'PUT',

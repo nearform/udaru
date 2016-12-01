@@ -26,13 +26,14 @@
     "boom": "^4.2.0",
     "good": "^6.4.0",
     "good-console": "^5.1.0",
+    "h2o2": "^5.4.0",
     "hapi": "^10.5.0",
-    "mu": "^1.1.0",
     "reconfig": "^3.2.0"
   },
   "devDependencies": {
     "code": "^4.0.0",
     "lab": "^11.1.0",
+    "nock": "^9.0.2",
     "pre-commit": "^1.1.3",
     "spacey-standard": "^3.0.0",
     "tap": "^7.1.2"
