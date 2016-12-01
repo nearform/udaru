@@ -10,11 +10,6 @@ module.exports = new Reconfig({
     max: 10,
     idleTimeoutMillis: 30000
   },
-  mu: {
-    port: 8080,
-    host: 'localhost',
-    logLevel: 'info'
-  },
   hapi: {
     port: 8080,
     host: 'localhost'
