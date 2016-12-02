@@ -109,6 +109,53 @@ The test data in the database are going to be reloaded when running `npm test` f
 
 Please ignore any security bad practices at the minute, as the security stories have not yet been implemented
 
+### ENV variables to set configuration options
+
+`service` and `api` have a default configuration in their `config.js` files ([`api/lib/config.js`](https://github.com/nearform/labs-authorization/blob/master/api/lib/config.js) and [`service/lib/config.js`](https://github.com/nearform/labs-authorization/blob/master/service/lib/config.js)).
+
+This configuration is the one used in dev environment and we are quite sure the production one will be different :) To override this configuration you can use ENV variables on the server/container/machine you will run the app(s) on.
+
+Both `api` and `service` will have a different prefix ([api](https://github.com/nearform/labs-authorization/blob/master/api/lib/config.js#L20) , [service](https://github.com/nearform/labs-authorization/blob/master/service/lib/config.js#L29)) for their config ovirride ENV variables:
+
+Some example:
+
+```
+# api config
+
+{
+  server: {
+    port: 8000
+  }
+}
+
+# env variable override
+
+LABS_AUTH_API_server_port=9023
+```
+
+```
+# service config
+
+{
+  security: {
+    api: {
+      servicekeys: {
+        private: [
+          '123456789'
+        ]
+      }
+    }
+  }
+}
+
+# env variable override
+
+LABS_AUTH_SERVICE_security_api_servicekeys_private_0=jerfkgfjdedfkg3j213i43u31jk2erwegjndf
+```
+
+To achieve this we use the [`reconfig`](https://github.com/namshi/reconfig) module
+
+
 ## Solution Usage
 
 There are three interfaces for using Authorization:
@@ -117,7 +164,7 @@ There are three interfaces for using Authorization:
 * Public facing REST API: direct API usage, from admin scripts or a custom Administration tool.
 * Backend microservice API: direct internal usage of the Authorization service.
 
-This looks somewhat as follows: 
+This looks somewhat as follows:
 
 ![Authorization Architecture](./docs/authorization.png)
 
