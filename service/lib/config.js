@@ -20,10 +20,12 @@ module.exports = new Reconfig({
     }
   },
   security: {
-    api_service_keys: {
-      private: [
-        '123456789'
-      ]
+    api: {
+      servicekeys: {
+        private: [
+          '123456789'
+        ]
+      }
     }
   }
 }, { envPrefix: 'LABS_AUTH_SERVICE' })
