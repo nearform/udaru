@@ -8,7 +8,7 @@ const async = require('async')
 const UserOps = require('../../../lib/userOps')
 const utils = require('../../utils')
 
-lab.experiment('teamOps', () => {
+lab.experiment('userOps', () => {
   lab.test('should return an error if the db connection fails', (done) => {
     var userOps = UserOps(utils.getDbPollConnectionError(), {debug: () => {}})
     var functionsUnderTest = ['listAllUsers', 'listOrgUsers', 'createUser', 'createUserById', 'readUserById', 'updateUser', 'deleteUserById', 'getUserByToken']

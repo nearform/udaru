@@ -10,15 +10,10 @@ module.exports = function (dbPool, log) {
     * no query args (but may e.g. sort in future)
     */
     listAllTeams: function listAllTeams (args, cb) {
-      dbPool.connect(function (err, client, done) {
+      dbPool.query('SELECT  id, name, description from teams ORDER BY UPPER(name)', function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
 
-        client.query('SELECT  id, name, description from teams ORDER BY UPPER(name)', function (err, result) {
-          done() // release the client back to the pool
-          if (err) return cb(Boom.badImplementation(err))
-
-          return cb(null, result.rows)
-        })
+        return cb(null, result.rows)
       })
     },
 
@@ -26,15 +21,10 @@ module.exports = function (dbPool, log) {
     * $1 = org_id
     */
     listOrgTeams: function listOrgTeams (args, cb) {
-      dbPool.connect(function (err, client, done) {
+      dbPool.query('SELECT  id, name, description from teams WHERE org_id = $1 ORDER BY UPPER(name)', args, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
 
-        client.query('SELECT  id, name, description from teams WHERE org_id = $1 ORDER BY UPPER(name)', args, function (err, result) {
-          done() // release the client back to the pool
-          if (err) return cb(Boom.badImplementation(err))
-
-          return cb(null, result.rows)
-        })
+        return cb(null, result.rows)
       })
     },
 
@@ -45,20 +35,39 @@ module.exports = function (dbPool, log) {
     * $4 = org_id
     */
     createTeam: function createTeam (args, cb) {
+      var team
+      const tasks = []
+
       dbPool.connect(function (err, client, done) {
         if (err) return cb(Boom.badImplementation(err))
 
-        client.query('INSERT INTO teams (id, name, description, team_parent_id, org_id) VALUES (DEFAULT, $1, $2, $3, $4) RETURNING id', args, function (err, result) {
-          done() // release the client back to the pool
-          if (err) return cb(Boom.badImplementation(err))
+        tasks.push((next) => { client.query('BEGIN', next) })
+        tasks.push((next) => {
+          client.query('INSERT INTO teams (id, name, description, team_parent_id, org_id) VALUES (DEFAULT, $1, $2, $3, $4) RETURNING id', args, function (err, result) {
+            if (err) return next(err)
 
-          const team = result.rows[0]
-
-          TeamOps.readTeamById([team.id], function (err, result) {
-            if (err) return cb(Boom.badImplementation(err))
-
-            return cb(null, result)
+            team = result.rows[0]
+            next()
           })
+        })
+        tasks.push((next) => { client.query('COMMIT', next) })
+        tasks.push((next) => {
+          TeamOps.readTeamById([team.id], function (err, result) {
+            if (err) return next(err)
+
+            team = result
+            next()
+          })
+        })
+
+        async.series(tasks, (err) => {
+          if (err) {
+            dbUtil.rollback(client, done)
+            return cb(err.isBoom ? err : Boom.badImplementation(err))
+          }
+
+          done()
+          return cb(null, team)
         })
       })
     },
@@ -74,46 +83,50 @@ module.exports = function (dbPool, log) {
         users: [],
         policies: []
       }
+      const tasks = []
 
       dbPool.connect((err, client, done) => {
         if (err) return cb(Boom.badImplementation(err))
 
-        client.query('SELECT id, name, description from teams WHERE id = $1', args, (err, result) => {
-          if (err) {
-            done() // release the client back to the pool
-            return cb(Boom.badImplementation(err))
-          }
+        tasks.push((next) => {
+          client.query('SELECT id, name, description from teams WHERE id = $1', args, (err, result) => {
+            if (err) return next(err)
+            if (result.rowCount === 0) return next(Boom.notFound())
 
-          if (result.rowCount === 0) {
-            done()
-            return cb(Boom.notFound())
-          }
+            team.id = result.rows[0].id
+            team.name = result.rows[0].name
+            team.description = result.rows[0].description
+            next()
+          })
+        })
 
-          team.id = result.rows[0].id
-          team.name = result.rows[0].name
-          team.description = result.rows[0].description
-
+        tasks.push((next) => {
           client.query('SELECT users.id, users.name from team_members mem, users WHERE mem.team_id = $1 and mem.user_id = users.id ORDER BY UPPER(users.name)', args, function (err, result) {
-            if (err) {
-              done() // release the client back to the pool
-              return cb(Boom.badImplementation(err))
-            }
+            if (err) return next(err)
 
             result.rows.forEach(function (row) {
               team.users.push(row)
             })
-
-            client.query('SELECT pol.id, pol.name from team_policies tpol, policies pol WHERE tpol.team_id = $1 and tpol.policy_id = pol.id ORDER BY UPPER(pol.name)', args, function (err, result) {
-              done() // release the client back to the pool
-              if (err) return cb(Boom.badImplementation(err))
-
-              result.rows.forEach(function (row) {
-                team.policies.push(row)
-              })
-
-              return cb(null, team)
-            })
+            next()
           })
+        })
+
+        tasks.push((next) => {
+          client.query('SELECT pol.id, pol.name from team_policies tpol, policies pol WHERE tpol.team_id = $1 and tpol.policy_id = pol.id ORDER BY UPPER(pol.name)', args, function (err, result) {
+            if (err) return next(err)
+
+            result.rows.forEach(function (row) {
+              team.policies.push(row)
+            })
+            next()
+          })
+        })
+
+        async.series(tasks, (err) => {
+          if (err) return cb(err.isBoom ? err : Boom.badImplementation(err))
+
+          done()
+          return cb(null, team)
         })
       })
     },
@@ -139,72 +152,35 @@ module.exports = function (dbPool, log) {
           return cb(Boom.badImplementation(err))
         }
 
-        tasks.push((next) => {
-          client.query('BEGIN', (err, res) => {
-            if (err) return next(Boom.badImplementation(err))
-            next()
-          })
-        })
-
+        tasks.push((next) => { client.query('BEGIN', next) })
         tasks.push((next) => {
           client.query('UPDATE teams SET name = $2, description = $3 WHERE id = $1', [id, name, description], (err, res) => {
-            if (err) return next(Boom.badImplementation(err))
+            if (err) return next(err)
             if (res.rowCount === 0) return next(Boom.notFound())
 
             next()
           })
         })
-
-        tasks.push((next) => {
-          client.query('DELETE FROM team_members WHERE team_id = $1', [id], (err) => {
-            if (err) return next(Boom.badImplementation(err))
-
-            next()
-          })
-        })
+        tasks.push((next) => { client.query('DELETE FROM team_members WHERE team_id = $1', [id], next) })
 
         if (users.length > 0) {
-          tasks.push((next) => {
-            const stmt = dbUtil.buildInsertStmt('INSERT INTO team_members (user_id, team_id) VALUES ', users.map(p => [p.id, id]))
-            client.query(stmt.statement, stmt.params, (err) => {
-              if (err) return next(Boom.badImplementation(err))
-
-              next()
-            })
-          })
+          const stmt = dbUtil.buildInsertStmt('INSERT INTO team_members (user_id, team_id) VALUES ', users.map(p => [p.id, id]))
+          tasks.push((next) => { client.query(stmt.statement, stmt.params, next) })
         }
 
-        tasks.push((next) => {
-          client.query('DELETE FROM team_policies WHERE team_id = $1', [id], (err) => {
-            if (err) return next(Boom.badImplementation(err))
-
-            next()
-          })
-        })
+        tasks.push((next) => { client.query('DELETE FROM team_policies WHERE team_id = $1', [id], next) })
 
         if (policies.length > 0) {
-          tasks.push((next) => {
-            const stmt = dbUtil.buildInsertStmt('INSERT INTO team_policies (policy_id, team_id) VALUES ', policies.map(p => [p.id, id]))
-            client.query(stmt.statement, stmt.params, (err) => {
-              if (err) return next(Boom.badImplementation(err))
-
-              next()
-            })
-          })
+          const stmt = dbUtil.buildInsertStmt('INSERT INTO team_policies (policy_id, team_id) VALUES ', policies.map(p => [p.id, id]))
+          tasks.push((next) => { client.query(stmt.statement, stmt.params, next) })
         }
 
-        tasks.push((next) => {
-          client.query('COMMIT', (err) => {
-            if (err) return next(Boom.badImplementation(err))
-
-            next()
-          })
-        })
+        tasks.push((next) => { client.query('COMMIT', next) })
 
         async.series(tasks, (err) => {
           if (err) {
             dbUtil.rollback(client, done)
-            return cb(err)
+            return cb(err.isBoom ? err : Boom.badImplementation(err))
           }
 
           done()
@@ -221,30 +197,12 @@ module.exports = function (dbPool, log) {
       dbPool.connect(function (err, client, done) {
         if (err) return cb(Boom.badImplementation(err))
 
-        tasks.push((next) => {
-          client.query('BEGIN', (err) => {
-            if (err) return next(Boom.badImplementation(err))
-            next()
-          })
-        })
-
-        tasks.push((next) => {
-          client.query('DELETE from team_members WHERE team_id = $1', args, (err, result) => {
-            if (err) return next(Boom.badImplementation(err))
-            next()
-          })
-        })
-
-        tasks.push((next) => {
-          client.query('DELETE from team_policies WHERE team_id = $1', args, (err, result) => {
-            if (err) return next(Boom.badImplementation(err))
-            next()
-          })
-        })
-
+        tasks.push((next) => { client.query('BEGIN', next) })
+        tasks.push((next) => { client.query('DELETE from team_members WHERE team_id = $1', args, next) })
+        tasks.push((next) => { client.query('DELETE from team_policies WHERE team_id = $1', args, next) })
         tasks.push((next) => {
           client.query('DELETE from teams WHERE id = $1', args, (err, result) => {
-            if (err) return next(Boom.badImplementation(err))
+            if (err) return next(err)
             if (result.rowCount === 0) return next(Boom.notFound())
 
             log.debug('delete team result: %j', result)
@@ -252,18 +210,12 @@ module.exports = function (dbPool, log) {
             next()
           })
         })
-
-        tasks.push((next) => {
-          client.query('COMMIT', (err) => {
-            if (err) return next(Boom.badImplementation(err))
-            next()
-          })
-        })
+        tasks.push((next) => { client.query('COMMIT', next) })
 
         async.series(tasks, (err) => {
           if (err) {
             dbUtil.rollback(client, done) // done here; release the client
-            return cb(err)
+            return cb(err.isBoom ? err : Boom.badImplementation(err))
           }
 
           done()
