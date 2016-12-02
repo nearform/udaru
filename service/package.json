@@ -36,7 +36,6 @@
     "pino": "^3.0.2",
     "pre-commit": "^1.1.3",
     "proxyquire": "^1.7.10",
-    "spacey-standard": "^3.0.0",
-    "tap": "^7.1.2"
+    "spacey-standard": "^3.0.0"
   }
 }

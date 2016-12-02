@@ -112,7 +112,7 @@ module.exports = function (dbPool, log) {
         })
 
         tasks.push((next) => {
-          client.query('SELECT pol.id, pol.name from team_policies tpol, policies pol WHERE tpol.team_id = $1 and tpol.policy_id = pol.id ORDER BY UPPER(pol.name)', args, function (err, result) {
+          client.query('SELECT pol.id, pol.name, pol.version from team_policies tpol, policies pol WHERE tpol.team_id = $1 and tpol.policy_id = pol.id ORDER BY UPPER(pol.name)', args, function (err, result) {
             if (err) return next(err)
 
             result.rows.forEach(function (row) {
@@ -164,7 +164,7 @@ module.exports = function (dbPool, log) {
         tasks.push((next) => { client.query('DELETE FROM team_members WHERE team_id = $1', [id], next) })
 
         if (users.length > 0) {
-          const stmt = dbUtil.buildInsertStmt('INSERT INTO team_members (user_id, team_id) VALUES ', users.map(p => [p.id, id]))
+          const stmt = dbUtil.buildInsertStmt('INSERT INTO team_members (user_id, team_id) VALUES ', users.map(u => [u.id, id]))
           tasks.push((next) => { client.query(stmt.statement, stmt.params, next) })
         }
 

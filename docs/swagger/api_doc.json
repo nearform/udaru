@@ -1,0 +1,869 @@
+{
+    "swagger": "2.0",
+    "host": "localhost:8080",
+    "basePath": "/",
+    "schemes": [
+        "http"
+    ],
+    "info": {
+        "title": "Authorization API Documentation",
+        "version": "1"
+    },
+    "tags": [],
+    "paths": {
+        "/authorization/check/{userId}/{action}/{resource}": {
+            "get": {
+                "summary": "Fetch all the defined policies",
+                "description": "The GET /authorization/check/{userId}/{action}/{resource} endpoint returns is a user can perform and action\non a resource\n",
+                "operationId": "checkAuthorization",
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "type": "number",
+                        "required": true,
+                        "description": "The user that wants to perform the action on a given resource"
+                    },
+                    {
+                        "name": "action",
+                        "in": "path",
+                        "type": "string",
+                        "required": true,
+                        "description": "The action to check"
+                    },
+                    {
+                        "name": "resource",
+                        "in": "path",
+                        "type": "string",
+                        "required": true,
+                        "description": "The resource that the user wants to perform the action on"
+                    }
+                ],
+                "tags": [
+                    "service",
+                    "authorization"
+                ],
+                "responses": {
+                    "200": {
+                        "schema": {
+                            "$ref": "#/definitions/AuthCheck"
+                        },
+                        "description": "Successful"
+                    }
+                }
+            }
+        },
+        "/authorization/list/{userId}/{resource}": {
+            "get": {
+                "summary": "Fetch all the defined policies",
+                "description": "The GET /authorization/list/{userId}/{resource} endpoint returns a list of all the actions a user\ncan perform on a given resource\n",
+                "operationId": "getActionsForResource",
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "type": "number",
+                        "required": true,
+                        "description": "The user that wants to perform the action on a given resource"
+                    },
+                    {
+                        "name": "resource",
+                        "in": "path",
+                        "type": "string",
+                        "required": true,
+                        "description": "The resource that the user wants to perform the action on"
+                    }
+                ],
+                "tags": [
+                    "service",
+                    "authorization"
+                ],
+                "responses": {
+                    "200": {
+                        "schema": {
+                            "$ref": "#/definitions/Actions"
+                        },
+                        "description": "Successful"
+                    }
+                }
+            }
+        },
+        "/authorization/teams": {
+            "get": {
+                "summary": "Fetch all teams",
+                "description": "The GET /authorization/teams endpoint returns a list of all teams\n",
+                "operationId": "getTeamsList",
+                "tags": [
+                    "service",
+                    "teams"
+                ],
+                "responses": {
+                    "200": {
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/TeamList"
+                            }
+                        },
+                        "description": "Successful"
+                    }
+                }
+            },
+            "post": {
+                "summary": "Create a new team",
+                "description": "The POST /authorization/teams endpoint creates a new team given its data\n",
+                "operationId": "createTeam",
+                "parameters": [
+                    {
+                        "name": "team",
+                        "in": "body",
+                        "required": true,
+                        "description": "The data to use to create a new team",
+                        "schema": {
+                            "$ref": "#/definitions/TeamCreate"
+                        }
+                    }
+                ],
+                "tags": [
+                    "service",
+                    "teams"
+                ],
+                "responses": {
+                    "201": {
+                        "schema": {
+                            "$ref": "#/definitions/Team"
+                        },
+                        "description": "Successful"
+                    }
+                }
+            }
+        },
+        "/authorization/teams/{id}": {
+            "get": {
+                "summary": "Fetch a team given its identifier",
+                "description": "The GET /authorization/teams/{id} endpoint returns a single team data\n",
+                "operationId": "getTeam",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "type": "string",
+                        "required": true,
+                        "description": "The team id"
+                    }
+                ],
+                "tags": [
+                    "service",
+                    "teams"
+                ],
+                "responses": {
+                    "200": {
+                        "schema": {
+                            "$ref": "#/definitions/Team"
+                        },
+                        "description": "Successful"
+                    }
+                }
+            },
+            "put": {
+                "summary": "Update a team",
+                "description": "The PUT /authorization/teams endpoint updates a team data\n",
+                "operationId": "updateTeam",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "type": "string",
+                        "required": true,
+                        "description": "The team id"
+                    },
+                    {
+                        "name": "team",
+                        "in": "body",
+                        "required": true,
+                        "description": "The data to use to update a team",
+                        "schema": {
+                            "$ref": "#/definitions/TeamUpdate"
+                        }
+                    }
+                ],
+                "tags": [
+                    "service",
+                    "teams"
+                ],
+                "responses": {
+                    "201": {
+                        "schema": {
+                            "$ref": "#/definitions/Team"
+                        },
+                        "description": "Successful"
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Delete a team",
+                "description": "The DELETE /authorization/teams endpoint deletes a team\n",
+                "operationId": "deleteTeam",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "type": "string",
+                        "required": true,
+                        "description": "The team id"
+                    }
+                ],
+                "tags": [
+                    "service",
+                    "teams"
+                ],
+                "responses": {
+                    "204": {
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Successful"
+                    }
+                }
+            }
+        },
+        "/authorization/users": {
+            "get": {
+                "summary": "Fetch all users",
+                "description": "The GET /authorization/users endpoint returns a list of all users\n",
+                "operationId": "getUsersList",
+                "tags": [
+                    "service",
+                    "users"
+                ],
+                "responses": {
+                    "200": {
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/UserList"
+                            }
+                        },
+                        "description": "Successful"
+                    }
+                }
+            },
+            "post": {
+                "summary": "Create a new user",
+                "description": "The POST /authorization/users endpoint creates a new user given its data\n",
+                "operationId": "createUser",
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "description": "The data to use to create a new team",
+                        "schema": {
+                            "$ref": "#/definitions/UserCreate"
+                        }
+                    }
+                ],
+                "tags": [
+                    "service",
+                    "users"
+                ],
+                "responses": {
+                    "201": {
+                        "schema": {
+                            "$ref": "#/definitions/User"
+                        },
+                        "description": "Successful"
+                    }
+                }
+            }
+        },
+        "/authorization/users/{id}": {
+            "get": {
+                "summary": "Fetch a user given its identifier",
+                "description": "The GET /authorization/users/{id} endpoint returns a single user data\n",
+                "operationId": "getUser",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "type": "string",
+                        "required": true,
+                        "description": "The user id"
+                    }
+                ],
+                "tags": [
+                    "service",
+                    "users"
+                ],
+                "responses": {
+                    "200": {
+                        "schema": {
+                            "$ref": "#/definitions/User"
+                        },
+                        "description": "Successful"
+                    }
+                }
+            },
+            "put": {
+                "summary": "Update a user",
+                "description": "The PUT /authorization/users endpoint updates a user data\n",
+                "operationId": "updateUser",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "type": "string",
+                        "required": true,
+                        "description": "The user id"
+                    },
+                    {
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "description": "The data to use to update a user",
+                        "schema": {
+                            "$ref": "#/definitions/UserUpdate"
+                        }
+                    }
+                ],
+                "tags": [
+                    "service",
+                    "users"
+                ],
+                "responses": {
+                    "201": {
+                        "schema": {
+                            "$ref": "#/definitions/User"
+                        },
+                        "description": "Successful"
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Delete a user",
+                "description": "The DELETE /authorization/users endpoint deletes a user\n",
+                "operationId": "deleteUser",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "type": "string",
+                        "required": true,
+                        "description": "The user id"
+                    }
+                ],
+                "tags": [
+                    "service",
+                    "users"
+                ],
+                "responses": {
+                    "204": {
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Successful"
+                    }
+                }
+            }
+        },
+        "/authorization/policies": {
+            "get": {
+                "summary": "Fetch all the defined policies",
+                "description": "The GET /authorization/policies endpoint returns a list of all the defined policies\nthe policies will contain only the id, version and name, no statements.\n",
+                "operationId": "getAuthorizationPolicies",
+                "tags": [
+                    "service",
+                    "policies"
+                ],
+                "responses": {
+                    "200": {
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/PolicyList"
+                            }
+                        },
+                        "description": "Successful"
+                    },
+                    "403": {
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Not authorized"
+                    }
+                }
+            },
+            "post": {
+                "summary": "Create a new policy",
+                "description": "The POST /authorization/policies endpoint is a private endpoint. It can be accessed only using a service key.\nThis service key needs to be passed as a query string in the form \"sig=<key>\"\n",
+                "operationId": "postAuthorizationPolicies",
+                "parameters": [
+                    {
+                        "name": "sig",
+                        "in": "query",
+                        "type": "string",
+                        "required": true,
+                        "description": "The service key to be provided"
+                    },
+                    {
+                        "name": "policy",
+                        "in": "body",
+                        "required": true,
+                        "description": "The service key to be provided",
+                        "schema": {
+                            "$ref": "#/definitions/PolicyCreate"
+                        }
+                    }
+                ],
+                "tags": [
+                    "service",
+                    "policies"
+                ],
+                "responses": {
+                    "201": {
+                        "schema": {
+                            "$ref": "#/definitions/PolicyCreate"
+                        },
+                        "description": "Successful"
+                    }
+                }
+            }
+        },
+        "/authorization/policies/{id}": {
+            "get": {
+                "summary": "Fetch all the defined policies",
+                "description": "The GET /authorization/policies/{id} endpoint returns a single policy based on it's id.\n",
+                "operationId": "getAuthorizationPolicy",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "type": "string",
+                        "required": true,
+                        "description": "The policy id"
+                    }
+                ],
+                "tags": [
+                    "service",
+                    "policies"
+                ],
+                "responses": {
+                    "200": {
+                        "schema": {
+                            "$ref": "#/definitions/Policy"
+                        },
+                        "description": "Successful"
+                    }
+                }
+            },
+            "put": {
+                "summary": "Update a policy",
+                "description": "The PUT /authorization/policies/{id} endpoint is a private endpoint. It can be accessed only using a service key.\nThis service key needs to be passed as a query string in the form \"sig=<key>\"\n",
+                "operationId": "putAuthorizationPolicies",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "type": "string",
+                        "required": true,
+                        "description": "The policy id"
+                    },
+                    {
+                        "name": "sig",
+                        "in": "query",
+                        "type": "string",
+                        "required": true,
+                        "description": "The service key to be provided"
+                    },
+                    {
+                        "name": "policy",
+                        "in": "body",
+                        "required": true,
+                        "description": "The service key to be provided",
+                        "schema": {
+                            "$ref": "#/definitions/PolicyCreate"
+                        }
+                    }
+                ],
+                "tags": [
+                    "service",
+                    "policies"
+                ],
+                "responses": {
+                    "200": {
+                        "schema": {
+                            "$ref": "#/definitions/Policy"
+                        },
+                        "description": "Successful"
+                    },
+                    "403": {
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Not authorized"
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Delete a policy",
+                "description": "The DELETE /authorization/policies/{id} endpoint is a private endpoint. It can be accessed only using a service key.\nThis service key needs to be passed as a query string in the form \"sig=<key>\"\n",
+                "operationId": "deleteAuthorizationPolicies",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "type": "string",
+                        "required": true,
+                        "description": "The policy id"
+                    },
+                    {
+                        "name": "sig",
+                        "in": "query",
+                        "type": "string",
+                        "required": true,
+                        "description": "The service key to be provided"
+                    }
+                ],
+                "tags": [
+                    "service",
+                    "policies"
+                ],
+                "responses": {
+                    "204": {
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Successful"
+                    },
+                    "403": {
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Not authorized"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "Actions": {
+            "type": "object",
+            "properties": {
+                "actions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "AuthCheck": {
+            "type": "object",
+            "properties": {
+                "access": {
+                    "type": "boolean",
+                    "description": "The result of the check if a user can perform an action on a resource"
+                }
+            }
+        },
+        "PolicyList": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "number",
+                    "description": "Unique identifier representing a specific policy"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "The name of the policy"
+                },
+                "version": {
+                    "type": "string",
+                    "description": "version identifier"
+                }
+            }
+        },
+        "Policy": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "number",
+                    "description": "Unique identifier representing a specific policy"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "The name of the policy"
+                },
+                "version": {
+                    "type": "string",
+                    "description": "version identifier"
+                },
+                "statements": {
+                    "$ref": "#/definitions/Statement"
+                }
+            }
+        },
+        "PolicyCreate": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "The name of the policy"
+                },
+                "version": {
+                    "type": "number",
+                    "description": "version number"
+                },
+                "org_id": {
+                    "type": "string",
+                    "description": "Organization identifier"
+                },
+                "statements": {
+                    "$ref": "#/definitions/Statements"
+                }
+            }
+        },
+        "Statements": {
+            "type": "object",
+            "properties": {
+                "Statement": {
+                    "$ref": "#/definitions/Statement"
+                }
+            }
+        },
+        "Statement": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/RawPolicy"
+            }
+        },
+        "RawPolicy": {
+            "type": "object",
+            "properties": {
+                "Effect": {
+                    "type": "string",
+                    "description": "Allow or Deny"
+                },
+                "Action": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "which action(s) the policy refers to"
+                },
+                "Resource": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "the resouce(s) the policy refers to, regexp wildcards are allowed"
+                }
+            }
+        },
+        "TeamList": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/Team"
+            }
+        },
+        "Team": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "number",
+                    "description": "Team identifier"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Name of the team"
+                },
+                "description": {
+                    "type": "string",
+                    "description": "A brief description of the team"
+                },
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/UserReference"
+                    }
+                },
+                "policies": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/PolicyReference"
+                    }
+                }
+            }
+        },
+        "TeamUpdate": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "Name of the team"
+                },
+                "description": {
+                    "type": "string",
+                    "description": "A brief description of the team"
+                },
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "number",
+                                "description": "User identifier"
+                            }
+                        }
+                    }
+                },
+                "policies": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "number",
+                                "description": "Policy identifier"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "TeamCreate": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "Name of the team"
+                },
+                "description": {
+                    "type": "string",
+                    "description": "A brief description of the team"
+                }
+            }
+        },
+        "UserReference": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "number",
+                    "description": "User identifier"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "User name"
+                }
+            }
+        },
+        "PolicyReference": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "number",
+                    "description": "Policy identifier"
+                },
+                "version": {
+                    "type": "number",
+                    "description": "Policy version"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Policy name"
+                }
+            }
+        },
+        "TeamReference": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "number",
+                    "description": "Team identifier"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Team name"
+                }
+            }
+        },
+        "UserList": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/User"
+            }
+        },
+        "User": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "number",
+                    "description": "User identifier"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Name of the user"
+                },
+                "org_id": {
+                    "type": "string",
+                    "description": "User's organization"
+                },
+                "teams": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/TeamReference"
+                    }
+                },
+                "policies": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/PolicyReference"
+                    }
+                }
+            }
+        },
+        "UserUpdate": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "Name of the user"
+                },
+                "teams": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "number",
+                                "description": "Team identifier"
+                            }
+                        }
+                    }
+                },
+                "policies": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "number",
+                                "description": "Policy identifier"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "UserCreate": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "Name of the user"
+                }
+            }
+        }
+    }
+}
