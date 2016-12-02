@@ -10,10 +10,7 @@ const utils = require('../../utils')
 
 lab.experiment('policyOps', () => {
   lab.test('should return an error if the db connection fails', (done) => {
-    var dbPool = {connect: function (cb) {
-      cb(new Error('connection error test'))
-    }}
-    var policyOps = PolicyOps(dbPool)
+    var policyOps = PolicyOps(utils.getDbPollConnectionError())
     var functionsUnderTest = ['listAllUserPolicies', 'listAllPolicies', 'listAllPoliciesDetails', 'readPolicyById', 'createPolicy', 'updatePolicy', 'deletePolicyById']
     var tasks = []
 
@@ -27,15 +24,8 @@ lab.experiment('policyOps', () => {
   })
 
   lab.test('should return an error if the db query fails', (done) => {
-    var dbPool = {connect: function (cb) {
-      var client = {query: (sql, params, cb) => {
-        cb = cb || params
-        cb(new Error('query error test'))
-      }}
-      cb(undefined, client, () => {})
-    }}
-    var policyOps = PolicyOps(dbPool)
-    var functionsUnderTest = ['listAllUserPolicies', 'listAllPolicies', 'listAllPoliciesDetails', 'readPolicyById', 'createPolicy', 'updatePolicy', 'deletePolicyById']
+    var policyOps = PolicyOps(utils.getDbPollFirstQueryError())
+    var functionsUnderTest = ['listAllUserPolicies', 'listAllPolicies', 'listAllPoliciesDetails', 'readPolicyById', 'updatePolicy', 'deletePolicyById', 'createPolicy']
     var tasks = []
 
     functionsUnderTest.forEach((f) => {
@@ -48,12 +38,7 @@ lab.experiment('policyOps', () => {
   })
 
   lab.test('readPolicyById should return an error if the query has row count 0', (done) => {
-    var dbPool = {connect: function (cb) {
-      var client = {query: (sql, params, cb) => {
-        cb(undefined, {rowCount: 0})
-      }}
-      cb(undefined, client, () => {})
-    }}
+    var dbPool = utils.getDbPoolErrorForQueryOrRowCount(undefined, {testRollback: true, expect: expect}, {rowCount: 0})
     var policyOps = PolicyOps(dbPool)
 
     policyOps.readPolicyById([1], utils.testError(expect, 'Not Found', done))
