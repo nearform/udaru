@@ -41,39 +41,10 @@ module.exports = function (dbPool, log) {
     * $1 = name, $2 = org_id
     */
     createUser: function createUser (args, cb) {
-      const tasks = []
-      var user
-
-      dbPool.connect(function (err, client, done) {
+      dbPool.query('INSERT INTO users (id, name, org_id) VALUES (DEFAULT, $1, $2) RETURNING id', args, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
 
-        tasks.push((next) => { client.query('BEGIN', next) })
-        tasks.push((next) => {
-          client.query('INSERT INTO users (id, name, org_id) VALUES (DEFAULT, $1, $2) RETURNING id', args, function (err, result) {
-            if (err) return next(err)
-
-            user = {id: result.rows[0].id}
-            next()
-          })
-        })
-        tasks.push((next) => { client.query('COMMIT', next) })
-        tasks.push((next) => {
-          userOps.readUserById([user.id], function (err, result) {
-            if (err) return next(err)
-
-            user = result
-            next()
-          })
-        })
-
-        async.series(tasks, (err) => {
-          if (err) {
-            return cb(err.isBoom ? err : Boom.badImplementation(err))
-          }
-
-          done()
-          return cb(null, user)
-        })
+        userOps.readUserById([result.rows[0].id], cb)
       })
     },
 
@@ -82,32 +53,10 @@ module.exports = function (dbPool, log) {
     * (allows passing in of ID for test purposes)
     */
     createUserById: function createUserById (args, cb) {
-      const tasks = []
-      var user
-
-      dbPool.connect(function (err, client, done) {
+      dbPool.query('INSERT INTO users (id, name, org_id) VALUES ($1, $2, $3)', args, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
 
-        tasks.push((next) => { client.query('BEGIN', next) })
-        tasks.push((next) => { client.query('INSERT INTO users (id, name, org_id) VALUES ($1, $2, $3)', args, next) })
-        tasks.push((next) => { client.query('COMMIT', next) })
-        tasks.push((next) => {
-          userOps.readUserById([args[0]], function (err, result) {
-            if (err) return next(err)
-
-            user = result
-            next()
-          })
-        })
-
-        async.series(tasks, (err) => {
-          if (err) {
-            return cb(err.isBoom ? err : Boom.badImplementation(err))
-          }
-
-          done()
-          return cb(null, user)
-        })
+        userOps.readUserById([args[0]], cb)
       })
     },
 
@@ -149,7 +98,7 @@ module.exports = function (dbPool, log) {
         })
 
         tasks.push((next) => {
-          client.query('SELECT pol.id, pol.version, pol.name from user_policies upol, policies pol WHERE upol.user_id = $1 and upol.policy_id = pol.id ORDER BY UPPER(pol.name)', args, function (err, result) {
+          client.query('SELECT pol.id, pol.name, pol.version from user_policies upol, policies pol WHERE upol.user_id = $1 and upol.policy_id = pol.id ORDER BY UPPER(pol.name)', args, function (err, result) {
             if (err) return next(err)
             result.rows.forEach(function (row) {
               user.policies.push(row)
@@ -195,7 +144,7 @@ module.exports = function (dbPool, log) {
         tasks.push((next) => { client.query('DELETE FROM team_members WHERE user_id = $1', [id], next) })
 
         if (teams.length > 0) {
-          let stmt = dbUtil.buildInsertStmt('INSERT INTO team_members (team_id, user_id) VALUES ', teams.map(p => [p.id, id]))
+          let stmt = dbUtil.buildInsertStmt('INSERT INTO team_members (team_id, user_id) VALUES ', teams.map(t => [t.id, id]))
           tasks.push((next) => { client.query(stmt.statement, stmt.params, next) })
         }
 

@@ -48,6 +48,10 @@ server.register(
       options
     },
     {
+      register: require('./routes/public/organizations'),
+      options
+    },
+    {
       register: require('./routes/private/policies'),
       options
     }

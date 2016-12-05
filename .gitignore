@@ -47,3 +47,5 @@ src/integration-testResults/*.xml
 
 .idea/
 .vscode/
+
+.DS_Store
