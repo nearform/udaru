@@ -194,7 +194,7 @@
                 "responses": {
                     "201": {
                         "schema": {
-                            "$ref": "#/definitions/Team"
+                            "$ref": "#/definitions/TeamUpdated"
                         },
                         "description": "Successful"
                     }
@@ -333,7 +333,7 @@
                 "responses": {
                     "201": {
                         "schema": {
-                            "$ref": "#/definitions/User"
+                            "$ref": "#/definitions/UserUpdated"
                         },
                         "description": "Successful"
                     }
@@ -732,6 +732,22 @@
                 }
             }
         },
+        "TeamUpdated": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/TeamUpdate"
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "type": "number",
+                            "description": "Team identifier"
+                        }
+                    }
+                }
+            ]
+        },
         "TeamCreate": {
             "type": "object",
             "properties": {
@@ -855,6 +871,22 @@
                     }
                 }
             }
+        },
+        "UserUpdated": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/UserUpdate"
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "type": "number",
+                            "description": "User identifier"
+                        }
+                    }
+                }
+            ]
         },
         "UserCreate": {
             "type": "object",
