@@ -3,8 +3,11 @@
 const Boom = require('boom')
 const async = require('async')
 const dbUtil = require('./dbUtil')
+const PolicyOps = require('./policyOps')
 
 module.exports = function (dbPool, log) {
+  const policyOps = PolicyOps(dbPool)
+
   var organizationOps = {
 
     /**
@@ -29,11 +32,26 @@ module.exports = function (dbPool, log) {
      */
     create: function create (args, cb) {
       let params = [args.id, args.name, args.description]
+      const tasks = []
 
-      dbPool.query('INSERT INTO organizations (id, name, description) VALUES ($1, $2, $3) RETURNING id', params, function (err, result) {
+      dbPool.connect(function (err, client, done) {
         if (err) return cb(Boom.badImplementation(err))
 
-        organizationOps.readById(result.rows[0].id, cb)
+        tasks.push((next) => { client.query('BEGIN', next) })
+        tasks.push((res, next) => { client.query('INSERT INTO organizations (id, name, description) VALUES ($1, $2, $3) RETURNING id', params, next) })
+        tasks.push((res, next) => { policyOps.createOrgDefaultPolicies(client, res.rows[0].id, next) })
+        tasks.push((res, next) => { client.query('COMMIT', next) })
+        tasks.push((res, next) => { organizationOps.readById(args.id, next) })
+
+        async.waterfall(tasks, (err, result) => {
+          if (err) {
+            dbUtil.rollback(client, done)
+            return cb(err.isBoom ? err : Boom.badImplementation(err))
+          }
+
+          done()
+          return cb(null, result)
+        })
       })
     },
 

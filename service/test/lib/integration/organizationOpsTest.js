@@ -30,13 +30,23 @@ lab.experiment('OrganizationOps', () => {
     })
   })
 
-  lab.test('create an organization (and delete it)', (done) => {
-    organizationOps.create({id: 'nearForm', name: 'nearForm', description: 'nearform description'}, (err, result) => {
+  lab.test('create an organization (and delete it) should create the organization default policies', (done) => {
+    organizationOps.create({id: 'nearForm', name: 'nearForm', description: 'nearform description'}, (err, organization) => {
       expect(err).to.not.exist()
-      expect(result).to.exist()
-      expect(result.name).to.equal('nearForm')
+      expect(organization).to.exist()
+      expect(organization.name).to.equal('nearForm')
 
-      organizationOps.deleteById(result.id, done)
+      policyOps.listByOrganization('nearForm', (err, result) => {
+        expect(err).to.not.exist()
+        expect(result).to.exist()
+        expect(result.length).to.equal(14)
+        expect(result[0].name).to.equal('nearForm admin')
+        expect(result[1].name).to.equal('nearForm authorization:organization:read')
+        expect(result[4].name).to.equal('nearForm authorization:team:create')
+        expect(result[9].name).to.equal('nearForm authorization:user:create')
+
+        organizationOps.deleteById(organization.id, done)
+      })
     })
   })
 

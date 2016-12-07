@@ -13,7 +13,7 @@ CREATE TABLE organizations (
 CREATE TABLE policies (
   id          SERIAL UNIQUE,
   version     VARCHAR(20),
-  name        VARCHAR(30) NOT NULL,
+  name        VARCHAR(64) NOT NULL,
   org_id      VARCHAR REFERENCES organizations(id) NOT NULL,
   statements  JSONB
 );
