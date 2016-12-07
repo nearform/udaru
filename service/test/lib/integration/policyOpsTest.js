@@ -63,7 +63,7 @@ lab.experiment('PolicyOps', () => {
 
       expect(policy.name).to.equal('Documents Admin')
       expect(policy.version).to.equal('2016-07-01')
-      expect(policy.statements).to.equal([{Effect: 'Allow', Action: ['documents:Read'], Resource: ['wonka:documents:/public/*']}])
+      expect(policy.statements).to.equal({Statement: [{Effect: 'Allow', Action: ['documents:Read'], Resource: ['wonka:documents:/public/*']}]})
 
       params[0] = '2016-07-02'
       params[1] = 'Documents Admin v2'
@@ -75,7 +75,7 @@ lab.experiment('PolicyOps', () => {
 
         expect(policy.name).to.equal('Documents Admin v2')
         expect(policy.version).to.equal('2016-07-02')
-        expect(policy.statements).to.equal([{Effect: 'Deny', Action: ['documents:Read'], Resource: ['wonka:documents:/public/*']}])
+        expect(policy.statements).to.equal({Statement: [{Effect: 'Deny', Action: ['documents:Read'], Resource: ['wonka:documents:/public/*']}]})
 
         policyOps.deletePolicyById([policyId], done)
       })
