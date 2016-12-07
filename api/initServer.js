@@ -15,6 +15,7 @@ function init (cb) {
   })
 
   const consoleOptions = config.get('logger.good.options')
+  const swaggerOptions = config.get('swagger.options')
 
   server.register([{
     register: require('good'),
@@ -26,7 +27,8 @@ function init (cb) {
   }, {
     register: require('vision')
   }, {
-    register: require('hapi-swagger')
+    register: require('hapi-swagger'),
+    options: swaggerOptions
   }, {
     register: require('./routes/users')
   }, {
