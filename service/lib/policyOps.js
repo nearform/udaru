@@ -15,7 +15,8 @@ module.exports = function (dbPool) {
         userId
       ]
       /* Query1: For fetching policies attached directly to the user */
-      /* Query2: For fetching policies attached to the teams user belongs to */
+      /* Query2: For fetching policies attached to the teams the user belongs to */
+      /* TO-DO Query3: For fetching policies attached to the organization the user belongs to */
       const sql = `(
 
           SELECT
@@ -89,13 +90,7 @@ module.exports = function (dbPool) {
         if (err) return cb(Boom.badImplementation(err))
         if (result.rowCount === 0) return cb(Boom.notFound())
 
-        var policy = result.rows[0]
-        return cb(null, {
-          id: policy.id,
-          name: policy.name,
-          version: policy.version,
-          statements: policy.statements.Statement
-        })
+        return cb(null, result.rows[0])
       })
     },
 
@@ -149,7 +144,7 @@ module.exports = function (dbPool) {
           }
 
           done()
-          return cb(null, {id, version, name, statements: JSON.parse(statements).Statement})
+          return cb(null, {id, version, name, statements: JSON.parse(statements)})
         })
       })
     },
