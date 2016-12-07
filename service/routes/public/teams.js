@@ -1,6 +1,6 @@
 'use strict'
 
-const Boom = require('boom')
+const Joi = require('joi')
 const TeamOps = require('./../../lib/teamOps')
 
 exports.register = function (server, options, next) {
@@ -20,8 +20,6 @@ exports.register = function (server, options, next) {
     method: 'POST',
     path: '/authorization/teams',
     handler: function (request, reply) {
-      if (!request.payload.name || !request.payload.description) return reply(Boom.badRequest())
-
       const { name, description } = request.payload
 
       const params = [
@@ -38,6 +36,14 @@ exports.register = function (server, options, next) {
 
         return reply(res).code(201)
       })
+    },
+    config: {
+      validate: {
+        payload: {
+          name: Joi.string().required(),
+          description: Joi.string().required()
+        }
+      }
     }
   })
 
@@ -51,6 +57,11 @@ exports.register = function (server, options, next) {
       ]
 
       teamOps.readTeamById(params, reply)
+    },
+    config: {
+      validate: {
+        params: {id: Joi.number().required()}
+      }
     }
   })
 
@@ -73,6 +84,21 @@ exports.register = function (server, options, next) {
       ]
 
       teamOps.updateTeam(params, reply)
+    },
+    config: {
+      validate: {
+        params: {id: Joi.number().required()},
+        payload: {
+          name: Joi.string().required(),
+          description: Joi.string().required(),
+          users: Joi.array().required().items(Joi.object().keys({
+            id: Joi.number().required()
+          })),
+          policies: Joi.array().required().items(Joi.object().keys({
+            id: Joi.number().required()
+          }))
+        }
+      }
     }
   })
 
@@ -92,6 +118,11 @@ exports.register = function (server, options, next) {
 
         return reply().code(204)
       })
+    },
+    config: {
+      validate: {
+        params: {id: Joi.number().required()}
+      }
     }
   })
 

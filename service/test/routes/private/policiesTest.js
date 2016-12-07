@@ -13,7 +13,13 @@ lab.experiment('Policies', () => {
   lab.test('create new policy without a service key should return 403 Forbidden', (done) => {
     const options = {
       method: 'POST',
-      url: '/authorization/policies?sig=1234'
+      url: '/authorization/policies?sig=1234',
+      payload: {
+        version: '2016-07-01',
+        name: 'Documents Admin',
+        orgId: 'WONKA',
+        statements: 'fake-statements'
+      }
     }
 
     server.inject(options, (response) => {
@@ -80,7 +86,13 @@ lab.experiment('Policies', () => {
   lab.test('update new policy without a service key should return 403 Forbidden', (done) => {
     const options = {
       method: 'PUT',
-      url: '/authorization/policies/1?sig=1234'
+      url: '/authorization/policies/1?sig=1234',
+      payload: {
+        version: '2016-07-01',
+        name: 'Documents Admin',
+        orgId: 'WONKA',
+        statements: 'fake-statements'
+      }
     }
 
     server.inject(options, (response) => {

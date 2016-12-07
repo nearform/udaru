@@ -64,7 +64,7 @@ lab.experiment('Authorization', () => {
 
     const options = {
       method: 'GET',
-      url: '/authorization/check/action_a/1/resource_a'
+      url: '/authorization/check/1/action_a/1/resource_a'
     }
 
     server.inject(options, (response) => {
@@ -159,7 +159,7 @@ lab.experiment('Authorization', () => {
 
   lab.test('check authorization should return access true for allowed on URI resource', (done) => {
     authorizeMock.isUserAuthorized = (params, cb) => {
-      expect(params.userId).to.equal('1')
+      expect(params.userId).to.equal(1)
       expect(params.action).to.equal('action_a')
       expect(params.resource).to.equal('/my/resource/uri')
 

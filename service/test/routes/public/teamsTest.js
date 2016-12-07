@@ -186,7 +186,9 @@ lab.experiment('Teams', () => {
       url: '/authorization/teams/2',
       payload: {
         name: 'Team C',
-        description: 'Team B is now Team C'
+        description: 'Team B is now Team C',
+        users: [],
+        policies: []
       }
     }
 
@@ -212,7 +214,9 @@ lab.experiment('Teams', () => {
       url: '/authorization/teams/2',
       payload: {
         name: 'Team D',
-        description: 'Can Team C become Team D?'
+        description: 'Can Team C become Team D?',
+        users: [],
+        policies: []
       }
     }
 

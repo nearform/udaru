@@ -37,20 +37,6 @@ lab.experiment('teamOps', () => {
     async.series(tasks, done)
   })
 
-  lab.test('updateTeam should return an error if users is not an array', (done) => {
-    var dbPool = {}
-    var teamOps = TeamOps(dbPool, () => {})
-
-    teamOps.updateTeam([1, 'test', 'description'], utils.testError(expect, 'Bad Request', done))
-  })
-
-  lab.test('updateTeam should return an error if policies is not an array', (done) => {
-    var dbPool = {}
-    var teamOps = TeamOps(dbPool, () => {})
-
-    teamOps.updateTeam([1, 'test', 'description', []], utils.testError(expect, 'Bad Request', done))
-  })
-
   lab.test('updateTeam should return an error if db transaction fails', (done) => {
     var dbPool = utils.getDbPoolErrorForQueryOrRowCount('BEGIN', {testRollback: true, expect: expect})
     var teamOps = TeamOps(dbPool, () => {})

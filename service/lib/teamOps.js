@@ -143,10 +143,6 @@ module.exports = function (dbPool, log) {
       const [ id, name, description, users, policies ] = args
       const tasks = []
 
-      if (!Array.isArray(users) || !Array.isArray(policies)) {
-        return cb(Boom.badRequest())
-      }
-
       dbPool.connect(function (err, client, done) {
         if (err) {
           return cb(Boom.badImplementation(err))
