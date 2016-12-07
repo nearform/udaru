@@ -106,50 +106,13 @@ module.exports = function (dbPool) {
     * $4 = statements
     */
     createPolicy: function createPolicy (args, cb) {
-      const tasks = []
-      var policy
-
-      dbPool.connect(function (err, client, done) {
+      dbPool.query('INSERT INTO policies (id, version, name, org_id, statements) VALUES (DEFAULT, $1, $2, $3, $4) RETURNING id', args, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
 
-        tasks.push((next) => { client.query('BEGIN', next) })
-        tasks.push((next) => {
-          client.query('INSERT INTO policies (id, version, name, org_id, statements) VALUES (DEFAULT, $1, $2, $3, $4) RETURNING id', args, function (err, result) {
-            if (err) return next(err)
-
-            policy = result.rows[0]
-            next()
-          })
-        })
-        tasks.push((next) => { client.query('COMMIT', next) })
-
-        tasks.push((next) => {
-          policyOps.readPolicyById([policy.id], function (err, result) {
-            if (err) return next(err)
-
-            policy = result
-
-            next()
-          })
-        })
-
-        async.series(tasks, (err) => {
-          if (err) {
-            dbUtil.rollback(client, done)
-            return cb(err.isBoom ? err : Boom.badImplementation(err))
-          }
-
-          done()
-          return cb(null, policy)
-        })
+        policyOps.readPolicyById([result.rows[0].id], cb)
       })
     },
 
-    // TODO: Allow updating specific fields only ??
-    //
-    // Should we handle the updated version as a new version => update teams and users associated with the previous version?
-    // Like in http://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_managed-using.html#edit-managed-policy-console
-    //
     /*
     * $1 = id
     * $2 = version
@@ -166,6 +129,8 @@ module.exports = function (dbPool) {
         if (err) return cb(Boom.badImplementation(err))
 
         tasks.push((next) => { client.query('BEGIN', next) })
+        // Should we handle the updated version as a new version => update teams and users associated with the previous version?
+        // Like in http://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_managed-using.html#edit-managed-policy-console
         tasks.push((next) => {
           client.query('UPDATE policies SET version = $2, name = $3, org_id = $4, statements = $5 WHERE id = $1', [id, version, name, orgId, statements], (err, res) => {
             if (err) return next(err)

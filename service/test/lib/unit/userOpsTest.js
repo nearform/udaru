@@ -37,20 +37,6 @@ lab.experiment('userOps', () => {
     async.series(tasks, done)
   })
 
-  lab.test('createUser should return an error if reading the user fails', (done) => {
-    var dbPool = utils.getDbPoolErrorForQueryOrRowCount('SELECT id, name from users', undefined, {rowCount: 1, rows: [{id: 1234}]})
-    var userOps = UserOps(dbPool, {debug: () => {}})
-
-    userOps.createUser([], utils.testError(expect, 'Error: query error test', done))
-  })
-
-  lab.test('createUserById should return an error if reading the user fails', (done) => {
-    var dbPool = utils.getDbPoolErrorForQueryOrRowCount('SELECT id, name from users', undefined, {rowCount: 1, rows: [{id: 1234}]})
-    var userOps = UserOps(dbPool, {debug: () => {}})
-
-    userOps.createUserById([], utils.testError(expect, 'Error: query error test', done))
-  })
-
   lab.test('readUserById should return an error if the team cannot be retrieved', (done) => {
     var dbPool = utils.getDbPoolErrorForQueryOrRowCount('SELECT teams.id', undefined, {rowCount: 1, rows: [{id: 1234, name: 'test'}]})
     var userOps = UserOps(dbPool, {debug: () => {}})

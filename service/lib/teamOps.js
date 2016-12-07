@@ -5,7 +5,7 @@ const dbUtil = require('./dbUtil')
 const async = require('async')
 
 module.exports = function (dbPool, log) {
-  var TeamOps = {
+  var teamOps = {
     /*
     * no query args (but may e.g. sort in future)
     */
@@ -35,40 +35,10 @@ module.exports = function (dbPool, log) {
     * $4 = org_id
     */
     createTeam: function createTeam (args, cb) {
-      var team
-      const tasks = []
-
-      dbPool.connect(function (err, client, done) {
+      dbPool.query('INSERT INTO teams (id, name, description, team_parent_id, org_id) VALUES (DEFAULT, $1, $2, $3, $4) RETURNING id', args, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
 
-        tasks.push((next) => { client.query('BEGIN', next) })
-        tasks.push((next) => {
-          client.query('INSERT INTO teams (id, name, description, team_parent_id, org_id) VALUES (DEFAULT, $1, $2, $3, $4) RETURNING id', args, function (err, result) {
-            if (err) return next(err)
-
-            team = result.rows[0]
-            next()
-          })
-        })
-        tasks.push((next) => { client.query('COMMIT', next) })
-        tasks.push((next) => {
-          TeamOps.readTeamById([team.id], function (err, result) {
-            if (err) return next(err)
-
-            team = result
-            next()
-          })
-        })
-
-        async.series(tasks, (err) => {
-          if (err) {
-            dbUtil.rollback(client, done)
-            return cb(err.isBoom ? err : Boom.badImplementation(err))
-          }
-
-          done()
-          return cb(null, team)
-        })
+        teamOps.readTeamById([result.rows[0].id], cb)
       })
     },
 
@@ -112,7 +82,7 @@ module.exports = function (dbPool, log) {
         })
 
         tasks.push((next) => {
-          client.query('SELECT pol.id, pol.name from team_policies tpol, policies pol WHERE tpol.team_id = $1 and tpol.policy_id = pol.id ORDER BY UPPER(pol.name)', args, function (err, result) {
+          client.query('SELECT pol.id, pol.name, pol.version from team_policies tpol, policies pol WHERE tpol.team_id = $1 and tpol.policy_id = pol.id ORDER BY UPPER(pol.name)', args, function (err, result) {
             if (err) return next(err)
 
             result.rows.forEach(function (row) {
@@ -164,7 +134,7 @@ module.exports = function (dbPool, log) {
         tasks.push((next) => { client.query('DELETE FROM team_members WHERE team_id = $1', [id], next) })
 
         if (users.length > 0) {
-          const stmt = dbUtil.buildInsertStmt('INSERT INTO team_members (user_id, team_id) VALUES ', users.map(p => [p.id, id]))
+          const stmt = dbUtil.buildInsertStmt('INSERT INTO team_members (user_id, team_id) VALUES ', users.map(u => [u.id, id]))
           tasks.push((next) => { client.query(stmt.statement, stmt.params, next) })
         }
 
@@ -225,5 +195,5 @@ module.exports = function (dbPool, log) {
     }
   }
 
-  return TeamOps
+  return teamOps
 }
