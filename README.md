@@ -83,6 +83,8 @@ An example API route for fetching all the users is: http://localhost:8000/author
 
 Curl examples for all the routes can be found in api/route.js
 
+Swagger documentation can be found once the API is running by visiting: http://localhost:8000/documentation
+
 To expose the routes start both the service and the API with the following:
 
     npm run start:service
@@ -167,4 +169,3 @@ There are three interfaces for using Authorization:
 This looks somewhat as follows:
 
 ![Authorization Architecture](./docs/authorization.png)
-
