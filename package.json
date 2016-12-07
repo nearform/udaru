@@ -41,7 +41,10 @@
   "homepage": "https://github.com/nearform/labs-authorization#readme",
   "dependencies": {
     "async": "^2.0.1",
-    "pg": "^6.1.0"
+    "hapi-swagger": "^7.4.0",
+    "inert": "^4.0.3",
+    "pg": "^6.1.0",
+    "vision": "^4.1.1"
   },
   "devDependencies": {
     "mock-require": "^2.0.0",
