@@ -15,7 +15,7 @@ const init = (cb) => {
   })
 
   const consoleOptions = config.get('logger.good.options')
-  const swaggerOptions = config.get('swagger.options')
+  const swaggerOptions = config.get('swagger')
 
   server.register([{
     register: require('good'),

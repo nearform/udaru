@@ -19,12 +19,10 @@ module.exports = new Reconfig({
     }
   },
   swagger: {
-    options: {
-      host: 'localhost:8000',
-      info: {
-        title: 'Labs Authorization API',
-        version: appVersion
-      }
+    host: 'localhost:8000',
+    info: {
+      title: 'Labs Authorization API',
+      version: appVersion
     }
   }
 }, { envPrefix: 'LABS_AUTH_API' })
