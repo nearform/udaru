@@ -3,7 +3,7 @@
 const Hapi = require('hapi')
 const config = require('./lib/config')
 
-function init (cb) {
+const init = (cb) => {
   const server = new Hapi.Server()
 
   server.connection({
@@ -37,9 +37,8 @@ function init (cb) {
     register: require('./routes/teams')
   }, {
     register: require('./routes/authorization')
-  }], function (err) {
+  }], (err) => {
     if (err) { throw err }
-
     cb(server)
   })
 }
