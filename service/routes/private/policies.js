@@ -28,12 +28,15 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         payload: {
-          version: Joi.string().required(),
-          name: Joi.string().required(),
-          orgId: Joi.string().required(),
-          statements: Joi.string().required()
+          version: Joi.string().required().description('policy version'),
+          name: Joi.string().required().description('policy name'),
+          orgId: Joi.string().required().description('organisation id'),
+          statements: Joi.string().required().description('policy statements')
         }
-      }
+      },
+      description: 'Create a policy',
+      notes: 'The POST /authorization/policies endpoint is a private endpoint. It can be accessed only using a service key.\nThis service key needs to be passed as a query string in the form "sig=<key>"\n',
+      tags: [ 'api', 'service', 'post', 'policy', 'private' ]
     }
   })
 
@@ -50,14 +53,19 @@ exports.register = function (server, options, next) {
     },
     config: {
       validate: {
-        params: {id: Joi.number().required()},
+        params: {
+          id: Joi.number().required().description('policy id')
+        },
         payload: {
-          version: Joi.string().required(),
-          name: Joi.string().required(),
-          orgId: Joi.string().required(),
-          statements: Joi.string().required()
+          version: Joi.string().required().description('policy version'),
+          name: Joi.string().required().description('policy name'),
+          orgId: Joi.string().required().description('organisation id'),
+          statements: Joi.string().required().description('policy statements')
         }
-      }
+      },
+      description: 'Update a policy',
+      notes: 'The PUT /authorization/policies/{id} endpoint is a private endpoint. It can be accessed only using a service key.\nThis service key needs to be passed as a query string in the form "sig=<key>"\n',
+      tags: [ 'api', 'service', 'put', 'policy', 'private' ]
     }
   })
 
@@ -77,8 +85,13 @@ exports.register = function (server, options, next) {
     },
     config: {
       validate: {
-        params: {id: Joi.number().required()}
-      }
+        params: {
+          id: Joi.number().required().description('policy id')
+        }
+      },
+      description: 'Delete a policy',
+      notes: 'The DELETE /authorization/policies/{id} endpoint is a private endpoint. It can be accessed only using a service key.\nThis service key needs to be passed as a query string in the form "sig=<key>"\n',
+      tags: [ 'api', 'service', 'delete', 'policy', 'private' ]
     }
   })
 
