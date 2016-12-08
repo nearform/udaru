@@ -8,7 +8,6 @@ const PolicyOps = require('./../../lib/policyOps')
 exports.register = function (server, options, next) {
   const authorize = AuthorizeOps(UserOps(options.dbPool, server.logger()), PolicyOps(options.dbPool))
 
-  // curl -X GET http://localhost:8000/authorization/check/<user_id>/<action>/<resource>
   server.route({
     method: 'GET',
     path: '/authorization/check/{userId}/{action}/{resource*}',
@@ -25,15 +24,17 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          userId: Joi.number().required(),
-          action: Joi.string().required(),
-          resource: Joi.string().required()
+          userId: Joi.number().required().description('The user that wants to perform the action on a given resource'),
+          action: Joi.string().required().description('The action to check'),
+          resource: Joi.string().required().description('The resource that the user wants to perform the action on')
         }
-      }
+      },
+      description: 'Fetch all the defined policies',
+      notes: 'The GET /authorization/check/{userId}/{action}/{resource} endpoint returns is a user can perform and action\non a resource\n',
+      tags: [ 'api', 'service', 'get', 'authorization', 'check' ]
     }
   })
 
-  // curl -X GET http://localhost:8000/authorization/list/<user_id>/<resource>
   server.route({
     method: 'GET',
     path: '/authorization/list/{userId}/{resource*}',
@@ -49,10 +50,13 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          userId: Joi.number().required(),
-          resource: Joi.string().required()
+          userId: Joi.number().required().description('The user that wants to perform the action on a given resource'),
+          resource: Joi.string().required().description('The resource that the user wants to perform the action on')
         }
-      }
+      },
+      description: 'Fetch all the defined policies',
+      notes: 'The GET /authorization/list/{userId}/{resource} endpoint returns a list of all the actions a user\ncan perform on a given resource\n',
+      tags: [ 'api', 'service', 'get', 'authorization', 'list' ]
     }
   })
 
