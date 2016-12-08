@@ -159,7 +159,7 @@ lab.experiment('Users', () => {
       const result = response.result
 
       expect(response.statusCode).to.equal(400)
-      expect(result).to.equal({
+      expect(result).to.include({
         statusCode: 400,
         error: 'Bad Request'
       })
@@ -251,7 +251,9 @@ lab.experiment('Users', () => {
       method: 'PUT',
       url: '/authorization/users/3',
       payload: {
-        name: 'Joe'
+        name: 'Joe',
+        teams: [],
+        policies: []
       }
     }
 
@@ -279,7 +281,9 @@ lab.experiment('Users', () => {
       method: 'PUT',
       url: '/authorization/users/1',
       payload: {
-        name: 'Joe'
+        name: 'Joe',
+        teams: [],
+        policies: []
       }
     }
 

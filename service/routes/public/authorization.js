@@ -1,5 +1,6 @@
 'use strict'
 
+const Joi = require('joi')
 const AuthorizeOps = require('./../../lib/authorizeOps')
 const UserOps = require('./../../lib/userOps')
 const PolicyOps = require('./../../lib/policyOps')
@@ -20,6 +21,15 @@ exports.register = function (server, options, next) {
       }
 
       authorize.isUserAuthorized(params, reply)
+    },
+    config: {
+      validate: {
+        params: {
+          userId: Joi.number().required(),
+          action: Joi.string().required(),
+          resource: Joi.string().required()
+        }
+      }
     }
   })
 
@@ -35,6 +45,14 @@ exports.register = function (server, options, next) {
       }
 
       authorize.listAuthorizations(params, reply)
+    },
+    config: {
+      validate: {
+        params: {
+          userId: Joi.number().required(),
+          resource: Joi.string().required()
+        }
+      }
     }
   })
 

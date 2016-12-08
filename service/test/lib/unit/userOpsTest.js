@@ -51,20 +51,6 @@ lab.experiment('userOps', () => {
     userOps.readUserById([], utils.testError(expect, 'Error: query error test', done))
   })
 
-  lab.test('updateUser should return an error if teams is not an array', (done) => {
-    var dbPool = {}
-    var userOps = UserOps(dbPool, {debug: () => {}})
-
-    userOps.updateUser([1, 'test'], utils.testError(expect, 'Bad Request', done))
-  })
-
-  lab.test('updateUser should return an error if policies is not an array', (done) => {
-    var dbPool = {}
-    var userOps = UserOps(dbPool, {debug: () => {}})
-
-    userOps.updateUser([1, 'test', []], utils.testError(expect, 'Bad Request', done))
-  })
-
   lab.test('updateUser should return an error if the transaction cannot be started', (done) => {
     var dbPool = utils.getDbPoolErrorForQueryOrRowCount('BEGIN', {testRollback: true, expect: expect})
     var userOps = UserOps(dbPool, {debug: () => {}})

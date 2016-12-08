@@ -1,5 +1,6 @@
 'use strict'
 
+const Joi = require('joi')
 const PolicyOps = require('./../../lib/policyOps')
 
 exports.register = function (server, options, next) {
@@ -24,6 +25,11 @@ exports.register = function (server, options, next) {
       ]
 
       policyOps.readPolicyById(params, reply)
+    },
+    config: {
+      validate: {
+        params: {id: Joi.number().required()}
+      }
     }
   })
 

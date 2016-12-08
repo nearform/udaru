@@ -1,15 +1,9 @@
 'use strict'
 
+const Joi = require('joi')
 const PolicyOps = require('./../../lib/policyOps')
 const security = require('./../security')
 const Boom = require('boom')
-
-function isValidCreateRequest (request) {
-  return request.payload.version &&
-    request.payload.name &&
-    request.payload.orgId &&
-    request.payload.statements
-}
 
 exports.register = function (server, options, next) {
   const policyOps = PolicyOps(options.dbPool)
@@ -19,7 +13,6 @@ exports.register = function (server, options, next) {
     path: '/authorization/policies',
     handler: function (request, reply) {
       if (!security.hasValidServiceKey(request)) return reply(Boom.forbidden())
-      if (!isValidCreateRequest(request)) return reply(Boom.badRequest())
 
       const { version, name, orgId, statements } = request.payload
       const params = [version, name, orgId, statements]
@@ -31,6 +24,16 @@ exports.register = function (server, options, next) {
 
         return reply(res).code(201)
       })
+    },
+    config: {
+      validate: {
+        payload: {
+          version: Joi.string().required(),
+          name: Joi.string().required(),
+          orgId: Joi.string().required(),
+          statements: Joi.string().required()
+        }
+      }
     }
   })
 
@@ -39,12 +42,22 @@ exports.register = function (server, options, next) {
     path: '/authorization/policies/{id}',
     handler: function (request, reply) {
       if (!security.hasValidServiceKey(request)) return reply(Boom.forbidden())
-      if (!isValidCreateRequest(request)) return reply(Boom.badRequest())
 
       const { version, name, orgId, statements } = request.payload
       const params = [request.params.id, version, name, orgId, statements]
 
       policyOps.updatePolicy(params, reply)
+    },
+    config: {
+      validate: {
+        params: {id: Joi.number().required()},
+        payload: {
+          version: Joi.string().required(),
+          name: Joi.string().required(),
+          orgId: Joi.string().required(),
+          statements: Joi.string().required()
+        }
+      }
     }
   })
 
@@ -61,6 +74,11 @@ exports.register = function (server, options, next) {
 
         return reply(res).code(204)
       })
+    },
+    config: {
+      validate: {
+        params: {id: Joi.number().required()}
+      }
     }
   })
 

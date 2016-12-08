@@ -1,6 +1,6 @@
 'use strict'
 
-const Boom = require('boom')
+const Joi = require('joi')
 const UserOps = require('./../../lib/userOps')
 
 exports.register = function (server, options, next) {
@@ -25,6 +25,11 @@ exports.register = function (server, options, next) {
       ]
 
       userOps.readUserById(params, reply)
+    },
+    config: {
+      validate: {
+        params: {id: Joi.number().required()}
+      }
     }
   })
 
@@ -33,8 +38,6 @@ exports.register = function (server, options, next) {
     method: 'POST',
     path: '/authorization/users',
     handler: function (request, reply) {
-      if (!request.payload.name) return reply(Boom.badRequest())
-
       const params = [
         request.payload.name,
         'WONKA' // TODO: hardcode the org_id for now (as not yet fully implemented)
@@ -47,6 +50,11 @@ exports.register = function (server, options, next) {
 
         return reply(res).code(201)
       })
+    },
+    config: {
+      validate: {
+        payload: {name: Joi.string().required()}
+      }
     }
   })
 
@@ -66,6 +74,11 @@ exports.register = function (server, options, next) {
 
         return reply().code(204)
       })
+    },
+    config: {
+      validate: {
+        params: {id: Joi.number().required()}
+      }
     }
   })
 
@@ -85,6 +98,20 @@ exports.register = function (server, options, next) {
       ]
 
       userOps.updateUser(params, reply)
+    },
+    config: {
+      validate: {
+        params: {id: Joi.number().required()},
+        payload: {
+          name: Joi.string().required(),
+          teams: Joi.array().required().items(Joi.object().keys({
+            id: Joi.number().required()
+          })),
+          policies: Joi.array().required().items(Joi.object().keys({
+            id: Joi.number().required()
+          }))
+        }
+      }
     }
   })
 
