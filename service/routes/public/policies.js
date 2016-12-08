@@ -6,16 +6,19 @@ const PolicyOps = require('./../../lib/policyOps')
 exports.register = function (server, options, next) {
   const policyOps = PolicyOps(options.dbPool)
 
-   // curl http://localhost:8080/authorization/policies
   server.route({
     method: 'GET',
     path: '/authorization/policies',
     handler: function (request, reply) {
       policyOps.listAllPolicies([], reply)
+    },
+    config: {
+      description: 'Fetch all the defined policies',
+      notes: 'The GET /authorization/policies endpoint returns a list of all the defined policies\nthe policies will contain only the id, version and name, no statements.\n',
+      tags: [ 'api', 'service', 'get', 'policies' ]
     }
   })
 
-  // curl http://localhost:8080/authorization/policy/123
   server.route({
     method: 'GET',
     path: '/authorization/policies/{id}',
@@ -28,8 +31,13 @@ exports.register = function (server, options, next) {
     },
     config: {
       validate: {
-        params: {id: Joi.number().required()}
-      }
+        params: {
+          id: Joi.number().required().description('policy id')
+        }
+      },
+      description: 'Fetch all the defined policies',
+      notes: 'The GET /authorization/policies/{id} endpoint returns a single policy based on it\'s id.\n',
+      tags: [ 'api', 'service', 'get', 'policies' ]
     }
   })
 

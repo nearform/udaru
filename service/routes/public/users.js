@@ -6,16 +6,19 @@ const UserOps = require('./../../lib/userOps')
 exports.register = function (server, options, next) {
   const userOps = UserOps(options.dbPool, server.logger())
 
-  // curl http://localhost:8080/authorization/users
   server.route({
     method: 'GET',
     path: '/authorization/users',
     handler: function (request, reply) {
       userOps.listAllUsers([], reply)
+    },
+    config: {
+      description: 'Fetch all users',
+      notes: 'The GET /authorization/users endpoint returns a list of all users\n',
+      tags: [ 'api', 'service', 'get', 'users' ]
     }
   })
 
-  // curl http://localhost:8080/authorization/users/123
   server.route({
     method: 'GET',
     path: '/authorization/users/{id}',
@@ -28,12 +31,16 @@ exports.register = function (server, options, next) {
     },
     config: {
       validate: {
-        params: {id: Joi.number().required()}
-      }
+        params: {
+          id: Joi.number().required().description('user id')
+        }
+      },
+      description: 'Fetch a user given its identifier',
+      notes: 'The GET /authorization/users/{id} endpoint returns a single user data\n',
+      tags: [ 'api', 'service', 'get', 'users' ]
     }
   })
 
-  // curl http://localhost:8080/authorization/users -X POST -H 'Content-Type: application/json' -d '{"name":"Violet Beauregarde"}'
   server.route({
     method: 'POST',
     path: '/authorization/users',
@@ -53,12 +60,16 @@ exports.register = function (server, options, next) {
     },
     config: {
       validate: {
-        payload: {name: Joi.string().required()}
-      }
+        payload: {
+          name: Joi.string().required().description('User name')
+        }
+      },
+      description: 'Create a new user',
+      notes: 'The POST /authorization/users endpoint creates a new user given its data\n',
+      tags: [ 'api', 'service', 'post', 'users' ]
     }
   })
 
-  // curl -X DELETE http://localhost:8080/authorization/users/123
   server.route({
     method: 'DELETE',
     path: '/authorization/users/{id}',
@@ -77,13 +88,16 @@ exports.register = function (server, options, next) {
     },
     config: {
       validate: {
-        params: {id: Joi.number().required()}
-      }
+        params: {
+          id: Joi.number().required().description('user id')
+        }
+      },
+      description: 'Delete a user',
+      notes: 'The DELETE /authorization/users endpoint delete a user\n',
+      tags: [ 'api', 'service', 'delete', 'users' ]
     }
   })
 
-  // curl -X PUT http://localhost:8080/authorization/users/1 -H "Content-Type: application/json" -d '{"id": 1, "name": "Mrs Beauregarde",
-  // "teams":[{"id": 3, "name": "Dream Team"}], "policies":[{"id": 4, "name": "DROP ALL TABLES!"}, { "id": 2, "name": "THROW DESK" }]}'
   server.route({
     method: 'PUT',
     path: '/authorization/users/{id}',
@@ -101,9 +115,11 @@ exports.register = function (server, options, next) {
     },
     config: {
       validate: {
-        params: {id: Joi.number().required()},
+        params: {
+          id: Joi.number().required().description('user id')
+        },
         payload: {
-          name: Joi.string().required(),
+          name: Joi.string().required().description('user name'),
           teams: Joi.array().required().items(Joi.object().keys({
             id: Joi.number().required()
           })),
@@ -111,7 +127,10 @@ exports.register = function (server, options, next) {
             id: Joi.number().required()
           }))
         }
-      }
+      },
+      description: 'Update a user',
+      notes: 'The PUT /authorization/users endpoint updates a user data\n',
+      tags: [ 'api', 'service', 'put', 'users' ]
     }
   })
 
