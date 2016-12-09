@@ -1,10 +1,11 @@
 'use strict'
 
+const packageJson = require('./package.json')
 const config = require('./lib/config')
 const dbConn = require('./lib/dbConn')
 
-var Hapi = require('hapi')
-var server = new Hapi.Server()
+const Hapi = require('hapi')
+const server = new Hapi.Server()
 
 server.connection({
   port: Number(config.get('hapi.port')),
@@ -14,11 +15,37 @@ server.connection({
   }
 })
 
+const swaggerOptions = {
+  info: {
+    title: 'Authorization API Documentation',
+    version: packageJson.version
+  },
+  basePath: '/authorization',
+  pathPrefixSize: 2,
+  tags: [
+    {
+      name: 'organizations',
+      description: 'Manage organizations'
+    }
+    // TBD
+  ]
+}
+
 server.register(
   [
     {
       register: require('hapi-pino'),
       options: config.get('logger.pino') || {}
+    },
+    {
+      register: require('inert')
+    },
+    {
+      register: require('vision')
+    },
+    {
+      register: require('hapi-swagger'),
+      options: swaggerOptions
     }
   ],
   function (err) {
@@ -27,7 +54,7 @@ server.register(
 )
 
 const db = dbConn.create(server.logger())
-var options = {dbPool: db.pool}
+const options = { dbPool: db.pool }
 
 server.register(
   [

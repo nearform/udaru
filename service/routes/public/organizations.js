@@ -11,6 +11,10 @@ exports.register = function (server, options, next) {
     path: '/authorization/organizations',
     handler: function (request, reply) {
       organizationOps.list([], reply)
+    },
+    config: {
+      description: 'List all the organizations [TBD]',
+      tags: ['api', 'service', 'organizations']
     }
   })
 
@@ -19,6 +23,10 @@ exports.register = function (server, options, next) {
     path: '/authorization/organizations/{id}',
     handler: function (request, reply) {
       organizationOps.readById(request.params.id, reply)
+    },
+    config: {
+      description: 'Get organization [TBD]',
+      tags: ['api', 'service', 'organizations']
     }
   })
 
