@@ -52,6 +52,52 @@ lab.experiment('OrganizationOps', () => {
     })
   })
 
+  lab.test('create an organization specifying a user should create the user and assign the OrgAdmin policy to it', (done) => {
+    organizationOps.create({
+      id: 'nearForm',
+      name: 'nearForm',
+      description: 'nearform description',
+      user: {
+        name: 'example example'
+      }
+    }, (err, organization) => {
+      expect(err).to.not.exist()
+      expect(organization).to.exist()
+      expect(organization.name).to.equal('nearForm')
+
+      userOps.listOrgUsers(['nearForm'], (err, result) => {
+        expect(err).to.not.exist()
+        expect(result).to.exist()
+        expect(result.length).to.equal(1)
+        expect(result[0].name).to.equal('example example')
+
+        userOps.readUserById([result[0].id], (err, user) => {
+          expect(err).to.not.exist()
+          expect(user).to.exist()
+          expect(user.teams.length).to.equal(1)
+          expect(user.teams[0].name).to.equal('nearForm admins')
+
+          teamOps.readTeamById([user.teams[0].id], (err, team) => {
+            expect(err).to.not.exist()
+            expect(team).to.exist()
+            expect(team.users[0].id).to.equal(user.id)
+            expect(team.policies[0].name).to.equal('nearForm admin')
+
+            organizationOps.deleteById(organization.id, (err, result) => {
+              expect(err).to.not.exist()
+
+              userOps.listAllUsers([], (err, result) => {
+                expect(err).to.not.exist()
+                expect(result.length).to.equal(6)
+                done()
+              })
+            })
+          })
+        })
+      })
+    })
+  })
+
   lab.test('update an organization', (done) => {
     const createData = {id: 'nearForm1', name: 'nearForm', description: 'nearform description'}
     const updateData = {id: 'nearForm1', name: 'nearFormUp', description: 'nearFormUp desc up'}

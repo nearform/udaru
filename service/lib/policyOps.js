@@ -216,7 +216,20 @@ module.exports = function (dbPool) {
 
     createOrgDefaultPolicies: function createOrgDefaultPolicies (client, organizationId, cb) {
       const defaultPolicies = config.get('authorization.organizations.defaultPolicies', {'organizationId': organizationId})
-      insertPolicies(client, defaultPolicies, cb)
+      // insertPolicies(client, defaultPolicies, cb)
+      const stmt = dbUtil.buildInsertStmt('INSERT INTO policies (version, name, org_id, statements) VALUES ', defaultPolicies.map(policy => [policy.version, policy.name, policy.org_id, policy.statements]))
+
+      client.query(stmt.statement, stmt.params, function (err, result) {
+        if (err) return cb(err)
+
+        let name = config.get('authorization.organizations.defaultPolicies.0.name', {'organizationId': organizationId})
+        client.query('SELECT id FROM policies WHERE org_id = $1 AND name = $2', [organizationId, name], function (err, result) {
+          if (err) return cb(err)
+          if (result.rowCount === 0) return cb(new Error(`No policy found for org ${organizationId} with name ${name}`))
+
+          cb(null, result.rows[0].id)
+        })
+      })
     },
 
     createTeamDefaultPolicies: function createTeamDefaultPolicies (client, organizationId, teamId, cb) {

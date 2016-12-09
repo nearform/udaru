@@ -32,6 +32,10 @@ module.exports = function (dbPool, log) {
      */
     create: function create (args, cb) {
       let params = [args.id, args.name, args.description]
+      let user = args.user
+      let adminPolicyId
+      let adminTeamId
+      let adminUserId
       const tasks = []
 
       dbPool.connect(function (err, client, done) {
@@ -39,7 +43,34 @@ module.exports = function (dbPool, log) {
 
         tasks.push((next) => { client.query('BEGIN', next) })
         tasks.push((res, next) => { client.query('INSERT INTO organizations (id, name, description) VALUES ($1, $2, $3) RETURNING id', params, next) })
-        tasks.push((res, next) => { policyOps.createOrgDefaultPolicies(client, res.rows[0].id, next) })
+        tasks.push((res, next) => {
+          policyOps.createOrgDefaultPolicies(client, res.rows[0].id, function (err, id) {
+            if (err) return next(err)
+
+            adminPolicyId = id
+            next(null, id)
+          })
+        })
+
+        if (user) {
+          tasks.push((res, next) => {
+            client.query('INSERT INTO users (id, name, org_id) VALUES (DEFAULT, $1, $2) RETURNING id', [user.name, args.id], function (err, result) {
+              if (err) return next(err)
+              adminUserId = result.rows[0].id
+              next(null, adminUserId)
+            })
+          })
+          tasks.push((res, next) => {
+            client.query('INSERT INTO teams (id, name, description, team_parent_id, org_id) VALUES (DEFAULT, $1, $2, $3, $4) RETURNING id', [`${args.id} admins`, `${args.id} admins`, null, args.id], function (err, result) {
+              if (err) return next(err)
+              adminTeamId = result.rows[0].id
+              next(null, adminTeamId)
+            })
+          })
+          tasks.push((res, next) => { client.query('INSERT INTO team_members (user_id, team_id) VALUES ($1, $2)', [adminUserId, adminTeamId], next) })
+          tasks.push((res, next) => { client.query('INSERT INTO team_policies (policy_id, team_id) VALUES ($1, $2)', [adminPolicyId, adminTeamId], next) })
+        }
+
         tasks.push((res, next) => { client.query('COMMIT', next) })
         tasks.push((res, next) => { organizationOps.readById(args.id, next) })
 
