@@ -1,5 +1,4 @@
 const Reconfig = require('reconfig')
-const appVersion = require('../package.json').version
 
 module.exports = new Reconfig({
   server: {
@@ -16,13 +15,6 @@ module.exports = new Reconfig({
         opsInterval: 1000,
         reporters: [{ reporter: 'good-console', events: { log: '*', response: '*' } }]
       }
-    }
-  },
-  swagger: {
-    host: 'localhost:8000',
-    info: {
-      title: 'Labs Authorization API',
-      version: appVersion
     }
   }
 }, { envPrefix: 'LABS_AUTH_API' })

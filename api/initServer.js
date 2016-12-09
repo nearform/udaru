@@ -1,10 +1,10 @@
 'use strict'
 
-const Hapi = require('hapi')
-const config = require('./lib/config')
+var Hapi = require('hapi')
+var config = require('./lib/config')
 
-const init = (cb) => {
-  const server = new Hapi.Server()
+function init (cb) {
+  let server = new Hapi.Server()
 
   server.connection({
     port: Number(config.get('server.port')),
@@ -14,21 +14,13 @@ const init = (cb) => {
     }
   })
 
-  const consoleOptions = config.get('logger.good.options')
-  const swaggerOptions = config.get('swagger')
+  var consoleOptions = config.get('logger.good.options')
 
   server.register([{
     register: require('good'),
     options: consoleOptions
   }, {
     register: require('h2o2')
-  }, {
-    register: require('inert')
-  }, {
-    register: require('vision')
-  }, {
-    register: require('hapi-swagger'),
-    options: swaggerOptions
   }, {
     register: require('./routes/users')
   }, {
@@ -37,8 +29,9 @@ const init = (cb) => {
     register: require('./routes/teams')
   }, {
     register: require('./routes/authorization')
-  }], (err) => {
+  }], function (err) {
     if (err) { throw err }
+
     cb(server)
   })
 }
