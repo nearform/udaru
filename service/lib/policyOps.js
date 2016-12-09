@@ -207,6 +207,12 @@ module.exports = function (dbPool) {
       const defaultPolicies = config.get('authorization.organizations.defaultPolicies', {'organizationId': organizationId})
       const stmt = dbUtil.buildInsertStmt('INSERT INTO policies (version, name, org_id, statements) VALUES ', defaultPolicies.map(policy => [policy.version, policy.name, policy.org_id, policy.statements]))
       client.query(stmt.statement, stmt.params, cb)
+    },
+
+    createTeamDefaultPolicies: function createTeamDefaultPolicies (client, organizationId, teamId, cb) {
+      const defaultPolicies = config.get('authorization.teams.defaultPolicies', {organizationId, teamId})
+      const stmt = dbUtil.buildInsertStmt('INSERT INTO policies (version, name, org_id, statements) VALUES ', defaultPolicies.map(policy => [policy.version, policy.name, organizationId, policy.statements]))
+      client.query(stmt.statement, stmt.params, cb)
     }
   }
 

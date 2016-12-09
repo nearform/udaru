@@ -7,10 +7,12 @@ const lab = exports.lab = Lab.script()
 const logger = require('pino')()
 
 const TeamOps = require('../../../lib/teamOps')
+const PolicyOps = require('../../../lib/policyOps')
 const dbConn = require('../../../lib/dbConn')
 
 const db = dbConn.create(logger)
 const teamOps = TeamOps(db.pool, logger)
+const policyOps = PolicyOps(db.pool, logger)
 
 let testTeamId
 
@@ -63,6 +65,22 @@ lab.experiment('TeamOps', () => {
       expect(result.policies.length).to.equal(1)
 
       done()
+    })
+  })
+
+  lab.test('creating a team should create a default admin policy', (done) => {
+    teamOps.createTeam(['Team 5', 'This is a test team for policies', null, 'WONKA'], (err, result) => {
+      expect(err).to.not.exist()
+      expect(result).to.exist()
+
+      policyOps.listByOrganization('WONKA', (err, policies) => {
+        expect(err).to.not.exist()
+
+        const defaultPolicy = policies.find((p) => { return p.name === 'Default Team Admin for ' + result.id })
+        expect(defaultPolicy).to.exist()
+
+        policyOps.deletePolicyById([defaultPolicy.id], done)
+      })
     })
   })
 })

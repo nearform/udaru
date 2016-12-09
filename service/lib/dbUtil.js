@@ -1,4 +1,6 @@
 
+const async = require('async')
+
 function rollback (client, done) {
   client.query('ROLLBACK', function (err) {
     // if there was a problem rolling back the query
@@ -27,7 +29,56 @@ function buildInsertStmt (insert, rows) {
   }
 }
 
+function connect (job, next) {
+  job.client.connect((err, conn, release) => {
+    if (err) return next(err)
+    job.client = conn
+    job.release = release
+    next()
+  })
+}
+
+function beginTransaction (job, next) {
+  job.client.query('BEGIN TRANSACTION', next)
+}
+
+function commitTransaction (job, next) {
+  job.client.query('COMMIT', (err) => {
+    job.release()
+    next(err)
+  })
+}
+
+function rollbackTransaction (job, originalError, next) {
+  job.client.query('ROLLBACK', (err) => {
+    job.release && job.release()
+    next(err || originalError)
+  })
+}
+
+function runTasks (job, next) {
+  async.applyEachSeries(job.tasks, job, next)
+}
+
+function withTransaction (pool, tasks, done) {
+  const job = {
+    client: pool,
+    tasks: tasks
+  }
+
+  async.applyEachSeries([
+    connect,
+    beginTransaction,
+    runTasks,
+    commitTransaction
+  ], job, (err, res) => {
+    if (err) return rollbackTransaction(job, err, done)
+    done(null, job)
+  })
+}
+
 module.exports = {
   rollback: rollback,
-  buildInsertStmt: buildInsertStmt
+  buildInsertStmt: buildInsertStmt,
+  withTransaction: withTransaction
 }
