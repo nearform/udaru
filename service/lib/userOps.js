@@ -3,6 +3,7 @@
 const Boom = require('boom')
 const async = require('async')
 const dbUtil = require('./dbUtil')
+const SQL = dbUtil.SQL
 
 module.exports = function (dbPool, log) {
   var userOps = {
