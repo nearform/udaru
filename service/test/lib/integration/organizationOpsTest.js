@@ -11,6 +11,8 @@ const TeamOps = require('../../../lib/teamOps')
 const UserOps = require('../../../lib/userOps')
 const PolicyOps = require('../../../lib/policyOps')
 const dbConn = require('../../../lib/dbConn')
+const config = require('../../../lib/config')
+const defaultPolicies = config.get('authorization.organizations.defaultPolicies', {'organizationId': 'nearForm'})
 
 const db = dbConn.create(logger)
 const organizationOps = OrganizationOps(db.pool, logger)
@@ -39,11 +41,11 @@ lab.experiment('OrganizationOps', () => {
       policyOps.listByOrganization('nearForm', (err, result) => {
         expect(err).to.not.exist()
         expect(result).to.exist()
-        expect(result.length).to.equal(14)
-        expect(result[0].name).to.equal('nearForm admin')
-        expect(result[1].name).to.equal('nearForm authorization:organization:read')
-        expect(result[4].name).to.equal('nearForm authorization:team:create')
-        expect(result[9].name).to.equal('nearForm authorization:user:create')
+        expect(result.length).to.be.at.least(defaultPolicies.length)
+
+        let policiesNames = result.map(p => p.name).sort()
+        let expectedNames = defaultPolicies.map(p => p.name).sort()
+        expect(policiesNames).to.equal(expectedNames)
 
         organizationOps.deleteById(organization.id, done)
       })

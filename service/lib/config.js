@@ -32,7 +32,7 @@ module.exports = new Reconfig({
     organizations: {
       defaultPolicies: [
         {
-          version: '0.1',
+          version: '1',
           name: ':organizationId admin',
           org_id: ':organizationId',
           statements: {
@@ -66,7 +66,7 @@ module.exports = new Reconfig({
           }
         },
         {
-          version: '0.1',
+          version: '1',
           name: ':organizationId authorization:organization:read',
           org_id: ':organizationId',
           statements: {
@@ -80,7 +80,7 @@ module.exports = new Reconfig({
           }
         },
         {
-          version: '0.1',
+          version: '1',
           name: ':organizationId authorization:team:create',
           org_id: ':organizationId',
           statements: {
@@ -94,7 +94,7 @@ module.exports = new Reconfig({
           }
         },
         {
-          version: '0.1',
+          version: '1',
           name: ':organizationId authorization:team:read',
           org_id: ':organizationId',
           statements: {
@@ -108,7 +108,7 @@ module.exports = new Reconfig({
           }
         },
         {
-          version: '0.1',
+          version: '1',
           name: ':organizationId authorization:team:update',
           org_id: ':organizationId',
           statements: {
@@ -122,7 +122,7 @@ module.exports = new Reconfig({
           }
         },
         {
-          version: '0.1',
+          version: '1',
           name: ':organizationId authorization:team:delete',
           org_id: ':organizationId',
           statements: {
@@ -136,7 +136,7 @@ module.exports = new Reconfig({
           }
         },
         {
-          version: '0.1',
+          version: '1',
           name: ':organizationId authorization:teams:list',
           org_id: ':organizationId',
           statements: {
@@ -150,7 +150,7 @@ module.exports = new Reconfig({
           }
         },
         {
-          version: '0.1',
+          version: '1',
           name: ':organizationId authorization:user:create',
           org_id: ':organizationId',
           statements: {
@@ -164,7 +164,7 @@ module.exports = new Reconfig({
           }
         },
         {
-          version: '0.1',
+          version: '1',
           name: ':organizationId authorization:user:read',
           org_id: ':organizationId',
           statements: {
@@ -178,7 +178,7 @@ module.exports = new Reconfig({
           }
         },
         {
-          version: '0.1',
+          version: '1',
           name: ':organizationId authorization:user:update',
           org_id: ':organizationId',
           statements: {
@@ -192,7 +192,7 @@ module.exports = new Reconfig({
           }
         },
         {
-          version: '0.1',
+          version: '1',
           name: ':organizationId authorization:user:delete',
           org_id: ':organizationId',
           statements: {
@@ -206,7 +206,7 @@ module.exports = new Reconfig({
           }
         },
         {
-          version: '0.1',
+          version: '1',
           name: ':organizationId authorization:users:list',
           org_id: ':organizationId',
           statements: {
@@ -220,7 +220,7 @@ module.exports = new Reconfig({
           }
         },
         {
-          version: '0.1',
+          version: '1',
           name: ':organizationId authorization:policies:list',
           org_id: ':organizationId',
           statements: {
@@ -234,7 +234,7 @@ module.exports = new Reconfig({
           }
         },
         {
-          version: '0.1',
+          version: '1',
           name: ':organizationId authorization:policy:read',
           org_id: ':organizationId',
           statements: {
