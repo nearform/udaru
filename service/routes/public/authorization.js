@@ -8,12 +8,11 @@ const PolicyOps = require('./../../lib/policyOps')
 exports.register = function (server, options, next) {
   const authorize = AuthorizeOps(UserOps(options.dbPool, server.logger()), PolicyOps(options.dbPool))
 
-  // curl -X GET http://localhost:8000/authorization/check/<user_id>/<action>/<resource>
   server.route({
     method: 'GET',
     path: '/authorization/check/{userId}/{action}/{resource*}',
     handler: function (request, reply) {
-      const { resource, action, userId } = request.params // TODO: get userId from token
+      const { resource, action, userId } = request.params
       const params = {
         userId,
         action,
@@ -23,6 +22,8 @@ exports.register = function (server, options, next) {
       authorize.isUserAuthorized(params, reply)
     },
     config: {
+      description: 'Authorize user action against a resource [TBD]',
+      tags: ['api', 'service', 'authorization'],
       validate: {
         params: {
           userId: Joi.number().required(),
@@ -33,12 +34,11 @@ exports.register = function (server, options, next) {
     }
   })
 
-  // curl -X GET http://localhost:8000/authorization/list/<user_id>/<resource>
   server.route({
     method: 'GET',
     path: '/authorization/list/{userId}/{resource*}',
     handler: function (request, reply) {
-      const { resource, userId } = request.params // TODO: get userId from token
+      const { resource, userId } = request.params
       const params = {
         userId,
         resource
@@ -47,6 +47,8 @@ exports.register = function (server, options, next) {
       authorize.listAuthorizations(params, reply)
     },
     config: {
+      description: 'List all the actions a user can perform on a resource [TBD]',
+      tags: ['api', 'service', 'authorization'],
       validate: {
         params: {
           userId: Joi.number().required(),
