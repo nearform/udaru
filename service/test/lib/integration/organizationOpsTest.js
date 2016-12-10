@@ -138,7 +138,7 @@ lab.experiment('OrganizationOps', () => {
     })
   })
 
-  lab.test('deleting an organization should remove teams and memebers from that organization', (done) => {
+  lab.test('deleting an organization should remove teams and members from that organization', (done) => {
     var teamId
     var policyId
     var userId

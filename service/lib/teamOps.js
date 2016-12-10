@@ -49,15 +49,22 @@ module.exports = function (dbPool, log) {
     * $3 = team_parent_id
     * $4 = org_id
     */
-    createTeam: function createTeam (args, cb) {
+    createTeam: function createTeam (args, opts, cb) {
+      if (!cb) {
+        cb = opts
+        opts = {}
+      }
+
       const tasks = [
         (job, next) => {
           job.args = args
           next()
         },
-        insertTeam,
-        createDefaultPolicies
+        insertTeam
       ]
+      if (!opts.createOnly) {
+        tasks.push(createDefaultPolicies)
+      }
 
       dbUtil.withTransaction(dbPool, tasks, (err, res) => {
         if (err) return cb(Boom.badImplementation(err))
