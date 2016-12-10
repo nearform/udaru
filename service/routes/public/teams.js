@@ -6,16 +6,19 @@ const TeamOps = require('./../../lib/teamOps')
 exports.register = function (server, options, next) {
   const teamOps = TeamOps(options.dbPool, server.logger())
 
-  // curl http://localhost:8080/authorization/teams
   server.route({
     method: 'GET',
     path: '/authorization/teams',
     handler: function (request, reply) {
       teamOps.listAllTeams([], reply)
+    },
+    config: {
+      description: 'Fetch all teams',
+      notes: 'The GET /authorization/teams endpoint returns a list of all teams\n',
+      tags: [ 'api', 'service', 'get', 'team' ]
     }
   })
 
-  // curl http://localhost:8080/authorization/team
   server.route({
     method: 'POST',
     path: '/authorization/teams',
@@ -40,14 +43,16 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         payload: {
-          name: Joi.string().required(),
-          description: Joi.string().required()
+          name: Joi.string().required().description('Name of the new team'),
+          description: Joi.string().required().description('Description of new team')
         }
-      }
+      },
+      description: 'Create a teams',
+      notes: 'The POST /authorization/teams endpoint creates a new team given its data\n',
+      tags: [ 'api', 'service', 'post', 'team' ]
     }
   })
 
-  // curl http://localhost:8080/authorization/team/123
   server.route({
     method: 'GET',
     path: '/authorization/teams/{id}',
@@ -60,13 +65,16 @@ exports.register = function (server, options, next) {
     },
     config: {
       validate: {
-        params: {id: Joi.number().required()}
-      }
+        params: {
+          id: Joi.number().required().description('The team ID')
+        }
+      },
+      description: 'Fetch a team given its identifier',
+      notes: 'The GET /authorization/teams/{id} endpoint returns a single team data\n',
+      tags: [ 'api', 'service', 'get', 'team' ]
     }
   })
 
-  // curl -X PUT http://localhost:8080/authorization/team/123 -H 'Content-Type: application/json' -d '{ "id": 9, "name": "Sys Admins", "description": "System administrator team",
-  // "users": [{ "id": 4, "name": "Tom Watson"}, { "id": 7, "name": "Michael O'Brien"}], "policies": [{ "id": 12, "name": "Financial info access"}]}'
   server.route({
     method: 'PUT',
     path: '/authorization/teams/{id}',
@@ -87,10 +95,12 @@ exports.register = function (server, options, next) {
     },
     config: {
       validate: {
-        params: {id: Joi.number().required()},
+        params: {
+          id: Joi.number().required().description('The team ID')
+        },
         payload: {
-          name: Joi.string().required(),
-          description: Joi.string().required(),
+          name: Joi.string().required().description('Updated team name'),
+          description: Joi.string().required().description('Updated team description'),
           users: Joi.array().required().items(Joi.object().keys({
             id: Joi.number().required()
           })),
@@ -98,11 +108,13 @@ exports.register = function (server, options, next) {
             id: Joi.number().required()
           }))
         }
-      }
+      },
+      description: 'Update a team',
+      notes: 'The PUT /authorization/teams endpoint updates a team data\n',
+      tags: [ 'api', 'service', 'put', 'team' ]
     }
   })
 
-  // curl -X DELETE http://localhost:8080/authorization/team/123
   server.route({
     method: 'DELETE',
     path: '/authorization/teams/{id}',
@@ -121,8 +133,13 @@ exports.register = function (server, options, next) {
     },
     config: {
       validate: {
-        params: {id: Joi.number().required()}
-      }
+        params: {
+          id: Joi.number().required().description('The team ID')
+        }
+      },
+      description: 'Delete a team',
+      notes: 'The DELETE /authorization/teams endpoint deletes a team\n',
+      tags: [ 'api', 'service', 'delete', 'team' ]
     }
   })
 
