@@ -3,6 +3,7 @@
 const Boom = require('boom')
 const async = require('async')
 const dbUtil = require('./dbUtil')
+const SQL = dbUtil.SQL
 
 module.exports = function (dbPool) {
   var policyOps = {
@@ -11,13 +12,10 @@ module.exports = function (dbPool) {
     * $1 = user_id
     */
     listAllUserPolicies: function listAllUserPolicies ({ userId }, cb) {
-      const params = [
-        userId
-      ]
       /* Query1: For fetching policies attached directly to the user */
       /* Query2: For fetching policies attached to the teams the user belongs to */
       /* TO-DO Query3: For fetching policies attached to the organization the user belongs to */
-      const sql = `(
+      const sql = SQL `(
 
           SELECT
             version,
@@ -28,7 +26,7 @@ module.exports = function (dbPool) {
           ON
             p.id = up.policy_id
           WHERE
-            up.user_id = $1
+            up.user_id = ${userId}
 
         ) UNION (
 
@@ -42,11 +40,11 @@ module.exports = function (dbPool) {
             p.id = tp.policy_id
           WHERE
             tp.team_id IN (
-              SELECT team_id FROM team_members tm WHERE tm.user_id = $1
+              SELECT team_id FROM team_members tm WHERE tm.user_id = ${userId}
             )
         )
       `
-      dbPool.query(sql, params, function (err, result) {
+      dbPool.query(sql, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
 
         const userPolicies = result.rows.map(row => ({
@@ -86,7 +84,9 @@ module.exports = function (dbPool) {
     * $1 = id
     */
     readPolicyById: function readPolicyById (args, cb) {
-      dbPool.query('SELECT id, version, name, statements from policies WHERE id = $1', args, function (err, result) {
+      const [ id ] = args
+
+      dbPool.query(SQL `SELECT id, version, name, statements from policies WHERE id = ${id}`, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
         if (result.rowCount === 0) return cb(Boom.notFound())
 
@@ -101,7 +101,14 @@ module.exports = function (dbPool) {
     * $4 = statements
     */
     createPolicy: function createPolicy (args, cb) {
-      dbPool.query('INSERT INTO policies (id, version, name, org_id, statements) VALUES (DEFAULT, $1, $2, $3, $4) RETURNING id', args, function (err, result) {
+      const [ version, name, orgId, statements ] = args
+      const sql = SQL `
+        INSERT INTO policies (id, version, name, org_id, statements)
+        VALUES (DEFAULT, ${version}, ${name}, ${orgId}, ${statements})
+        RETURNING id
+      `
+
+      dbPool.query(sql, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
 
         policyOps.readPolicyById([result.rows[0].id], cb)
@@ -127,7 +134,13 @@ module.exports = function (dbPool) {
         // Should we handle the updated version as a new version => update teams and users associated with the previous version?
         // Like in http://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_managed-using.html#edit-managed-policy-console
         tasks.push((next) => {
-          client.query('UPDATE policies SET version = $2, name = $3, org_id = $4, statements = $5 WHERE id = $1', [id, version, name, orgId, statements], (err, res) => {
+          const sql = SQL `
+            UPDATE policies
+            SET version = ${version}, name = ${name}, org_id = ${orgId}, statements = ${statements}
+            WHERE id = ${id}
+          `
+
+          client.query(sql, (err, res) => {
             if (err) return next(err)
             if (res.rowCount === 0) return next(Boom.notFound())
 
@@ -160,10 +173,10 @@ module.exports = function (dbPool) {
         if (err) return cb(Boom.badImplementation(err))
 
         tasks.push((next) => { client.query('BEGIN', next) })
-        tasks.push((next) => { client.query('DELETE from user_policies WHERE policy_id = $1', [id], next) })
-        tasks.push((next) => { client.query('DELETE from team_policies WHERE policy_id = $1', [id], next) })
+        tasks.push((next) => { client.query(SQL `DELETE from user_policies WHERE policy_id = ${id}`, next) })
+        tasks.push((next) => { client.query(SQL `DELETE from team_policies WHERE policy_id = ${id}`, next) })
         tasks.push((next) => {
-          client.query('DELETE from policies WHERE id = $1', [id], (err, res) => {
+          client.query(SQL `DELETE from policies WHERE id = ${id}`, (err, res) => {
             if (err) return next(err)
             if (res.rowCount === 0) return next(Boom.notFound())
 
