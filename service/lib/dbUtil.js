@@ -27,7 +27,17 @@ function buildInsertStmt (insert, rows) {
   }
 }
 
+function SQL (parts, ...values) {
+  values = values.filter(value => !!value)
+
+  return {
+    text: parts.reduce((prev, curr, i) => prev + '$' + i + curr),
+    values
+  }
+}
+
 module.exports = {
   rollback: rollback,
-  buildInsertStmt: buildInsertStmt
+  buildInsertStmt: buildInsertStmt,
+  SQL: SQL
 }

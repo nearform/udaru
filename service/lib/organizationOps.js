@@ -3,6 +3,7 @@
 const Boom = require('boom')
 const async = require('async')
 const dbUtil = require('./dbUtil')
+const SQL = dbUtil.SQL
 
 module.exports = function (dbPool, log) {
   var organizationOps = {
@@ -28,9 +29,15 @@ module.exports = function (dbPool, log) {
      * @param  {Function} cb
      */
     create: function create (args, cb) {
-      let params = [args.id, args.name, args.description]
+      const { id, name, description } = args
 
-      dbPool.query('INSERT INTO organizations (id, name, description) VALUES ($1, $2, $3) RETURNING id', params, function (err, result) {
+      const sql = SQL `
+        INSERT INTO organizations (id, name, description)
+        VALUES (${id}, ${name}, ${description})
+        RETURNING id
+      `
+
+      dbPool.query(sql, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
 
         organizationOps.readById(result.rows[0].id, cb)
@@ -44,7 +51,13 @@ module.exports = function (dbPool, log) {
      * @param  {Function} cb
      */
     readById: function readById (id, cb) {
-      dbPool.query('SELECT id, name, description FROM organizations WHERE id = $1', [id], function (err, result) {
+      const sql = SQL `
+        SELECT id, name, description
+        FROM organizations
+        WHERE id = ${id}
+      `
+
+      dbPool.query(sql, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
         if (result.rowCount === 0) return cb(Boom.notFound())
 
@@ -66,7 +79,7 @@ module.exports = function (dbPool, log) {
 
         tasks.push((next) => { client.query('BEGIN', next) })
         tasks.push((res, next) => {
-          client.query('SELECT id FROM users WHERE org_id = $1', [id], function (err, result) {
+          client.query(SQL `SELECT id FROM users WHERE org_id = ${id}`, function (err, result) {
             if (err) return next(err)
             if (result.rowCount === 0) return next(null, [])
 
@@ -77,15 +90,15 @@ module.exports = function (dbPool, log) {
         tasks.push((res, next) => {
           if (usersParams.length === 0) return next(null, res)
 
-          client.query('DELETE FROM team_members WHERE user_id = ANY($1::int[])', [usersParams], next)
+          client.query('DELETE FROM team_members WHERE user_id = ANY($1::int[])', [usersParams], next) // TODO: figure out how to refactor this into ES6 literals
         })
         tasks.push((res, next) => {
           if (usersParams.length === 0) return next(null, res)
 
-          client.query('DELETE FROM user_policies WHERE user_id = ANY($1::int[])', [usersParams], next)
+          client.query('DELETE FROM user_policies WHERE user_id = ANY($1::int[])', [usersParams], next) // TODO: figure out how to refactor this into ES6 literals
         })
         tasks.push((res, next) => {
-          client.query('SELECT id FROM teams WHERE org_id = $1', [id], function (err, result) {
+          client.query(SQL `SELECT id FROM teams WHERE org_id = ${id}`, function (err, result) {
             if (err) return next(err)
             if (result.rowCount === 0) return next(null, [])
 
@@ -95,13 +108,13 @@ module.exports = function (dbPool, log) {
         tasks.push((res, next) => {
           if (res.length === 0) return next(null, res)
 
-          client.query('DELETE FROM team_policies WHERE team_id  = ANY($1::int[])', [res], next)
+          client.query('DELETE FROM team_policies WHERE team_id  = ANY($1::int[])', [res], next) // TODO: figure out how to refactor this into ES6 literals
         })
-        tasks.push((res, next) => { client.query('DELETE FROM policies WHERE org_id = $1', [id], next) })
-        tasks.push((res, next) => { client.query('DELETE FROM teams WHERE org_id = $1', [id], next) })
-        tasks.push((res, next) => { client.query('DELETE FROM users WHERE org_id = $1', [id], next) })
+        tasks.push((res, next) => { client.query(SQL `DELETE FROM policies WHERE org_id = ${id}`, next) })
+        tasks.push((res, next) => { client.query(SQL `DELETE FROM teams WHERE org_id = ${id}`, next) })
+        tasks.push((res, next) => { client.query(SQL `DELETE FROM users WHERE org_id = ${id}`, next) })
         tasks.push((res, next) => {
-          client.query('DELETE FROM organizations WHERE id = $1', [id], function (err, result) {
+          client.query(SQL `DELETE FROM organizations WHERE id = ${id}`, function (err, result) {
             if (err) return next(err)
             if (result.rowCount === 0) return next(Boom.notFound())
 
@@ -129,10 +142,16 @@ module.exports = function (dbPool, log) {
      * @param  {Function} cb
      */
     update: function update (args, cb) {
-      let params = [args.id, args.name, args.description]
+      const { id, name, description } = args
+      const sql = SQL `
+        UPDATE organizations
+        SET name = ${name}, description = ${description}
+        WHERE id = ${id}
+      `
 
-      dbPool.query('UPDATE organizations SET name = $2, description = $3 WHERE id = $1', params, function (err, result) {
+      dbPool.query(sql, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
+        console.log(`row count is ${result.rowCount}`)
         if (result.rowCount === 0) return cb(Boom.notFound())
 
         return cb(null, {id: args.id, name: args.name, description: args.description})
