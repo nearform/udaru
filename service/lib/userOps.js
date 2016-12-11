@@ -241,8 +241,10 @@ module.exports = function (dbPool, log) {
     /*
     * $1 = id
     */
-    getUserByToken: function getUserByToken (userId, cb) {
-      dbPool.query(SQL `SELECT id, name FROM users WHERE id = ${userId}`, function (err, result) {
+    getUserByToken: function getUserByToken (args, cb) {
+      const [ id ] = args
+
+      dbPool.query(SQL `SELECT id, name FROM users WHERE id = ${id}`, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
         if (result.rowCount === 0) return cb(Boom.notFound())
 
