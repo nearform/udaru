@@ -2,6 +2,7 @@
 
 const Boom = require('boom')
 const dbUtil = require('./dbUtil')
+const SQL = dbUtil.SQL
 const async = require('async')
 
 module.exports = function (dbPool, log) {
@@ -21,7 +22,15 @@ module.exports = function (dbPool, log) {
     * $1 = org_id
     */
     listOrgTeams: function listOrgTeams (args, cb) {
-      dbPool.query('SELECT  id, name, description from teams WHERE org_id = $1 ORDER BY UPPER(name)', args, function (err, result) {
+      const [ orgId ] = args
+      const sql = SQL `
+        SELECT  id, name, description
+        from teams
+        WHERE org_id = ${orgId}
+        ORDER BY UPPER(name)
+      `
+
+      dbPool.query(sql, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
 
         return cb(null, result.rows)
@@ -35,7 +44,14 @@ module.exports = function (dbPool, log) {
     * $4 = org_id
     */
     createTeam: function createTeam (args, cb) {
-      dbPool.query('INSERT INTO teams (id, name, description, team_parent_id, org_id) VALUES (DEFAULT, $1, $2, $3, $4) RETURNING id', args, function (err, result) {
+      const [ name, description, teamParentId, orgId ] = args
+      const sql = SQL `
+        INSERT INTO teams (id, name, description, team_parent_id, org_id)
+        VALUES (DEFAULT, ${name}, ${description}, ${teamParentId}, ${orgId})
+        RETURNING id
+      `
+
+      dbPool.query(sql, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
 
         teamOps.readTeamById([result.rows[0].id], cb)
@@ -46,6 +62,7 @@ module.exports = function (dbPool, log) {
     * $1 = id
     */
     readTeamById: function readTeamById (args, cb) {
+      const [ id ] = args
       const team = {
         'id': null,
         'name': null,
@@ -59,7 +76,7 @@ module.exports = function (dbPool, log) {
         if (err) return cb(Boom.badImplementation(err))
 
         tasks.push((next) => {
-          client.query('SELECT id, name, description from teams WHERE id = $1', args, (err, result) => {
+          client.query(SQL `SELECT id, name, description from teams WHERE id = ${id}`, (err, result) => {
             if (err) return next(err)
             if (result.rowCount === 0) return next(Boom.notFound())
 
@@ -71,7 +88,14 @@ module.exports = function (dbPool, log) {
         })
 
         tasks.push((next) => {
-          client.query('SELECT users.id, users.name from team_members mem, users WHERE mem.team_id = $1 and mem.user_id = users.id ORDER BY UPPER(users.name)', args, function (err, result) {
+          const sql = SQL `
+            SELECT users.id, users.name
+            FROM team_members mem, users
+            WHERE mem.team_id = ${id} and mem.user_id = users.id
+            ORDER BY UPPER(users.name)
+          `
+
+          client.query(sql, function (err, result) {
             if (err) return next(err)
 
             result.rows.forEach(function (row) {
@@ -82,7 +106,13 @@ module.exports = function (dbPool, log) {
         })
 
         tasks.push((next) => {
-          client.query('SELECT pol.id, pol.name, pol.version from team_policies tpol, policies pol WHERE tpol.team_id = $1 and tpol.policy_id = pol.id ORDER BY UPPER(pol.name)', args, function (err, result) {
+          const sql = SQL `
+            SELECT pol.id, pol.name, pol.version from team_policies tpol, policies pol
+            WHERE tpol.team_id = ${id} and tpol.policy_id = pol.id
+            ORDER BY UPPER(pol.name)
+          `
+
+          client.query(sql, function (err, result) {
             if (err) return next(err)
 
             result.rows.forEach(function (row) {
@@ -120,21 +150,27 @@ module.exports = function (dbPool, log) {
 
         tasks.push((next) => { client.query('BEGIN', next) })
         tasks.push((next) => {
-          client.query('UPDATE teams SET name = $2, description = $3 WHERE id = $1', [id, name, description], (err, res) => {
+          const sql = SQL `
+            UPDATE teams
+            SET name = ${name}, description = ${description}
+            WHERE id = ${id}
+          `
+
+          client.query(sql, (err, res) => {
             if (err) return next(err)
             if (res.rowCount === 0) return next(Boom.notFound())
 
             next()
           })
         })
-        tasks.push((next) => { client.query('DELETE FROM team_members WHERE team_id = $1', [id], next) })
+        tasks.push((next) => { client.query(SQL `DELETE FROM team_members WHERE team_id = ${id}`, next) })
 
         if (users.length > 0) {
           const stmt = dbUtil.buildInsertStmt('INSERT INTO team_members (user_id, team_id) VALUES ', users.map(u => [u.id, id]))
           tasks.push((next) => { client.query(stmt.statement, stmt.params, next) })
         }
 
-        tasks.push((next) => { client.query('DELETE FROM team_policies WHERE team_id = $1', [id], next) })
+        tasks.push((next) => { client.query(SQL `DELETE FROM team_policies WHERE team_id = ${id}`, next) })
 
         if (policies.length > 0) {
           const stmt = dbUtil.buildInsertStmt('INSERT INTO team_policies (policy_id, team_id) VALUES ', policies.map(p => [p.id, id]))
@@ -159,15 +195,16 @@ module.exports = function (dbPool, log) {
     * $1 = id
     */
     deleteTeamById: function deleteTeamById (args, cb) {
+      const [ id ] = args
       const tasks = []
       dbPool.connect(function (err, client, done) {
         if (err) return cb(Boom.badImplementation(err))
 
         tasks.push((next) => { client.query('BEGIN', next) })
-        tasks.push((next) => { client.query('DELETE from team_members WHERE team_id = $1', args, next) })
-        tasks.push((next) => { client.query('DELETE from team_policies WHERE team_id = $1', args, next) })
+        tasks.push((next) => { client.query(SQL `DELETE from team_members WHERE team_id = ${id}`, next) })
+        tasks.push((next) => { client.query(SQL `DELETE from team_policies WHERE team_id = ${id}`, next) })
         tasks.push((next) => {
-          client.query('DELETE from teams WHERE id = $1', args, (err, result) => {
+          client.query(SQL `DELETE from teams WHERE id = ${id}`, (err, result) => {
             if (err) return next(err)
             if (result.rowCount === 0) return next(Boom.notFound())
 

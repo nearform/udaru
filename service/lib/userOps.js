@@ -3,6 +3,7 @@
 const Boom = require('boom')
 const async = require('async')
 const dbUtil = require('./dbUtil')
+const SQL = dbUtil.SQL
 
 module.exports = function (dbPool, log) {
   var userOps = {
@@ -19,7 +20,7 @@ module.exports = function (dbPool, log) {
     * no query args (but may e.g. sort in future)
     */
     listAllUsers: function listAllUsers (args, cb) {
-      dbPool.query('SELECT * from users ORDER BY UPPER(name)', function (err, result) {
+      dbPool.query('SELECT * FROM users ORDER BY UPPER(name)', function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
 
         return cb(null, result.rows)
@@ -30,7 +31,15 @@ module.exports = function (dbPool, log) {
     * $1 = org_id
     */
     listOrgUsers: function listOrgUsers (args, cb) {
-      dbPool.query('SELECT  * from users WHERE org_id = $1 ORDER BY UPPER(name)', args, function (err, result) {
+      const [ orgId ] = args
+      const sql = SQL `
+        SELECT *
+        FROM users
+        WHERE org_id = ${orgId}
+        ORDER BY UPPER(name)
+      `
+
+      dbPool.query(sql, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
 
         return cb(null, result.rows)
@@ -41,7 +50,14 @@ module.exports = function (dbPool, log) {
     * $1 = name, $2 = org_id
     */
     createUser: function createUser (args, cb) {
-      dbPool.query('INSERT INTO users (id, name, org_id) VALUES (DEFAULT, $1, $2) RETURNING id', args, function (err, result) {
+      const [ name, orgId ] = args
+      const sql = SQL `
+        INSERT INTO users (id, name, org_id)
+        VALUES (DEFAULT, ${name}, ${orgId})
+        RETURNING id
+      `
+
+      dbPool.query(sql, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
 
         userOps.readUserById([result.rows[0].id], cb)
@@ -53,7 +69,13 @@ module.exports = function (dbPool, log) {
     * (allows passing in of ID for test purposes)
     */
     createUserById: function createUserById (args, cb) {
-      dbPool.query('INSERT INTO users (id, name, org_id) VALUES ($1, $2, $3)', args, function (err, result) {
+      const [ id, name, orgId ] = args
+      const sql = SQL `
+        INSERT INTO users (id, name, org_id)
+        VALUES (${id}, ${name}, ${orgId})
+      `
+
+      dbPool.query(sql, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
 
         userOps.readUserById([args[0]], cb)
@@ -64,6 +86,7 @@ module.exports = function (dbPool, log) {
     * $1 = id
     */
     readUserById: function readUserById (args, cb) {
+      const [ id ] = args
       const user = {
         'id': null,
         'name': null,
@@ -76,7 +99,7 @@ module.exports = function (dbPool, log) {
         if (err) return cb(Boom.badImplementation(err))
 
         tasks.push((next) => {
-          client.query('SELECT id, name from users WHERE id = $1', args, function (err, result) {
+          client.query(SQL `SELECT id, name FROM users WHERE id = ${id}`, function (err, result) {
             if (err) return next(err)
             if (result.rowCount === 0) return next(Boom.notFound())
 
@@ -88,7 +111,14 @@ module.exports = function (dbPool, log) {
         })
 
         tasks.push((next) => {
-          client.query('SELECT teams.id, teams.name from team_members mem, teams WHERE mem.user_id = $1 and mem.team_id = teams.id ORDER BY UPPER(teams.name)', args, function (err, result) {
+          const sql = SQL `
+            SELECT teams.id, teams.name
+            FROM team_members mem, teams
+            WHERE mem.user_id = ${id} and mem.team_id = teams.id
+            ORDER BY UPPER(teams.name)
+          `
+
+          client.query(sql, function (err, result) {
             if (err) return next(err)
             result.rows.forEach(function (row) {
               user.teams.push(row)
@@ -98,7 +128,14 @@ module.exports = function (dbPool, log) {
         })
 
         tasks.push((next) => {
-          client.query('SELECT pol.id, pol.name, pol.version from user_policies upol, policies pol WHERE upol.user_id = $1 and upol.policy_id = pol.id ORDER BY UPPER(pol.name)', args, function (err, result) {
+          const sql = SQL `
+            SELECT pol.id, pol.name, pol.version
+            FROM user_policies upol, policies pol
+            WHERE upol.user_id = ${id} and upol.policy_id = pol.id
+            ORDER BY UPPER(pol.name)
+          `
+
+          client.query(sql, function (err, result) {
             if (err) return next(err)
             result.rows.forEach(function (row) {
               user.policies.push(row)
@@ -130,21 +167,23 @@ module.exports = function (dbPool, log) {
 
         tasks.push((next) => { client.query('BEGIN', next) })
         tasks.push((next) => {
-          client.query('UPDATE users SET name = $2 WHERE id = $1', [id, name], (err, res) => {
+          client.query(SQL `UPDATE users SET name = ${name} WHERE id = ${id}`, (err, res) => {
             if (err) return next(err)
             if (res.rowCount === 0) return next(Boom.notFound())
 
             next(null, res)
           })
         })
-        tasks.push((next) => { client.query('DELETE FROM team_members WHERE user_id = $1', [id], next) })
+        tasks.push((next) => {
+          client.query(SQL `DELETE FROM team_members WHERE user_id = ${id}`, next)
+        })
 
         if (teams.length > 0) {
           let stmt = dbUtil.buildInsertStmt('INSERT INTO team_members (team_id, user_id) VALUES ', teams.map(t => [t.id, id]))
           tasks.push((next) => { client.query(stmt.statement, stmt.params, next) })
         }
 
-        tasks.push((next) => { client.query('DELETE FROM user_policies WHERE user_id = $1', [id], next) })
+        tasks.push((next) => { client.query(SQL `DELETE FROM user_policies WHERE user_id = ${id}`, next) })
 
         if (policies.length > 0) {
           let stmt = dbUtil.buildInsertStmt('INSERT INTO user_policies (policy_id, user_id) VALUES ', policies.map(p => [p.id, id]))
@@ -169,15 +208,16 @@ module.exports = function (dbPool, log) {
     * $1 = id
     */
     deleteUserById: function deleteUserById (args, cb) {
+      const [ id ] = args
       const tasks = []
       dbPool.connect(function (err, client, done) {
         if (err) return cb(Boom.badImplementation(err))
 
         tasks.push((next) => { client.query('BEGIN', next) })
-        tasks.push((next) => { client.query('DELETE from user_policies WHERE user_id = $1', args, next) })
-        tasks.push((next) => { client.query('DELETE from team_members WHERE user_id = $1', args, next) })
+        tasks.push((next) => { client.query(SQL `DELETE from user_policies WHERE user_id = ${id}`, next) })
+        tasks.push((next) => { client.query(SQL `DELETE from team_members WHERE user_id = ${id}`, next) })
         tasks.push((next) => {
-          client.query('DELETE from users WHERE id = $1', args, function (err, result) {
+          client.query(SQL `DELETE from users WHERE id = ${id}`, args, function (err, result) {
             if (err) return next(err)
             if (result.rowCount === 0) return next(Boom.notFound())
 
@@ -202,7 +242,7 @@ module.exports = function (dbPool, log) {
     * $1 = id
     */
     getUserByToken: function getUserByToken (userId, cb) {
-      dbPool.query('SELECT id, name FROM users WHERE id = $1', [ userId ], function (err, result) {
+      dbPool.query(SQL `SELECT id, name FROM users WHERE id = ${userId}`, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
         if (result.rowCount === 0) return cb(Boom.notFound())
 
