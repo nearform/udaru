@@ -31,11 +31,11 @@ module.exports = function (dbPool, log) {
      * @param  {Function} cb
      */
     create: function create (args, cb) {
+      const tasks = []
+      const user = args.user
       let params = [args.id, args.name, args.description]
-      let user = args.user
       let adminPolicyId
       let adminUserId
-      const tasks = []
 
       dbPool.connect(function (err, client, done) {
         if (err) return cb(Boom.badImplementation(err))
@@ -69,6 +69,11 @@ module.exports = function (dbPool, log) {
           if (err) {
             dbUtil.rollback(client, done)
             return cb(err.isBoom ? err : Boom.badImplementation(err))
+          }
+
+          result = {
+            organization: result,
+            user: user && {name: user.name, id: adminUserId}
           }
 
           done()

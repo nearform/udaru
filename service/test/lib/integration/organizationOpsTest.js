@@ -33,21 +33,21 @@ lab.experiment('OrganizationOps', () => {
   })
 
   lab.test('create an organization (and delete it) should create the organization default policies', (done) => {
-    organizationOps.create({id: 'nearForm', name: 'nearForm', description: 'nearform description'}, (err, organization) => {
+    organizationOps.create({id: 'nearForm', name: 'nearForm', description: 'nearform description'}, (err, result) => {
       expect(err).to.not.exist()
-      expect(organization).to.exist()
-      expect(organization.name).to.equal('nearForm')
+      expect(result.organization).to.exist()
+      expect(result.organization.name).to.equal('nearForm')
 
-      policyOps.listByOrganization('nearForm', (err, result) => {
+      policyOps.listByOrganization('nearForm', (err, res) => {
         expect(err).to.not.exist()
-        expect(result).to.exist()
-        expect(result.length).to.be.at.least(defaultPolicies.length)
+        expect(res).to.exist()
+        expect(res.length).to.be.at.least(defaultPolicies.length)
 
-        let policiesNames = result.map(p => p.name).sort()
+        let policiesNames = res.map(p => p.name).sort()
         let expectedNames = defaultPolicies.map(p => p.name).sort()
         expect(policiesNames).to.equal(expectedNames)
 
-        organizationOps.deleteById(organization.id, done)
+        organizationOps.deleteById(result.organization.id, done)
       })
     })
   })
@@ -60,28 +60,32 @@ lab.experiment('OrganizationOps', () => {
       user: {
         name: 'example example'
       }
-    }, (err, organization) => {
+    }, (err, result) => {
       expect(err).to.not.exist()
-      expect(organization).to.exist()
-      expect(organization.name).to.equal('nearForm')
+      expect(result).to.exist()
+      expect(result.organization).to.exist()
+      expect(result.organization.name).to.equal('nearForm')
+      expect(result.user).to.exist()
+      expect(result.user.name).to.equal('example example')
+      expect(result.user.id).to.not.be.null()
 
-      userOps.listOrgUsers(['nearForm'], (err, result) => {
+      userOps.listOrgUsers(['nearForm'], (err, res) => {
         expect(err).to.not.exist()
-        expect(result).to.exist()
-        expect(result.length).to.equal(1)
-        expect(result[0].name).to.equal('example example')
+        expect(res).to.exist()
+        expect(res.length).to.equal(1)
+        expect(res[0].name).to.equal('example example')
 
-        userOps.readUserById([result[0].id], (err, user) => {
+        userOps.readUserById([res[0].id], (err, user) => {
           expect(err).to.not.exist()
           expect(user).to.exist()
           expect(user.teams.length).to.equal(0)
 
-          organizationOps.deleteById(organization.id, (err, result) => {
+          organizationOps.deleteById(result.organization.id, (err, res) => {
             expect(err).to.not.exist()
 
-            userOps.listAllUsers([], (err, result) => {
+            userOps.listAllUsers([], (err, res) => {
               expect(err).to.not.exist()
-              expect(result.length).to.equal(6)
+              expect(res.length).to.equal(6)
               done()
             })
           })
@@ -97,14 +101,14 @@ lab.experiment('OrganizationOps', () => {
     organizationOps.create(createData, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
-      expect(result.name).to.equal('nearForm')
+      expect(result.organization.name).to.equal('nearForm')
 
-      organizationOps.update(updateData, (err, result) => {
+      organizationOps.update(updateData, (err, res) => {
         expect(err).to.not.exist()
-        expect(result).to.exist()
-        expect(result).to.equal(updateData)
+        expect(res).to.exist()
+        expect(res).to.equal(updateData)
 
-        organizationOps.deleteById(result.id, done)
+        organizationOps.deleteById(result.organization.id, done)
       })
     })
   })

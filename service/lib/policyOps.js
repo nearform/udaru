@@ -222,7 +222,7 @@ module.exports = function (dbPool) {
       client.query(stmt.statement, stmt.params, function (err, result) {
         if (err) return cb(err)
 
-        let name = config.get('authorization.organizations.defaultPolicies.0.name', {'organizationId': organizationId})
+        const name = config.get('authorization.organizations.defaultPolicies.0.name', {'organizationId': organizationId})
         client.query('SELECT id FROM policies WHERE org_id = $1 AND name = $2', [organizationId, name], function (err, result) {
           if (err) return cb(err)
           if (result.rowCount === 0) return cb(new Error(`No policy found for org ${organizationId} with name ${name}`))
