@@ -12,8 +12,15 @@ module.exports = new Reconfig({
   logger: {
     good: {
       options: {
-        opsInterval: 1000,
-        reporters: [{ reporter: 'good-console', events: { log: '*', response: '*' } }]
+        ops: {
+          interval: 1000
+        },
+        reporters: {
+          goodConsole: [{
+            module: 'good-console',
+            args: [{ log: '*', response: '*' }]
+          }]
+        }
       }
     }
   }
