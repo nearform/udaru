@@ -27,5 +27,45 @@ module.exports = new Reconfig({
         ]
       }
     }
+  },
+  authorization: {
+    organizations: {
+      defaultPolicies: [
+        {
+          version: '1',
+          name: ':organizationId admin',
+          org_id: ':organizationId',
+          statements: {
+            'Statement': [
+              {
+                'Effect': 'Allow',
+                'Action': ['authorization:organization:read'],
+                'Resource': [':organizationId:/authorization/organizations/*']
+              },
+              {
+                'Effect': 'Allow',
+                'Action': ['authorization:users:*'],
+                'Resource': [':organizationId:/authorization/users*']
+              },
+              {
+                'Effect': 'Allow',
+                'Action': ['authorization:teams:*'],
+                'Resource': [':organizationId:/authorization/teams*']
+              },
+              {
+                'Effect': 'Allow',
+                'Action': ['authorization:policies:list'],
+                'Resource': [':organizationId:/authorization/policies']
+              },
+              {
+                'Effect': 'Allow',
+                'Action': ['authorization:policy:read'],
+                'Resource': [':organizationId:/authorization/policies/*']
+              }
+            ]
+          }
+        }
+      ]
+    }
   }
 }, { envPrefix: 'LABS_AUTH_SERVICE' })

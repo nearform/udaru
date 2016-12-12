@@ -11,6 +11,8 @@ const TeamOps = require('../../../lib/teamOps')
 const UserOps = require('../../../lib/userOps')
 const PolicyOps = require('../../../lib/policyOps')
 const dbConn = require('../../../lib/dbConn')
+const config = require('../../../lib/config')
+const defaultPolicies = config.get('authorization.organizations.defaultPolicies', {'organizationId': 'nearForm'})
 
 const db = dbConn.create(logger)
 const organizationOps = OrganizationOps(db.pool, logger)
@@ -30,13 +32,23 @@ lab.experiment('OrganizationOps', () => {
     })
   })
 
-  lab.test('create an organization (and delete it)', (done) => {
-    organizationOps.create({id: 'nearForm', name: 'nearForm', description: 'nearform description'}, (err, result) => {
+  lab.test('create an organization (and delete it) should create the organization default policies', (done) => {
+    organizationOps.create({id: 'nearForm', name: 'nearForm', description: 'nearform description'}, (err, organization) => {
       expect(err).to.not.exist()
-      expect(result).to.exist()
-      expect(result.name).to.equal('nearForm')
+      expect(organization).to.exist()
+      expect(organization.name).to.equal('nearForm')
 
-      organizationOps.deleteById(result.id, done)
+      policyOps.listByOrganization('nearForm', (err, result) => {
+        expect(err).to.not.exist()
+        expect(result).to.exist()
+        expect(result.length).to.be.at.least(defaultPolicies.length)
+
+        let policiesNames = result.map(p => p.name).sort()
+        let expectedNames = defaultPolicies.map(p => p.name).sort()
+        expect(policiesNames).to.equal(expectedNames)
+
+        organizationOps.deleteById(organization.id, done)
+      })
     })
   })
 

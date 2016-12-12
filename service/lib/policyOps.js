@@ -3,6 +3,7 @@
 const Boom = require('boom')
 const async = require('async')
 const dbUtil = require('./dbUtil')
+const config = require('./config')
 
 module.exports = function (dbPool) {
   var policyOps = {
@@ -59,9 +60,12 @@ module.exports = function (dbPool) {
       })
     },
 
-    /*
-    * no query args (but may e.g. sort in future)
-    */
+    /**
+     * List all policies (id, version and vame)
+     *
+     * @param  {Object}   args
+     * @param  {Function} cb
+     */
     listAllPolicies: function listAllPolicies (args, cb) {
       dbPool.query('SELECT  id, version, name from policies ORDER BY UPPER(name)', function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
@@ -70,10 +74,24 @@ module.exports = function (dbPool) {
       })
     },
 
-    /*
-    * gathers all policy list including the policy statements
-    * no query args (but may e.g. sort in future)
-    */
+    /**
+     * List all the policies related to a specific organization
+     *
+     * @param  {String}   organizationId
+     * @param  {Function} cb
+     */
+    listByOrganization: function listByOrganization (organizationId, cb) {
+      dbPool.query('SELECT  id, version, name from policies WHERE org_id = $1 ORDER BY UPPER(name)', [organizationId], function (err, result) {
+        if (err) return cb(Boom.badImplementation(err))
+
+        return cb(null, result.rows)
+      })
+    },
+
+    /**
+     * gathers all policy list including the policy statements
+     * no query args (but may e.g. sort in future)
+     */
     listAllPoliciesDetails: function listAllPoliciesDetails (args, cb) {
       dbPool.query('SELECT  id, version, name, statements from policies ORDER BY UPPER(name)', function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
@@ -82,9 +100,9 @@ module.exports = function (dbPool) {
       })
     },
 
-    /*
-    * $1 = id
-    */
+    /**
+     * $1 = id
+     */
     readPolicyById: function readPolicyById (args, cb) {
       dbPool.query('SELECT id, version, name, statements from policies WHERE id = $1', args, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
@@ -94,12 +112,12 @@ module.exports = function (dbPool) {
       })
     },
 
-    /*
-    * $1 = version
-    * $2 = name
-    * $3 = org_id
-    * $4 = statements
-    */
+    /**
+     * $1 = version
+     * $2 = name
+     * $3 = org_id
+     * $4 = statements
+     */
     createPolicy: function createPolicy (args, cb) {
       dbPool.query('INSERT INTO policies (id, version, name, org_id, statements) VALUES (DEFAULT, $1, $2, $3, $4) RETURNING id', args, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
@@ -183,6 +201,12 @@ module.exports = function (dbPool) {
           return cb(null)
         })
       })
+    },
+
+    createOrgDefaultPolicies: function createOrgDefaultPolicies (client, organizationId, cb) {
+      const defaultPolicies = config.get('authorization.organizations.defaultPolicies', {'organizationId': organizationId})
+      const stmt = dbUtil.buildInsertStmt('INSERT INTO policies (version, name, org_id, statements) VALUES ', defaultPolicies.map(policy => [policy.version, policy.name, policy.org_id, policy.statements]))
+      client.query(stmt.statement, stmt.params, cb)
     }
   }
 
