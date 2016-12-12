@@ -23,17 +23,15 @@ exports.register = function (server, options, next) {
     },
     config: {
       description: 'Authorize user action against a resource [TBD]',
-      tags: ['api', 'service', 'authorization'],
+      notes: 'The GET /authorization/check/{userId}/{action}/{resource} endpoint returns is a user can perform and action\non a resource\n',
+      tags: [ 'api', 'service', 'get', 'authorization', 'check' ],
       validate: {
         params: {
           userId: Joi.number().required().description('The user that wants to perform the action on a given resource'),
           action: Joi.string().required().description('The action to check'),
           resource: Joi.string().required().description('The resource that the user wants to perform the action on')
         }
-      },
-      description: 'Fetch all the defined policies',
-      notes: 'The GET /authorization/check/{userId}/{action}/{resource} endpoint returns is a user can perform and action\non a resource\n',
-      tags: [ 'api', 'service', 'get', 'authorization', 'check' ]
+      }
     }
   })
 
@@ -51,16 +49,14 @@ exports.register = function (server, options, next) {
     },
     config: {
       description: 'List all the actions a user can perform on a resource [TBD]',
-      tags: ['api', 'service', 'authorization'],
+      tags: [ 'api', 'service', 'get', 'authorization', 'list' ],
+      notes: 'The GET /authorization/list/{userId}/{resource} endpoint returns a list of all the actions a user\ncan perform on a given resource\n',
       validate: {
         params: {
           userId: Joi.number().required().description('The user that wants to perform the action on a given resource'),
           resource: Joi.string().required().description('The resource that the user wants to perform the action on')
         }
-      },
-      description: 'Fetch all the defined policies',
-      notes: 'The GET /authorization/list/{userId}/{resource} endpoint returns a list of all the actions a user\ncan perform on a given resource\n',
-      tags: [ 'api', 'service', 'get', 'authorization', 'list' ]
+      }
     }
   })
 
