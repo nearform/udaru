@@ -34,7 +34,6 @@ module.exports = function (dbPool, log) {
       let params = [args.id, args.name, args.description]
       let user = args.user
       let adminPolicyId
-      let adminTeamId
       let adminUserId
       const tasks = []
 
@@ -60,15 +59,7 @@ module.exports = function (dbPool, log) {
               next(null, adminUserId)
             })
           })
-          tasks.push((res, next) => {
-            client.query('INSERT INTO teams (id, name, description, team_parent_id, org_id) VALUES (DEFAULT, $1, $2, $3, $4) RETURNING id', [`${args.id} admins`, `${args.id} admins`, null, args.id], function (err, result) {
-              if (err) return next(err)
-              adminTeamId = result.rows[0].id
-              next(null, adminTeamId)
-            })
-          })
-          tasks.push((res, next) => { client.query('INSERT INTO team_members (user_id, team_id) VALUES ($1, $2)', [adminUserId, adminTeamId], next) })
-          tasks.push((res, next) => { client.query('INSERT INTO team_policies (policy_id, team_id) VALUES ($1, $2)', [adminPolicyId, adminTeamId], next) })
+          tasks.push((res, next) => { client.query('INSERT INTO user_policies (user_id, policy_id) VALUES ($1, $2)', [adminUserId, adminPolicyId], next) })
         }
 
         tasks.push((res, next) => { client.query('COMMIT', next) })

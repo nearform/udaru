@@ -74,23 +74,15 @@ lab.experiment('OrganizationOps', () => {
         userOps.readUserById([result[0].id], (err, user) => {
           expect(err).to.not.exist()
           expect(user).to.exist()
-          expect(user.teams.length).to.equal(1)
-          expect(user.teams[0].name).to.equal('nearForm admins')
+          expect(user.teams.length).to.equal(0)
 
-          teamOps.readTeamById([user.teams[0].id], (err, team) => {
+          organizationOps.deleteById(organization.id, (err, result) => {
             expect(err).to.not.exist()
-            expect(team).to.exist()
-            expect(team.users[0].id).to.equal(user.id)
-            expect(team.policies[0].name).to.equal('nearForm admin')
 
-            organizationOps.deleteById(organization.id, (err, result) => {
+            userOps.listAllUsers([], (err, result) => {
               expect(err).to.not.exist()
-
-              userOps.listAllUsers([], (err, result) => {
-                expect(err).to.not.exist()
-                expect(result.length).to.equal(6)
-                done()
-              })
+              expect(result.length).to.equal(6)
+              done()
             })
           })
         })
