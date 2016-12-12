@@ -113,7 +113,7 @@ lab.experiment('OrganizationOps', () => {
     })
     tasks.push((next) => {
       policyOps.listAllPolicies([], (err, result) => {
-        expect(result.length).to.equal(8)
+        expect(result.length).to.equal(9)
         next(err, result)
       })
     })
@@ -167,7 +167,7 @@ lab.experiment('OrganizationOps', () => {
     })
     tasks.push((next) => {
       policyOps.listAllPolicies([], (err, result) => {
-        expect(result.length).to.equal(8)
+        expect(result.length).to.equal(9)
         next(err, result)
       })
     })
