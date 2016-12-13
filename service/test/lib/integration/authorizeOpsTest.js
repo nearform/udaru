@@ -18,13 +18,19 @@ const policyOps = PolicyOps(db.pool)
 const authorize = Authorize(userOps, policyOps)
 const teamOps = TeamOps(db.pool, logger)
 
+
+const testUserData = {
+  name: 'Salman',
+  organizationId: 'WONKA'
+}
+
 lab.experiment('AuthorizeOps', () => {
   lab.test('check authorization should return access true for allowed', (done) => {
     const tasks = []
     let testUserId
 
     tasks.push((next) => {
-      userOps.createUser(['Salman', 'WONKA'], (err, result) => {
+      userOps.createUser(testUserData, (err, result) => {
         if (err) return next(err)
         testUserId = result.id
 
@@ -33,7 +39,7 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      userOps.updateUser([testUserId, 'Salman', [{id: 4}], [{id: 1}]], (err, result) => {
+      userOps.updateUser([testUserId, 'Salman', [{ id: 4 }], [{ id: 1 }]], (err, result) => {
         if (err) return next(err)
 
         next(err)
@@ -41,7 +47,7 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      authorize.isUserAuthorized({userId: testUserId, resource: 'database:pg01:balancesheet', action: 'finance:ReadBalanceSheet'}, (err, result) => {
+      authorize.isUserAuthorized({ userId: testUserId, resource: 'database:pg01:balancesheet', action: 'finance:ReadBalanceSheet' }, (err, result) => {
         if (err) return next(err)
 
         expect(err).to.not.exist()
@@ -68,7 +74,7 @@ lab.experiment('AuthorizeOps', () => {
     let testUserId
 
     tasks.push((next) => {
-      userOps.createUser(['Salman', 'WONKA'], (err, result) => {
+      userOps.createUser(testUserData, (err, result) => {
         if (err) return next(err)
         testUserId = result.id
 
@@ -77,14 +83,14 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      userOps.updateUser([testUserId, 'Salman', [{id: 4}], [{id: 5}]], (err, result) => {
+      userOps.updateUser([testUserId, 'Salman', [{ id: 4 }], [{ id: 5 }]], (err, result) => {
         if (err) return next(err)
         next()
       })
     })
 
     tasks.push((next) => {
-      authorize.isUserAuthorized({userId: testUserId, resource: 'database:pg01:balancesheet', action: 'database:dropTable'}, (err, result) => {
+      authorize.isUserAuthorized({ userId: testUserId, resource: 'database:pg01:balancesheet', action: 'database:dropTable' }, (err, result) => {
         if (err) return next(err)
 
         expect(err).to.not.exist()
@@ -110,7 +116,7 @@ lab.experiment('AuthorizeOps', () => {
     let testUserId
 
     tasks.push((next) => {
-      userOps.createUser(['Salman', 'WONKA'], (err, result) => {
+      userOps.createUser(testUserData, (err, result) => {
         if (err) next(err)
         testUserId = result.id
 
@@ -119,14 +125,14 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      userOps.updateUser([testUserId, 'Salman', [{id: 4}], [{id: 6}]], (err, result) => {
+      userOps.updateUser([testUserId, 'Salman', [{ id: 4 }], [{ id: 6 }]], (err, result) => {
         if (err) next(err)
         next()
       })
     })
 
     tasks.push((next) => {
-      authorize.isUserAuthorized({userId: testUserId, resource: 'database:pg01:balancesheet', action: 'database:Read'}, (err, result) => {
+      authorize.isUserAuthorized({ userId: testUserId, resource: 'database:pg01:balancesheet', action: 'database:Read' }, (err, result) => {
         if (err) next(err)
 
         expect(err).to.not.exist()
@@ -152,7 +158,7 @@ lab.experiment('AuthorizeOps', () => {
     let testUserId
 
     tasks.push((next) => {
-      userOps.createUser(['Salman', 'WONKA'], (err, result) => {
+      userOps.createUser(testUserData, (err, result) => {
         if (err) next(err)
         testUserId = result.id
 
@@ -161,14 +167,14 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      userOps.updateUser([testUserId, 'Salman', [{id: 4}], [{id: 7}]], (err, result) => {
+      userOps.updateUser([testUserId, 'Salman', [{ id: 4 }], [{ id: 7 }]], (err, result) => {
         if (err) next(err)
         next()
       })
     })
 
     tasks.push((next) => {
-      authorize.isUserAuthorized({userId: testUserId, resource: 'database:pg01:balancesheet', action: 'database:Delete'}, (err, result) => {
+      authorize.isUserAuthorized({ userId: testUserId, resource: 'database:pg01:balancesheet', action: 'database:Delete' }, (err, result) => {
         if (err) next(err)
 
         expect(err).to.not.exist()
@@ -194,7 +200,7 @@ lab.experiment('AuthorizeOps', () => {
     let testUserId
 
     tasks.push((next) => {
-      userOps.createUser(['Salman', 'WONKA'], (err, result) => {
+      userOps.createUser(testUserData, (err, result) => {
         if (err) next(err)
         testUserId = result.id
 
@@ -203,14 +209,14 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      userOps.updateUser([testUserId, 'Salman', [{id: 4}], [{id: 8}]], (err, result) => {
+      userOps.updateUser([testUserId, 'Salman', [{ id: 4 }], [{ id: 8 }]], (err, result) => {
         if (err) next(err)
         next()
       })
     })
 
     tasks.push((next) => {
-      authorize.isUserAuthorized({userId: testUserId, resource: '/my/site/i/should/read/this', action: 'Read'}, (err, result) => {
+      authorize.isUserAuthorized({ userId: testUserId, resource: '/my/site/i/should/read/this', action: 'Read' }, (err, result) => {
         if (err) next(err)
 
         expect(err).to.not.exist()
@@ -236,7 +242,7 @@ lab.experiment('AuthorizeOps', () => {
     let testUserId
 
     tasks.push((next) => {
-      userOps.createUser(['Salman', 'WONKA'], (err, result) => {
+      userOps.createUser(testUserData, (err, result) => {
         if (err) next(err)
         testUserId = result.id
 
@@ -245,14 +251,14 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      userOps.updateUser([testUserId, 'Salman', [{id: 4}], [{id: 6}]], (err, result) => {
+      userOps.updateUser([testUserId, 'Salman', [{ id: 4 }], [{ id: 6 }]], (err, result) => {
         if (err) next(err)
         next()
       })
     })
 
     tasks.push((next) => {
-      authorize.isUserAuthorized({userId: testUserId, resource: 'database:pg01:balancesheet', action: 'database:Write'}, (err, result) => {
+      authorize.isUserAuthorized({ userId: testUserId, resource: 'database:pg01:balancesheet', action: 'database:Write' }, (err, result) => {
         if (err) next(err)
 
         expect(err).to.not.exist()
@@ -278,7 +284,7 @@ lab.experiment('AuthorizeOps', () => {
     let testUserId
 
     tasks.push((next) => {
-      userOps.createUser(['Salman', 'WONKA'], (err, result) => {
+      userOps.createUser(testUserData, (err, result) => {
         if (err) next(err)
         testUserId = result.id
 
@@ -287,14 +293,14 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      userOps.updateUser([testUserId, 'Salman', [{id: 4}], [{id: 6}]], (err, result) => {
+      userOps.updateUser([testUserId, 'Salman', [{ id: 4 }], [{ id: 6 }]], (err, result) => {
         if (err) next(err)
         next()
       })
     })
 
     tasks.push((next) => {
-      authorize.isUserAuthorized({userId: testUserId, resource: 'database:pg01:notMyTable', action: 'database:Write'}, (err, result) => {
+      authorize.isUserAuthorized({ userId: testUserId, resource: 'database:pg01:notMyTable', action: 'database:Write' }, (err, result) => {
         if (err) next(err)
 
         expect(err).to.not.exist()
@@ -334,7 +340,11 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((res, cb) => {
-      userOps.createUser([testUserName, testOrgId], (err, result) => {
+      const userData = {
+        name: testUserName,
+        organizationId: testOrgId
+      }
+      userOps.createUser(userData, (err, result) => {
         testUserId = result.id
         cb(err, result)
       })
@@ -348,7 +358,13 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((result, cb) => {
-      teamOps.createTeam([testTeamName, testTeamDesc, testTeamParent, testOrgId], (err, result) => {
+      const teamData = {
+        name: testTeamName,
+        description: testTeamDesc,
+        parentId: testTeamParent,
+        organizationId: testOrgId
+      }
+      teamOps.createTeam(teamData, (err, result) => {
         testTeamId = result.id
         cb(err, result)
       })
@@ -377,7 +393,7 @@ lab.experiment('AuthorizeOps', () => {
 
     // test for team permissions on the resource
     tasks.push((result, cb) => {
-      teamOps.updateTeam([testTeamId, testTeamName, testTeamDesc, [{id: testUserId}], [{id: 2}]], cb)
+      teamOps.updateTeam([testTeamId, testTeamName, testTeamDesc, [{ id: testUserId }], [{ id: 2 }]], cb)
     })
 
     tasks.push((result, cb) => {
@@ -395,7 +411,7 @@ lab.experiment('AuthorizeOps', () => {
 
     // test for user permissions on the resource
     tasks.push((result, cb) => {
-      userOps.updateUser([testUserId, testUserName, [], [{id: 3}]], cb)
+      userOps.updateUser([testUserId, testUserName, [], [{ id: 3 }]], cb)
     })
 
     tasks.push((result, cb) => {
@@ -413,7 +429,7 @@ lab.experiment('AuthorizeOps', () => {
 
     // test for team and user permissions on the resource
     tasks.push((result, cb) => {
-      userOps.updateUser([testUserId, testUserName, [{id: 1}], [{id: 4}]], cb)
+      userOps.updateUser([testUserId, testUserName, [{ id: 1 }], [{ id: 4 }]], cb)
     })
 
     tasks.push((result, cb) => {
@@ -448,7 +464,9 @@ lab.experiment('AuthorizeOps', () => {
       policyOps.listByOrganization('WONKA', (err, policies) => {
         expect(err).to.not.exist()
 
-        const defaultPolicy = policies.find((p) => { return p.name === 'Default Team Admin for ' + testTeamId })
+        const defaultPolicy = policies.find((p) => {
+          return p.name === 'Default Team Admin for ' + testTeamId
+        })
         expect(defaultPolicy).to.exist()
 
         policyOps.deletePolicyById([defaultPolicy.id], done)

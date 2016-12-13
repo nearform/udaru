@@ -28,13 +28,12 @@ const createOrganization = (job, next) => {
 
 const createTeam = (job, next) => {
   const { organization } = job
-  // const SuperTeam = {
-  //   name: 'SuperTeam',
-  //   description: 'SuperTeam',
-  //   teamParentId: null,
-  //   organizationId: organization.id
-  // }
-  const SuperTeam = ['Super Team', 'SuperAdmin Team', null, organization.id]
+  const SuperTeam = {
+    name: 'Super Team',
+    description: 'SuperAdmin Team',
+    teamParentId: null,
+    organizationId: organization.id
+  }
   teamOps.createTeam(SuperTeam, { createOnly: true }, (error, team) => {
     job.team = team
 
@@ -44,13 +43,10 @@ const createTeam = (job, next) => {
 
 const createUser = (job, next) => {
   const { organization } = job
-  // const SuperTeam = {
-  //   name: 'SuperTeam',
-  //   description: 'SuperTeam',
-  //   teamParentId: null,
-  //   organizationId: organization.id
-  // }
-  const SuperAdmin = ['SuperAdmin', organization.id]
+  const SuperAdmin = {
+    name: 'SuperAdmin',
+    organizationId: organization.id
+  }
   userOps.createUser(SuperAdmin, (error, user) => {
     job.user = user
 

@@ -9,7 +9,8 @@ module.exports = function (dbPool, log) {
   const policyOps = PolicyOps(dbPool)
 
   function insertTeam (job, next) {
-    job.client.query('INSERT INTO teams (id, name, description, team_parent_id, org_id) VALUES (DEFAULT, $1, $2, $3, $4) RETURNING id', job.args, (err, res) => {
+    const args = [job.params.name, job.params.description, job.params.parentId, job.params.organizationId]
+    job.client.query('INSERT INTO teams (id, name, description, team_parent_id, org_id) VALUES (DEFAULT, $1, $2, $3, $4) RETURNING id', args, (err, res) => {
       if (err) return next(err)
       job.team = res.rows[0]
       next()
@@ -17,13 +18,13 @@ module.exports = function (dbPool, log) {
   }
 
   function createDefaultPolicies (job, next) {
-    policyOps.createTeamDefaultPolicies(job.client, job.args[3], job.team.id, next)
+    policyOps.createTeamDefaultPolicies(job.client, job.params.organizationId, job.team.id, next)
   }
 
   var teamOps = {
     /*
-    * no query args (but may e.g. sort in future)
-    */
+     * no query args (but may e.g. sort in future)
+     */
     listAllTeams: function listAllTeams (args, cb) {
       dbPool.query('SELECT  id, name, description from teams ORDER BY UPPER(name)', function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
@@ -33,8 +34,8 @@ module.exports = function (dbPool, log) {
     },
 
     /*
-    * $1 = org_id
-    */
+     * $1 = org_id
+     */
     listOrgTeams: function listOrgTeams (args, cb) {
       dbPool.query('SELECT  id, name, description from teams WHERE org_id = $1 ORDER BY UPPER(name)', args, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
@@ -43,27 +44,31 @@ module.exports = function (dbPool, log) {
       })
     },
 
-    /*
-    * $1 = name
-    * $2 = description
-    * $3 = team_parent_id
-    * $4 = org_id
-    */
-    createTeam: function createTeam (args, opts, cb) {
+    /**
+     * Creates a new team
+     *
+     * @param  {Object}   params { name, description, parentId, organizationId }
+     * @param  {Object}   opts { createOnly }
+     * @param  {Function} cb
+     */
+    createTeam: function createTeam (params, opts, cb) {
       if (!cb) {
         cb = opts
         opts = {}
       }
 
+      const { createOnly } = opts
       const tasks = [
         (job, next) => {
-          job.args = args
+          job.params = params
           next()
         },
         insertTeam
       ]
-      if (!opts.createOnly) {
-        tasks.push(createDefaultPolicies)
+      if (!createOnly) {
+        tasks.push(
+          createDefaultPolicies
+        )
       }
 
       dbUtil.withTransaction(dbPool, tasks, (err, res) => {
@@ -74,8 +79,8 @@ module.exports = function (dbPool, log) {
     },
 
     /*
-    * $1 = id
-    */
+     * $1 = id
+     */
     readTeamById: function readTeamById (args, cb) {
       const team = {
         'id': null,
@@ -133,12 +138,12 @@ module.exports = function (dbPool, log) {
     },
 
     /*
-    * $1 = id
-    * $2 = name
-    * $3 = description
-    * $4 = users
-    * $5 = policies
-    */
+     * $1 = id
+     * $2 = name
+     * $3 = description
+     * $4 = users
+     * $5 = policies
+     */
     // TODO: Allow updating specific fields only
     updateTeam: function updateTeam (args, cb) {
       const [ id, name, description, users, policies ] = args
@@ -187,8 +192,8 @@ module.exports = function (dbPool, log) {
     },
 
     /*
-    * $1 = id
-    */
+     * $1 = id
+     */
     deleteTeamById: function deleteTeamById (args, cb) {
       const tasks = []
       dbPool.connect(function (err, client, done) {

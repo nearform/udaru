@@ -15,7 +15,7 @@ exports.register = function (server, options, next) {
     config: {
       description: 'Fetch all teams',
       notes: 'The GET /authorization/teams endpoint returns a list of all teams\n',
-      tags: [ 'api', 'service', 'get', 'team' ]
+      tags: ['api', 'service', 'get', 'team']
     }
   })
 
@@ -25,13 +25,12 @@ exports.register = function (server, options, next) {
     handler: function (request, reply) {
       const { name, description } = request.payload
 
-      const params = [
+      const params = {
         name,
         description,
-        null, // TODO: team_parent_id, null coz sub-teams aren't yet implemented
-        'WONKA'
-      ]
-
+        parentId: null,
+        organizationId: 'WONKA'
+      }
       teamOps.createTeam(params, function (err, res) {
         if (err) {
           return reply(err)
@@ -49,7 +48,7 @@ exports.register = function (server, options, next) {
       },
       description: 'Create a teams',
       notes: 'The POST /authorization/teams endpoint creates a new team given its data\n',
-      tags: [ 'api', 'service', 'post', 'team' ]
+      tags: ['api', 'service', 'post', 'team']
     }
   })
 
@@ -71,7 +70,7 @@ exports.register = function (server, options, next) {
       },
       description: 'Fetch a team given its identifier',
       notes: 'The GET /authorization/teams/{id} endpoint returns a single team data\n',
-      tags: [ 'api', 'service', 'get', 'team' ]
+      tags: ['api', 'service', 'get', 'team']
     }
   })
 
@@ -111,7 +110,7 @@ exports.register = function (server, options, next) {
       },
       description: 'Update a team',
       notes: 'The PUT /authorization/teams endpoint updates a team data\n',
-      tags: [ 'api', 'service', 'put', 'team' ]
+      tags: ['api', 'service', 'put', 'team']
     }
   })
 
@@ -139,7 +138,7 @@ exports.register = function (server, options, next) {
       },
       description: 'Delete a team',
       notes: 'The DELETE /authorization/teams endpoint deletes a team\n',
-      tags: [ 'api', 'service', 'delete', 'team' ]
+      tags: ['api', 'service', 'delete', 'team']
     }
   })
 

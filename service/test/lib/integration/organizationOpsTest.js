@@ -172,7 +172,13 @@ lab.experiment('OrganizationOps', () => {
 
     tasks.push((next) => { organizationOps.create({id: 'nearForm222', name: 'nearForm222', description: 'nearform description'}, next) })
     tasks.push((next) => {
-      teamOps.createTeam(['Team 4', 'This is a test team', null, 'nearForm222'], function (err, result) {
+      const teamData = {
+        name: 'Team 4',
+        description: 'This is a test team',
+        parentId: null,
+        organizationId: 'nearForm222'
+      }
+      teamOps.createTeam(teamData, function (err, result) {
         if (err) return next(err)
 
         teamId = result.id
@@ -180,7 +186,11 @@ lab.experiment('OrganizationOps', () => {
       })
     })
     tasks.push((next) => {
-      userOps.createUser(['Grandma Josephine', 'nearForm222'], function (err, result) {
+      const userData = {
+        name: 'Grandma Josephine',
+        organizationId: 'nearForm222'
+      }
+      userOps.createUser(userData, function (err, result) {
         if (err) return next(err)
 
         userId = result.id
