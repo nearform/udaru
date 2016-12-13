@@ -5,6 +5,7 @@ const config = require('./lib/config')
 const dbConn = require('./lib/dbConn')
 
 const Hapi = require('hapi')
+const HapiServiceAuth = require('./hapi-auth-service')
 const server = new Hapi.Server()
 
 server.connection({
@@ -46,10 +47,35 @@ server.register(
     {
       register: require('hapi-swagger'),
       options: swaggerOptions
-    }
+    },
+    HapiServiceAuth
   ],
   function (err) {
-    if (err) { throw err }
+    if (err) {
+      throw err
+    }
+
+    // TODO: extract validation function
+    server.auth.strategy('default', 'service', 'required', {
+      validateFunc: (request, userId, callback) => {
+        const { route } = request
+
+        const action = route.settings.plugins &&
+          route.settings.plugins.auth &&
+          route.settings.plugins.auth.action
+
+        console.log(userId)
+        console.log(action)
+        console.log(route.path)
+
+        console.log('Let\'s go iam-js...')
+
+        callback(null, true, { id: userId, name: 'John' })
+      },
+      unauthorizedAttributes: {
+        allow: false
+      }
+    })
   }
 )
 
@@ -88,7 +114,9 @@ server.register(
     }
   ],
   function (err) {
-    if (err) { throw err }
+    if (err) {
+      throw err
+    }
   }
 )
 

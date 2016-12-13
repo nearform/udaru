@@ -16,7 +16,10 @@ exports.register = function (server, options, next) {
     config: {
       description: 'Fetch all users (of the current user organization)',
       notes: 'The GET /authorization/users endpoint returns a list of all users\n',
-      tags: ['api', 'service', 'get', 'users']
+      tags: ['api', 'service', 'get', 'users'],
+      plugins: {
+        auth: { action: 'authorization:users:list' } // TODO: reusable actions
+      }
     }
   })
 

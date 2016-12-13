@@ -32,7 +32,7 @@ exports.register = function (server, options, next) {
       },
       description: 'Authorize user action against a resource [TBD]',
       notes: 'The GET /authorization/check/{userId}/{action}/{resource} endpoint returns is a user can perform and action\non a resource\n',
-      tags: [ 'api', 'service', 'get', 'authorization', 'check' ]
+      tags: ['api', 'service', 'authorization']
     }
   })
 
@@ -59,7 +59,7 @@ exports.register = function (server, options, next) {
       },
       description: 'List all the actions a user can perform on a resource',
       notes: 'The GET /authorization/list/{userId}/{resource} endpoint returns a list of all the actions a user\ncan perform on a given resource\n',
-      tags: [ 'api', 'service', 'get', 'authorization', 'list' ]
+      tags: ['api', 'service', 'authorization']
     }
   })
 
