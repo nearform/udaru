@@ -44,7 +44,7 @@ lab.experiment('UserOps', () => {
       expect(result).to.exist()
       expect(result).to.equal({ id: 99, name: 'Mike Teavee', teams: [], policies: [] })
 
-      userOps.deleteUserById([99], done)
+      userOps.deleteUserById(99, done)
     })
   })
 
@@ -58,7 +58,7 @@ lab.experiment('UserOps', () => {
       expect(result).to.exist()
       expect(result.name).to.equal('Grandma Josephine')
 
-      userOps.deleteUserById([result.id], done)
+      userOps.deleteUserById(result.id, done)
     })
   })
 

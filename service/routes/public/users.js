@@ -15,7 +15,7 @@ exports.register = function (server, options, next) {
     config: {
       description: 'Fetch all users',
       notes: 'The GET /authorization/users endpoint returns a list of all users\n',
-      tags: [ 'api', 'service', 'get', 'users' ]
+      tags: ['api', 'service', 'get', 'users']
     }
   })
 
@@ -35,7 +35,7 @@ exports.register = function (server, options, next) {
       },
       description: 'Fetch a user given its identifier',
       notes: 'The GET /authorization/users/{id} endpoint returns a single user data\n',
-      tags: [ 'api', 'service', 'get', 'users' ]
+      tags: ['api', 'service', 'get', 'users']
     }
   })
 
@@ -63,7 +63,7 @@ exports.register = function (server, options, next) {
       },
       description: 'Create a new user',
       notes: 'The POST /authorization/users endpoint creates a new user given its data\n',
-      tags: [ 'api', 'service', 'post', 'users' ]
+      tags: ['api', 'service', 'post', 'users']
     }
   })
 
@@ -71,11 +71,9 @@ exports.register = function (server, options, next) {
     method: 'DELETE',
     path: '/authorization/users/{id}',
     handler: function (request, reply) {
-      const params = [
-        request.params.id
-      ]
+      const userId = request.params.id
 
-      userOps.deleteUserById(params, function (err, res) {
+      userOps.deleteUserById(userId, function (err, res) {
         if (err) {
           return reply(err)
         }
@@ -91,7 +89,7 @@ exports.register = function (server, options, next) {
       },
       description: 'Delete a user',
       notes: 'The DELETE /authorization/users endpoint delete a user\n',
-      tags: [ 'api', 'service', 'delete', 'users' ]
+      tags: ['api', 'service', 'delete', 'users']
     }
   })
 
@@ -127,7 +125,7 @@ exports.register = function (server, options, next) {
       },
       description: 'Update a user',
       notes: 'The PUT /authorization/users endpoint updates a user data\n',
-      tags: [ 'api', 'service', 'put', 'users' ]
+      tags: ['api', 'service', 'put', 'users']
     }
   })
 
