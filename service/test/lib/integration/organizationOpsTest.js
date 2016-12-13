@@ -139,12 +139,15 @@ lab.experiment('OrganizationOps', () => {
   })
 
   lab.test('deleting an organization should remove teams and members from that organization', (done) => {
-    var teamId
-    var policyId
-    var userId
-    var tasks = []
-    var policy = ['2016-07-01', 'Documents Admin', 'nearForm222', '{"Statement":[{"Effect":"Allow","Action":["documents:Read"],"Resource":["wonka:documents:/public/*"]}]}']
+    let teamId, policyId, userId
+    const policy = {
+      version: '2016-07-01',
+      name: 'Documents Admin',
+      organizationId: 'nearForm222',
+      statements: '{"Statement":[{"Effect":"Allow","Action":["documents:Read"],"Resource":["wonka:documents:/public/*"]}]}'
+    }
 
+    const tasks = []
     tasks.push((next) => {
       userOps.listAllUsers([], (err, result) => {
         expect(result.length).to.equal(6)

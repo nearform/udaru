@@ -15,8 +15,13 @@ exports.register = function (server, options, next) {
       if (!security.hasValidServiceKey(request)) return reply(Boom.forbidden())
 
       const { version, name, orgId, statements } = request.payload
-      const params = [version, name, orgId, statements]
 
+      const params = {
+        version,
+        name,
+        organizationId: orgId,
+        statements
+      }
       policyOps.createPolicy(params, function (err, res) {
         if (err) {
           return reply(err)
@@ -36,7 +41,7 @@ exports.register = function (server, options, next) {
       },
       description: 'Create a policy',
       notes: 'The POST /authorization/policies endpoint is a private endpoint. It can be accessed only using a service key.\nThis service key needs to be passed as a query string in the form "sig=<key>"\n',
-      tags: [ 'api', 'service', 'post', 'policy', 'private' ]
+      tags: ['api', 'service', 'post', 'policy', 'private']
     }
   })
 
@@ -65,7 +70,7 @@ exports.register = function (server, options, next) {
       },
       description: 'Update a policy',
       notes: 'The PUT /authorization/policies/{id} endpoint is a private endpoint. It can be accessed only using a service key.\nThis service key needs to be passed as a query string in the form "sig=<key>"\n',
-      tags: [ 'api', 'service', 'put', 'policy', 'private' ]
+      tags: ['api', 'service', 'put', 'policy', 'private']
     }
   })
 
@@ -91,7 +96,7 @@ exports.register = function (server, options, next) {
       },
       description: 'Delete a policy',
       notes: 'The DELETE /authorization/policies/{id} endpoint is a private endpoint. It can be accessed only using a service key.\nThis service key needs to be passed as a query string in the form "sig=<key>"\n',
-      tags: [ 'api', 'service', 'delete', 'policy', 'private' ]
+      tags: ['api', 'service', 'delete', 'policy', 'private']
     }
   })
 

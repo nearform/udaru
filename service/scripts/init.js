@@ -57,31 +57,18 @@ const createUser = (job, next) => {
 const createPolicy = (job, next) => {
   const { organization } = job
 
-  // const superAdminPolicy = {
-  //   version: 1,
-  //   name: 'SuperAdmin',
-  //   organizationId: organization.id,
-  //   statements: {
-  //     Statement: [{
-  //       Effect: 'Allow',
-  //       Action: ['*'],
-  //       Resource: ['*']
-  //     }]
-  //   }
-  // }
-
-  const superAdminPolicy = [
-    1,
-    'SuperAdmin',
-    organization.id,
-    JSON.stringify({
+  const superAdminPolicy = {
+    version: 1,
+    name: 'SuperAdmin',
+    organizationId: organization.id,
+    statements: {
       Statement: [{
         Effect: 'Allow',
         Action: ['*'],
         Resource: ['*']
       }]
-    })
-  ]
+    }
+  }
   policyOps.createPolicy(superAdminPolicy, (error, policy) => {
     job.policy = policy
 
