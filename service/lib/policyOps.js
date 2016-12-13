@@ -5,8 +5,19 @@ const async = require('async')
 const dbUtil = require('./dbUtil')
 const config = require('./config')
 
+function formatInsertValues (policies) {
+  if (Array.isArray(policies)) {
+    return policies.map(policy => [policy.version, policy.name, policy.org_id, policy.statements])
+  }
+
+  return Object.keys(policies).map((pName) => {
+    let policy = policies[pName]
+    return [policy.version, policy.name, policy.org_id, policy.statements]
+  })
+}
+
 function insertPolicies (client, policies, cb) {
-  const stmt = dbUtil.buildInsertStmt('INSERT INTO policies (version, name, org_id, statements) VALUES ', policies.map(policy => [policy.version, policy.name, policy.org_id, policy.statements]))
+  const stmt = dbUtil.buildInsertStmt('INSERT INTO policies (version, name, org_id, statements) VALUES ', formatInsertValues(policies))
   client.query(stmt.statement + ' RETURNING id', stmt.params, cb)
 }
 
@@ -119,17 +130,19 @@ module.exports = function (dbPool) {
     },
 
     /**
-     * $1 = version
-     * $2 = name
-     * $3 = org_id
-     * $4 = statements
+     * Creates a new policy
+     *
+     * @param  {Object}   params { version, name, organizationId, statements }
+     * @param  {Function} cb
      */
-    createPolicy: function createPolicy (args, cb) {
+    createPolicy: function createPolicy (params, cb) {
+      const { version, name, organizationId, statements } = params
+
       insertPolicies(dbPool, [{
-        version: args[0],
-        name: args[1],
-        org_id: args[2],
-        statements: args[3],
+        version: version,
+        name: name,
+        org_id: organizationId,
+        statements: statements
       }], (err, result) => {
         if (err) return cb(Boom.badImplementation(err))
 
@@ -216,7 +229,17 @@ module.exports = function (dbPool) {
 
     createOrgDefaultPolicies: function createOrgDefaultPolicies (client, organizationId, cb) {
       const defaultPolicies = config.get('authorization.organizations.defaultPolicies', {'organizationId': organizationId})
-      insertPolicies(client, defaultPolicies, cb)
+      insertPolicies(client, defaultPolicies, function (err, result) {
+        if (err) return cb(err)
+
+        const name = config.get('authorization.organizations.defaultPolicies.orgAdmin.name', {'organizationId': organizationId})
+        client.query('SELECT id FROM policies WHERE org_id = $1 AND name = $2', [organizationId, name], function (err, result) {
+          if (err) return cb(err)
+          if (result.rowCount === 0) return cb(new Error(`No policy found for org ${organizationId} with name ${name}`))
+
+          cb(null, result.rows[0].id)
+        })
+      })
     },
 
     createTeamDefaultPolicies: function createTeamDefaultPolicies (client, organizationId, teamId, cb) {

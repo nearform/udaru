@@ -34,7 +34,12 @@ lab.experiment('UserOps', () => {
   })
 
   lab.test('create and delete a user by ID', (done) => {
-    userOps.createUserById([99, 'Mike Teavee', 'WONKA'], (err, result) => {
+    const userData = {
+      id: 99,
+      name: 'Mike Teavee',
+      organizationId: 'WONKA'
+    }
+    userOps.createUserById(userData, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
       expect(result).to.equal({ id: 99, name: 'Mike Teavee', teams: [], policies: [] })
@@ -44,7 +49,11 @@ lab.experiment('UserOps', () => {
   })
 
   lab.test('create a user (and delete it)', (done) => {
-    userOps.createUser(['Grandma Josephine', 'WONKA'], (err, result) => {
+    const userData = {
+      name: 'Grandma Josephine',
+      organizationId: 'WONKA'
+    }
+    userOps.createUser(userData, function (err, result) {
       expect(err).to.not.exist()
       expect(result).to.exist()
       expect(result.name).to.equal('Grandma Josephine')

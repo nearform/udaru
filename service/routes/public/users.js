@@ -45,11 +45,10 @@ exports.register = function (server, options, next) {
     method: 'POST',
     path: '/authorization/users',
     handler: function (request, reply) {
-      const params = [
-        request.payload.name,
-        'WONKA' // TODO: hardcode the org_id for now (as not yet fully implemented)
-      ]
-
+      const params = {
+        name: request.payload.name,
+        organizationId: 'WONKA' // TODO: hardcode the org_id for now (as not yet fully implemented)
+      }
       userOps.createUser(params, function (err, res) {
         if (err) {
           return reply(err)
