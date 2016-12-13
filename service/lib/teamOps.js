@@ -21,6 +21,25 @@ module.exports = function (dbPool, log) {
     policyOps.createTeamDefaultPolicies(job.client, job.params.organizationId, job.team.id, next)
   }
 
+  function deleteTeam (job, next) {
+    job.client.query('DELETE from teams WHERE id = $1', job.teamId, (err, result) => {
+      if (err) return next(err)
+      if (result.rowCount === 0) return next(Boom.notFound())
+
+      log.debug('delete team result: %j', result)
+
+      next()
+    })
+  }
+
+  function deleteTeamPolicies (job, next) {
+    job.client.query('DELETE FROM team_policies WHERE team_id = $1', job.teamId, next)
+  }
+
+  function deleteTeamMembers (job, next) {
+    job.client.query('DELETE FROM team_members WHERE team_id = $1', job.teamId, next)
+  }
+
   var teamOps = {
     /*
      * no query args (but may e.g. sort in future)
@@ -196,34 +215,14 @@ module.exports = function (dbPool, log) {
      */
     deleteTeamById: function deleteTeamById (args, cb) {
       const tasks = []
-      dbPool.connect(function (err, client, done) {
-        if (err) return cb(Boom.badImplementation(err))
 
-        tasks.push((next) => { client.query('BEGIN', next) })
-        tasks.push((next) => { client.query('DELETE from team_members WHERE team_id = $1', args, next) })
-        tasks.push((next) => { client.query('DELETE from team_policies WHERE team_id = $1', args, next) })
-        tasks.push((next) => {
-          client.query('DELETE from teams WHERE id = $1', args, (err, result) => {
-            if (err) return next(err)
-            if (result.rowCount === 0) return next(Boom.notFound())
-
-            log.debug('delete team result: %j', result)
-
-            next()
-          })
-        })
-        tasks.push((next) => { client.query('COMMIT', next) })
-
-        async.series(tasks, (err) => {
-          if (err) {
-            dbUtil.rollback(client, done) // done here; release the client
-            return cb(err.isBoom ? err : Boom.badImplementation(err))
-          }
-
-          done()
-          return cb()
-        })
-      })
+      dbUtil.withTransaction(dbPool, [
+        deleteTeamMembers,
+        deleteTeamPolicies,
+        deleteTeam
+      ], (err) => {
+        if (err) return cb(err.isBoom ? err : Boom.badImplementation(err))
+        cb()
     }
   }
 
