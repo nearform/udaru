@@ -8,6 +8,45 @@ const PolicyOps = require('./policyOps')
 module.exports = function (dbPool, log) {
   const policyOps = PolicyOps(dbPool)
 
+  function insertOrganization (job, next) {
+    job.client.query('INSERT INTO organizations (id, name, description) VALUES ($1, $2, $3) RETURNING id', job.params, (err, res) => {
+      if (err) return next(err)
+      job.organization = res.rows[0]
+      next()
+    })
+  }
+
+  function createDefaultPolicies (job, next) {
+    policyOps.createOrgDefaultPolicies(job.client, job.organization.id, function (err, id) {
+      if (err) return next(err)
+      job.adminPolicyId = id
+      next()
+    })
+  }
+
+  /**
+   * Insert a new user and attach to it the organization admin policy
+   *
+   * NOTE: we are not using userOps.createUser because we need to execute this operation in a transaction with the same client.
+   *
+   * @param  {Object}   job
+   * @param  {Function} next
+   */
+  function insertOrgAdminUser (job, next) {
+    if (job.user) {
+      job.client.query('INSERT INTO users (id, name, org_id) VALUES (DEFAULT, $1, $2) RETURNING id', [job.user.name, job.organization.id], (err, res) => {
+        if (err) return next(err)
+        job.user.id = res.rows[0].id
+
+        job.client.query('INSERT INTO user_policies (user_id, policy_id) VALUES ($1, $2)', [job.user.id, job.adminPolicyId], next)
+      })
+
+      return
+    }
+
+    next()
+  }
+
   var organizationOps = {
 
     /**
@@ -31,53 +70,24 @@ module.exports = function (dbPool, log) {
      * @param  {Function} cb
      */
     create: function create (args, cb) {
-      const tasks = []
-      const user = args.user
-      let params = [args.id, args.name, args.description]
-      let adminPolicyId
-      let adminUserId
+      const tasks = [
+        (job, next) => {
+          job.params = [args.id, args.name, args.description]
+          job.user = args.user
+          next()
+        },
+        insertOrganization,
+        createDefaultPolicies,
+        insertOrgAdminUser
+      ]
 
-      dbPool.connect(function (err, client, done) {
+      dbUtil.withTransaction(dbPool, tasks, (err, res) => {
         if (err) return cb(Boom.badImplementation(err))
 
-        tasks.push((next) => { client.query('BEGIN', next) })
-        tasks.push((res, next) => { client.query('INSERT INTO organizations (id, name, description) VALUES ($1, $2, $3) RETURNING id', params, next) })
-        tasks.push((res, next) => {
-          policyOps.createOrgDefaultPolicies(client, res.rows[0].id, function (err, id) {
-            if (err) return next(err)
+        organizationOps.readById(res.organization.id, (err, organization) => {
+          if (err) return cb(Boom.badImplementation(err))
 
-            adminPolicyId = id
-            next(null, id)
-          })
-        })
-
-        if (user) {
-          tasks.push((res, next) => {
-            client.query('INSERT INTO users (id, name, org_id) VALUES (DEFAULT, $1, $2) RETURNING id', [user.name, args.id], function (err, result) {
-              if (err) return next(err)
-              adminUserId = result.rows[0].id
-              next(null, adminUserId)
-            })
-          })
-          tasks.push((res, next) => { client.query('INSERT INTO user_policies (user_id, policy_id) VALUES ($1, $2)', [adminUserId, adminPolicyId], next) })
-        }
-
-        tasks.push((res, next) => { client.query('COMMIT', next) })
-        tasks.push((res, next) => { organizationOps.readById(args.id, next) })
-
-        async.waterfall(tasks, (err, result) => {
-          if (err) {
-            dbUtil.rollback(client, done)
-            return cb(err.isBoom ? err : Boom.badImplementation(err))
-          }
-
-          result = {
-            organization: result,
-            user: user && {name: user.name, id: adminUserId}
-          }
-
-          done()
-          return cb(null, result)
+          cb(null, {organization, user: res.user})
         })
       })
     },

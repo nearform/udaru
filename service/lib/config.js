@@ -68,8 +68,8 @@ module.exports = new Reconfig({
       }
     },
     teams: {
-      defaultPolicies: [
-        {
+      defaultPolicies: {
+        teamAdmin: {
           version: '1',
           name: 'Default Team Admin for :teamId',
           org_id: ':organizationId',
@@ -91,7 +91,7 @@ module.exports = new Reconfig({
             ]
           }
         }
-      ]
+      }
     }
   }
 }, { envPrefix: 'LABS_AUTH_SERVICE' })

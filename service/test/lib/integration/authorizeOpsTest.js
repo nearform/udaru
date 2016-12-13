@@ -444,6 +444,17 @@ lab.experiment('AuthorizeOps', () => {
       })
     })
 
+    tasks.push((result, cb) => {
+      policyOps.listByOrganization('WONKA', (err, policies) => {
+        expect(err).to.not.exist()
+
+        const defaultPolicy = policies.find((p) => { return p.name === 'Default Team Admin for ' + testTeamId })
+        expect(defaultPolicy).to.exist()
+
+        policyOps.deletePolicyById([defaultPolicy.id], done)
+      })
+    })
+
     async.waterfall(tasks, done)
   })
 })
