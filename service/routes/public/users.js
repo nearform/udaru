@@ -10,7 +10,7 @@ exports.register = function (server, options, next) {
     method: 'GET',
     path: '/authorization/users',
     handler: function (request, reply) {
-      userOps.listAllUsers([], reply)
+      userOps.listAllUsers({}, reply)
     },
     config: {
       description: 'Fetch all users',
