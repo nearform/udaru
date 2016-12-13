@@ -88,9 +88,26 @@ function testError (expect, errorString, cb) {
   }
 }
 
+/**
+ * Merge the authorization default header with the provided options
+ *
+ * @param  {Object} customOptions { method, url, ... }
+ * @return {Object}
+ */
+function requestOptions (customOptions) {
+  const defaultOptions = {
+    headers: {
+      authorization: 2
+    }
+  }
+
+  return Object.assign(defaultOptions, customOptions)
+}
+
 module.exports = {
   getDbPollConnectionError: getDbPollConnectionError,
   getDbPollFirstQueryError: getDbPollFirstQueryError,
   getDbPoolErrorForQueryOrRowCount: getDbPoolErrorForQueryOrRowCount,
-  testError: testError
+  testError: testError,
+  requestOptions: requestOptions
 }

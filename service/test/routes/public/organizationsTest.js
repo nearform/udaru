@@ -4,6 +4,7 @@ const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 var proxyquire = require('proxyquire')
+var utils = require('./../../utils')
 
 var organizationOps = {}
 var organizationsRoutes = proxyquire('./../../../routes/public/organizations', { './../../lib/organizationOps': () => organizationOps })
@@ -27,10 +28,10 @@ lab.experiment('Organizations', () => {
       })
     }
 
-    const options = {
+    const options = utils.requestOptions({
       method: 'GET',
       url: '/authorization/organizations'
-    }
+    })
 
     server.inject(options, (response) => {
       const result = response.result
@@ -55,10 +56,10 @@ lab.experiment('Organizations', () => {
       })
     }
 
-    const options = {
+    const options = utils.requestOptions({
       method: 'GET',
       url: '/authorization/organizations/WONKA'
-    }
+    })
 
     server.inject(options, (response) => {
       const result = response.result
@@ -83,11 +84,45 @@ lab.experiment('Organizations', () => {
       })
     }
 
-    const options = {
+    const options = utils.requestOptions({
       method: 'POST',
       url: '/authorization/organizations',
       payload: organization
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(201)
+      expect(result).to.equal(organization)
+
+      done()
+    })
+  })
+
+  lab.test('create organization and an admin user should return 201 for success', (done) => {
+    const organization = {
+      id: 'nearForm',
+      name: 'nearForm',
+      description: 'nearForm org',
+      user: {
+        name: 'example'
+      }
     }
+
+    organizationOps.create = function (params, cb) {
+      expect(params).to.equal(organization)
+
+      process.nextTick(() => {
+        cb(null, organization)
+      })
+    }
+
+    const options = utils.requestOptions({
+      method: 'POST',
+      url: '/authorization/organizations',
+      payload: organization
+    })
 
     server.inject(options, (response) => {
       const result = response.result
@@ -106,10 +141,10 @@ lab.experiment('Organizations', () => {
       })
     }
 
-    const options = {
+    const options = utils.requestOptions({
       method: 'DELETE',
       url: '/authorization/organizations/WONKA'
-    }
+    })
 
     server.inject(options, (response) => {
       const result = response.result
@@ -134,14 +169,14 @@ lab.experiment('Organizations', () => {
       })
     }
 
-    const options = {
+    const options = utils.requestOptions({
       method: 'PUT',
       url: '/authorization/organizations/WONKA',
       payload: {
         name: orgUpdate.name,
         description: orgUpdate.description
       }
-    }
+    })
 
     server.inject(options, (response) => {
       const result = response.result

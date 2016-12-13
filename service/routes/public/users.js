@@ -10,10 +10,10 @@ exports.register = function (server, options, next) {
     method: 'GET',
     path: '/authorization/users',
     handler: function (request, reply) {
-      userOps.listAllUsers({}, reply)
+      userOps.listOrgUsers({organizationId: request.authorization.organization.id}, reply)
     },
     config: {
-      description: 'Fetch all users',
+      description: 'Fetch all users (of the current user organization)',
       notes: 'The GET /authorization/users endpoint returns a list of all users\n',
       tags: ['api', 'service', 'get', 'users']
     }
@@ -45,8 +45,9 @@ exports.register = function (server, options, next) {
     handler: function (request, reply) {
       const params = {
         name: request.payload.name,
-        organizationId: 'WONKA' // TODO: hardcode the org_id for now (as not yet fully implemented)
+        organizationId: request.authorization.organization.id
       }
+
       userOps.createUser(params, function (err, res) {
         if (err) {
           return reply(err)

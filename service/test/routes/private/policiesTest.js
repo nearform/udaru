@@ -17,7 +17,7 @@ lab.experiment('Policies', () => {
       payload: {
         version: '2016-07-01',
         name: 'Documents Admin',
-        orgId: 'WONKA',
+        organizationId: 'WONKA',
         statements: 'fake-statements'
       }
     }
@@ -36,7 +36,7 @@ lab.experiment('Policies', () => {
       payload: {
         version: '2016-07-01',
         name: 'Documents Admin',
-        orgId: 'WONKA'
+        organizationId: 'WONKA'
       }
     }
 
@@ -52,7 +52,7 @@ lab.experiment('Policies', () => {
       id: 2,
       version: '2016-07-01',
       name: 'Documents Admin',
-      orgId: 'WONKA',
+      organizationId: 'WONKA',
       statements: '{"Statement":[{"Effect":"Allow","Action":["documents:Read"],"Resource":["wonka:documents:/public/*"]}]}'
     }
 
@@ -62,7 +62,7 @@ lab.experiment('Policies', () => {
       payload: {
         version: policyStub.version,
         name: policyStub.name,
-        orgId: policyStub.orgId,
+        organizationId: policyStub.organizationId,
         statements: policyStub.statements
       }
     }
@@ -90,7 +90,7 @@ lab.experiment('Policies', () => {
       payload: {
         version: '2016-07-01',
         name: 'Documents Admin',
-        orgId: 'WONKA',
+        organizationId: 'WONKA',
         statements: 'fake-statements'
       }
     }
@@ -109,7 +109,7 @@ lab.experiment('Policies', () => {
       payload: {
         version: '2016-07-01',
         name: 'Documents Admin',
-        orgId: 'WONKA'
+        organizationId: 'WONKA'
       }
     }
 
@@ -125,7 +125,7 @@ lab.experiment('Policies', () => {
       id: 2,
       version: '2016-07-01',
       name: 'Documents Admin - updated',
-      orgId: 'WONKA',
+      organizationId: 'WONKA',
       statements: '{"Statement":[{"Effect":"Allow","Action":["documents:Update"],"Resource":["wonka:documents:/public/*"]}]}'
     }
 
@@ -135,7 +135,7 @@ lab.experiment('Policies', () => {
       payload: {
         version: policyStub.version,
         name: policyStub.name,
-        orgId: policyStub.orgId,
+        organizationId: policyStub.organizationId,
         statements: policyStub.statements
       }
     }

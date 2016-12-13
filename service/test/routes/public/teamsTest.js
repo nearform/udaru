@@ -5,12 +5,14 @@ const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 const Boom = require('boom')
 var proxyquire = require('proxyquire')
+var utils = require('./../../utils')
 
 var teamOps = {}
 var teamsRoutes = proxyquire('./../../../routes/public/teams', { './../../lib/teamOps': () => teamOps })
 var server = proxyquire('./../../../wiring-hapi', { './routes/public/teams': teamsRoutes })
 
 lab.experiment('Teams', () => {
+
   lab.test('get team list', (done) => {
     const teamListStub = [{
       id: 1,
@@ -20,16 +22,17 @@ lab.experiment('Teams', () => {
       name: 'Team B'
     }]
 
-    teamOps.listAllTeams = (cb) => {
+    teamOps.listOrgTeams = (params, cb) => {
+      expect(params).to.equal({ organizationId: 'WONKA' })
       process.nextTick(() => {
         cb(null, teamListStub)
       })
     }
 
-    const options = {
+    const options = utils.requestOptions({
       method: 'GET',
       url: '/authorization/teams'
-    }
+    })
 
     server.inject(options, (response) => {
       const result = response.result
@@ -42,16 +45,17 @@ lab.experiment('Teams', () => {
   })
 
   lab.test('get team list should return error for error case', (done) => {
-    teamOps.listAllTeams = (cb) => {
+    teamOps.listOrgTeams = (params, cb) => {
+      expect(params).to.equal({ organizationId: 'WONKA' })
       process.nextTick(() => {
         cb(Boom.badImplementation())
       })
     }
 
-    const options = {
+    const options = utils.requestOptions({
       method: 'GET',
       url: '/authorization/teams'
-    }
+    })
 
     server.inject(options, (response) => {
       const result = response.result
@@ -77,10 +81,10 @@ lab.experiment('Teams', () => {
       })
     }
 
-    const options = {
+    const options = utils.requestOptions({
       method: 'GET',
       url: '/authorization/teams/1'
-    }
+    })
 
     server.inject(options, (response) => {
       const result = response.result
@@ -102,19 +106,20 @@ lab.experiment('Teams', () => {
     }
 
     teamOps.createTeam = (params, cb) => {
+      expect(params).to.equal({ name: 'Team B', description: 'This is Team B', parentId: null, organizationId: 'WONKA' })
       process.nextTick(() => {
         cb(null, newTeamStub)
       })
     }
 
-    const options = {
+    const options = utils.requestOptions({
       method: 'POST',
       url: '/authorization/teams',
       payload: {
         name: 'Team B',
         description: 'This is Team B'
       }
-    }
+    })
 
     server.inject(options, (response) => {
       const result = response.result
@@ -127,11 +132,11 @@ lab.experiment('Teams', () => {
   })
 
   lab.test('create new team should return a 400 Bad Request when not providing name or description', (done) => {
-    const options = {
+    const options = utils.requestOptions({
       method: 'POST',
       url: '/authorization/teams',
       payload: {}
-    }
+    })
 
     server.inject(options, (response) => {
       expect(response.statusCode).to.equal(400)
@@ -147,14 +152,14 @@ lab.experiment('Teams', () => {
       })
     }
 
-    const options = {
+    const options = utils.requestOptions({
       method: 'POST',
       url: '/authorization/teams',
       payload: {
         name: 'Team C',
         description: 'This is Team C'
       }
-    }
+    })
 
     server.inject(options, (response) => {
       const result = response.result
@@ -181,7 +186,7 @@ lab.experiment('Teams', () => {
       })
     }
 
-    const options = {
+    const options = utils.requestOptions({
       method: 'PUT',
       url: '/authorization/teams/2',
       payload: {
@@ -190,7 +195,7 @@ lab.experiment('Teams', () => {
         users: [],
         policies: []
       }
-    }
+    })
 
     server.inject(options, (response) => {
       const result = response.result
@@ -209,7 +214,7 @@ lab.experiment('Teams', () => {
       })
     }
 
-    const options = {
+    const options = utils.requestOptions({
       method: 'PUT',
       url: '/authorization/teams/2',
       payload: {
@@ -218,7 +223,7 @@ lab.experiment('Teams', () => {
         users: [],
         policies: []
       }
-    }
+    })
 
     server.inject(options, (response) => {
       const result = response.result
@@ -237,10 +242,10 @@ lab.experiment('Teams', () => {
       })
     }
 
-    const options = {
+    const options = utils.requestOptions({
       method: 'DELETE',
       url: '/authorization/teams/1'
-    }
+    })
 
     server.inject(options, (response) => {
       const result = response.result
@@ -259,10 +264,10 @@ lab.experiment('Teams', () => {
       })
     }
 
-    const options = {
+    const options = utils.requestOptions({
       method: 'DELETE',
       url: '/authorization/teams/1'
-    }
+    })
 
     server.inject(options, (response) => {
       const result = response.result

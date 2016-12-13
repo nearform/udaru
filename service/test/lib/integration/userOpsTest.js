@@ -17,7 +17,7 @@ lab.experiment('UserOps', () => {
     userOps.listAllUsers({}, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
-      expect(result.length).to.equal(6)
+      expect(result.length).to.equal(7)
 
       done()
     })
@@ -42,7 +42,7 @@ lab.experiment('UserOps', () => {
     userOps.createUserById(userData, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
-      expect(result).to.equal({ id: 99, name: 'Mike Teavee', teams: [], policies: [] })
+      expect(result).to.equal({ id: 99, name: 'Mike Teavee', organizationId: 'WONKA', teams: [], policies: [] })
 
       userOps.deleteUserById(99, done)
     })
@@ -79,8 +79,8 @@ lab.experiment('UserOps', () => {
   })
 
   lab.test('read a specific user', (done) => {
-    const expected = {id: 3, name: 'Veruca Salt', teams: [{id: 3, name: 'Authors'}, {id: 2, name: 'Readers'}], policies: [{id: 2, version: '0.1', name: 'Accountant'}]}
-    userOps.readUserById(3, (err, result) => {
+    const expected = {id: 4, name: 'Veruca Salt', organizationId: 'WONKA', teams: [{id: 3, name: 'Authors'}, {id: 2, name: 'Readers'}], policies: [{id: 2, version: '0.1', name: 'Accountant'}]}
+    userOps.readUserById(4, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
       expect(result).to.equal(expected)
@@ -100,8 +100,8 @@ lab.experiment('UserOps', () => {
   })
 
   lab.test('read a specific user by token', (done) => {
-    const expected = {id: 1, name: 'Charlie Bucket'}
-    userOps.getUserByToken(1, (err, result) => {
+    const expected = {id: 2, name: 'Charlie Bucket'}
+    userOps.getUserByToken(2, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
       expect(result).to.equal(expected)

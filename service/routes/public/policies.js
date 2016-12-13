@@ -10,7 +10,7 @@ exports.register = function (server, options, next) {
     method: 'GET',
     path: '/authorization/policies',
     handler: function (request, reply) {
-      policyOps.listAllPolicies([], reply)
+      policyOps.listByOrganization({organizationId: request.authorization.organization.id}, reply)
     },
     config: {
       description: 'Fetch all the defined policies',
@@ -23,11 +23,7 @@ exports.register = function (server, options, next) {
     method: 'GET',
     path: '/authorization/policies/{id}',
     handler: function (request, reply) {
-      const params = [
-        request.params.id
-      ]
-
-      policyOps.readPolicyById(params, reply)
+      policyOps.readPolicyById(request.params.id, reply)
     },
     config: {
       validate: {

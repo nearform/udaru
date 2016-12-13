@@ -14,12 +14,12 @@ exports.register = function (server, options, next) {
     handler: function (request, reply) {
       if (!security.hasValidServiceKey(request)) return reply(Boom.forbidden())
 
-      const { version, name, orgId, statements } = request.payload
+      const { version, name, organizationId, statements } = request.payload
 
       const params = {
         version,
         name,
-        organizationId: orgId,
+        organizationId: organizationId,
         statements
       }
       policyOps.createPolicy(params, function (err, res) {
@@ -35,7 +35,7 @@ exports.register = function (server, options, next) {
         payload: {
           version: Joi.string().required().description('policy version'),
           name: Joi.string().required().description('policy name'),
-          orgId: Joi.string().required().description('organisation id'),
+          organizationId: Joi.string().required().description('organisation id'),
           statements: Joi.string().required().description('policy statements')
         }
       },
@@ -51,8 +51,8 @@ exports.register = function (server, options, next) {
     handler: function (request, reply) {
       if (!security.hasValidServiceKey(request)) return reply(Boom.forbidden())
 
-      const { version, name, orgId, statements } = request.payload
-      const params = [request.params.id, version, name, orgId, statements]
+      const { version, name, organizationId, statements } = request.payload
+      const params = [request.params.id, version, name, organizationId, statements]
 
       policyOps.updatePolicy(params, reply)
     },
@@ -64,7 +64,7 @@ exports.register = function (server, options, next) {
         payload: {
           version: Joi.string().required().description('policy version'),
           name: Joi.string().required().description('policy name'),
-          orgId: Joi.string().required().description('organisation id'),
+          organizationId: Joi.string().required().description('organisation id'),
           statements: Joi.string().required().description('policy statements')
         }
       },
@@ -104,6 +104,6 @@ exports.register = function (server, options, next) {
 }
 
 exports.register.attributes = {
-  name: 'provate-policies',
+  name: 'private-policies',
   version: '0.0.1'
 }

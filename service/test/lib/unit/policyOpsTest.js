@@ -41,7 +41,7 @@ lab.experiment('policyOps', () => {
     var dbPool = utils.getDbPoolErrorForQueryOrRowCount(undefined, {testRollback: true, expect: expect}, {rowCount: 0})
     var policyOps = PolicyOps(dbPool)
 
-    policyOps.readPolicyById([1], utils.testError(expect, 'Not Found', done))
+    policyOps.readPolicyById(1, utils.testError(expect, 'Not Found', done))
   })
 
   lab.test('updatePolicy should return an error if the update fails', (done) => {

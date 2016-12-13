@@ -10,7 +10,7 @@ exports.register = function (server, options, next) {
     method: 'GET',
     path: '/authorization/organizations',
     handler: function (request, reply) {
-      organizationOps.list([], reply)
+      organizationOps.list({}, reply)
     },
     config: {
       description: 'List all the organizations [TBD]',
@@ -37,7 +37,8 @@ exports.register = function (server, options, next) {
       const params = {
         id: request.payload.id,
         name: request.payload.name,
-        description: request.payload.description
+        description: request.payload.description,
+        user: request.payload.user
       }
 
       organizationOps.create(params, function (err, res) {

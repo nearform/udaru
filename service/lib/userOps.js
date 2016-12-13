@@ -184,6 +184,7 @@ module.exports = function (dbPool, log) {
       const user = {
         id: null,
         name: null,
+        organizationId: null,
         teams: [],
         policies: []
       }
@@ -195,7 +196,7 @@ module.exports = function (dbPool, log) {
 
         tasks.push((next) => {
           const sqlQuery = SQL`
-            SELECT id, name
+            SELECT id, name, org_id
             FROM users
             WHERE id = ${id}
           `
@@ -210,6 +211,7 @@ module.exports = function (dbPool, log) {
 
             user.id = result.rows[0].id
             user.name = result.rows[0].name
+            user.organizationId = result.rows[0].org_id
 
             next()
           })

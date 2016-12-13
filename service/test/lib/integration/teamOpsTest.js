@@ -31,7 +31,7 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('list of org teams', (done) => {
-    teamOps.listOrgTeams('WONKA', (err, result) => {
+    teamOps.listOrgTeams({organizationId: 'WONKA'}, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
       expect(result.length).to.equal(6)
@@ -113,7 +113,7 @@ lab.experiment('TeamOps', () => {
       expect(err).to.not.exist()
       expect(result).to.exist()
 
-      policyOps.listByOrganization('WONKA', (err, policies) => {
+      policyOps.listByOrganization({organizationId: 'WONKA'}, (err, policies) => {
         expect(err).to.not.exist()
 
         const defaultPolicy = policies.find((p) => { return p.name === 'Default Team Admin for ' + result.id })
@@ -139,7 +139,7 @@ lab.experiment('TeamOps', () => {
       expect(err).to.not.exist()
       expect(result).to.exist()
 
-      policyOps.listByOrganization('WONKA', (err, policies) => {
+      policyOps.listByOrganization({organizationId: 'WONKA'}, (err, policies) => {
         expect(err).to.not.exist()
 
         const defaultPolicy = policies.find((p) => {

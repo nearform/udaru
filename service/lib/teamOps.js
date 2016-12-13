@@ -5,7 +5,6 @@ const dbUtil = require('./dbUtil')
 const SQL = dbUtil.SQL
 const async = require('async')
 const PolicyOps = require('./policyOps')
-const UserOps = require('./userOps')
 
 function getId (obj) {
   return obj.id
@@ -160,9 +159,16 @@ module.exports = function (dbPool, log) {
     /*
      * $1 = org_id
      */
-    listOrgTeams: function listOrgTeams (organizationId, cb) {
-      const sql = SQL`SELECT id, name, description from teams WHERE org_id = ${organizationId} ORDER BY UPPER(name)`
-      dbPool.query(sql, [organizationId], function (err, result) {
+    listOrgTeams: function listOrgTeams (params, cb) {
+      const { organizationId } = params
+
+      const sqlQuery = SQL`
+        SELECT  *
+        FROM teams
+        WHERE org_id = ${organizationId}
+        ORDER BY UPPER(name)
+      `
+      dbPool.query(sqlQuery, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
 
         return cb(null, result.rows)

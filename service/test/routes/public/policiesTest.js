@@ -5,6 +5,7 @@ const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 const Boom = require('boom')
 var proxyquire = require('proxyquire')
+var utils = require('./../../utils')
 
 var policyOps = {}
 var policiesRoutes = proxyquire('./../../../routes/public/policies', { './../../lib/policyOps': () => policyOps })
@@ -22,14 +23,15 @@ lab.experiment('Policies', () => {
       version: '0.2'
     }]
 
-    policyOps.listAllPolicies = (params, cb) => {
+    policyOps.listByOrganization = (params, cb) => {
+      expect(params).to.equal({ organizationId: 'WONKA' })
       cb(null, policyListStub)
     }
 
-    const options = {
+    const options = utils.requestOptions({
       method: 'GET',
       url: '/authorization/policies'
-    }
+    })
 
     server.inject(options, (response) => {
       const result = response.result
@@ -42,16 +44,17 @@ lab.experiment('Policies', () => {
   })
 
   lab.test('get policy list should return error for error case', (done) => {
-    policyOps.listAllPolicies = (params, cb) => {
+    policyOps.listByOrganization = (params, cb) => {
+      expect(params).to.equal({ organizationId: 'WONKA' })
       process.nextTick(() => {
         cb(Boom.badImplementation())
       })
     }
 
-    const options = {
+    const options = utils.requestOptions({
       method: 'GET',
       url: '/authorization/policies'
-    }
+    })
 
     server.inject(options, (response) => {
       const result = response.result
@@ -98,10 +101,10 @@ lab.experiment('Policies', () => {
       })
     }
 
-    const options = {
+    const options = utils.requestOptions({
       method: 'GET',
       url: '/authorization/policies/1'
-    }
+    })
 
     server.inject(options, (response) => {
       const result = response.result
@@ -119,10 +122,11 @@ lab.experiment('Policies', () => {
         cb(Boom.badImplementation())
       })
     }
-    const options = {
+
+    const options = utils.requestOptions({
       method: 'GET',
       url: '/authorization/policies/99'
-    }
+    })
 
     server.inject(options, (response) => {
       const result = response.result

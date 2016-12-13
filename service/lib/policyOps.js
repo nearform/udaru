@@ -5,6 +5,7 @@ const async = require('async')
 const dbUtil = require('./dbUtil')
 const SQL = dbUtil.SQL
 const config = require('./config')
+const SQL = dbUtil.SQL
 
 function formatInsertValues (policies) {
   if (Array.isArray(policies)) {
@@ -97,13 +98,18 @@ module.exports = function (dbPool) {
     },
 
     /**
-     * List all policies (id, version and vame)
+     * List all policies (id, version and name)
      *
-     * @param  {Object}   args
+     * @param  {Object}   params
      * @param  {Function} cb
      */
-    listAllPolicies: function listAllPolicies (args, cb) {
-      dbPool.query('SELECT  id, version, name from policies ORDER BY UPPER(name)', function (err, result) {
+    listAllPolicies: function listAllPolicies (params, cb) {
+      const sqlQuery = SQL`
+        SELECT  id, version, name
+        FROM policies
+        ORDER BY UPPER(name)
+      `
+      dbPool.query(sqlQuery, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
 
         return cb(null, result.rows)
@@ -113,11 +119,19 @@ module.exports = function (dbPool) {
     /**
      * List all the policies related to a specific organization
      *
-     * @param  {String}   organizationId
+     * @param  {Object}   params { organizationId }
      * @param  {Function} cb
      */
-    listByOrganization: function listByOrganization (organizationId, cb) {
-      dbPool.query('SELECT  id, version, name from policies WHERE org_id = $1 ORDER BY UPPER(name)', [organizationId], function (err, result) {
+    listByOrganization: function listByOrganization (params, cb) {
+      const { organizationId } = params
+
+      const sqlQuery = SQL`
+        SELECT  *
+        FROM policies
+        WHERE org_id = ${organizationId}
+        ORDER BY UPPER(name)
+      `
+      dbPool.query(sqlQuery, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
 
         return cb(null, result.rows)
@@ -125,11 +139,18 @@ module.exports = function (dbPool) {
     },
 
     /**
-     * gathers all policy list including the policy statements
-     * no query args (but may e.g. sort in future)
+     * Fetch every policy without filters
+     *
+     * @param  {Object}   params
+     * @param  {Function} cb
      */
-    listAllPoliciesDetails: function listAllPoliciesDetails (args, cb) {
-      dbPool.query('SELECT  id, version, name, statements from policies ORDER BY UPPER(name)', function (err, result) {
+    listAllPoliciesDetails: function listAllPoliciesDetails (params, cb) {
+      const sqlQuery = SQL`
+        SELECT  *
+        FROM policies
+        ORDER BY UPPER(name)
+      `
+      dbPool.query(sqlQuery, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
 
         return cb(null, result.rows)
@@ -137,10 +158,19 @@ module.exports = function (dbPool) {
     },
 
     /**
-     * $1 = id
+     * fetch specific policy
+     *
+     * @param  {Integer}  id
+     * @param  {Function} cb
      */
-    readPolicyById: function readPolicyById (args, cb) {
-      dbPool.query('SELECT id, version, name, statements from policies WHERE id = $1', args, function (err, result) {
+    readPolicyById: function readPolicyById (id, cb) {
+      const sqlQuery = SQL`
+        SELECT  *
+        FROM policies
+        WHERE id = ${id}
+        ORDER BY UPPER(name)
+      `
+      dbPool.query(sqlQuery, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
         if (result.rowCount === 0) return cb(Boom.notFound())
 
@@ -165,7 +195,7 @@ module.exports = function (dbPool) {
       }], (err, result) => {
         if (err) return cb(Boom.badImplementation(err))
 
-        policyOps.readPolicyById([result.rows[0].id], cb)
+        policyOps.readPolicyById(result.rows[0].id, cb)
       })
     },
 
@@ -178,7 +208,7 @@ module.exports = function (dbPool) {
     */
     updatePolicy: function updatePolicy (args, cb) {
 
-      const [ id, version, name, orgId, statements ] = args
+      const [ id, version, name, organizationId, statements ] = args
       const tasks = []
 
       dbPool.connect(function (err, client, done) {
@@ -188,7 +218,7 @@ module.exports = function (dbPool) {
         // Should we handle the updated version as a new version => update teams and users associated with the previous version?
         // Like in http://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_managed-using.html#edit-managed-policy-console
         tasks.push((next) => {
-          client.query('UPDATE policies SET version = $2, name = $3, org_id = $4, statements = $5 WHERE id = $1', [id, version, name, orgId, statements], (err, res) => {
+          client.query('UPDATE policies SET version = $2, name = $3, org_id = $4, statements = $5 WHERE id = $1', [id, version, name, organizationId, statements], (err, res) => {
             if (err) return next(err)
             if (res.rowCount === 0) return next(Boom.notFound())
 

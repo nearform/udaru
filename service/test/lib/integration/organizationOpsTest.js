@@ -31,7 +31,7 @@ lab.experiment('OrganizationOps', () => {
     organizationOps.list({}, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
-      expect(result.length).to.equal(5)
+      expect(result.length).to.equal(6)
 
       done()
     })
@@ -43,7 +43,7 @@ lab.experiment('OrganizationOps', () => {
       expect(result.organization).to.exist()
       expect(result.organization.name).to.equal('nearForm')
 
-      policyOps.listByOrganization('nearForm', (err, res) => {
+      policyOps.listByOrganization({organizationId: 'nearForm'}, (err, res) => {
         expect(err).to.not.exist()
         expect(res).to.exist()
         expect(res.length).to.be.at.least(defaultPoliciesNames.length)
@@ -67,7 +67,7 @@ lab.experiment('OrganizationOps', () => {
       expect(result.organization).to.exist()
       expect(result.organization.name).to.equal('nearForm')
 
-      policyOps.listByOrganization('nearForm', (err, res) => {
+      policyOps.listByOrganization({organizationId: 'nearForm'}, (err, res) => {
         expect(err).to.not.exist()
         expect(res).to.exist()
         expect(res).to.be.empty()
@@ -110,7 +110,7 @@ lab.experiment('OrganizationOps', () => {
 
             userOps.listAllUsers({}, (err, res) => {
               expect(err).to.not.exist()
-              expect(res.length).to.equal(6)
+              expect(res.length).to.equal(7)
               done()
             })
           })
@@ -171,7 +171,7 @@ lab.experiment('OrganizationOps', () => {
     const tasks = []
     tasks.push((next) => {
       userOps.listAllUsers({}, (err, result) => {
-        expect(result.length).to.equal(6)
+        expect(result.length).to.equal(7)
         next(err, result)
       })
     })
@@ -189,7 +189,7 @@ lab.experiment('OrganizationOps', () => {
     })
     tasks.push((next) => {
       organizationOps.list([], (err, result) => {
-        expect(result.length).to.equal(5)
+        expect(result.length).to.equal(6)
         next(err, result)
       })
     })
@@ -254,7 +254,7 @@ lab.experiment('OrganizationOps', () => {
 
     tasks.push((next) => {
       userOps.listAllUsers([], (err, result) => {
-        expect(result.length).to.equal(6)
+        expect(result.length).to.equal(7)
         next(err, result)
       })
     })
@@ -272,7 +272,7 @@ lab.experiment('OrganizationOps', () => {
     })
     tasks.push((next) => {
       organizationOps.list([], (err, result) => {
-        expect(result.length).to.equal(5)
+        expect(result.length).to.equal(6)
         next(err, result)
       })
     })

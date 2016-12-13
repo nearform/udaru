@@ -10,10 +10,10 @@ exports.register = function (server, options, next) {
     method: 'GET',
     path: '/authorization/teams',
     handler: function (request, reply) {
-      teamOps.listAllTeams(reply)
+      teamOps.listOrgTeams({organizationId: request.authorization.organization.id}, reply)
     },
     config: {
-      description: 'Fetch all teams',
+      description: 'Fetch all teams (of the current user organization)',
       notes: 'The GET /authorization/teams endpoint returns a list of all teams\n',
       tags: ['api', 'service', 'get', 'team']
     }
@@ -29,9 +29,10 @@ exports.register = function (server, options, next) {
         name,
         description,
         parentId: null,
-        organizationId: 'WONKA',
+        organizationId: request.authorization.organization.id,
         user
       }
+
       teamOps.createTeam(params, function (err, res) {
         if (err) {
           return reply(err)

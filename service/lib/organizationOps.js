@@ -4,14 +4,23 @@ const Boom = require('boom')
 const async = require('async')
 const dbUtil = require('./dbUtil')
 const PolicyOps = require('./policyOps')
+const SQL = dbUtil.SQL
 
 module.exports = function (dbPool, log) {
   const policyOps = PolicyOps(dbPool)
 
   function insertOrganization (job, next) {
-    let params = [job.params.id, job.params.name, job.params.description]
-
-    job.client.query('INSERT INTO organizations (id, name, description) VALUES ($1, $2, $3) RETURNING id', params, (err, res) => {
+    const { id, name, description } = job.params
+    const sqlQuery = SQL`
+      INSERT INTO organizations (
+        id, name, description
+      )
+      VALUES (
+        ${id}, ${name}, ${description}
+      )
+      RETURNING id
+    `
+    job.client.query(sqlQuery, function (err, res) {
       if (err) return next(err)
       job.organization = res.rows[0]
       next()
@@ -54,11 +63,16 @@ module.exports = function (dbPool, log) {
     /**
      * Fetch all organizations
      *
-     * @param  {Object}   args
+     * @param  {Object}   params
      * @param  {Function} cb
      */
-    list: function list (args, cb) {
-      dbPool.query('SELECT id, name, description FROM organizations ORDER BY UPPER(name)', function (err, result) {
+    list: function list (params, cb) {
+      const sqlQuery = SQL`
+        SELECT *
+        FROM organizations
+        ORDER BY UPPER(name)
+      `
+      dbPool.query(sqlQuery, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
 
         return cb(null, result.rows)
@@ -113,7 +127,13 @@ module.exports = function (dbPool, log) {
      * @param  {Function} cb
      */
     readById: function readById (id, cb) {
-      dbPool.query('SELECT id, name, description FROM organizations WHERE id = $1', [id], function (err, result) {
+      const sqlQuery = SQL`
+        SELECT *
+        FROM organizations
+        WHERE id = ${id}
+        ORDER BY UPPER(name)
+      `
+      dbPool.query(sqlQuery, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
         if (result.rowCount === 0) return cb(Boom.notFound())
 

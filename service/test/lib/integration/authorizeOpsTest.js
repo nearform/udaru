@@ -369,7 +369,7 @@ lab.experiment('AuthorizeOps', () => {
     // set-up
     tasks.push((cb) => {
       userOps.listAllUsers({}, (err, result) => {
-        expect(result.length).to.equal(6)
+        expect(result.length).to.equal(7)
         cb(err, result)
       })
     })
@@ -527,6 +527,7 @@ lab.experiment('AuthorizeOps', () => {
         cb(err, result)
       })
     })
+
     async.waterfall(tasks, done)
   })
 })
