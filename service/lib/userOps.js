@@ -49,14 +49,23 @@ module.exports = function (dbPool, log) {
     },
 
     /**
-     * Creates a new user
+     * Create a new user
      *
      * @param  {Object}   params { name, organizationId }
      * @param  {Function} cb
      */
     createUser: function createUser (params, cb) {
-      const args = [params.name, params.organizationId]
-      dbPool.query('INSERT INTO users (id, name, org_id) VALUES (DEFAULT, $1, $2) RETURNING id', args, function (err, result) {
+      const { name, organizationId } = params
+
+      const sqlQuery = SQL`
+        INSERT INTO users (
+          id, name, org_id
+        ) VALUES (
+          DEFAULT, ${name}, ${organizationId}
+        )
+        RETURNING id
+      `
+      dbPool.query(sqlQuery, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
 
         userOps.readUserById([result.rows[0].id], cb)
@@ -64,17 +73,25 @@ module.exports = function (dbPool, log) {
     },
 
     /**
-     * Creates a new user (allows passing in of ID for test purposes)
+     * Create a new user (allows passing in of ID for test purposes)
      *
      * @param  {Object}   params { id, name, organizationId }
      * @param  {Function} cb
      */
     createUserById: function createUserById (params, cb) {
-      const args = [params.id, params.name, params.organizationId]
-      dbPool.query('INSERT INTO users (id, name, org_id) VALUES ($1, $2, $3)', args, function (err, result) {
+      const { id, name, organizationId } = params
+
+      const sqlQuery = SQL`
+        INSERT INTO users (
+          id, name, org_id
+        ) VALUES (
+          ${id}, ${name}, ${organizationId}
+        )
+      `
+      dbPool.query(sqlQuery, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
 
-        userOps.readUserById([args[0]], cb)
+        userOps.readUserById([id], cb)
       })
     },
 
