@@ -53,14 +53,14 @@ exports.register = function (server, options, next) {
         payload: {
           id: Joi.string().regex(/^[a-zA-Z0-9]{1,64}$/).required().description('organization id'),
           name: Joi.string().required().description('organization name'),
-          description: Joi.string().required().description('organisation description'),
+          description: Joi.string().required().description('organization description'),
           user: Joi.object().keys({
             name: Joi.string().required()
           })
         }
       },
       description: 'Create an organization',
-      notes: 'The POST /authorization/organizations endpoint will create a new organization, the dafeult organization admin policy and (if provided) its admin.',
+      notes: 'The POST /authorization/organizations endpoint will create a new organization, the default organization admin policy and (if provided) its admin.',
       tags: ['api', 'service', 'post', 'organization']
     }
   })
@@ -104,7 +104,7 @@ exports.register = function (server, options, next) {
       validate: {
         payload: {
           name: Joi.string().required().description('organization name'),
-          description: Joi.string().required().description('organisation description')
+          description: Joi.string().required().description('organization description')
         }
       },
       description: 'Update an organization',

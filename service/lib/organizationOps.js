@@ -9,7 +9,9 @@ module.exports = function (dbPool, log) {
   const policyOps = PolicyOps(dbPool)
 
   function insertOrganization (job, next) {
-    job.client.query('INSERT INTO organizations (id, name, description) VALUES ($1, $2, $3) RETURNING id', job.params, (err, res) => {
+    let params = [job.params.id, job.params.name, job.params.description]
+
+    job.client.query('INSERT INTO organizations (id, name, description) VALUES ($1, $2, $3) RETURNING id', params, (err, res) => {
       if (err) return next(err)
       job.organization = res.rows[0]
       next()
@@ -72,7 +74,7 @@ module.exports = function (dbPool, log) {
     create: function create (args, cb) {
       const tasks = [
         (job, next) => {
-          job.params = [args.id, args.name, args.description]
+          job.params = args
           job.user = args.user
           next()
         },
