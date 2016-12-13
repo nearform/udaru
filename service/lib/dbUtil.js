@@ -93,6 +93,22 @@ class SqlStatement {
     return this.strings.reduce((prev, curr, i) => prev + '$' + i + curr).replace(/^\s+/, '')
   }
 
+  append (statement) {
+    /* TODO: fix "Cannot assign to read only property '0' of object '[object Array]'"
+     *
+     * this.strings[this.strings.length - 1] += statement.strings[0]
+     * this.strings.push.apply(this.strings, statement.strings.slice(1));
+     */
+
+    const last = this.strings[this.strings.length - 1]
+    const [first, ...rest] = statement.strings
+
+    this.strings = this.strings.slice(0, -1).concat(last + first, rest)
+    this.values.push.apply(this.values, statement.values)
+
+    return this
+  }
+
   startsWith (...args) {
     return this.text.startsWith(args)
   }

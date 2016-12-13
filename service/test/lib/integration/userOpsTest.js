@@ -64,8 +64,12 @@ lab.experiment('UserOps', () => {
 
   lab.test('update a user', (done) => {
     const expected = {id: 6, name: 'Augustus Gloop', teams: [{id: 4, name: 'Dream Team'}], policies: [{id: 1, name: 'DROP ALL TABLES!'}, {id: 2, name: 'THROW DESK'}]}
-    const data = [6, 'Augustus Gloop', [{'id': 4, 'name': 'Dream Team'}], [{'id': 1, 'name': 'DROP ALL TABLES!'}, { 'id': 2, 'name': 'THROW DESK' }]]
-    userOps.updateUser(data, (err, result) => {
+    const data = {
+      name: 'Augustus Gloop',
+      teams: [{ id: 4, name: 'Dream Team' }],
+      policies: [{ id: 1, name: 'DROP ALL TABLES!' }, { id: 2, name: 'THROW DESK' }]
+    }
+    userOps.updateUser(6, data, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
       expect(result).to.equal(expected)

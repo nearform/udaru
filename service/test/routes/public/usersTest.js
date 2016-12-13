@@ -238,7 +238,7 @@ lab.experiment('Users', () => {
   })
 
   lab.test('update user should return 200 for success', (done) => {
-    userOps.updateUser = function (params, cb) {
+    userOps.updateUser = function (id, params, cb) {
       process.nextTick(() => {
         cb(null, {
           id: 3,

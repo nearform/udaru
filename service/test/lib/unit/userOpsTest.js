@@ -8,7 +8,19 @@ const async = require('async')
 const UserOps = require('../../../lib/userOps')
 const utils = require('../../utils')
 
+let updateUserData
+
 lab.experiment('userOps', () => {
+  lab.beforeEach((done) => {
+    updateUserData = {
+      name: 'test',
+      teams: [],
+      policies: []
+    }
+
+    done()
+  })
+
   lab.test('should return an error if the db connection fails', (done) => {
     const userOps = UserOps(utils.getDbPollConnectionError(), {debug: () => {}})
     const functionsUnderTest = ['listAllUsers', 'listOrgUsers', 'createUser', 'createUserById', 'readUserById', 'updateUser', 'deleteUserById', 'getUserByToken']
@@ -16,7 +28,11 @@ lab.experiment('userOps', () => {
 
     functionsUnderTest.forEach((f) => {
       tasks.push((cb) => {
-        userOps[f]([1, 'test', [], []], utils.testError(expect, 'Error: connection error test', cb))
+        if (f === 'updateUser') {
+          userOps.updateUser(1, updateUserData, utils.testError(expect, 'Error: connection error test', cb))
+        } else {
+          userOps[f]({}, utils.testError(expect, 'Error: connection error test', cb))
+        }
       })
     })
 
@@ -55,49 +71,51 @@ lab.experiment('userOps', () => {
     const dbPool = utils.getDbPoolErrorForQueryOrRowCount('BEGIN', {testRollback: true, expect: expect})
     const userOps = UserOps(dbPool, {debug: () => {}})
 
-    userOps.updateUser([1, 'test', [], []], utils.testError(expect, 'Error: query error test', done))
+    userOps.updateUser(1, updateUserData, utils.testError(expect, 'Error: query error test', done))
   })
 
   lab.test('updateUser should return an error if the update query fails', (done) => {
     const dbPool = utils.getDbPoolErrorForQueryOrRowCount('UPDATE users', {testRollback: true, expect: expect})
     const userOps = UserOps(dbPool, {debug: () => {}})
 
-    userOps.updateUser([1, 'test', [], []], utils.testError(expect, 'Error: query error test', done))
+    userOps.updateUser(1, updateUserData, utils.testError(expect, 'Error: query error test', done))
   })
 
   lab.test('updateUser should return an error if the delete query on team_members fails', (done) => {
     const dbPool = utils.getDbPoolErrorForQueryOrRowCount('DELETE FROM team_members', {testRollback: true, expect: expect})
     const userOps = UserOps(dbPool, {debug: () => {}})
 
-    userOps.updateUser([1, 'test', [], []], utils.testError(expect, 'Error: query error test', done))
+    userOps.updateUser(1, updateUserData, utils.testError(expect, 'Error: query error test', done))
   })
 
   lab.test('updateUser should return an error if the insert query on team_members fails', (done) => {
     const dbPool = utils.getDbPoolErrorForQueryOrRowCount('INSERT INTO team_members', {testRollback: true, expect: expect})
     const userOps = UserOps(dbPool, {debug: () => {}})
 
-    userOps.updateUser([1, 'test', [1], []], utils.testError(expect, 'Error: query error test', done))
+    updateUserData.teams = [{ id: 1 }]
+    userOps.updateUser(1, updateUserData, utils.testError(expect, 'Error: query error test', done))
   })
 
   lab.test('updateUser should return an error if the delete query on user_policies fails', (done) => {
     const dbPool = utils.getDbPoolErrorForQueryOrRowCount('DELETE FROM user_policies', {testRollback: true, expect: expect})
     const userOps = UserOps(dbPool, {debug: () => {}})
 
-    userOps.updateUser([1, 'test', [], []], utils.testError(expect, 'Error: query error test', done))
+    userOps.updateUser(1, updateUserData, utils.testError(expect, 'Error: query error test', done))
   })
 
   lab.test('updateUser should return an error if the insert query on team_members fails', (done) => {
     const dbPool = utils.getDbPoolErrorForQueryOrRowCount('INSERT INTO user_policies', {testRollback: true, expect: expect})
     const userOps = UserOps(dbPool, {debug: () => {}})
 
-    userOps.updateUser([1, 'test', [], [1]], utils.testError(expect, 'Error: query error test', done))
+    updateUserData.policies = [{ id: 1 }]
+    userOps.updateUser(1, updateUserData, utils.testError(expect, 'Error: query error test', done))
   })
 
   lab.test('updateUser should return an error if commit fails', (done) => {
     const dbPool = utils.getDbPoolErrorForQueryOrRowCount('COMMIT', {testRollback: true, expect: expect})
     const userOps = UserOps(dbPool, {debug: () => {}})
 
-    userOps.updateUser([1, 'test', [], []], utils.testError(expect, 'Error: query error test', done))
+    userOps.updateUser(1, updateUserData, utils.testError(expect, 'Error: query error test', done))
   })
 
   lab.test('deleteUserById should return an error if the transaction cannot be started', (done) => {
