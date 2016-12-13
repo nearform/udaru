@@ -66,6 +66,32 @@ module.exports = new Reconfig({
           }
         }
       ]
+    },
+    teams: {
+      defaultPolicies: [
+        {
+          version: '1',
+          name: 'Default Team Admin for :teamId',
+          org_id: ':organizationId',
+          statements: {
+            'Statement': [
+              {
+                'Effect': 'Allow',
+                'Action': [
+                  'authorization:teams:read',
+                  'authorization:teams:update'
+                ],
+                'Resource': ['authorization/team/:teamId']
+              },
+              {
+                'Effect': 'Allow',
+                'Action': ['authorization:users:*'],
+                'Resource': ['/authorization/user/:organizationId/:teamId/*']
+              }
+            ]
+          }
+        }
+      ]
     }
   }
 }, { envPrefix: 'LABS_AUTH_SERVICE' })

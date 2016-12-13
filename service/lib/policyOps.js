@@ -5,7 +5,13 @@ const async = require('async')
 const dbUtil = require('./dbUtil')
 const config = require('./config')
 
+function insertPolicies (client, policies, cb) {
+  const stmt = dbUtil.buildInsertStmt('INSERT INTO policies (version, name, org_id, statements) VALUES ', policies.map(policy => [policy.version, policy.name, policy.org_id, policy.statements]))
+  client.query(stmt.statement + ' RETURNING id', stmt.params, cb)
+}
+
 module.exports = function (dbPool) {
+
   var policyOps = {
 
     /*
@@ -119,7 +125,12 @@ module.exports = function (dbPool) {
      * $4 = statements
      */
     createPolicy: function createPolicy (args, cb) {
-      dbPool.query('INSERT INTO policies (id, version, name, org_id, statements) VALUES (DEFAULT, $1, $2, $3, $4) RETURNING id', args, function (err, result) {
+      insertPolicies(dbPool, [{
+        version: args[0],
+        name: args[1],
+        org_id: args[2],
+        statements: args[3],
+      }], (err, result) => {
         if (err) return cb(Boom.badImplementation(err))
 
         policyOps.readPolicyById([result.rows[0].id], cb)
@@ -205,8 +216,12 @@ module.exports = function (dbPool) {
 
     createOrgDefaultPolicies: function createOrgDefaultPolicies (client, organizationId, cb) {
       const defaultPolicies = config.get('authorization.organizations.defaultPolicies', {'organizationId': organizationId})
-      const stmt = dbUtil.buildInsertStmt('INSERT INTO policies (version, name, org_id, statements) VALUES ', defaultPolicies.map(policy => [policy.version, policy.name, policy.org_id, policy.statements]))
-      client.query(stmt.statement, stmt.params, cb)
+      insertPolicies(client, defaultPolicies, cb)
+    },
+
+    createTeamDefaultPolicies: function createTeamDefaultPolicies (client, organizationId, teamId, cb) {
+      const defaultPolicies = config.get('authorization.teams.defaultPolicies', {organizationId, teamId})
+      insertPolicies(client, defaultPolicies, cb)
     }
   }
 

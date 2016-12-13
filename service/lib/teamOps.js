@@ -3,8 +3,23 @@
 const Boom = require('boom')
 const dbUtil = require('./dbUtil')
 const async = require('async')
+const PolicyOps = require('./policyOps')
 
 module.exports = function (dbPool, log) {
+  const policyOps = PolicyOps(dbPool)
+
+  function insertTeam (job, next) {
+    job.client.query('INSERT INTO teams (id, name, description, team_parent_id, org_id) VALUES (DEFAULT, $1, $2, $3, $4) RETURNING id', job.args, (err, res) => {
+      if (err) return next(err)
+      job.team = res.rows[0]
+      next()
+    })
+  }
+
+  function createDefaultPolicies (job, next) {
+    policyOps.createTeamDefaultPolicies(job.client, job.args[3], job.team.id, next)
+  }
+
   var teamOps = {
     /*
     * no query args (but may e.g. sort in future)
@@ -35,10 +50,19 @@ module.exports = function (dbPool, log) {
     * $4 = org_id
     */
     createTeam: function createTeam (args, cb) {
-      dbPool.query('INSERT INTO teams (id, name, description, team_parent_id, org_id) VALUES (DEFAULT, $1, $2, $3, $4) RETURNING id', args, function (err, result) {
+      const tasks = [
+        (job, next) => {
+          job.args = args
+          next()
+        },
+        insertTeam,
+        createDefaultPolicies
+      ]
+
+      dbUtil.withTransaction(dbPool, tasks, (err, res) => {
         if (err) return cb(Boom.badImplementation(err))
 
-        teamOps.readTeamById([result.rows[0].id], cb)
+        teamOps.readTeamById([res.team.id], cb)
       })
     },
 
