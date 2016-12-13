@@ -217,12 +217,16 @@ module.exports = function (dbPool) {
     createOrgDefaultPolicies: function createOrgDefaultPolicies (client, organizationId, cb) {
       const defaultPolicies = config.get('authorization.organizations.defaultPolicies', {'organizationId': organizationId})
       // insertPolicies(client, defaultPolicies, cb)
-      const stmt = dbUtil.buildInsertStmt('INSERT INTO policies (version, name, org_id, statements) VALUES ', defaultPolicies.map(policy => [policy.version, policy.name, policy.org_id, policy.statements]))
+      const values = Object.keys(defaultPolicies).map((pName) => {
+        let policy = defaultPolicies[pName]
+        return [policy.version, policy.name, policy.org_id, policy.statements]
+      })
+      const stmt = dbUtil.buildInsertStmt('INSERT INTO policies (version, name, org_id, statements) VALUES ', values)
 
       client.query(stmt.statement, stmt.params, function (err, result) {
         if (err) return cb(err)
 
-        const name = config.get('authorization.organizations.defaultPolicies.0.name', {'organizationId': organizationId})
+        const name = config.get('authorization.organizations.defaultPolicies.orgAdmin.name', {'organizationId': organizationId})
         client.query('SELECT id FROM policies WHERE org_id = $1 AND name = $2', [organizationId, name], function (err, result) {
           if (err) return cb(err)
           if (result.rowCount === 0) return cb(new Error(`No policy found for org ${organizationId} with name ${name}`))

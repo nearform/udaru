@@ -13,6 +13,11 @@ const PolicyOps = require('../../../lib/policyOps')
 const dbConn = require('../../../lib/dbConn')
 const config = require('../../../lib/config')
 const defaultPolicies = config.get('authorization.organizations.defaultPolicies', {'organizationId': 'nearForm'})
+const defaultPoliciesNames = Object.keys(defaultPolicies).map((pName) => {
+  let policy = defaultPolicies[pName]
+  return policy.name
+})
+
 
 const db = dbConn.create(logger)
 const organizationOps = OrganizationOps(db.pool, logger)
@@ -41,11 +46,10 @@ lab.experiment('OrganizationOps', () => {
       policyOps.listByOrganization('nearForm', (err, res) => {
         expect(err).to.not.exist()
         expect(res).to.exist()
-        expect(res.length).to.be.at.least(defaultPolicies.length)
+        expect(res.length).to.be.at.least(defaultPoliciesNames.length)
 
         let policiesNames = res.map(p => p.name).sort()
-        let expectedNames = defaultPolicies.map(p => p.name).sort()
-        expect(policiesNames).to.equal(expectedNames)
+        expect(policiesNames).to.equal(defaultPoliciesNames)
 
         organizationOps.deleteById(result.organization.id, done)
       })

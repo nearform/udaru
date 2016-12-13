@@ -30,8 +30,8 @@ module.exports = new Reconfig({
   },
   authorization: {
     organizations: {
-      defaultPolicies: [
-        {
+      defaultPolicies: {
+        orgAdmin: {
           version: '1',
           name: ':organizationId admin',
           org_id: ':organizationId',
@@ -65,7 +65,7 @@ module.exports = new Reconfig({
             ]
           }
         }
-      ]
+      }
     },
     teams: {
       defaultPolicies: [
