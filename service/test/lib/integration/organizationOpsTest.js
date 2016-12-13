@@ -73,7 +73,7 @@ lab.experiment('OrganizationOps', () => {
       expect(result.user.name).to.equal('example example')
       expect(result.user.id).to.not.be.null()
 
-      userOps.listOrgUsers(['nearForm'], (err, res) => {
+      userOps.listOrgUsers({ organizationId: 'nearForm' }, (err, res) => {
         expect(err).to.not.exist()
         expect(res).to.exist()
         expect(res.length).to.equal(1)

@@ -24,7 +24,7 @@ lab.experiment('UserOps', () => {
   })
 
   lab.test('list of org users', (done) => {
-    userOps.listOrgUsers(['WONKA'], (err, result) => {
+    userOps.listOrgUsers({ organizationId: 'WONKA' }, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
       expect(result.length).to.equal(6)

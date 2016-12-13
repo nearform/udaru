@@ -26,11 +26,22 @@ module.exports = function (dbPool, log) {
       })
     },
 
-    /*
-    * $1 = org_id
-    */
-    listOrgUsers: function listOrgUsers (args, cb) {
-      dbPool.query('SELECT  * from users WHERE org_id = $1 ORDER BY UPPER(name)', args, function (err, result) {
+    /**
+     * Get organization users, in alphabetical order
+     *
+     * @param  {Object}   params { organizationId }
+     * @param  {Function} cb
+     */
+    listOrgUsers: function listOrgUsers (params, cb) {
+      const { organizationId } = params
+
+      const sqlQuery = SQL`
+        SELECT  *
+        FROM users
+        WHERE org_id = ${organizationId}
+        ORDER BY UPPER(name)
+      `
+      dbPool.query(sqlQuery, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
 
         return cb(null, result.rows)
