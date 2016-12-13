@@ -13,6 +13,11 @@ const PolicyOps = require('../../../lib/policyOps')
 const dbConn = require('../../../lib/dbConn')
 const config = require('../../../lib/config')
 const defaultPolicies = config.get('authorization.organizations.defaultPolicies', {'organizationId': 'nearForm'})
+const defaultPoliciesNames = Object.keys(defaultPolicies).map((pName) => {
+  let policy = defaultPolicies[pName]
+  return policy.name
+})
+
 
 const db = dbConn.create(logger)
 const organizationOps = OrganizationOps(db.pool, logger)
@@ -33,21 +38,62 @@ lab.experiment('OrganizationOps', () => {
   })
 
   lab.test('create an organization (and delete it) should create the organization default policies', (done) => {
-    organizationOps.create({id: 'nearForm', name: 'nearForm', description: 'nearform description'}, (err, organization) => {
+    organizationOps.create({id: 'nearForm', name: 'nearForm', description: 'nearform description'}, (err, result) => {
       expect(err).to.not.exist()
-      expect(organization).to.exist()
-      expect(organization.name).to.equal('nearForm')
+      expect(result.organization).to.exist()
+      expect(result.organization.name).to.equal('nearForm')
 
-      policyOps.listByOrganization('nearForm', (err, result) => {
+      policyOps.listByOrganization('nearForm', (err, res) => {
         expect(err).to.not.exist()
-        expect(result).to.exist()
-        expect(result.length).to.be.at.least(defaultPolicies.length)
+        expect(res).to.exist()
+        expect(res.length).to.be.at.least(defaultPoliciesNames.length)
 
-        let policiesNames = result.map(p => p.name).sort()
-        let expectedNames = defaultPolicies.map(p => p.name).sort()
-        expect(policiesNames).to.equal(expectedNames)
+        let policiesNames = res.map(p => p.name).sort()
+        expect(policiesNames).to.equal(defaultPoliciesNames)
 
-        organizationOps.deleteById(organization.id, done)
+        organizationOps.deleteById(result.organization.id, done)
+      })
+    })
+  })
+
+  lab.test('create an organization specifying a user should create the user and assign the OrgAdmin policy to it', (done) => {
+    organizationOps.create({
+      id: 'nearForm',
+      name: 'nearForm',
+      description: 'nearform description',
+      user: {
+        name: 'example example'
+      }
+    }, (err, result) => {
+      expect(err).to.not.exist()
+      expect(result).to.exist()
+      expect(result.organization).to.exist()
+      expect(result.organization.name).to.equal('nearForm')
+      expect(result.user).to.exist()
+      expect(result.user.name).to.equal('example example')
+      expect(result.user.id).to.not.be.null()
+
+      userOps.listOrgUsers(['nearForm'], (err, res) => {
+        expect(err).to.not.exist()
+        expect(res).to.exist()
+        expect(res.length).to.equal(1)
+        expect(res[0].name).to.equal('example example')
+
+        userOps.readUserById([res[0].id], (err, user) => {
+          expect(err).to.not.exist()
+          expect(user).to.exist()
+          expect(user.teams.length).to.equal(0)
+
+          organizationOps.deleteById(result.organization.id, (err, res) => {
+            expect(err).to.not.exist()
+
+            userOps.listAllUsers([], (err, res) => {
+              expect(err).to.not.exist()
+              expect(res.length).to.equal(6)
+              done()
+            })
+          })
+        })
       })
     })
   })
@@ -59,14 +105,14 @@ lab.experiment('OrganizationOps', () => {
     organizationOps.create(createData, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
-      expect(result.name).to.equal('nearForm')
+      expect(result.organization.name).to.equal('nearForm')
 
-      organizationOps.update(updateData, (err, result) => {
+      organizationOps.update(updateData, (err, res) => {
         expect(err).to.not.exist()
-        expect(result).to.exist()
-        expect(result).to.equal(updateData)
+        expect(res).to.exist()
+        expect(res).to.equal(updateData)
 
-        organizationOps.deleteById(result.id, done)
+        organizationOps.deleteById(result.organization.id, done)
       })
     })
   })
@@ -113,7 +159,7 @@ lab.experiment('OrganizationOps', () => {
     })
     tasks.push((next) => {
       policyOps.listAllPolicies([], (err, result) => {
-        expect(result.length).to.equal(9)
+        expect(result.length).to.equal(8)
         next(err, result)
       })
     })
@@ -167,7 +213,7 @@ lab.experiment('OrganizationOps', () => {
     })
     tasks.push((next) => {
       policyOps.listAllPolicies([], (err, result) => {
-        expect(result.length).to.equal(9)
+        expect(result.length).to.equal(8)
         next(err, result)
       })
     })

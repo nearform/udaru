@@ -22,8 +22,6 @@ exports.register = function (server, options, next) {
       authorize.isUserAuthorized(params, reply)
     },
     config: {
-      description: 'Authorize user action against a resource [TBD]',
-      tags: ['api', 'service', 'authorization'],
       validate: {
         params: {
           userId: Joi.number().required().description('The user that wants to perform the action on a given resource'),
@@ -31,7 +29,7 @@ exports.register = function (server, options, next) {
           resource: Joi.string().required().description('The resource that the user wants to perform the action on')
         }
       },
-      description: 'Fetch all the defined policies',
+      description: 'Authorize user action against a resource [TBD]',
       notes: 'The GET /authorization/check/{userId}/{action}/{resource} endpoint returns is a user can perform and action\non a resource\n',
       tags: [ 'api', 'service', 'get', 'authorization', 'check' ]
     }
@@ -51,14 +49,12 @@ exports.register = function (server, options, next) {
     },
     config: {
       description: 'List all the actions a user can perform on a resource [TBD]',
-      tags: ['api', 'service', 'authorization'],
       validate: {
         params: {
           userId: Joi.number().required().description('The user that wants to perform the action on a given resource'),
           resource: Joi.string().required().description('The resource that the user wants to perform the action on')
         }
       },
-      description: 'Fetch all the defined policies',
       notes: 'The GET /authorization/list/{userId}/{resource} endpoint returns a list of all the actions a user\ncan perform on a given resource\n',
       tags: [ 'api', 'service', 'get', 'authorization', 'list' ]
     }
