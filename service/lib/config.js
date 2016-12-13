@@ -70,7 +70,7 @@ module.exports = new Reconfig({
     teams: {
       defaultPolicies: [
         {
-          version: '0.1',
+          version: '1',
           name: 'Default Team Admin for :teamId',
           org_id: ':organizationId',
           statements: {
