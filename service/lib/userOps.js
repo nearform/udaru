@@ -230,36 +230,50 @@ module.exports = function (dbPool, log) {
       })
     },
 
-    /*
-    * $1 = id
-    */
-    deleteUserById: function deleteUserById (args, cb) {
-      const tasks = []
-      dbPool.connect(function (err, client, done) {
-        if (err) return cb(Boom.badImplementation(err))
+    /**
+     * Delete user
+     *
+     * @param  {Number}   id
+     * @param  {Function} cb
+     */
+    deleteUserById: function deleteUserById (id, cb) {
+      const tasks = [
+        (job, next) => {
+          job.id = id
+          next()
+        },
+        (job, next) => {
+          const sqlQuery = SQL`DELETE FROM user_policies WHERE user_id = ${id}`
 
-        tasks.push((next) => { client.query('BEGIN', next) })
-        tasks.push((next) => { client.query('DELETE from user_policies WHERE user_id = $1', args, next) })
-        tasks.push((next) => { client.query('DELETE from team_members WHERE user_id = $1', args, next) })
-        tasks.push((next) => {
-          client.query('DELETE from users WHERE id = $1', args, function (err, result) {
-            if (err) return next(err)
-            if (result.rowCount === 0) return next(Boom.notFound())
+          job.client.query(sqlQuery, next)
+        },
+        (job, next) => {
+          const sqlQuery = SQL`DELETE FROM team_members WHERE user_id = ${id}`
+
+          job.client.query(sqlQuery, next)
+        },
+        (job, next) => {
+          const sqlQuery = SQL`DELETE FROM users WHERE id = ${id}`
+
+          job.client.query(sqlQuery, (err, result) => {
+            if (err) {
+              return next(err)
+            }
+            if (result.rowCount === 0) {
+              return next(Boom.notFound())
+            }
 
             next()
           })
-        })
-        tasks.push((next) => { client.query('COMMIT', next) })
+        }
+      ]
 
-        async.series(tasks, (err) => {
-          if (err) {
-            dbUtil.rollback(client, done)
-            return cb(err.isBoom ? err : Boom.badImplementation(err))
-          }
+      dbUtil.withTransaction(dbPool, tasks, (err, res) => {
+        if (err) {
+          return cb(Boom.badImplementation(err))
+        }
 
-          done()
-          return cb(null)
-        })
+        cb()
       })
     },
 

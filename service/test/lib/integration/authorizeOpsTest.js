@@ -59,7 +59,7 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      userOps.deleteUserById([testUserId], (err, result) => {
+      userOps.deleteUserById(testUserId, (err, result) => {
         expect(err).to.not.exist()
 
         next(err)
@@ -102,7 +102,7 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      userOps.deleteUserById([testUserId], (err, result) => {
+      userOps.deleteUserById(testUserId, (err, result) => {
         expect(err).to.not.exist()
         next()
       })
@@ -144,7 +144,7 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      userOps.deleteUserById([testUserId], (err, result) => {
+      userOps.deleteUserById(testUserId, (err, result) => {
         expect(err).to.not.exist()
         next()
       })
@@ -186,7 +186,7 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      userOps.deleteUserById([testUserId], (err, result) => {
+      userOps.deleteUserById(testUserId, (err, result) => {
         expect(err).to.not.exist()
         next()
       })
@@ -228,7 +228,7 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      userOps.deleteUserById([testUserId], (err, result) => {
+      userOps.deleteUserById(testUserId, (err, result) => {
         expect(err).to.not.exist()
         next()
       })
@@ -270,7 +270,7 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      userOps.deleteUserById([testUserId], (err, result) => {
+      userOps.deleteUserById(testUserId, (err, result) => {
         expect(err).to.not.exist()
         next()
       })
@@ -312,7 +312,7 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      userOps.deleteUserById([testUserId], (err, result) => {
+      userOps.deleteUserById(testUserId, (err, result) => {
         expect(err).to.not.exist()
         next()
       })
@@ -447,7 +447,7 @@ lab.experiment('AuthorizeOps', () => {
 
     // clean-up
     tasks.push((result, cb) => {
-      userOps.deleteUserById([testUserId], (err, result) => {
+      userOps.deleteUserById(testUserId, (err, result) => {
         expect(err).to.not.exist()
         cb(err, result)
       })
