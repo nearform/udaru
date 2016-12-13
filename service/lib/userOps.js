@@ -3,23 +3,23 @@
 const Boom = require('boom')
 const async = require('async')
 const dbUtil = require('./dbUtil')
+const SQL = dbUtil.SQL
 
 module.exports = function (dbPool, log) {
-  var userOps = {
-    //
-    // TODO: take the org_id from the administrator credentials (or superadmin role?)
-    //
-    // TODO: check admin privs for permission
-    //
-
-    // to run a query we can acquire a client from the pool,
-    // run a query on the client, and then return the client to the pool
-
-    /*
-    * no query args (but may e.g. sort in future)
-    */
-    listAllUsers: function listAllUsers (args, cb) {
-      dbPool.query('SELECT * from users ORDER BY UPPER(name)', function (err, result) {
+  const userOps = {
+    /**
+     * Get all users, in alphabetical order
+     *
+     * @param  {Object}   params
+     * @param  {Function} cb
+     */
+    listAllUsers: function listAllUsers (params, cb) {
+      const sqlQuery = SQL`
+        SELECT *
+        FROM users
+        ORDER BY UPPER(name)
+      `
+      dbPool.query(sqlQuery, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
 
         return cb(null, result.rows)
