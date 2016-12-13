@@ -39,7 +39,12 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      userOps.updateUser([testUserId, 'Salman', [{ id: 4 }], [{ id: 1 }]], (err, result) => {
+      const newUserData = {
+        name: 'Salman',
+        teams: [{ id: 4 }],
+        policies: [{ id: 1 }]
+      }
+      userOps.updateUser(testUserId, newUserData, (err, result) => {
         if (err) return next(err)
 
         next(err)
@@ -83,7 +88,12 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      userOps.updateUser([testUserId, 'Salman', [{ id: 4 }], [{ id: 5 }]], (err, result) => {
+      const newUserData = {
+        name: 'Salman',
+        teams: [{ id: 4 }],
+        policies: [{ id: 5 }]
+      }
+      userOps.updateUser(testUserId, newUserData, (err, result) => {
         if (err) return next(err)
         next()
       })
@@ -125,7 +135,12 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      userOps.updateUser([testUserId, 'Salman', [{ id: 4 }], [{ id: 6 }]], (err, result) => {
+      const newUserData = {
+        name: 'Salman',
+        teams: [{ id: 4 }],
+        policies: [{ id: 6 }]
+      }
+      userOps.updateUser(testUserId, newUserData, (err, result) => {
         if (err) next(err)
         next()
       })
@@ -167,7 +182,12 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      userOps.updateUser([testUserId, 'Salman', [{ id: 4 }], [{ id: 7 }]], (err, result) => {
+      const newUserData = {
+        name: 'Salman',
+        teams: [{ id: 4 }],
+        policies: [{ id: 7 }]
+      }
+      userOps.updateUser(testUserId, newUserData, (err, result) => {
         if (err) next(err)
         next()
       })
@@ -209,7 +229,12 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      userOps.updateUser([testUserId, 'Salman', [{ id: 4 }], [{ id: 8 }]], (err, result) => {
+      const newUserData = {
+        name: 'Salman',
+        teams: [{ id: 4 }],
+        policies: [{ id: 8 }]
+      }
+      userOps.updateUser(testUserId, newUserData, (err, result) => {
         if (err) next(err)
         next()
       })
@@ -251,7 +276,12 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      userOps.updateUser([testUserId, 'Salman', [{ id: 4 }], [{ id: 6 }]], (err, result) => {
+      const newUserData = {
+        name: 'Salman',
+        teams: [{ id: 4 }],
+        policies: [{ id: 6 }]
+      }
+      userOps.updateUser(testUserId, newUserData, (err, result) => {
         if (err) next(err)
         next()
       })
@@ -293,7 +323,12 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      userOps.updateUser([testUserId, 'Salman', [{ id: 4 }], [{ id: 6 }]], (err, result) => {
+      const newUserData = {
+        name: 'Salman',
+        teams: [{ id: 4 }],
+        policies: [{ id: 6 }]
+      }
+      userOps.updateUser(testUserId, newUserData, (err, result) => {
         if (err) next(err)
         next()
       })
@@ -411,7 +446,12 @@ lab.experiment('AuthorizeOps', () => {
 
     // test for user permissions on the resource
     tasks.push((result, cb) => {
-      userOps.updateUser([testUserId, testUserName, [], [{ id: 3 }]], cb)
+      const newUserData = {
+        name: testUserName,
+        teams: [],
+        policies: [{ id: 3 }]
+      }
+      userOps.updateUser(testUserId, newUserData, cb)
     })
 
     tasks.push((result, cb) => {
@@ -429,7 +469,12 @@ lab.experiment('AuthorizeOps', () => {
 
     // test for team and user permissions on the resource
     tasks.push((result, cb) => {
-      userOps.updateUser([testUserId, testUserName, [{ id: 1 }], [{ id: 4 }]], cb)
+      const newUserData = {
+        name: testUserName,
+        teams: [{ id: 1 }],
+        policies: [{ id: 4 }]
+      }
+      userOps.updateUser(testUserId, newUserData, cb)
     })
 
     tasks.push((result, cb) => {
