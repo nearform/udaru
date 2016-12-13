@@ -30,6 +30,8 @@
     "iam-js": "git+ssh://git@github.com:nearform/iam-js.git",
     "inert": "4.0.3",
     "joi": "10.0.5",
+    "jsonfile": "2.4.0",
+    "minimist": "1.2.0",
     "pg": "6.1.1",
     "reconfig": "3.2.0",
     "vision": "4.1.1"
