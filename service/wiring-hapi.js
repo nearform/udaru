@@ -8,6 +8,11 @@ const Hapi = require('hapi')
 const HapiServiceAuth = require('./hapi-auth-service')
 const server = new Hapi.Server()
 
+// need to move this to a separate file
+const UserOps = require('./lib/userOps')
+const PolicyOps = require('./lib/policyOps')
+const AuthorizeOps = require('./lib/authorizeOps')
+
 server.connection({
   port: Number(config.get('hapi.port')),
   host: config.get('hapi.host'),
@@ -60,17 +65,27 @@ server.register(
       validateFunc: (request, userId, callback) => {
         const { route } = request
 
-        const action = route.settings.plugins &&
-          route.settings.plugins.auth &&
-          route.settings.plugins.auth.action
+        const authPlugin = route.settings.plugins && route.settings.plugins.auth
+        if (!authPlugin) {
+          return callback(null, false)
+        }
 
-        console.log(userId)
-        console.log(action)
-        console.log(route.path)
+        // TODO: User resource from the route for now, but this needs to by dynaically generated
+        // (but we need full details about a user - org & team)
+        const params = {
+          userId,
+          action: authPlugin.action,
+          resource: authPlugin.resource // for now use the resource from the rou
+        }
 
-        console.log('Let\'s go iam-js...')
+        const authorize = AuthorizeOps(UserOps(options.dbPool, server.logger()), PolicyOps(options.dbPool))
+        authorize.isUserAuthorized(params, (err, result) => {
+          if (err) {
+            return callback(err, false)
+          }
 
-        callback(null, true, { id: userId, name: 'John' })
+          callback(null, result, { id: userId })
+        })
       },
       unauthorizedAttributes: {
         allow: false

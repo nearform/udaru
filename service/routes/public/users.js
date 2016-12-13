@@ -18,7 +18,10 @@ exports.register = function (server, options, next) {
       notes: 'The GET /authorization/users endpoint returns a list of all users\n',
       tags: ['api', 'service', 'get', 'users'],
       plugins: {
-        auth: { action: 'authorization:users:list' } // TODO: reusable actions
+        auth: {
+          action: 'authorization:users:list', // TODO: reusable actions
+          resource: '/authorization/user/*' // TODO: to be changed/removed
+        }
       }
     }
   })

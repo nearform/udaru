@@ -44,7 +44,7 @@ internals.implementation = function (server, options) {
         }
 
         if (!isValid) {
-          return reply(Boom.unauthorized('Bad username or password', 'Basic', settings.unauthorizedAttributes), null, { credentials: credentials })
+          return reply(Boom.unauthorized('Invalid user', 'Basic', settings.unauthorizedAttributes), null, { credentials: credentials })
         }
 
         if (!credentials ||
