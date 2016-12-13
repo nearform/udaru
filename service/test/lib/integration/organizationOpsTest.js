@@ -100,7 +100,7 @@ lab.experiment('OrganizationOps', () => {
         expect(res.length).to.equal(1)
         expect(res[0].name).to.equal('example example')
 
-        userOps.readUserById([res[0].id], (err, user) => {
+        userOps.readUserById(res[0].id, (err, user) => {
           expect(err).to.not.exist()
           expect(user).to.exist()
           expect(user.teams.length).to.equal(0)

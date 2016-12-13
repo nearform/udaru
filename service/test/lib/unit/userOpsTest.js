@@ -41,14 +41,14 @@ lab.experiment('userOps', () => {
     var dbPool = utils.getDbPoolErrorForQueryOrRowCount('SELECT teams.id', undefined, {rowCount: 1, rows: [{id: 1234, name: 'test'}]})
     var userOps = UserOps(dbPool, {debug: () => {}})
 
-    userOps.readUserById([], utils.testError(expect, 'Error: query error test', done))
+    userOps.readUserById(null, utils.testError(expect, 'Error: query error test', done))
   })
 
   lab.test('readUserById should return an error if the policies cannot be retrieved', (done) => {
     var dbPool = utils.getDbPoolErrorForQueryOrRowCount('SELECT pol.id', undefined, {rowCount: 1, rows: [{id: 1234, name: 'test'}]})
     var userOps = UserOps(dbPool, {debug: () => {}})
 
-    userOps.readUserById([], utils.testError(expect, 'Error: query error test', done))
+    userOps.readUserById(null, utils.testError(expect, 'Error: query error test', done))
   })
 
   lab.test('updateUser should return an error if the transaction cannot be started', (done) => {

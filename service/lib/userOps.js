@@ -68,7 +68,7 @@ module.exports = function (dbPool, log) {
       dbPool.query(sqlQuery, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
 
-        userOps.readUserById([result.rows[0].id], cb)
+        userOps.readUserById(result.rows[0].id, cb)
       })
     },
 
@@ -91,29 +91,43 @@ module.exports = function (dbPool, log) {
       dbPool.query(sqlQuery, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
 
-        userOps.readUserById([id], cb)
+        userOps.readUserById(id, cb)
       })
     },
 
-    /*
-    * $1 = id
-    */
-    readUserById: function readUserById (args, cb) {
+    /**
+     * Get user details
+     *
+     * @param  {Number}   id
+     * @param  {Function} cb
+     */
+    readUserById: function readUserById (id, cb) {
       const user = {
-        'id': null,
-        'name': null,
+        id: null,
+        name: null,
         teams: [],
         policies: []
       }
-      const tasks = []
 
       dbPool.connect(function (err, client, done) {
         if (err) return cb(Boom.badImplementation(err))
 
+        const tasks = []
+
         tasks.push((next) => {
-          client.query('SELECT id, name from users WHERE id = $1', args, function (err, result) {
-            if (err) return next(err)
-            if (result.rowCount === 0) return next(Boom.notFound())
+          const sqlQuery = SQL`
+            SELECT id, name
+            FROM users
+            WHERE id = ${id}          
+          `
+          client.query(sqlQuery, (err, result) => {
+            if (err) {
+              return next(err)
+            }
+
+            if (result.rowCount === 0) {
+              return next(Boom.notFound())
+            }
 
             user.id = result.rows[0].id
             user.name = result.rows[0].name
@@ -123,21 +137,37 @@ module.exports = function (dbPool, log) {
         })
 
         tasks.push((next) => {
-          client.query('SELECT teams.id, teams.name from team_members mem, teams WHERE mem.user_id = $1 and mem.team_id = teams.id ORDER BY UPPER(teams.name)', args, function (err, result) {
-            if (err) return next(err)
-            result.rows.forEach(function (row) {
-              user.teams.push(row)
-            })
+          const sqlQuery = SQL`
+            SELECT teams.id, teams.name
+            FROM team_members mem, teams
+            WHERE mem.user_id = ${id} AND mem.team_id = teams.id
+            ORDER BY UPPER(teams.name)
+          `
+          client.query(sqlQuery, (err, result) => {
+            if (err) {
+              return next(err)
+            }
+
+            user.teams = result.rows.map((row) => row)
+
             next()
           })
         })
 
         tasks.push((next) => {
-          client.query('SELECT pol.id, pol.name, pol.version from user_policies upol, policies pol WHERE upol.user_id = $1 and upol.policy_id = pol.id ORDER BY UPPER(pol.name)', args, function (err, result) {
-            if (err) return next(err)
-            result.rows.forEach(function (row) {
-              user.policies.push(row)
-            })
+          const sqlQuery = SQL`
+            SELECT pol.id, pol.name, pol.version
+            FROM user_policies user_pol, policies pol
+            WHERE user_pol.user_id = ${id} AND user_pol.policy_id = pol.id
+            ORDER BY UPPER(pol.name)          
+          `
+          client.query(sqlQuery, (err, result) => {
+            if (err) {
+              return next(err)
+            }
+
+            user.policies = result.rows.map((row) => row)
+
             next()
           })
         })
