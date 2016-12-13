@@ -90,7 +90,7 @@ class SqlStatement {
   }
 
   get text () {
-    return this.strings.reduce((prev, curr, i) => prev + '$' + i + curr)
+    return this.strings.reduce((prev, curr, i) => prev + '$' + i + curr).replace(/^\s+/, '')
   }
 
   startsWith (...args) {

@@ -23,11 +23,9 @@ exports.register = function (server, options, next) {
     method: 'GET',
     path: '/authorization/users/{id}',
     handler: function (request, reply) {
-      const params = [
-        request.params.id
-      ]
+      const userId = request.params.id
 
-      userOps.readUserById(params, reply)
+      userOps.readUserById(userId, reply)
     },
     config: {
       validate: {
