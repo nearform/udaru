@@ -1,3 +1,4 @@
+'use strict'
 
 const async = require('async')
 
@@ -77,8 +78,29 @@ function withTransaction (pool, tasks, done) {
   })
 }
 
+function SQL (strings, ...values) {
+  return new SqlStatement(strings, values)
+}
+
+class SqlStatement {
+
+  constructor (strings, values) {
+    this.strings = strings
+    this.values = values
+  }
+
+  get text () {
+    return this.strings.reduce((prev, curr, i) => prev + '$' + i + curr)
+  }
+
+  startsWith (...args) {
+    return this.text.startsWith(args)
+  }
+}
+
 module.exports = {
   rollback: rollback,
   buildInsertStmt: buildInsertStmt,
-  withTransaction: withTransaction
+  withTransaction: withTransaction,
+  SQL: SQL
 }
