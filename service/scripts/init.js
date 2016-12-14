@@ -12,7 +12,7 @@ const teamOps = TeamOps(db.pool, console)
 const userOps = UserOps(db.pool, console)
 const policyOps = PolicyOps(db.pool, console)
 
-const createOrganization = (job, next) => {
+function createOrganization (job, next) {
   const SuperOrganization = {
     id: 'ROOT',
     name: 'SuperOrganization',
@@ -26,7 +26,7 @@ const createOrganization = (job, next) => {
   })
 }
 
-const createTeam = (job, next) => {
+function createTeam (job, next) {
   const { organization } = job
   const SuperTeam = {
     name: 'Super Team',
@@ -41,7 +41,7 @@ const createTeam = (job, next) => {
   })
 }
 
-const createUser = (job, next) => {
+function createUser (job, next) {
   const { organization } = job
   const SuperAdmin = {
     name: 'SuperAdmin',
@@ -54,7 +54,7 @@ const createUser = (job, next) => {
   })
 }
 
-const createPolicy = (job, next) => {
+function createPolicy (job, next) {
   const { organization } = job
 
   const superAdminPolicy = {
@@ -76,7 +76,7 @@ const createPolicy = (job, next) => {
   })
 }
 
-const attachPolicy = (job, next) => {
+function attachPolicy (job, next) {
   const { user, policy } = job
 
   const query = 'INSERT INTO user_policies (user_id, policy_id) VALUES ($1, $2)'
