@@ -12,7 +12,7 @@ const UserOps = require('../../../lib/userOps')
 const PolicyOps = require('../../../lib/policyOps')
 const dbConn = require('../../../lib/dbConn')
 const config = require('../../../lib/config')
-const defaultPolicies = config.get('authorization.organizations.defaultPolicies', {'organizationId': 'nearForm'})
+const defaultPolicies = config.get('authorization.organizations.defaultPolicies', { 'organizationId': 'nearForm' })
 const defaultPoliciesNames = Object.keys(defaultPolicies).map((pName) => {
   let policy = defaultPolicies[pName]
   return policy.name
@@ -38,7 +38,7 @@ lab.experiment('OrganizationOps', () => {
   })
 
   lab.test('create an organization (and delete it) should create the organization default policies', (done) => {
-    organizationOps.create({id: 'nearForm', name: 'nearForm', description: 'nearform description'}, (err, result) => {
+    organizationOps.create({ id: 'nearForm', name: 'nearForm', description: 'nearform description' }, (err, result) => {
       expect(err).to.not.exist()
       expect(result.organization).to.exist()
       expect(result.organization.name).to.equal('nearForm')
@@ -94,13 +94,13 @@ lab.experiment('OrganizationOps', () => {
       expect(result.user.name).to.equal('example example')
       expect(result.user.id).to.not.be.null()
 
-      userOps.listOrgUsers(['nearForm'], (err, res) => {
+      userOps.listOrgUsers({ organizationId: 'nearForm' }, (err, res) => {
         expect(err).to.not.exist()
         expect(res).to.exist()
         expect(res.length).to.equal(1)
         expect(res[0].name).to.equal('example example')
 
-        userOps.readUserById([res[0].id], (err, user) => {
+        userOps.readUserById(res[0].id, (err, user) => {
           expect(err).to.not.exist()
           expect(user).to.exist()
           expect(user.teams.length).to.equal(0)
@@ -108,7 +108,7 @@ lab.experiment('OrganizationOps', () => {
           organizationOps.deleteById(result.organization.id, (err, res) => {
             expect(err).to.not.exist()
 
-            userOps.listAllUsers([], (err, res) => {
+            userOps.listAllUsers({}, (err, res) => {
               expect(err).to.not.exist()
               expect(res.length).to.equal(6)
               done()
@@ -120,8 +120,8 @@ lab.experiment('OrganizationOps', () => {
   })
 
   lab.test('update an organization', (done) => {
-    const createData = {id: 'nearForm1', name: 'nearForm', description: 'nearform description'}
-    const updateData = {id: 'nearForm1', name: 'nearFormUp', description: 'nearFormUp desc up'}
+    const createData = { id: 'nearForm1', name: 'nearForm', description: 'nearform description' }
+    const updateData = { id: 'nearForm1', name: 'nearFormUp', description: 'nearFormUp desc up' }
 
     organizationOps.create(createData, (err, result) => {
       expect(err).to.not.exist()
@@ -139,7 +139,7 @@ lab.experiment('OrganizationOps', () => {
   })
 
   lab.test('get a specific organization', (done) => {
-    const expected = {id: 'CONCH', name: 'Conch Plc', description: 'Global fuel distributors'}
+    const expected = { id: 'CONCH', name: 'Conch Plc', description: 'Global fuel distributors' }
     organizationOps.readById('CONCH', (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
@@ -170,7 +170,7 @@ lab.experiment('OrganizationOps', () => {
 
     const tasks = []
     tasks.push((next) => {
-      userOps.listAllUsers([], (err, result) => {
+      userOps.listAllUsers({}, (err, result) => {
         expect(result.length).to.equal(6)
         next(err, result)
       })
@@ -194,7 +194,9 @@ lab.experiment('OrganizationOps', () => {
       })
     })
 
-    tasks.push((next) => { organizationOps.create({id: 'nearForm222', name: 'nearForm222', description: 'nearform description'}, next) })
+    tasks.push((next) => {
+      organizationOps.create({ id: 'nearForm222', name: 'nearForm222', description: 'nearform description' }, next)
+    })
     tasks.push((next) => {
       const teamData = {
         name: 'Team 4',
@@ -229,9 +231,20 @@ lab.experiment('OrganizationOps', () => {
         next()
       })
     })
-    tasks.push((next) => { teamOps.updateTeam([teamId, 'Team 4', 'This is a test team', [{id: userId}], [{id: policyId}]], next) })
-    tasks.push((next) => { userOps.updateUser([userId, 'user user', [{id: teamId}], [{id: policyId}]], next) })
-    tasks.push((next) => { organizationOps.deleteById('nearForm222', next) })
+    tasks.push((next) => {
+      teamOps.updateTeam([teamId, 'Team 4', 'This is a test team', [{ id: userId }], [{ id: policyId }]], next)
+    })
+    tasks.push((next) => {
+      const newUserData = {
+        name: 'user user',
+        teams: [{ id: teamId }],
+        policies: [{ id: policyId }]
+      }
+      userOps.updateUser(userId, newUserData, next)
+    })
+    tasks.push((next) => {
+      organizationOps.deleteById('nearForm222', next)
+    })
 
     tasks.push((next) => {
       userOps.listAllUsers([], (err, result) => {
