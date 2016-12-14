@@ -23,24 +23,23 @@
   },
   "homepage": "https://github.com/nearform/labs-authorization#readme",
   "dependencies": {
-    "async": "^2.0.1",
-    "hapi": "^15.2.0",
-    "hapi-pino": "^1.3.0",
-    "hapi-swagger": "^7.4.0",
+    "async": "2.1.4",
+    "hapi": "16.0.1",
+    "hapi-pino": "1.3.0",
+    "hapi-swagger": "7.5.0",
     "iam-js": "git+ssh://git@github.com:nearform/iam-js.git",
-    "inert": "^4.0.3",
-    "joi": "^10.0.5",
-    "pg": "^6.1.0",
-    "reconfig": "^3.2.0",
-    "vision": "^4.1.1"
+    "inert": "4.0.3",
+    "joi": "10.0.5",
+    "pg": "6.1.1",
+    "reconfig": "3.2.0",
+    "vision": "4.1.1"
   },
   "devDependencies": {
-    "code": "^4.0.0",
-    "lab": "^11.2.1",
-    "pino": "^3.0.2",
+    "code": "4.0.0",
+    "lab": "11.2.1",
+    "pino": "3.0.5",
     "pre-commit": "1.1.3",
-    "proxyquire": "^1.7.10",
-    "spacey-standard": "^3.0.0",
-    "tap": "^7.1.2"
+    "proxyquire": "1.7.10",
+    "spacey-standard": "4.0.0"
   }
 }

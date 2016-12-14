@@ -48,13 +48,13 @@ exports.register = function (server, options, next) {
       authorize.listAuthorizations(params, reply)
     },
     config: {
-      description: 'List all the actions a user can perform on a resource [TBD]',
       validate: {
         params: {
           userId: Joi.number().required().description('The user that wants to perform the action on a given resource'),
           resource: Joi.string().required().description('The resource that the user wants to perform the action on')
         }
       },
+      description: 'List all the actions a user can perform on a resource',
       notes: 'The GET /authorization/list/{userId}/{resource} endpoint returns a list of all the actions a user\ncan perform on a given resource\n',
       tags: [ 'api', 'service', 'get', 'authorization', 'list' ]
     }
