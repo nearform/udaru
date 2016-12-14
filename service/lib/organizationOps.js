@@ -68,20 +68,32 @@ module.exports = function (dbPool, log) {
     /**
      * Creates a new organization
      *
-     * @param  {Object}   args {id, name, description}
+     * @param  {Object}   params {id, name, description}
+     * @param  {Object}   opts { createOnly }
      * @param  {Function} cb
      */
-    create: function create (args, cb) {
+    create: function create (params, opts, cb) {
+      if (!cb) {
+        cb = opts
+        opts = {}
+      }
+
+      const { createOnly } = opts
+
       const tasks = [
         (job, next) => {
-          job.params = args
-          job.user = args.user
+          job.params = params
+          job.user = params.user
           next()
         },
-        insertOrganization,
-        createDefaultPolicies,
-        insertOrgAdminUser
+        insertOrganization
       ]
+      if (!createOnly) {
+        tasks.push(
+          createDefaultPolicies,
+          insertOrgAdminUser
+        )
+      }
 
       dbUtil.withTransaction(dbPool, tasks, (err, res) => {
         if (err) return cb(Boom.badImplementation(err))
@@ -89,7 +101,7 @@ module.exports = function (dbPool, log) {
         organizationOps.readById(res.organization.id, (err, organization) => {
           if (err) return cb(Boom.badImplementation(err))
 
-          cb(null, {organization, user: res.user})
+          cb(null, { organization, user: res.user })
         })
       })
     },
@@ -182,7 +194,7 @@ module.exports = function (dbPool, log) {
     /**
      * Updates all (for now) organization properties
      *
-     * @param  {Obejct}   args {id, name, description}
+     * @param  {Object}   args {id, name, description}
      * @param  {Function} cb
      */
     update: function update (args, cb) {

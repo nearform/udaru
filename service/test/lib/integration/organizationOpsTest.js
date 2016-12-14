@@ -56,6 +56,27 @@ lab.experiment('OrganizationOps', () => {
     })
   })
 
+  lab.test('create an organization (and delete it) with createOnly option should only create the organization (no default policies)', (done) => {
+    const organizationData = {
+      id: 'nearForm',
+      name: 'nearForm',
+      description: 'nearForm description'
+    }
+    organizationOps.create(organizationData, { createOnly: true }, (err, result) => {
+      expect(err).to.not.exist()
+      expect(result.organization).to.exist()
+      expect(result.organization.name).to.equal('nearForm')
+
+      policyOps.listByOrganization('nearForm', (err, res) => {
+        expect(err).to.not.exist()
+        expect(res).to.exist()
+        expect(res).to.be.empty()
+
+        organizationOps.deleteById(result.organization.id, done)
+      })
+    })
+  })
+
   lab.test('create an organization specifying a user should create the user and assign the OrgAdmin policy to it', (done) => {
     organizationOps.create({
       id: 'nearForm',
@@ -138,13 +159,16 @@ lab.experiment('OrganizationOps', () => {
     })
   })
 
-  lab.test('deleting an organization should remove teams and memebers from that organization', (done) => {
-    var teamId
-    var policyId
-    var userId
-    var tasks = []
-    var policy = ['2016-07-01', 'Documents Admin', 'nearForm222', '{"Statement":[{"Effect":"Allow","Action":["documents:Read"],"Resource":["wonka:documents:/public/*"]}]}']
+  lab.test('deleting an organization should remove teams and members from that organization', (done) => {
+    let teamId, policyId, userId
+    const policy = {
+      version: '2016-07-01',
+      name: 'Documents Admin',
+      organizationId: 'nearForm222',
+      statements: '{"Statement":[{"Effect":"Allow","Action":["documents:Read"],"Resource":["wonka:documents:/public/*"]}]}'
+    }
 
+    const tasks = []
     tasks.push((next) => {
       userOps.listAllUsers([], (err, result) => {
         expect(result.length).to.equal(6)
@@ -172,7 +196,13 @@ lab.experiment('OrganizationOps', () => {
 
     tasks.push((next) => { organizationOps.create({id: 'nearForm222', name: 'nearForm222', description: 'nearform description'}, next) })
     tasks.push((next) => {
-      teamOps.createTeam(['Team 4', 'This is a test team', null, 'nearForm222'], function (err, result) {
+      const teamData = {
+        name: 'Team 4',
+        description: 'This is a test team',
+        parentId: null,
+        organizationId: 'nearForm222'
+      }
+      teamOps.createTeam(teamData, function (err, result) {
         if (err) return next(err)
 
         teamId = result.id
@@ -180,7 +210,11 @@ lab.experiment('OrganizationOps', () => {
       })
     })
     tasks.push((next) => {
-      userOps.createUser(['Grandma Josephine', 'nearForm222'], function (err, result) {
+      const userData = {
+        name: 'Grandma Josephine',
+        organizationId: 'nearForm222'
+      }
+      userOps.createUser(userData, function (err, result) {
         if (err) return next(err)
 
         userId = result.id

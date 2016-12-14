@@ -40,7 +40,13 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('create, update and delete a team', (done) => {
-    teamOps.createTeam(['Team 4', 'This is a test team', null, 'WONKA'], (err, result) => {
+    const teamData = {
+      name: 'Team 4',
+      description: 'This is a test team',
+      parentId: null,
+      organizationId: 'WONKA'
+    }
+    teamOps.createTeam(teamData, function (err, result) {
       testTeamId = result.id
 
       expect(err).to.not.exist()
@@ -80,7 +86,13 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('creating a team should create a default admin policy', (done) => {
-    teamOps.createTeam(['Team 5', 'This is a test team for policies', null, 'WONKA'], (err, result) => {
+    const teamData = {
+      name: 'Team 5',
+      description: 'This is a test team for policies',
+      parentId: null,
+      organizationId: 'WONKA'
+    }
+    teamOps.createTeam(teamData, function (err, result) {
       expect(err).to.not.exist()
       expect(result).to.exist()
 
@@ -98,4 +110,29 @@ lab.experiment('TeamOps', () => {
       })
     })
   })
+
+  lab.test('creating a team with createOnly option should not create a default admin policy', (done) => {
+    const teamData = {
+      name: 'Team 6',
+      description: 'This is a test team for createOnly options',
+      parentId: null,
+      organizationId: 'WONKA'
+    }
+    teamOps.createTeam(teamData, { createOnly: true }, function (err, result) {
+      expect(err).to.not.exist()
+      expect(result).to.exist()
+
+      policyOps.listByOrganization('WONKA', (err, policies) => {
+        expect(err).to.not.exist()
+
+        const defaultPolicy = policies.find((p) => {
+          return p.name === 'Default Team Admin for ' + result.id
+        })
+        expect(defaultPolicy).to.not.exist()
+
+        teamOps.deleteTeamById([result.id], done)
+      })
+    })
+  })
+
 })

@@ -130,17 +130,19 @@ module.exports = function (dbPool) {
     },
 
     /**
-     * $1 = version
-     * $2 = name
-     * $3 = org_id
-     * $4 = statements
+     * Creates a new policy
+     *
+     * @param  {Object}   params { version, name, organizationId, statements }
+     * @param  {Function} cb
      */
-    createPolicy: function createPolicy (args, cb) {
+    createPolicy: function createPolicy (params, cb) {
+      const { version, name, organizationId, statements } = params
+
       insertPolicies(dbPool, [{
-        version: args[0],
-        name: args[1],
-        org_id: args[2],
-        statements: args[3]
+        version: version,
+        name: name,
+        org_id: organizationId,
+        statements: statements
       }], (err, result) => {
         if (err) return cb(Boom.badImplementation(err))
 
