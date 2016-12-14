@@ -56,6 +56,27 @@ lab.experiment('OrganizationOps', () => {
     })
   })
 
+  lab.test('create an organization (and delete it) with createOnly option should only create the organization (no default policies)', (done) => {
+    const organizationData = {
+      id: 'nearForm',
+      name: 'nearForm',
+      description: 'nearForm description'
+    }
+    organizationOps.create(organizationData, { createOnly: true }, (err, result) => {
+      expect(err).to.not.exist()
+      expect(result.organization).to.exist()
+      expect(result.organization.name).to.equal('nearForm')
+
+      policyOps.listByOrganization('nearForm', (err, res) => {
+        expect(err).to.not.exist()
+        expect(res).to.exist()
+        expect(res).to.be.empty()
+
+        organizationOps.deleteById(result.organization.id, done)
+      })
+    })
+  })
+
   lab.test('create an organization specifying a user should create the user and assign the OrgAdmin policy to it', (done) => {
     organizationOps.create({
       id: 'nearForm',

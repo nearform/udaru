@@ -110,4 +110,29 @@ lab.experiment('TeamOps', () => {
       })
     })
   })
+
+  lab.test('creating a team with createOnly option should not create a default admin policy', (done) => {
+    const teamData = {
+      name: 'Team 6',
+      description: 'This is a test team for createOnly options',
+      parentId: null,
+      organizationId: 'WONKA'
+    }
+    teamOps.createTeam(teamData, { createOnly: true }, function (err, result) {
+      expect(err).to.not.exist()
+      expect(result).to.exist()
+
+      policyOps.listByOrganization('WONKA', (err, policies) => {
+        expect(err).to.not.exist()
+
+        const defaultPolicy = policies.find((p) => {
+          return p.name === 'Default Team Admin for ' + result.id
+        })
+        expect(defaultPolicy).to.not.exist()
+
+        teamOps.deleteTeamById([result.id], done)
+      })
+    })
+  })
+
 })
