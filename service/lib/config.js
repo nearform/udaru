@@ -81,7 +81,7 @@ module.exports = new Reconfig({
                   'authorization:teams:read',
                   'authorization:teams:update'
                 ],
-                'Resource': ['authorization/team/:teamId']
+                'Resource': ['authorization/team/:organizationId/:teamId']
               },
               {
                 'Effect': 'Allow',
