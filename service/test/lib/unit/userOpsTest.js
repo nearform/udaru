@@ -150,7 +150,7 @@ lab.experiment('userOps', () => {
     const dbPool = utils.getDbPoolErrorForQueryOrRowCount(undefined, {testRollback: true, expect: expect}, {rowCount: 0})
     const userOps = UserOps(dbPool, {debug: () => {}})
 
-    userOps.deleteUserById(1, utils.testError(expect, 'Error: query error test', done))
+    userOps.deleteUserById(1, utils.testError(expect, 'Error: Not Found', done))
   })
 
   lab.test('deleteUserById should return an error if commit fails', (done) => {
@@ -164,6 +164,6 @@ lab.experiment('userOps', () => {
     const dbPool = utils.getDbPoolErrorForQueryOrRowCount(undefined, undefined, {rowCount: 0})
     const userOps = UserOps(dbPool, {debug: () => {}})
 
-    userOps.deleteUserById(1, utils.testError(expect, 'Error: query error test', done))
+    userOps.deleteUserById(1, utils.testError(expect, 'Error: Not Found', done))
   })
 })

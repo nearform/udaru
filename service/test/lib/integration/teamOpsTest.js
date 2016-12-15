@@ -20,7 +20,7 @@ let testTeamId
 
 lab.experiment('TeamOps', () => {
   lab.test('list of all teams', (done) => {
-    teamOps.listAllTeams({}, (err, result) => {
+    teamOps.listAllTeams((err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
       expect(result.length).to.equal(6)
@@ -31,7 +31,7 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('list of org teams', (done) => {
-    teamOps.listOrgTeams(['WONKA'], (err, result) => {
+    teamOps.listOrgTeams('WONKA', (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
       expect(result.length).to.equal(6)
@@ -55,7 +55,14 @@ lab.experiment('TeamOps', () => {
       expect(result).to.exist()
       expect(result.name).to.equal('Team 4')
 
-      teamOps.updateTeam([testTeamId, 'Team 5', 'description', [{'id': 1, 'name': 'Tom Watson'}, {'id': 2, 'name': 'Michael O\'Brien'}], [{'id': 1, 'name': 'Financial info access'}]], (err, result) => {
+      const teamData = {
+        name: 'Team 5',
+        description: 'description',
+        users: [{'id': 1, 'name': 'Tom Watson'}, {'id': 2, 'name': 'Michael O\'Brien'}],
+        policies: [{'id': 1, 'name': 'Financial info access'}]
+      }
+
+      teamOps.updateTeam(testTeamId, teamData, (err, result) => {
         expect(err).to.not.exist()
         expect(result).to.exist()
         expect(result.name).to.equal('Team 5')
@@ -84,7 +91,7 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('read a specific team', (done) => {
-    teamOps.readTeamById([1], (err, result) => {
+    teamOps.readTeamById(1, (err, result) => {
 
       expect(err).to.not.exist()
       expect(result).to.exist()

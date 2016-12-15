@@ -52,6 +52,7 @@ function getDbPoolErrorForQueryOrRowCount (startsWith, options = {testRollback: 
     connect: function (cb) {
       var client = {query: (sql, params, cb) => {
         cb = cb || params
+
         if (sql.startsWith(startsWith)) {
           return cb(new Error('query error test'))
         }
@@ -64,6 +65,7 @@ function getDbPoolErrorForQueryOrRowCount (startsWith, options = {testRollback: 
     },
     query: function (sql, params, cb) {
       cb = cb || params
+
       if (sql.startsWith(startsWith)) {
         return cb(new Error('query error test'))
       }

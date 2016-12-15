@@ -10,7 +10,7 @@ exports.register = function (server, options, next) {
     method: 'GET',
     path: '/authorization/teams',
     handler: function (request, reply) {
-      teamOps.listAllTeams([], reply)
+      teamOps.listAllTeams(reply)
     },
     config: {
       description: 'Fetch all teams',
@@ -60,11 +60,7 @@ exports.register = function (server, options, next) {
     method: 'GET',
     path: '/authorization/teams/{id}',
     handler: function (request, reply) {
-      const params = [
-        request.params.id
-      ]
-
-      teamOps.readTeamById(params, reply)
+      teamOps.readTeamById(request.params.id, reply)
     },
     config: {
       validate: {
@@ -86,15 +82,14 @@ exports.register = function (server, options, next) {
 
       const { name, description, users, policies } = request.payload
 
-      const params = [
-        id,
+      const params = {
         name,
         description,
         users,
         policies
-      ]
+      }
 
-      teamOps.updateTeam(params, reply)
+      teamOps.updateTeam(id, params, reply)
     },
     config: {
       validate: {

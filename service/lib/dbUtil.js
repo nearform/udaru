@@ -110,7 +110,7 @@ class SqlStatement {
   }
 
   startsWith (...args) {
-    return this.text.startsWith(args)
+    return this.text.startsWith(...args)
   }
 }
 
