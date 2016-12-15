@@ -23,13 +23,14 @@ exports.register = function (server, options, next) {
     method: 'POST',
     path: '/authorization/teams',
     handler: function (request, reply) {
-      const { name, description } = request.payload
+      const { name, description, user } = request.payload
 
       const params = {
         name,
         description,
         parentId: null,
-        organizationId: 'WONKA'
+        organizationId: 'WONKA',
+        user
       }
       teamOps.createTeam(params, function (err, res) {
         if (err) {
@@ -43,7 +44,10 @@ exports.register = function (server, options, next) {
       validate: {
         payload: {
           name: Joi.string().required().description('Name of the new team'),
-          description: Joi.string().required().description('Description of new team')
+          description: Joi.string().required().description('Description of new team'),
+          user: Joi.object().optional().description('Default admin user to be added to the team').keys({
+            name: Joi.string().required('Name for the user')
+          })
         }
       },
       description: 'Create a teams',

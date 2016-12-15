@@ -8,11 +8,13 @@ const logger = require('pino')()
 
 const TeamOps = require('../../../lib/teamOps')
 const PolicyOps = require('../../../lib/policyOps')
+const UserOps = require('../../../lib/userOps')
 const dbConn = require('../../../lib/dbConn')
 
 const db = dbConn.create(logger)
 const teamOps = TeamOps(db.pool, logger)
 const policyOps = PolicyOps(db.pool, logger)
+const userOps = UserOps(db.pool, logger)
 
 let testTeamId
 
@@ -139,6 +141,40 @@ lab.experiment('TeamOps', () => {
         expect(defaultPolicy).to.not.exist()
 
         teamOps.deleteTeamById({ teamId: result.id, organizationId: 'WONKA' }, done)
+      })
+    })
+  })
+
+  lab.test('create team support creation of default team admin user', (done) => {
+    const teamData = {
+      name: 'Team 6',
+      description: 'This is a test team for admin user',
+      parentId: null,
+      organizationId: 'WONKA',
+      user: { name: 'Team 6 Admin' }
+    }
+
+    teamOps.createTeam(teamData, function (err, team) {
+      expect(err).to.not.exist()
+      expect(team).to.exist()
+      expect(team.users).to.exist()
+
+      const defaultUser = team.users.find((u) => { return u.name === 'Team 6 Admin' })
+      expect(defaultUser).to.exist()
+
+      userOps.readUserById(defaultUser.id, (err, user) => {
+        expect(err).to.not.exist()
+
+        expect(user.name).to.be.equal('Team 6 Admin')
+
+        const defaultPolicy = user.policies.find((p) => { return p.name === 'Default Team Admin for ' + team.id })
+        expect(defaultPolicy).to.exist()
+
+        teamOps.deleteTeamById({ teamId: team.id, organizationId: 'WONKA' }, (err) => {
+          expect(err).to.not.exist()
+
+          userOps.deleteUserById(user.id, done)
+        })
       })
     })
   })

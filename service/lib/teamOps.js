@@ -5,9 +5,15 @@ const dbUtil = require('./dbUtil')
 const SQL = dbUtil.SQL
 const async = require('async')
 const PolicyOps = require('./policyOps')
+const UserOps = require('./userOps')
+
+function getId (obj) {
+  return obj.id
+}
 
 module.exports = function (dbPool, log) {
   const policyOps = PolicyOps(dbPool)
+  const userOps = UserOps(dbPool)
 
   function getId (obj) {
     return obj.id
@@ -23,7 +29,35 @@ module.exports = function (dbPool, log) {
   }
 
   function createDefaultPolicies (job, next) {
-    policyOps.createTeamDefaultPolicies(job.client, job.params.organizationId, job.team.id, next)
+    policyOps.createTeamDefaultPolicies(job.client, job.params.organizationId, job.team.id, (err, res) => {
+      if (err) return next(err)
+      job.policyIds = res.rows.map(getId)
+      next()
+    })
+  }
+
+  function createDefaultUser (job, next) {
+    if (!job.params.user) return next()
+
+    userOps.insertUser(job.client, job.params.user.name, job.params.organizationId, (err, user) => {
+      if (err) return next(err)
+
+      job.user = user.rows[0]
+      next()
+    })
+  }
+
+  function assignDefaultUserToTeam (job, next) {
+    if (!job.user) return next()
+
+    job.client.query(SQL`INSERT INTO team_members (team_id, user_id) VALUES (${job.team.id}, ${job.user.id})`, next)
+  }
+
+  function makeDefaultUserAdmin (job, next) {
+    if (!job.user) return next()
+
+    const sql = dbUtil.buildInsertStmt('INSERT INTO user_policies (user_id, policy_id) VALUES ', job.policyIds.map((policyId) => [job.user.id, policyId]))
+    job.client.query(sql.statement, sql.params, next)
   }
 
   function deleteTeam (job, next) {
@@ -100,7 +134,10 @@ module.exports = function (dbPool, log) {
       ]
       if (!createOnly) {
         tasks.push(
-          createDefaultPolicies
+          createDefaultPolicies,
+          createDefaultUser,
+          makeDefaultUserAdmin,
+          assignDefaultUserToTeam
         )
       }
 
