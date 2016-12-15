@@ -2,11 +2,16 @@
 
 const Boom = require('boom')
 const dbUtil = require('./dbUtil')
+const SQL = dbUtil.SQL
 const async = require('async')
 const PolicyOps = require('./policyOps')
 
 module.exports = function (dbPool, log) {
   const policyOps = PolicyOps(dbPool)
+
+  function getId (obj) {
+    return obj.id
+  }
 
   function insertTeam (job, next) {
     const args = [job.params.name, job.params.description, job.params.parentId, job.params.organizationId]
@@ -22,22 +27,31 @@ module.exports = function (dbPool, log) {
   }
 
   function deleteTeam (job, next) {
-    job.client.query('DELETE from teams WHERE id = $1', job.teamId, (err, result) => {
+    job.client.query(SQL`DELETE from teams WHERE id = ${job.teamId}`, (err, result) => {
       if (err) return next(err)
       if (result.rowCount === 0) return next(Boom.notFound())
-
-      log.debug('delete team result: %j', result)
-
       next()
     })
   }
 
   function deleteTeamPolicies (job, next) {
-    job.client.query('DELETE FROM team_policies WHERE team_id = $1', job.teamId, next)
+    job.client.query(SQL`DELETE FROM team_policies WHERE team_id = ${job.teamId}`, next)
   }
 
   function deleteTeamMembers (job, next) {
-    job.client.query('DELETE FROM team_members WHERE team_id = $1', job.teamId, next)
+    job.client.query(SQL`DELETE FROM team_members WHERE team_id = ${job.teamId}`, next)
+  }
+
+  function readDefaultPoliciesIds (job, next) {
+    policyOps.readTeamDefaultPolicies(job.client, job.organizationId, job.teamId, function (err, res) {
+      if (err) return next(err)
+      job.policies = res.rows.map(getId)
+      next()
+    })
+  }
+
+  function deleteDefaultPolicies (job, next) {
+    policyOps.deleteAllPolicyByIds(job.client, job.policies, next)
   }
 
   var teamOps = {
@@ -213,16 +227,22 @@ module.exports = function (dbPool, log) {
     /*
      * $1 = id
      */
-    deleteTeamById: function deleteTeamById (args, cb) {
-      const tasks = []
-
+    deleteTeamById: function deleteTeamById (params, cb) {
       dbUtil.withTransaction(dbPool, [
+        (job, next) => {
+          job.teamId = params.teamId
+          job.organizationId = params.organizationId
+          next()
+        },
         deleteTeamMembers,
         deleteTeamPolicies,
+        readDefaultPoliciesIds,
+        deleteDefaultPolicies,
         deleteTeam
       ], (err) => {
         if (err) return cb(err.isBoom ? err : Boom.badImplementation(err))
         cb()
+      })
     }
   }
 

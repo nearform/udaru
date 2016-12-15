@@ -3,6 +3,7 @@
 const Boom = require('boom')
 const async = require('async')
 const dbUtil = require('./dbUtil')
+const SQL = dbUtil.SQL
 const config = require('./config')
 
 function formatInsertValues (policies) {
@@ -19,6 +20,24 @@ function formatInsertValues (policies) {
 function insertPolicies (client, policies, cb) {
   const stmt = dbUtil.buildInsertStmt('INSERT INTO policies (version, name, org_id, statements) VALUES ', formatInsertValues(policies))
   client.query(stmt.statement + ' RETURNING id', stmt.params, cb)
+}
+
+function deletePolicies (client, ids, cb) {
+  client.query('DELETE FROM policies WHERE id = ANY($1)', [ids], cb)
+}
+
+function deleteTeamsAssociations (client, ids, cb) {
+  client.query('DELETE from team_policies WHERE policy_id = ANY($1)', [ids], cb)
+}
+
+function deleteUsersAssociations (client, ids, cb) {
+  client.query('DELETE from user_policies WHERE policy_id = ANY($1)', [ids], cb)
+}
+
+function getNames (policies) {
+  return Object.keys(policies).map((key) => {
+    return policies[key].name
+  })
 }
 
 module.exports = function (dbPool) {
@@ -227,6 +246,14 @@ module.exports = function (dbPool) {
       })
     },
 
+    deleteAllPolicyByIds: function deleteAllPolicyByIds (client, ids, next) {
+      async.applyEachSeries([
+        deleteTeamsAssociations,
+        deleteUsersAssociations,
+        deletePolicies
+      ], client, ids, next)
+    },
+
     createOrgDefaultPolicies: function createOrgDefaultPolicies (client, organizationId, cb) {
       const defaultPolicies = config.get('authorization.organizations.defaultPolicies', {'organizationId': organizationId})
       insertPolicies(client, defaultPolicies, function (err, result) {
@@ -245,6 +272,12 @@ module.exports = function (dbPool) {
     createTeamDefaultPolicies: function createTeamDefaultPolicies (client, organizationId, teamId, cb) {
       const defaultPolicies = config.get('authorization.teams.defaultPolicies', {organizationId, teamId})
       insertPolicies(client, defaultPolicies, cb)
+    },
+
+    readTeamDefaultPolicies: function readTeamDefaultPolicies (client, organizationId, teamId, cb) {
+      const defaultPolicies = config.get('authorization.teams.defaultPolicies', {organizationId, teamId})
+      const names = getNames(defaultPolicies)
+      client.query(SQL`SELECT id FROM policies WHERE name = ANY(${names})`, cb)
     }
   }
 

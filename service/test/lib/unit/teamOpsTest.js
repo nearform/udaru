@@ -100,41 +100,6 @@ lab.experiment('teamOps', () => {
     teamOps.deleteTeamById([1], utils.testError(expect, 'Error: query error test', done))
   })
 
-  lab.test('deleteTeamById should return an error if deliting team members fails', (done) => {
-    var dbPool = utils.getDbPoolErrorForQueryOrRowCount('DELETE from team_members', {testRollback: true, expect: expect})
-    var teamOps = TeamOps(dbPool, () => {})
-
-    teamOps.deleteTeamById([1], utils.testError(expect, 'Error: query error test', done))
-  })
-
-  lab.test('deleteTeamById should return an error if deliting team policies fails', (done) => {
-    var dbPool = utils.getDbPoolErrorForQueryOrRowCount('DELETE from team_policies', {testRollback: true, expect: expect})
-    var teamOps = TeamOps(dbPool, () => {})
-
-    teamOps.deleteTeamById([1], utils.testError(expect, 'Error: query error test', done))
-  })
-
-  lab.test('deleteTeamById should return an error if deliting team fails', (done) => {
-    var dbPool = utils.getDbPoolErrorForQueryOrRowCount('DELETE from teams', {testRollback: true, expect: expect})
-    var teamOps = TeamOps(dbPool, () => {})
-
-    teamOps.deleteTeamById([1], utils.testError(expect, 'Error: query error test', done))
-  })
-
-  lab.test('deleteTeamById should return an error if deliting team return rowCount 0', (done) => {
-    var dbPool = utils.getDbPoolErrorForQueryOrRowCount(undefined, {testRollback: true, expect: expect}, {rowCount: 0})
-    var teamOps = TeamOps(dbPool, () => {})
-
-    teamOps.deleteTeamById([1], utils.testError(expect, 'Not Found', done))
-  })
-
-  lab.test('deleteTeamById should return an error if commit fails', (done) => {
-    var dbPool = utils.getDbPoolErrorForQueryOrRowCount('COMMIT', {testRollback: true, expect: expect})
-    var teamOps = TeamOps(dbPool, {debug: () => {}})
-
-    teamOps.deleteTeamById([1], utils.testError(expect, 'Error: query error test', done))
-  })
-
   lab.test('readTeamById should return an error if selecting the team data return rowcount 0', (done) => {
     var dbPool = utils.getDbPoolErrorForQueryOrRowCount(undefined, undefined, {rowCount: 0})
     var teamOps = TeamOps(dbPool, {debug: () => {}})

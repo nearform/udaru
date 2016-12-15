@@ -118,9 +118,10 @@ exports.register = function (server, options, next) {
     method: 'DELETE',
     path: '/authorization/teams/{id}',
     handler: function (request, reply) {
-      const params = [
-        request.params.id
-      ]
+      const params = {
+        teamId: request.params.id,
+        organizationId: 'WONKA'
+      }
 
       teamOps.deleteTeamById(params, function (err, res) {
         if (err) {

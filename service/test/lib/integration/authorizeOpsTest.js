@@ -490,21 +490,6 @@ lab.experiment('AuthorizeOps', () => {
       })
     })
 
-    // clean-up
-    tasks.push((result, cb) => {
-      userOps.deleteUserById(testUserId, (err, result) => {
-        expect(err).to.not.exist()
-        cb(err, result)
-      })
-    })
-
-    tasks.push((result, cb) => {
-      teamOps.deleteTeamById([testTeamId], (err, result) => {
-        expect(err).to.not.exist()
-        cb(err, result)
-      })
-    })
-
     tasks.push((result, cb) => {
       policyOps.listByOrganization('WONKA', (err, policies) => {
         expect(err).to.not.exist()
@@ -514,10 +499,27 @@ lab.experiment('AuthorizeOps', () => {
         })
         expect(defaultPolicy).to.exist()
 
-        policyOps.deletePolicyById([defaultPolicy.id], done)
+        policyOps.deletePolicyById([defaultPolicy.id], (err, result) => {
+          expect(err).to.not.exist()
+          cb(err, result)
+        })
       })
     })
 
+    // clean-up
+    tasks.push((result, cb) => {
+      userOps.deleteUserById(testUserId, (err, result) => {
+        expect(err).to.not.exist()
+        cb(err, result)
+      })
+    })
+
+    tasks.push((result, cb) => {
+      teamOps.deleteTeamById({ teamId: testTeamId, organizationId: testOrgId }, (err, result) => {
+        expect(err).to.not.exist()
+        cb(err, result)
+      })
+    })
     async.waterfall(tasks, done)
   })
 })

@@ -58,16 +58,23 @@ lab.experiment('TeamOps', () => {
         expect(result).to.exist()
         expect(result.name).to.equal('Team 5')
 
-        teamOps.deleteTeamById([testTeamId], (err) => {
-          if (err) return done(err)
+        policyOps.listByOrganization('WONKA', (err, policies) => {
+          expect(err).to.not.exist()
 
-          policyOps.listByOrganization('WONKA', (err, policies) => {
+          const defaultPolicy = policies.find((p) => { return p.name === 'Default Team Admin for ' + testTeamId })
+          expect(defaultPolicy).to.exist()
+
+          teamOps.deleteTeamById({ teamId: testTeamId, organizationId: 'WONKA' }, function (err) {
             expect(err).to.not.exist()
 
-            const defaultPolicy = policies.find((p) => { return p.name === 'Default Team Admin for ' + testTeamId })
-            expect(defaultPolicy).to.exist()
+            // check default policy has been deleted
+            policyOps.listByOrganization('WONKA', (err, policies) => {
+              expect(err).to.not.exist()
 
-            policyOps.deletePolicyById([defaultPolicy.id], done)
+              const defaultPolicy = policies.find((p) => { return p.name === 'Default Team Admin for ' + testTeamId })
+              expect(defaultPolicy).to.not.exist()
+              done()
+            })
           })
         })
       })
@@ -76,6 +83,7 @@ lab.experiment('TeamOps', () => {
 
   lab.test('read a specific team', (done) => {
     teamOps.readTeamById([1], (err, result) => {
+
       expect(err).to.not.exist()
       expect(result).to.exist()
       expect(result.users.length).to.equal(1)
@@ -105,7 +113,7 @@ lab.experiment('TeamOps', () => {
         policyOps.deletePolicyById([defaultPolicy.id], (err) => {
           expect(err).to.not.exist()
 
-          teamOps.deleteTeamById([result.id], done)
+          teamOps.deleteTeamById({ teamId: result.id, organizationId: 'WONKA' }, done)
         })
       })
     })
@@ -130,7 +138,7 @@ lab.experiment('TeamOps', () => {
         })
         expect(defaultPolicy).to.not.exist()
 
-        teamOps.deleteTeamById([result.id], done)
+        teamOps.deleteTeamById({ teamId: result.id, organizationId: 'WONKA' }, done)
       })
     })
   })
