@@ -10,7 +10,8 @@ exports.register = function (server, options, next) {
     method: 'GET',
     path: '/authorization/teams',
     handler: function (request, reply) {
-      teamOps.listOrgTeams({organizationId: request.authorization.organization.id}, reply)
+      const { id: organizationId } = request.authorization.organization
+      teamOps.listOrgTeams({ organizationId }, reply)
     },
     config: {
       description: 'Fetch all teams (of the current user organization)',
@@ -24,12 +25,13 @@ exports.register = function (server, options, next) {
     path: '/authorization/teams',
     handler: function (request, reply) {
       const { name, description, user } = request.payload
+      const { id: organizationId } = request.authorization.organization
 
       const params = {
         name,
         description,
         parentId: null,
-        organizationId: request.authorization.organization.id,
+        organizationId,
         user
       }
 

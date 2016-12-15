@@ -22,7 +22,7 @@ lab.experiment('Organizations', () => {
       description: 'nearForm organization'
     }]
 
-    organizationOps.list = function (params, cb) {
+    organizationOps.list = function (cb) {
       process.nextTick(() => {
         cb(null, expected)
       })

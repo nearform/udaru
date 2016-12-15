@@ -524,7 +524,13 @@ lab.experiment('AuthorizeOps', () => {
     tasks.push((result, cb) => {
       teamOps.deleteTeamById({ teamId: testTeamId, organizationId: testOrgId }, (err, result) => {
         expect(err).to.not.exist()
-        cb(err, result)
+
+        const defaultPolicy = policies.find((p) => {
+          return p.name === 'Default Team Admin for ' + testTeamId
+        })
+        expect(defaultPolicy).to.exist()
+
+        policyOps.deletePolicyById(defaultPolicy.id, done)
       })
     })
 

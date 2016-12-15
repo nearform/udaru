@@ -63,10 +63,9 @@ module.exports = function (dbPool, log) {
     /**
      * Fetch all organizations
      *
-     * @param  {Object}   params
      * @param  {Function} cb
      */
-    list: function list (params, cb) {
+    list: function list (cb) {
       const sqlQuery = SQL`
         SELECT *
         FROM organizations
@@ -131,7 +130,6 @@ module.exports = function (dbPool, log) {
         SELECT *
         FROM organizations
         WHERE id = ${id}
-        ORDER BY UPPER(name)
       `
       dbPool.query(sqlQuery, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))

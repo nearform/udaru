@@ -98,25 +98,6 @@ module.exports = function (dbPool) {
     },
 
     /**
-     * List all policies (id, version and name)
-     *
-     * @param  {Object}   params
-     * @param  {Function} cb
-     */
-    listAllPolicies: function listAllPolicies (params, cb) {
-      const sqlQuery = SQL`
-        SELECT  id, version, name
-        FROM policies
-        ORDER BY UPPER(name)
-      `
-      dbPool.query(sqlQuery, function (err, result) {
-        if (err) return cb(Boom.badImplementation(err))
-
-        return cb(null, result.rows)
-      })
-    },
-
-    /**
      * List all the policies related to a specific organization
      *
      * @param  {Object}   params { organizationId }
@@ -139,25 +120,6 @@ module.exports = function (dbPool) {
     },
 
     /**
-     * Fetch every policy without filters
-     *
-     * @param  {Object}   params
-     * @param  {Function} cb
-     */
-    listAllPoliciesDetails: function listAllPoliciesDetails (params, cb) {
-      const sqlQuery = SQL`
-        SELECT  *
-        FROM policies
-        ORDER BY UPPER(name)
-      `
-      dbPool.query(sqlQuery, function (err, result) {
-        if (err) return cb(Boom.badImplementation(err))
-
-        return cb(null, result.rows)
-      })
-    },
-
-    /**
      * fetch specific policy
      *
      * @param  {Integer}  id
@@ -168,7 +130,6 @@ module.exports = function (dbPool) {
         SELECT  *
         FROM policies
         WHERE id = ${id}
-        ORDER BY UPPER(name)
       `
       dbPool.query(sqlQuery, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
@@ -199,26 +160,22 @@ module.exports = function (dbPool) {
       })
     },
 
-    /*
-    * $1 = id
-    * $2 = version
-    * $3 = name
-    * $4 = org_id
-    * $5 = statements
-    */
-    updatePolicy: function updatePolicy (args, cb) {
-
-      const [ id, version, name, organizationId, statements ] = args
+    /**
+     * Update policy values
+     *
+     * @param  {Object}   params { id, version, name, organizationId, statements }
+     * @param  {Function} cb
+     */
+    updatePolicy: function updatePolicy (params, cb) {
+      const { id, version, name, statements } = params
       const tasks = []
 
       dbPool.connect(function (err, client, done) {
         if (err) return cb(Boom.badImplementation(err))
 
         tasks.push((next) => { client.query('BEGIN', next) })
-        // Should we handle the updated version as a new version => update teams and users associated with the previous version?
-        // Like in http://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_managed-using.html#edit-managed-policy-console
         tasks.push((next) => {
-          client.query('UPDATE policies SET version = $2, name = $3, org_id = $4, statements = $5 WHERE id = $1', [id, version, name, organizationId, statements], (err, res) => {
+          client.query('UPDATE policies SET version = $2, name = $3, statements = $4 WHERE id = $1', [id, version, name, statements], (err, res) => {
             if (err) return next(err)
             if (res.rowCount === 0) return next(Boom.notFound())
 
@@ -240,11 +197,13 @@ module.exports = function (dbPool) {
       })
     },
 
-    /*
-    * $1 = id
-    */
-    deletePolicyById: function deletePolicyById (args, cb) {
-      const [ id ] = args
+    /**
+     * Delete a specific policy
+     *
+     * @param  {Number}   id
+     * @param  {Function} cb
+     */
+    deletePolicyById: function deletePolicyById (id, cb) {
       const tasks = []
 
       dbPool.connect(function (err, client, done) {

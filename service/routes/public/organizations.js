@@ -10,7 +10,7 @@ exports.register = function (server, options, next) {
     method: 'GET',
     path: '/authorization/organizations',
     handler: function (request, reply) {
-      organizationOps.list({}, reply)
+      organizationOps.list(reply)
     },
     config: {
       description: 'List all the organizations [TBD]',

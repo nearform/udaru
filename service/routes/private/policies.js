@@ -14,12 +14,13 @@ exports.register = function (server, options, next) {
     handler: function (request, reply) {
       if (!security.hasValidServiceKey(request)) return reply(Boom.forbidden())
 
-      const { version, name, organizationId, statements } = request.payload
+      const { version, name, statements } = request.payload
+      const { id: organizationId } = request.authorization.organization
 
       const params = {
         version,
         name,
-        organizationId: organizationId,
+        organizationId,
         statements
       }
       policyOps.createPolicy(params, function (err, res) {
@@ -35,11 +36,10 @@ exports.register = function (server, options, next) {
         payload: {
           version: Joi.string().required().description('policy version'),
           name: Joi.string().required().description('policy name'),
-          organizationId: Joi.string().required().description('organisation id'),
           statements: Joi.string().required().description('policy statements')
         }
       },
-      description: 'Create a policy',
+      description: 'Create a policy for the current user organization',
       notes: 'The POST /authorization/policies endpoint is a private endpoint. It can be accessed only using a service key.\nThis service key needs to be passed as a query string in the form "sig=<key>"\n',
       tags: ['api', 'service', 'post', 'policy', 'private']
     }
@@ -51,8 +51,15 @@ exports.register = function (server, options, next) {
     handler: function (request, reply) {
       if (!security.hasValidServiceKey(request)) return reply(Boom.forbidden())
 
-      const { version, name, organizationId, statements } = request.payload
-      const params = [request.params.id, version, name, organizationId, statements]
+      const { id } = request.params
+      const { version, name, statements } = request.payload
+
+      const params = {
+        id,
+        version,
+        name,
+        statements
+      }
 
       policyOps.updatePolicy(params, reply)
     },
@@ -64,11 +71,10 @@ exports.register = function (server, options, next) {
         payload: {
           version: Joi.string().required().description('policy version'),
           name: Joi.string().required().description('policy name'),
-          organizationId: Joi.string().required().description('organisation id'),
           statements: Joi.string().required().description('policy statements')
         }
       },
-      description: 'Update a policy',
+      description: 'Update a policy of the current user organization',
       notes: 'The PUT /authorization/policies/{id} endpoint is a private endpoint. It can be accessed only using a service key.\nThis service key needs to be passed as a query string in the form "sig=<key>"\n',
       tags: ['api', 'service', 'put', 'policy', 'private']
     }
@@ -80,7 +86,9 @@ exports.register = function (server, options, next) {
     handler: function (request, reply) {
       if (!security.hasValidServiceKey(request)) return reply(Boom.forbidden())
 
-      policyOps.deletePolicyById([request.params.id], function (err, res) {
+      const { id } = request.params
+
+      policyOps.deletePolicyById(id, function (err, res) {
         if (err) {
           return reply(err)
         }

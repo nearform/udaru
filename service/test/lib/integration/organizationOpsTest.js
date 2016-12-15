@@ -28,7 +28,7 @@ const policyOps = PolicyOps(db.pool)
 lab.experiment('OrganizationOps', () => {
 
   lab.test('list of all organizations', (done) => {
-    organizationOps.list({}, (err, result) => {
+    organizationOps.list((err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
       expect(result.length).to.equal(6)
@@ -182,13 +182,13 @@ lab.experiment('OrganizationOps', () => {
       })
     })
     tasks.push((next) => {
-      policyOps.listAllPolicies([], (err, result) => {
-        expect(result.length).to.equal(8)
+      policyOps.listByOrganization({ organizationId: 'nearForm222' }, (err, result) => {
+        expect(result.length).to.equal(0)
         next(err, result)
       })
     })
     tasks.push((next) => {
-      organizationOps.list([], (err, result) => {
+      organizationOps.list((err, result) => {
         expect(result.length).to.equal(6)
         next(err, result)
       })
@@ -265,13 +265,13 @@ lab.experiment('OrganizationOps', () => {
       })
     })
     tasks.push((next) => {
-      policyOps.listAllPolicies([], (err, result) => {
-        expect(result.length).to.equal(8)
+      policyOps.listByOrganization({ organizationId: 'nearForm222' }, (err, result) => {
+        expect(result.length).to.equal(0)
         next(err, result)
       })
     })
     tasks.push((next) => {
-      organizationOps.list([], (err, result) => {
+      organizationOps.list((err, result) => {
         expect(result.length).to.equal(6)
         next(err, result)
       })

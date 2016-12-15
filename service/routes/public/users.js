@@ -10,7 +10,8 @@ exports.register = function (server, options, next) {
     method: 'GET',
     path: '/authorization/users',
     handler: function (request, reply) {
-      userOps.listOrgUsers({organizationId: request.authorization.organization.id}, reply)
+      const { id: organizationId } = request.authorization.organization
+      userOps.listOrgUsers({ organizationId }, reply)
     },
     config: {
       description: 'Fetch all users (of the current user organization)',
@@ -43,9 +44,10 @@ exports.register = function (server, options, next) {
     method: 'POST',
     path: '/authorization/users',
     handler: function (request, reply) {
+      const { id: organizationId } = request.authorization.organization
       const params = {
         name: request.payload.name,
-        organizationId: request.authorization.organization.id
+        organizationId
       }
 
       userOps.createUser(params, function (err, res) {

@@ -12,20 +12,12 @@ const db = dbConn.create(logger)
 const policyOps = PolicyOps(db.pool)
 
 lab.experiment('PolicyOps', () => {
-  lab.test('list policies', (done) => {
-    policyOps.listAllPolicies({}, (err, result) => {
+
+  lab.test('list all organization policies', (done) => {
+    policyOps.listByOrganization({ organizationId: 'WONKA' }, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
-      expect(result.length !== 0).to.be.true()
-
-      done()
-    })
-  })
-
-  lab.test('list all policies full', (done) => {
-    policyOps.listAllPoliciesDetails({}, (err, result) => {
-      expect(err).to.not.exist()
-      expect(result).to.exist()
+      expect(result.length).to.equal(8)
 
       const policy = result[0]
       expect(policy.id).to.exist()
@@ -69,12 +61,14 @@ lab.experiment('PolicyOps', () => {
       expect(policy.version).to.equal('2016-07-01')
       expect(policy.statements).to.equal({ Statement: [{ Effect: 'Allow', Action: ['documents:Read'], Resource: ['wonka:documents:/public/*'] }] })
 
-      policyData.version = '2016-07-02'
-      policyData.name = 'Documents Admin v2'
-      policyData.statements = '{"Statement":[{"Effect":"Deny","Action":["documents:Read"],"Resource":["wonka:documents:/public/*"]}]}'
+      const updateData = {
+        id: policyId,
+        version: '2016-07-02',
+        name: 'Documents Admin v2',
+        statements: '{"Statement":[{"Effect":"Deny","Action":["documents:Read"],"Resource":["wonka:documents:/public/*"]}]}'
+      }
 
-      const updateParams = [policyId, policyData.version, policyData.name, policyData.organizationId, policyData.statements]
-      policyOps.updatePolicy(updateParams, (err, policy) => {
+      policyOps.updatePolicy(updateData, (err, policy) => {
         expect(err).to.not.exist()
         expect(policy).to.exist()
 
@@ -82,7 +76,7 @@ lab.experiment('PolicyOps', () => {
         expect(policy.version).to.equal('2016-07-02')
         expect(policy.statements).to.equal({ Statement: [{ Effect: 'Deny', Action: ['documents:Read'], Resource: ['wonka:documents:/public/*'] }] })
 
-        policyOps.deletePolicyById([policyId], done)
+        policyOps.deletePolicyById(policyId, done)
       })
     })
   })
