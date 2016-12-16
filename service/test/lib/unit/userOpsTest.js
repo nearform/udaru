@@ -23,7 +23,7 @@ lab.experiment('userOps', () => {
 
   lab.test('should return an error if the db connection fails', (done) => {
     const userOps = UserOps(utils.getDbPollConnectionError(), {debug: () => {}})
-    const functionsUnderTest = ['listOrgUsers', 'createUser', 'createUserById', 'readUserById', 'updateUser', 'deleteUserById', 'getUserByToken']
+    const functionsUnderTest = ['getUserOrganizationId', 'listOrgUsers', 'createUser', 'createUserById', 'readUser', 'updateUser', 'deleteUserById', 'getUserByToken']
     const tasks = []
 
     functionsUnderTest.forEach((f) => {
@@ -41,7 +41,7 @@ lab.experiment('userOps', () => {
 
   lab.test('should return an error if the first db query fails', (done) => {
     const userOps = UserOps(utils.getDbPollFirstQueryError(), {debug: () => {}})
-    const functionsUnderTest = ['listOrgUsers', 'createUser', 'createUserById', 'readUserById', 'getUserByToken']
+    const functionsUnderTest = ['getUserOrganizationId', 'listOrgUsers', 'createUser', 'createUserById', 'readUser', 'getUserByToken']
     const tasks = []
 
     functionsUnderTest.forEach((f) => {
@@ -53,18 +53,18 @@ lab.experiment('userOps', () => {
     async.series(tasks, done)
   })
 
-  lab.test('readUserById should return an error if the team cannot be retrieved', (done) => {
+  lab.test('readUser should return an error if the team cannot be retrieved', (done) => {
     const dbPool = utils.getDbPoolErrorForQueryOrRowCount('SELECT teams.id', undefined, {rowCount: 1, rows: [{id: 1234, name: 'test'}]})
     const userOps = UserOps(dbPool, {debug: () => {}})
 
-    userOps.readUserById(null, utils.testError(expect, 'Error: query error test', done))
+    userOps.readUser({ id: 1, organizationId: 'WONKA' }, utils.testError(expect, 'Error: query error test', done))
   })
 
-  lab.test('readUserById should return an error if the policies cannot be retrieved', (done) => {
+  lab.test('readUser should return an error if the policies cannot be retrieved', (done) => {
     const dbPool = utils.getDbPoolErrorForQueryOrRowCount('SELECT pol.id', undefined, {rowCount: 1, rows: [{id: 1234, name: 'test'}]})
     const userOps = UserOps(dbPool, {debug: () => {}})
 
-    userOps.readUserById(null, utils.testError(expect, 'Error: query error test', done))
+    userOps.readUser({ id: 1, organizationId: 'WONKA' }, utils.testError(expect, 'Error: query error test', done))
   })
 
   lab.test('updateUser should return an error if the transaction cannot be started', (done) => {

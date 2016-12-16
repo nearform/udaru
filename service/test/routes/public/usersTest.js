@@ -75,7 +75,8 @@ lab.experiment('Users', () => {
       team: []
     }
 
-    userOps.readUserById = function (params, cb) {
+    userOps.readUser = function (params, cb) {
+      expect(params).to.equal({ id: 1, organizationId: 'WONKA' })
       process.nextTick(() => {
         cb(null, expected)
       })
@@ -97,7 +98,8 @@ lab.experiment('Users', () => {
   })
 
   lab.test('get single user should return error for error case', (done) => {
-    userOps.readUserById = function (params, cb) {
+    userOps.readUser = function (params, cb) {
+      expect(params).to.equal({ id: 99, organizationId: 'WONKA' })
       process.nextTick(() => {
         cb(Boom.badImplementation())
       })

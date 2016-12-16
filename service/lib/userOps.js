@@ -128,7 +128,7 @@ module.exports = function (dbPool, log) {
       userOps.insertUser(dbPool, name, organizationId, (err, result) => {
         if (err) return cb(Boom.badImplementation(err))
 
-        userOps.readUserById(result.rows[0].id, cb)
+        userOps.readUser({ id: result.rows[0].id, organizationId }, cb)
       })
     },
 
@@ -151,21 +151,42 @@ module.exports = function (dbPool, log) {
       dbPool.query(sqlQuery, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
 
-        userOps.readUserById(id, cb)
+        userOps.readUser({ id, organizationId }, cb)
+      })
+    },
+
+    /**
+     * Return the user organizationId
+     *
+     * @param  {Number}   id
+     * @param  {Function} cb
+     */
+    getUserOrganizationId: function getUserOrganizationId (id, cb) {
+      const sqlQuery = SQL`
+        SELECT org_id
+        FROM users
+        WHERE id = ${id}
+      `
+      dbPool.query(sqlQuery, function (err, result) {
+        if (err) return cb(Boom.badImplementation(err))
+        if (result.rowCount === 0) return cb(Boom.notFound())
+
+        return cb(null, result.rows[0].org_id)
       })
     },
 
     /**
      * Get user details
      *
-     * @param  {Number}   id
+     * @param  {Object}   params { id, organizationId }
      * @param  {Function} cb
      */
-    readUserById: function readUserById (id, cb) {
+    readUser: function readUser (params, cb) {
+      const { id, organizationId } = params
       const user = {
-        id: null,
+        id: id,
         name: null,
-        organizationId: null,
+        organizationId: organizationId,
         teams: [],
         policies: []
       }
@@ -180,6 +201,7 @@ module.exports = function (dbPool, log) {
             SELECT id, name, org_id
             FROM users
             WHERE id = ${id}
+            AND org_id = ${organizationId}
           `
           client.query(sqlQuery, (err, result) => {
             if (err) {
@@ -190,9 +212,7 @@ module.exports = function (dbPool, log) {
               return next(Boom.notFound())
             }
 
-            user.id = result.rows[0].id
             user.name = result.rows[0].name
-            user.organizationId = result.rows[0].org_id
 
             next()
           })

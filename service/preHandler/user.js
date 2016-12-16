@@ -3,12 +3,12 @@
 const UserOps = require('./../lib/userOps')
 const Boom = require('boom')
 
-function fetchOrganizationId (user, request) {
-  if (user.organizationId === 'ROOT' && request.headers && request.headers.organization_id) {
+function fetchOrganizationId (organizationId, request) {
+  if (organizationId === 'ROOT' && request.headers && request.headers.organization_id) {
     return request.headers.organization_id
   }
 
-  return user.organizationId
+  return organizationId
 }
 
 exports.register = function (server, options, next) {
@@ -16,10 +16,10 @@ exports.register = function (server, options, next) {
 
   server.ext('onPreHandler', (request, reply) => {
     if (request.headers && request.headers.authorization) {
-      userOps.readUserById(request.headers.authorization, function (err, user) {
+      userOps.getUserOrganizationId(request.headers.authorization, function (err, organizationId) {
         if (err) return reply(err)
 
-        let organizationId = fetchOrganizationId(user, request)
+        organizationId = fetchOrganizationId(organizationId, request)
         if (!organizationId) return reply(Boom.badRequest('The current user does not belong to any organization'))
 
         request.authorization = {

@@ -70,7 +70,18 @@ lab.experiment('UserOps', () => {
 
   lab.test('read a specific user', (done) => {
     const expected = {id: 4, name: 'Veruca Salt', organizationId: 'WONKA', teams: [{id: 3, name: 'Authors'}, {id: 2, name: 'Readers'}], policies: [{id: 2, version: '0.1', name: 'Accountant'}]}
-    userOps.readUserById(4, (err, result) => {
+    userOps.readUser({ id: 4, organizationId: 'WONKA' }, (err, result) => {
+      expect(err).to.not.exist()
+      expect(result).to.exist()
+      expect(result).to.equal(expected)
+
+      done()
+    })
+  })
+
+  lab.test('getUserOrganizationId', (done) => {
+    const expected = 'WONKA'
+    userOps.getUserOrganizationId(4, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
       expect(result).to.equal(expected)
@@ -80,7 +91,7 @@ lab.experiment('UserOps', () => {
   })
 
   lab.test('read a specific user that does not exist', (done) => {
-    userOps.readUserById(987654321, (err, result) => {
+    userOps.readUser({ id: 987654321, organizationId: 'WONKA' }, (err, result) => {
       expect(err).to.exist()
       expect(err.output.statusCode).to.equal(404)
       expect(result).to.not.exist()
