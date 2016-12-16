@@ -23,7 +23,7 @@ lab.experiment('userOps', () => {
 
   lab.test('should return an error if the db connection fails', (done) => {
     const userOps = UserOps(utils.getDbPollConnectionError(), {debug: () => {}})
-    const functionsUnderTest = ['listAllUsers', 'listOrgUsers', 'createUser', 'createUserById', 'readUserById', 'updateUser', 'deleteUserById', 'getUserByToken']
+    const functionsUnderTest = ['listOrgUsers', 'createUser', 'createUserById', 'readUserById', 'updateUser', 'deleteUserById', 'getUserByToken']
     const tasks = []
 
     functionsUnderTest.forEach((f) => {
@@ -41,7 +41,7 @@ lab.experiment('userOps', () => {
 
   lab.test('should return an error if the first db query fails', (done) => {
     const userOps = UserOps(utils.getDbPollFirstQueryError(), {debug: () => {}})
-    const functionsUnderTest = ['listAllUsers', 'listOrgUsers', 'createUser', 'createUserById', 'readUserById', 'getUserByToken']
+    const functionsUnderTest = ['listOrgUsers', 'createUser', 'createUserById', 'readUserById', 'getUserByToken']
     const tasks = []
 
     functionsUnderTest.forEach((f) => {

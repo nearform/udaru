@@ -108,9 +108,9 @@ lab.experiment('OrganizationOps', () => {
           organizationOps.deleteById(result.organization.id, (err, res) => {
             expect(err).to.not.exist()
 
-            userOps.listAllUsers({}, (err, res) => {
+            userOps.listOrgUsers({ organizationId: 'nearForm' }, (err, res) => {
               expect(err).to.not.exist()
-              expect(res.length).to.equal(7)
+              expect(res.length).to.equal(0)
               done()
             })
           })
@@ -170,8 +170,8 @@ lab.experiment('OrganizationOps', () => {
 
     const tasks = []
     tasks.push((next) => {
-      userOps.listAllUsers({}, (err, result) => {
-        expect(result.length).to.equal(7)
+      userOps.listOrgUsers({ organizationId: 'nearForm222' }, (err, result) => {
+        expect(result.length).to.equal(0)
         next(err, result)
       })
     })
@@ -253,8 +253,8 @@ lab.experiment('OrganizationOps', () => {
     })
 
     tasks.push((next) => {
-      userOps.listAllUsers([], (err, result) => {
-        expect(result.length).to.equal(7)
+      userOps.listOrgUsers({ organizationId: 'nearForm222' }, (err, result) => {
+        expect(result.length).to.equal(0)
         next(err, result)
       })
     })

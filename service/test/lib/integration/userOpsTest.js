@@ -13,16 +13,6 @@ const userOps = UserOps(db.pool, logger)
 
 lab.experiment('UserOps', () => {
 
-  lab.test('list of all users', (done) => {
-    userOps.listAllUsers({}, (err, result) => {
-      expect(err).to.not.exist()
-      expect(result).to.exist()
-      expect(result.length).to.equal(7)
-
-      done()
-    })
-  })
-
   lab.test('list of org users', (done) => {
     userOps.listOrgUsers({ organizationId: 'WONKA' }, (err, result) => {
       expect(err).to.not.exist()

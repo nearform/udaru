@@ -368,8 +368,8 @@ lab.experiment('AuthorizeOps', () => {
 
     // set-up
     tasks.push((cb) => {
-      userOps.listAllUsers({}, (err, result) => {
-        expect(result.length).to.equal(7)
+      userOps.listOrgUsers({ organizationId: 'WONKA' }, (err, result) => {
+        expect(result.length).to.equal(6)
         cb(err, result)
       })
     })
