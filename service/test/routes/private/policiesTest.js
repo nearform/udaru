@@ -154,10 +154,10 @@ lab.experiment('Policies', () => {
   })
 
   lab.test('delete policy without a service key should return 403 Forbidden', (done) => {
-    const options = {
+    const options = utils.requestOptions({
       method: 'DELETE',
       url: '/authorization/policies/1?sig=1234'
-    }
+    })
 
     server.inject(options, (response) => {
       expect(response.statusCode).to.equal(403)
@@ -167,12 +167,13 @@ lab.experiment('Policies', () => {
   })
 
   lab.test('delete policy should return 204', (done) => {
-    const options = {
+    const options = utils.requestOptions({
       method: 'DELETE',
       url: '/authorization/policies/1?sig=123456789'
-    }
+    })
 
-    policyOps.deletePolicyById = (id, cb) => {
+    policyOps.deletePolicy = (params, cb) => {
+      expect(params).to.equal({ id: 1, organizationId: 'WONKA' })
       process.nextTick(() => {
         cb(null)
       })

@@ -83,7 +83,7 @@ lab.experiment('TeamOps', () => {
               const defaultPolicy = policies.find((p) => { return p.name === 'Default Team Admin for ' + testTeamId })
               expect(defaultPolicy).to.not.exist()
 
-              policyOps.deletePolicyById(defaultPolicy.id, done)
+              policyOps.deletePolicy({ id: defaultPolicy.id, organizationId: 'WONKA' }, done)
             })
           })
         })
@@ -120,7 +120,7 @@ lab.experiment('TeamOps', () => {
         const defaultPolicy = policies.find((p) => { return p.name === 'Default Team Admin for ' + result.id })
         expect(defaultPolicy).to.exist()
 
-        policyOps.deletePolicyById(defaultPolicy.id, (err) => {
+        policyOps.deletePolicy({ id: defaultPolicy.id, organizationId: 'WONKA' }, (err) => {
           expect(err).to.not.exist()
 
           teamOps.deleteTeamById({ teamId: result.id, organizationId: 'WONKA' }, done)

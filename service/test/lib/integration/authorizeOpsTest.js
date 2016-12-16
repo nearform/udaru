@@ -521,7 +521,7 @@ lab.experiment('AuthorizeOps', () => {
         })
         expect(defaultPolicy).to.exist()
 
-        policyOps.deletePolicyById(defaultPolicy.id, done)
+        policyOps.deletePolicy({ id: defaultPolicy.id, organizationId: 'WONKA' }, done)
       })
     })
 

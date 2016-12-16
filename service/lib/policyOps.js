@@ -191,20 +191,38 @@ module.exports = function (dbPool) {
     /**
      * Delete a specific policy
      *
-     * @param  {Number}   id
+     * @param  {Object}   params { id, organizationId }
      * @param  {Function} cb
      */
-    deletePolicyById: function deletePolicyById (id, cb) {
+    deletePolicy: function deletePolicy (params, cb) {
+      const { id, organizationId } = params
       const tasks = []
 
       dbPool.connect(function (err, client, done) {
         if (err) return cb(Boom.badImplementation(err))
 
         tasks.push((next) => { client.query('BEGIN', next) })
-        tasks.push((next) => { client.query('DELETE from user_policies WHERE policy_id = $1', [id], next) })
-        tasks.push((next) => { client.query('DELETE from team_policies WHERE policy_id = $1', [id], next) })
         tasks.push((next) => {
-          client.query('DELETE from policies WHERE id = $1', [id], (err, res) => {
+          const sqlQuery = SQL`
+            DELETE FROM user_policies
+            WHERE policy_id = ${id}
+          `
+          client.query(sqlQuery, next)
+        })
+        tasks.push((next) => {
+          const sqlQuery = SQL`
+            DELETE FROM team_policies
+            WHERE policy_id = ${id}
+          `
+          client.query(sqlQuery, next)
+        })
+        tasks.push((next) => {
+          const sqlQuery = SQL`
+            DELETE FROM policies
+            WHERE id = ${id}
+            AND org_id = ${organizationId}
+          `
+          client.query(sqlQuery, (err, res) => {
             if (err) return next(err)
             if (res.rowCount === 0) return next(Boom.notFound())
 

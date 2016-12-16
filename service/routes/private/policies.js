@@ -89,8 +89,9 @@ exports.register = function (server, options, next) {
       if (!security.hasValidServiceKey(request)) return reply(Boom.forbidden())
 
       const { id } = request.params
+      const { id: organizationId } = request.authorization.organization
 
-      policyOps.deletePolicyById(id, function (err, res) {
+      policyOps.deletePolicy({ id, organizationId }, function (err, res) {
         if (err) {
           return reply(err)
         }
