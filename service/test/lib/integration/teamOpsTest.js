@@ -17,6 +17,12 @@ const policyOps = PolicyOps(db.pool, logger)
 const userOps = UserOps(db.pool, logger)
 
 let testTeamId
+const teamData = {
+  name: 'Team 4',
+  description: 'This is a test team',
+  parentId: null,
+  organizationId: 'WONKA'
+}
 
 lab.experiment('TeamOps', () => {
 
@@ -32,12 +38,6 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('create, update and delete a team', (done) => {
-    const teamData = {
-      name: 'Team 4',
-      description: 'This is a test team',
-      parentId: null,
-      organizationId: 'WONKA'
-    }
     teamOps.createTeam(teamData, function (err, result) {
       testTeamId = result.id
 
@@ -45,7 +45,7 @@ lab.experiment('TeamOps', () => {
       expect(result).to.exist()
       expect(result.name).to.equal('Team 4')
 
-      const teamData = {
+      const updateData = {
         id: testTeamId,
         name: 'Team 5',
         description: 'description',
@@ -54,7 +54,7 @@ lab.experiment('TeamOps', () => {
         organizationId: 'WONKA'
       }
 
-      teamOps.updateTeam(teamData, (err, result) => {
+      teamOps.updateTeam(updateData, (err, result) => {
         expect(err).to.not.exist()
         expect(result).to.exist()
         expect(result.name).to.equal('Team 5')
@@ -95,12 +95,6 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('creating a team should create a default admin policy', (done) => {
-    const teamData = {
-      name: 'Team 5',
-      description: 'This is a test team for policies',
-      parentId: null,
-      organizationId: 'WONKA'
-    }
     teamOps.createTeam(teamData, function (err, result) {
       expect(err).to.not.exist()
       expect(result).to.exist()
@@ -121,12 +115,6 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('creating a team with createOnly option should not create a default admin policy', (done) => {
-    const teamData = {
-      name: 'Team 6',
-      description: 'This is a test team for createOnly options',
-      parentId: null,
-      organizationId: 'WONKA'
-    }
     teamOps.createTeam(teamData, { createOnly: true }, function (err, result) {
       expect(err).to.not.exist()
       expect(result).to.exist()
@@ -145,13 +133,7 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('create team support creation of default team admin user', (done) => {
-    const teamData = {
-      name: 'Team 6',
-      description: 'This is a test team for admin user',
-      parentId: null,
-      organizationId: 'WONKA',
-      user: { name: 'Team 6 Admin' }
-    }
+    teamData.user = { name: 'Team 6 Admin' }
 
     teamOps.createTeam(teamData, function (err, team) {
       expect(err).to.not.exist()

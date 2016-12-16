@@ -98,19 +98,39 @@ lab.experiment('userOps', () => {
     userOps.updateUser(updateUserData, utils.testError(expect, 'Error: query error test', done))
   })
 
-  lab.test('updateUser should return an error if the delete query on user_policies fails', (done) => {
+  lab.test('replaceUserPolicies should return an error if the delete query on user_policies fails', (done) => {
     const dbPool = utils.getDbPoolErrorForQueryOrRowCount('DELETE FROM user_policies', {testRollback: true, expect: expect})
     const userOps = UserOps(dbPool, {debug: () => {}})
 
-    userOps.updateUser(updateUserData, utils.testError(expect, 'Error: query error test', done))
+    userOps.replaceUserPolicies({ id: 1, policies: [], organizationId: 'WONKA' }, utils.testError(expect, 'Error: query error test', done))
   })
 
-  lab.test('updateUser should return an error if the insert query on team_members fails', (done) => {
+  lab.test('replaceUserPolicies should return an error if the insert query on user_policies fails', (done) => {
     const dbPool = utils.getDbPoolErrorForQueryOrRowCount('INSERT INTO user_policies', {testRollback: true, expect: expect})
     const userOps = UserOps(dbPool, {debug: () => {}})
 
-    updateUserData.policies = [{ id: 1 }]
-    userOps.updateUser(updateUserData, utils.testError(expect, 'Error: query error test', done))
+    userOps.replaceUserPolicies({ id: 1, policies: [{ id: 1 }], organizationId: 'WONKA' }, utils.testError(expect, 'Error: query error test', done))
+  })
+
+  lab.test('addUserPolicies should return an error if the insert query on user_policies fails', (done) => {
+    const dbPool = utils.getDbPoolErrorForQueryOrRowCount('INSERT INTO user_policies', {testRollback: true, expect: expect})
+    const userOps = UserOps(dbPool, {debug: () => {}})
+
+    userOps.addUserPolicies({ id: 1, policies: [{ id: 1 }], organizationId: 'WONKA' }, utils.testError(expect, 'Error: query error test', done))
+  })
+
+  lab.test('deleteUserPolicies should return an error if the delete query on user_policies fails', (done) => {
+    const dbPool = utils.getDbPoolErrorForQueryOrRowCount('DELETE FROM user_policies', {testRollback: true, expect: expect})
+    const userOps = UserOps(dbPool, {debug: () => {}})
+
+    userOps.deleteUserPolicies({ id: 1, organizationId: 'WONKA' }, utils.testError(expect, 'Error: query error test', done))
+  })
+
+  lab.test('deleteUserPolicy should return an error if the delete query on user_policies fails', (done) => {
+    const dbPool = utils.getDbPoolErrorForQueryOrRowCount('DELETE FROM user_policies', {testRollback: true, expect: expect})
+    const userOps = UserOps(dbPool, {debug: () => {}})
+
+    userOps.deleteUserPolicy({ userId: 1, policyId: 1, organizationId: 'WONKA' }, utils.testError(expect, 'Error: query error test', done))
   })
 
   lab.test('updateUser should return an error if commit fails', (done) => {

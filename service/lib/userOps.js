@@ -64,7 +64,18 @@ module.exports = function (dbPool, log) {
     job.client.query(sqlQuery, next)
   }
 
-  const addUserPolicies = (job, next) => {
+  const removeUserPolicy = (job, next) => {
+    const { id, policyId } = job
+
+    const sqlQuery = SQL`
+      DELETE FROM user_policies
+      WHERE user_id = ${id}
+      AND policy_id = ${policyId}
+    `
+    job.client.query(sqlQuery, next)
+  }
+
+  const insertUserPolicies = (job, next) => {
     const { id: userId, policies } = job
 
     const sqlQuery = SQL`
@@ -79,7 +90,6 @@ module.exports = function (dbPool, log) {
 
     job.client.query(sqlQuery, next)
   }
-
 
   const userOps = {
     /**
@@ -187,7 +197,7 @@ module.exports = function (dbPool, log) {
       const user = {
         id: id,
         name: null,
-        organizationId: organizationId,
+        organizationId,
         teams: [],
         policies: []
       }
@@ -269,18 +279,17 @@ module.exports = function (dbPool, log) {
     /**
      * Update user details
      *
-     * @param  {Object}   params { id, organizationId, name, teams, policies }
+     * @param  {Object}   params { id, organizationId, name, teams }
      * @param  {Function} cb
      */
     updateUser: function updateUser (params, cb) {
-      const { id, organizationId, name, teams, policies } = params
+      const { id, organizationId, name, teams } = params
 
       const tasks = [
         (job, next) => {
           job.id = id
           job.name = name
           job.teams = teams
-          job.policies = policies
           job.organizationId = organizationId
 
           next()
@@ -293,9 +302,36 @@ module.exports = function (dbPool, log) {
         tasks.push(addUserTeams)
       }
 
-      tasks.push(clearUserPolicies)
+      dbUtil.withTransaction(dbPool, tasks, (err, res) => {
+        if (err) {
+          return cb(Boom.badImplementation(err))
+        }
+
+        userOps.readUser({ id, organizationId }, cb)
+      })
+    },
+
+    /**
+     * Replace user poilicies
+     *
+     * @param  {Object}   params { id, organizationId, policies }
+     * @param  {Function} cb
+     */
+    replaceUserPolicies: function replaceUserPolicies (params, cb) {
+      const { id, organizationId, policies } = params
+      const tasks = [
+        (job, next) => {
+          job.id = id
+          job.organizationId = organizationId
+          job.policies = policies
+
+          next()
+        },
+        clearUserPolicies
+      ]
+
       if (policies.length > 0) {
-        tasks.push(addUserPolicies)
+        tasks.push(insertUserPolicies)
       }
 
       dbUtil.withTransaction(dbPool, tasks, (err, res) => {
@@ -303,7 +339,91 @@ module.exports = function (dbPool, log) {
           return cb(Boom.badImplementation(err))
         }
 
-        cb(null, { id, name, teams, policies })
+        userOps.readUser({ id, organizationId }, cb)
+      })
+    },
+
+    /**
+     * Add one or more policies to a user
+     *
+     * @param  {Object}   params { id, organizationId, policies }
+     * @param  {Function} cb
+     */
+    addUserPolicies: function addUserPolicies (params, cb) {
+      const { id, organizationId, policies } = params
+      if (policies.length <= 0) {
+        return userOps.readUser({ id, organizationId }, cb)
+      }
+
+      const tasks = [
+        (job, next) => {
+          job.id = id
+          job.policies = policies
+
+          next()
+        },
+        insertUserPolicies
+      ]
+
+      dbUtil.withTransaction(dbPool, tasks, (err, res) => {
+        if (err) {
+          return cb(Boom.badImplementation(err))
+        }
+
+        userOps.readUser({ id, organizationId }, cb)
+      })
+    },
+
+    /**
+     * Rmove all user's policies
+     *
+     * @param  {Object}   params { id, organizationId }
+     * @param  {Function} cb
+     */
+    deleteUserPolicies: function deleteUserPolicies (params, cb) {
+      const { id, organizationId } = params
+      const tasks = [
+        (job, next) => {
+          job.id = id
+
+          next()
+        },
+        clearUserPolicies
+      ]
+
+      dbUtil.withTransaction(dbPool, tasks, (err, res) => {
+        if (err) {
+          return cb(Boom.badImplementation(err))
+        }
+
+        userOps.readUser({ id, organizationId }, cb)
+      })
+    },
+
+    /**
+     * Rmove all user's policies
+     *
+     * @param  {Object}   params { userId, organizationId, policyId }
+     * @param  {Function} cb
+     */
+    deleteUserPolicy: function deleteUserPolicy (params, cb) {
+      const { userId, organizationId, policyId } = params
+      const tasks = [
+        (job, next) => {
+          job.id = userId
+          job.policyId = policyId
+
+          next()
+        },
+        removeUserPolicy
+      ]
+
+      dbUtil.withTransaction(dbPool, tasks, (err, res) => {
+        if (err) {
+          return cb(Boom.badImplementation(err))
+        }
+
+        userOps.readUser({ id: userId, organizationId }, cb)
       })
     },
 
