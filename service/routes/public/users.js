@@ -75,9 +75,10 @@ exports.register = function (server, options, next) {
     method: 'DELETE',
     path: '/authorization/users/{id}',
     handler: function (request, reply) {
-      const userId = request.params.id
+      const { id: organizationId } = request.authorization.organization
+      const id = request.params.id
 
-      userOps.deleteUserById(userId, function (err, res) {
+      userOps.deleteUser({ id, organizationId }, function (err, res) {
         if (err) {
           return reply(err)
         }

@@ -23,7 +23,7 @@ lab.experiment('userOps', () => {
 
   lab.test('should return an error if the db connection fails', (done) => {
     const userOps = UserOps(utils.getDbPollConnectionError(), {debug: () => {}})
-    const functionsUnderTest = ['getUserOrganizationId', 'listOrgUsers', 'createUser', 'createUserById', 'readUser', 'updateUser', 'deleteUserById', 'getUserByToken']
+    const functionsUnderTest = ['getUserOrganizationId', 'listOrgUsers', 'createUser', 'createUserById', 'readUser', 'updateUser', 'deleteUser', 'getUserByToken']
     const tasks = []
 
     functionsUnderTest.forEach((f) => {
@@ -118,52 +118,52 @@ lab.experiment('userOps', () => {
     userOps.updateUser(1, updateUserData, utils.testError(expect, 'Error: query error test', done))
   })
 
-  lab.test('deleteUserById should return an error if the transaction cannot be started', (done) => {
+  lab.test('deleteUser should return an error if the transaction cannot be started', (done) => {
     const dbPool = utils.getDbPoolErrorForQueryOrRowCount('BEGIN', {testRollback: true, expect: expect})
     const userOps = UserOps(dbPool, {debug: () => {}})
 
-    userOps.deleteUserById(1, utils.testError(expect, 'Error: query error test', done))
+    userOps.deleteUser({ id: 1, organizationId: 'WONKA' }, utils.testError(expect, 'Error: query error test', done))
   })
 
-  lab.test('deleteUserById should return an error if deleting from user policies fails', (done) => {
+  lab.test('deleteUser should return an error if deleting from user policies fails', (done) => {
     const dbPool = utils.getDbPoolErrorForQueryOrRowCount('DELETE FROM user_policies', {testRollback: true, expect: expect})
     const userOps = UserOps(dbPool, {debug: () => {}})
 
-    userOps.deleteUserById(1, utils.testError(expect, 'Error: query error test', done))
+    userOps.deleteUser({ id: 1, organizationId: 'WONKA' }, utils.testError(expect, 'Error: query error test', done))
   })
 
-  lab.test('deleteUserById should return an error if deleting from team memebers fails', (done) => {
+  lab.test('deleteUser should return an error if deleting from team memebers fails', (done) => {
     const dbPool = utils.getDbPoolErrorForQueryOrRowCount('DELETE FROM team_members', {testRollback: true, expect: expect})
     const userOps = UserOps(dbPool, {debug: () => {}})
 
-    userOps.deleteUserById(1, utils.testError(expect, 'Error: query error test', done))
+    userOps.deleteUser({ id: 1, organizationId: 'WONKA' }, utils.testError(expect, 'Error: query error test', done))
   })
 
-  lab.test('deleteUserById should return an error if deleting from users fails', (done) => {
+  lab.test('deleteUser should return an error if deleting from users fails', (done) => {
     const dbPool = utils.getDbPoolErrorForQueryOrRowCount('DELETE FROM users', {testRollback: true, expect: expect})
     const userOps = UserOps(dbPool, {debug: () => {}})
 
-    userOps.deleteUserById(1, utils.testError(expect, 'Error: query error test', done))
+    userOps.deleteUser({ id: 1, organizationId: 'WONKA' }, utils.testError(expect, 'Error: query error test', done))
   })
 
-  lab.test('deleteUserById should return an error if deleting from users returns a rowCount 0', (done) => {
+  lab.test('deleteUser should return an error if deleting from users returns a rowCount 0', (done) => {
     const dbPool = utils.getDbPoolErrorForQueryOrRowCount(undefined, {testRollback: true, expect: expect}, {rowCount: 0})
     const userOps = UserOps(dbPool, {debug: () => {}})
 
-    userOps.deleteUserById(1, utils.testError(expect, 'Error: Not Found', done))
+    userOps.deleteUser({ id: 1, organizationId: 'WONKA' }, utils.testError(expect, 'Error: Not Found', done))
   })
 
-  lab.test('deleteUserById should return an error if commit fails', (done) => {
+  lab.test('deleteUser should return an error if commit fails', (done) => {
     const dbPool = utils.getDbPoolErrorForQueryOrRowCount('COMMIT', {testRollback: true, expect: expect})
     const userOps = UserOps(dbPool, {debug: () => {}})
 
-    userOps.deleteUserById(1, utils.testError(expect, 'Error: query error test', done))
+    userOps.deleteUser({ id: 1, organizationId: 'WONKA' }, utils.testError(expect, 'Error: query error test', done))
   })
 
   lab.test('getUserByToken should return an error if selecting from users returns a rowCount 0', (done) => {
     const dbPool = utils.getDbPoolErrorForQueryOrRowCount(undefined, undefined, {rowCount: 0})
     const userOps = UserOps(dbPool, {debug: () => {}})
 
-    userOps.deleteUserById(1, utils.testError(expect, 'Error: Not Found', done))
+    userOps.deleteUser({ id: 1, organizationId: 'WONKA' }, utils.testError(expect, 'Error: Not Found', done))
   })
 })

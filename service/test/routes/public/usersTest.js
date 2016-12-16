@@ -236,7 +236,8 @@ lab.experiment('Users', () => {
   })
 
   lab.test('delete user should return 204 if success', (done) => {
-    userOps.deleteUserById = function (params, cb) {
+    userOps.deleteUser = function (params, cb) {
+      expect(params).to.equal({ id: 1, organizationId: 'WONKA' })
       process.nextTick(() => {
         cb()
       })
@@ -258,7 +259,8 @@ lab.experiment('Users', () => {
   })
 
   lab.test('delete user should return error for error case', (done) => {
-    userOps.deleteUserById = function (params, cb) {
+    userOps.deleteUser = function (params, cb) {
+      expect(params).to.equal({ id: 1, organizationId: 'WONKA' })
       process.nextTick(() => {
         cb(Boom.badImplementation())
       })

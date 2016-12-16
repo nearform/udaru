@@ -309,10 +309,11 @@ module.exports = function (dbPool, log) {
     /**
      * Delete user
      *
-     * @param  {Number}   id
+     * @param  {params}   { id, organizationId }
      * @param  {Function} cb
      */
-    deleteUserById: function deleteUserById (id, cb) {
+    deleteUser: function deleteUser (params, cb) {
+      const { id, organizationId } = params
       const tasks = [
         (job, next) => {
           job.id = id
@@ -329,7 +330,7 @@ module.exports = function (dbPool, log) {
           job.client.query(sqlQuery, next)
         },
         (job, next) => {
-          const sqlQuery = SQL`DELETE FROM users WHERE id = ${id}`
+          const sqlQuery = SQL`DELETE FROM users WHERE id = ${id} AND org_id = ${organizationId}`
 
           job.client.query(sqlQuery, (err, result) => {
             if (err) {
@@ -354,6 +355,8 @@ module.exports = function (dbPool, log) {
     },
 
     /**
+     * TO BE REMOVED
+     *
      * Get user info by token
      *
      * @param  {String}   userId

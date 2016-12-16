@@ -64,7 +64,7 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      userOps.deleteUserById(testUserId, (err, result) => {
+      userOps.deleteUser({ id: testUserId, organizationId: 'WONKA' }, (err, result) => {
         expect(err).to.not.exist()
 
         next(err)
@@ -112,7 +112,7 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      userOps.deleteUserById(testUserId, (err, result) => {
+      userOps.deleteUser({ id: testUserId, organizationId: 'WONKA' }, (err, result) => {
         expect(err).to.not.exist()
         next()
       })
@@ -159,7 +159,7 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      userOps.deleteUserById(testUserId, (err, result) => {
+      userOps.deleteUser({ id: testUserId, organizationId: 'WONKA' }, (err, result) => {
         expect(err).to.not.exist()
         next()
       })
@@ -206,7 +206,7 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      userOps.deleteUserById(testUserId, (err, result) => {
+      userOps.deleteUser({ id: testUserId, organizationId: 'WONKA' }, (err, result) => {
         expect(err).to.not.exist()
         next()
       })
@@ -253,7 +253,7 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      userOps.deleteUserById(testUserId, (err, result) => {
+      userOps.deleteUser({ id: testUserId, organizationId: 'WONKA' }, (err, result) => {
         expect(err).to.not.exist()
         next()
       })
@@ -300,7 +300,7 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      userOps.deleteUserById(testUserId, (err, result) => {
+      userOps.deleteUser({ id: testUserId, organizationId: 'WONKA' }, (err, result) => {
         expect(err).to.not.exist()
         next()
       })
@@ -347,7 +347,7 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      userOps.deleteUserById(testUserId, (err, result) => {
+      userOps.deleteUser({ id: testUserId, organizationId: 'WONKA' }, (err, result) => {
         expect(err).to.not.exist()
         next()
       })
@@ -363,12 +363,12 @@ lab.experiment('AuthorizeOps', () => {
     const testTeamName = 'Actors'
     const testTeamParent = null
     const testTeamDesc = 'Famous Actors'
-    const testOrgId = 'WONKA'
+    const organizationId = 'WONKA'
     const tasks = []
 
     // set-up
     tasks.push((cb) => {
-      userOps.listOrgUsers({ organizationId: 'WONKA' }, (err, result) => {
+      userOps.listOrgUsers({ organizationId }, (err, result) => {
         expect(result.length).to.equal(6)
         cb(err, result)
       })
@@ -377,7 +377,7 @@ lab.experiment('AuthorizeOps', () => {
     tasks.push((res, cb) => {
       const userData = {
         name: testUserName,
-        organizationId: testOrgId
+        organizationId
       }
       userOps.createUser(userData, (err, result) => {
         testUserId = result.id
@@ -397,7 +397,7 @@ lab.experiment('AuthorizeOps', () => {
         name: testTeamName,
         description: testTeamDesc,
         parentId: testTeamParent,
-        organizationId: testOrgId
+        organizationId
       }
       teamOps.createTeam(teamData, (err, result) => {
         expect(err).to.not.exist()
