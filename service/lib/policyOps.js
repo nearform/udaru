@@ -164,37 +164,27 @@ module.exports = function (dbPool) {
     /**
      * Update policy values
      *
-     * @param  {Object}   params { id, version, name, organizationId, statements }
+     * @param  {Object}   params { id, organizationId, version, name, organizationId, statements }
      * @param  {Function} cb
      */
     updatePolicy: function updatePolicy (params, cb) {
-      const { id, version, name, statements } = params
-      const tasks = []
+      const { id, organizationId, version, name, statements } = params
 
-      dbPool.connect(function (err, client, done) {
+      const sqlQuery = SQL`
+        UPDATE policies
+        SET
+          version = ${version},
+          name = ${name},
+          statements = ${statements}
+        WHERE
+          id = ${id}
+          AND org_id = ${organizationId}
+      `
+      dbPool.query(sqlQuery, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
+        if (result.rowCount === 0) return cb(Boom.notFound())
 
-        tasks.push((next) => { client.query('BEGIN', next) })
-        tasks.push((next) => {
-          client.query('UPDATE policies SET version = $2, name = $3, statements = $4 WHERE id = $1', [id, version, name, statements], (err, res) => {
-            if (err) return next(err)
-            if (res.rowCount === 0) return next(Boom.notFound())
-
-            next()
-          })
-        })
-        tasks.push((next) => { client.query('COMMIT', next) })
-
-        async.series(tasks, (err) => {
-          if (err) {
-            dbUtil.rollback(client, done)
-
-            return cb(err.isBoom ? err : Boom.badImplementation(err))
-          }
-
-          done()
-          return cb(null, {id, version, name, statements: JSON.parse(statements)})
-        })
+        return cb(null, {id, version, name, statements: JSON.parse(statements)})
       })
     },
 

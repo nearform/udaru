@@ -137,7 +137,7 @@ lab.experiment('Policies', () => {
     })
 
     policyOps.updatePolicy = (params, cb) => {
-      expect(params).to.equal({ id: 2, version: '2016-07-01', name: 'Documents Admin - updated', statements: '{"Statement":[{"Effect":"Allow","Action":["documents:Update"],"Resource":["wonka:documents:/public/*"]}]}' })
+      expect(params).to.equal({ id: 2, organizationId: 'WONKA', version: '2016-07-01', name: 'Documents Admin - updated', statements: '{"Statement":[{"Effect":"Allow","Action":["documents:Update"],"Resource":["wonka:documents:/public/*"]}]}' })
       process.nextTick(() => {
         cb(null, policyStub)
       })

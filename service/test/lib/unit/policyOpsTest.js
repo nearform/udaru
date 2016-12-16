@@ -10,9 +10,10 @@ const utils = require('../../utils')
 
 var updatePolicyData = {
   id: 1,
+  organizationId: 'WONKA',
   varsion: '2016-07-03',
   name: 'name',
-  statements: ''
+  statements: '{}'
 }
 
 
@@ -64,13 +65,6 @@ lab.experiment('policyOps', () => {
     var policyOps = PolicyOps(dbPool, () => {})
 
     policyOps.updatePolicy(updatePolicyData, utils.testError(expect, 'Not Found', done))
-  })
-
-  lab.test('updatePolicy should return an error if the update commit fails', (done) => {
-    var dbPool = utils.getDbPoolErrorForQueryOrRowCount('COMMIT', {testRollback: true, expect: expect})
-    var policyOps = PolicyOps(dbPool, () => {})
-
-    policyOps.updatePolicy(updatePolicyData, utils.testError(expect, 'Error: query error test', done))
   })
 
   lab.test('deletePolicyById should return an error if deliting from user_policies fails', (done) => {

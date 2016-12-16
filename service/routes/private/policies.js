@@ -52,10 +52,12 @@ exports.register = function (server, options, next) {
       if (!security.hasValidServiceKey(request)) return reply(Boom.forbidden())
 
       const { id } = request.params
+      const { id: organizationId } = request.authorization.organization
       const { version, name, statements } = request.payload
 
       const params = {
         id,
+        organizationId,
         version,
         name,
         statements
