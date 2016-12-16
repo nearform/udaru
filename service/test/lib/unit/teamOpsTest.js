@@ -181,7 +181,8 @@ lab.experiment('teamOps', () => {
     var dbPool = {connect: function (cb) {
       var client = {query: (sql, params, cb) => {
         cb = cb || params
-        if (sql.startsWith('SELECT id, name')) {
+        sql = (sql.text || sql).trim()
+        if (sql.text || sql.startsWith('SELECT id, name')) {
           return cb(undefined, {rowCount: 1, rows: [{id: 1, name: 'filo', description: 'description'}]})
         }
         if (sql.startsWith('SELECT users.id')) {
@@ -200,6 +201,7 @@ lab.experiment('teamOps', () => {
     var dbPool = {connect: function (cb) {
       var client = {query: (sql, params, cb) => {
         cb = cb || params
+        sql = (sql.text || sql).trim()
         if (sql.startsWith('SELECT id, name')) {
           return cb(undefined, {rowCount: 1, rows: [{id: 1, name: 'filo', description: 'description'}]})
         }

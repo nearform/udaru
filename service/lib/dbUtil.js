@@ -108,10 +108,6 @@ class SqlStatement {
 
     return this
   }
-
-  startsWith (...args) {
-    return this.text.startsWith(...args)
-  }
 }
 
 module.exports = {
