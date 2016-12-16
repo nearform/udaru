@@ -66,7 +66,7 @@ module.exports = function (dbPool, log) {
   }
 
   function deleteTeam (job, next) {
-    job.client.query(SQL`DELETE from teams WHERE id = ${job.teamId}`, (err, result) => {
+    job.client.query(SQL`DELETE FROM teams WHERE id = ${job.teamId}`, (err, result) => {
       if (err) return next(err)
       if (result.rowCount === 0) return next(Boom.notFound())
       next()
@@ -81,6 +81,26 @@ module.exports = function (dbPool, log) {
     job.client.query(SQL`DELETE FROM team_members WHERE team_id = ${job.teamId}`, next)
   }
 
+  function insertTeamMembers (job, next) {
+    const users = job.params.users
+    const teamId = job.teamId
+
+    if (users.length === 0) return next()
+
+    const stmt = dbUtil.buildInsertStmt('INSERT INTO team_members (user_id, team_id) VALUES ', users.map(u => [u.id, teamId]))
+    job.client.query(stmt.statement, stmt.params, next)
+  }
+
+  function insertTeamPolicies (job, next) {
+    const policies = job.params.policies
+    const teamId = job.teamId
+
+    if (policies.length === 0) return next()
+
+    const stmt = dbUtil.buildInsertStmt('INSERT INTO team_policies (policy_id, team_id) VALUES ', policies.map(p => [p.id, teamId]))
+    job.client.query(stmt.statement, stmt.params, next)
+  }
+
   function readDefaultPoliciesIds (job, next) {
     policyOps.readTeamDefaultPolicies(job.client, job.organizationId, job.teamId, function (err, res) {
       if (err) return next(err)
@@ -91,6 +111,24 @@ module.exports = function (dbPool, log) {
 
   function deleteDefaultPolicies (job, next) {
     policyOps.deleteAllPolicyByIds(job.client, job.policies, next)
+  }
+
+  function updateTeamSql (job, next) {
+    const teamId = job.teamId
+    const {name, description} = job.params
+
+    const sql = SQL`
+    UPDATE teams
+    SET name = ${name}, description = ${description}
+    WHERE id = ${teamId}
+    `
+
+    job.client.query(sql, (err, res) => {
+      if (err) return next(err)
+      if (res.rowCount === 0) return next(Boom.notFound())
+
+      next()
+    })
   }
 
   var teamOps = {
@@ -231,52 +269,22 @@ module.exports = function (dbPool, log) {
      */
     updateTeam: function updateTeam (id, params, cb) {
       const { name, description, users, policies } = params
-      const tasks = []
+      const tasks = [
+        (job, next) => {
+          job.params = params
+          job.teamId = id
+          next()
+        },
+        updateTeamSql,
+        deleteTeamMembers,
+        deleteTeamPolicies,
+        insertTeamMembers,
+        insertTeamPolicies
+      ]
 
-      dbPool.connect(function (err, client, done) {
-        if (err) {
-          return cb(Boom.badImplementation(err))
-        }
-
-        tasks.push((next) => { client.query('BEGIN', next) })
-        tasks.push((next) => {
-          const sql = SQL`
-          UPDATE teams
-          SET name = ${name}, description = ${description}
-          WHERE id = ${id}
-          `
-          client.query(sql, (err, res) => {
-            if (err) return next(err)
-            if (res.rowCount === 0) return next(Boom.notFound())
-
-            next()
-          })
-        })
-        tasks.push((next) => { client.query(SQL`DELETE FROM team_members WHERE team_id = ${id}`, next) })
-
-        if (users.length > 0) {
-          const stmt = dbUtil.buildInsertStmt('INSERT INTO team_members (user_id, team_id) VALUES ', users.map(u => [u.id, id]))
-          tasks.push((next) => { client.query(stmt.statement, stmt.params, next) })
-        }
-
-        tasks.push((next) => { client.query(SQL`DELETE FROM team_policies WHERE team_id = ${id}`, next) })
-
-        if (policies.length > 0) {
-          const stmt = dbUtil.buildInsertStmt('INSERT INTO team_policies (policy_id, team_id) VALUES ', policies.map(p => [p.id, id]))
-          tasks.push((next) => { client.query(stmt.statement, stmt.params, next) })
-        }
-
-        tasks.push((next) => { client.query('COMMIT', next) })
-
-        async.series(tasks, (err) => {
-          if (err) {
-            dbUtil.rollback(client, done)
-            return cb(err.isBoom ? err : Boom.badImplementation(err))
-          }
-
-          done()
-          return cb(null, {id, name, description, users, policies})
-        })
+      dbUtil.withTransaction(dbPool, tasks, (err) => {
+        if (err) return cb(err.isBoom ? err : Boom.badImplementation(err))
+        cb(null, {id, name, description, users, policies})
       })
     },
 
