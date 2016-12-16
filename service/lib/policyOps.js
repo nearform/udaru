@@ -45,17 +45,17 @@ module.exports = function (dbPool) {
 
   var policyOps = {
 
-    /*
-    * $1 = user_id
-    */
+    /**
+     * List all user policies
+     *
+     * @param  {Object}   params { userId }
+     * @param  {Function} cb
+     */
     listAllUserPolicies: function listAllUserPolicies ({ userId }, cb) {
-      const params = [
-        userId
-      ]
       /* Query1: For fetching policies attached directly to the user */
       /* Query2: For fetching policies attached to the teams the user belongs to */
       /* TO-DO Query3: For fetching policies attached to the organization the user belongs to */
-      const sql = `(
+      const sql = SQL`(
 
           SELECT
             version,
@@ -66,7 +66,7 @@ module.exports = function (dbPool) {
           ON
             p.id = up.policy_id
           WHERE
-            up.user_id = $1
+            up.user_id = ${userId}
 
         ) UNION (
 
@@ -80,11 +80,11 @@ module.exports = function (dbPool) {
             p.id = tp.policy_id
           WHERE
             tp.team_id IN (
-              SELECT team_id FROM team_members tm WHERE tm.user_id = $1
+              SELECT team_id FROM team_members tm WHERE tm.user_id = ${userId}
             )
         )
       `
-      dbPool.query(sql, params, function (err, result) {
+      dbPool.query(sql, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
 
         const userPolicies = result.rows.map(row => ({
@@ -122,14 +122,15 @@ module.exports = function (dbPool) {
     /**
      * fetch specific policy
      *
-     * @param  {Integer}  id
+     * @param  {Object}   params { id, organizationId }
      * @param  {Function} cb
      */
-    readPolicyById: function readPolicyById (id, cb) {
+    readPolicy: function readPolicy ({ id, organizationId }, cb) {
       const sqlQuery = SQL`
         SELECT  *
         FROM policies
         WHERE id = ${id}
+        AND org_id = ${organizationId}
       `
       dbPool.query(sqlQuery, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
@@ -156,7 +157,7 @@ module.exports = function (dbPool) {
       }], (err, result) => {
         if (err) return cb(Boom.badImplementation(err))
 
-        policyOps.readPolicyById(result.rows[0].id, cb)
+        policyOps.readPolicy({ id: result.rows[0].id, organizationId }, cb)
       })
     },
 

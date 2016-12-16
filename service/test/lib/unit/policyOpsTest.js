@@ -19,12 +19,12 @@ var updatePolicyData = {
 lab.experiment('policyOps', () => {
   lab.test('should return an error if the db connection fails', (done) => {
     var policyOps = PolicyOps(utils.getDbPollConnectionError())
-    var functionsUnderTest = ['listAllUserPolicies', 'listByOrganization', 'readPolicyById', 'createPolicy', 'updatePolicy', 'deletePolicyById']
+    var functionsUnderTest = ['listAllUserPolicies', 'listByOrganization', 'readPolicy', 'createPolicy', 'updatePolicy', 'deletePolicyById']
     var tasks = []
 
     functionsUnderTest.forEach((f) => {
       tasks.push((cb) => {
-        policyOps[f]([], utils.testError(expect, 'Error: connection error test', cb))
+        policyOps[f]({}, utils.testError(expect, 'Error: connection error test', cb))
       })
     })
 
@@ -33,23 +33,23 @@ lab.experiment('policyOps', () => {
 
   lab.test('should return an error if the db query fails', (done) => {
     var policyOps = PolicyOps(utils.getDbPollFirstQueryError())
-    var functionsUnderTest = ['listAllUserPolicies', 'listByOrganization', 'readPolicyById', 'updatePolicy', 'deletePolicyById', 'createPolicy']
+    var functionsUnderTest = ['listAllUserPolicies', 'listByOrganization', 'readPolicy', 'updatePolicy', 'deletePolicyById', 'createPolicy']
     var tasks = []
 
     functionsUnderTest.forEach((f) => {
       tasks.push((cb) => {
-        policyOps[f]([], utils.testError(expect, 'Error: query error test', cb))
+        policyOps[f]({}, utils.testError(expect, 'Error: query error test', cb))
       })
     })
 
     async.series(tasks, done)
   })
 
-  lab.test('readPolicyById should return an error if the query has row count 0', (done) => {
+  lab.test('readPolicy should return an error if the query has row count 0', (done) => {
     var dbPool = utils.getDbPoolErrorForQueryOrRowCount(undefined, {testRollback: true, expect: expect}, {rowCount: 0})
     var policyOps = PolicyOps(dbPool)
 
-    policyOps.readPolicyById(1, utils.testError(expect, 'Not Found', done))
+    policyOps.readPolicy({ id: 1, organizationId: 'WONKA' }, utils.testError(expect, 'Not Found', done))
   })
 
   lab.test('updatePolicy should return an error if the update fails', (done) => {

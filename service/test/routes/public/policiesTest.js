@@ -95,7 +95,8 @@ lab.experiment('Policies', () => {
       }]
     }
 
-    policyOps.readPolicyById = (params, cb) => {
+    policyOps.readPolicy = (params, cb) => {
+      expect(params).to.equal({ id: 1, organizationId: 'WONKA' })
       process.nextTick(() => {
         cb(null, policyStub)
       })
@@ -117,7 +118,8 @@ lab.experiment('Policies', () => {
   })
 
   lab.test('get single policy should return error for error case', (done) => {
-    policyOps.readPolicyById = (params, cb) => {
+    policyOps.readPolicy = (params, cb) => {
+      expect(params).to.equal({ id: 99, organizationId: 'WONKA' })
       process.nextTick(() => {
         cb(Boom.badImplementation())
       })

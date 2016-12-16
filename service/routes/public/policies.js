@@ -11,6 +11,7 @@ exports.register = function (server, options, next) {
     path: '/authorization/policies',
     handler: function (request, reply) {
       const { id: organizationId } = request.authorization.organization
+
       policyOps.listByOrganization({ organizationId }, reply)
     },
     config: {
@@ -24,8 +25,10 @@ exports.register = function (server, options, next) {
     method: 'GET',
     path: '/authorization/policies/{id}',
     handler: function (request, reply) {
-      const { id: policyId } = request.params
-      policyOps.readPolicyById(policyId, reply)
+      const { id: organizationId } = request.authorization.organization
+      const { id } = request.params
+
+      policyOps.readPolicy({ id, organizationId }, reply)
     },
     config: {
       validate: {

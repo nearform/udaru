@@ -5,9 +5,12 @@ const iam = require('iam-js')
 
 module.exports = function (policyOps) {
   return {
-    /*
-    * Auth.canDo(user policy set, resource, action) returns "allow" or "deny"
-    */
+    /**
+     * Return if a user can perform an action on a certain resource
+     *
+     * @param  {Object}   options { resource, action, userId }
+     * @param  {Function} cb
+     */
     isUserAuthorized: function isUserAuthorized ({ resource, action, userId }, cb) {
       policyOps.listAllUserPolicies({ userId }, (err, policies) => {
         if (err) {
@@ -30,6 +33,12 @@ module.exports = function (policyOps) {
     // TODO: Note: this needs to take 'Deny' into account and also deal with wildcards.
     // as would be worth looking into the pbac module code for reuse opportunity
     //
+    /**
+     * List all user's actions on a given resource
+     *
+     * @param  {Object}   options { userId, resource }
+     * @param  {Function} cb
+     */
     listAuthorizations: function listAuthorizations ({ userId, resource }, cb) {
       const data = []
       var actions = []

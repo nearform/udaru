@@ -30,7 +30,7 @@ lab.experiment('PolicyOps', () => {
   })
 
   lab.test('read a specific policy', (done) => {
-    policyOps.readPolicyById(1, (err, policy) => {
+    policyOps.readPolicy({ id: 1, organizationId: 'WONKA' }, (err, policy) => {
       expect(err).to.not.exist()
       expect(policy).to.exist()
 
