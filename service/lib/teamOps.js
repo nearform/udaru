@@ -61,8 +61,14 @@ module.exports = function (dbPool, log) {
   function makeDefaultUserAdmin (job, next) {
     if (!job.user) return next()
 
-    const sql = dbUtil.buildInsertStmt('INSERT INTO user_policies (user_id, policy_id) VALUES ', job.policyIds.map((policyId) => [job.user.id, policyId]))
-    job.client.query(sql.statement, sql.params, next)
+    const userId = job.user.id
+    const sql = SQL`INSERT INTO user_policies (user_id, policy_id) VALUES`
+    sql.append(SQL`(${userId},${job.policyIds[0]})`)
+    job.policyIds.slice(1).forEach((policyId) => {
+      sql.append(SQL`, (${userId},${policyId})`)
+    })
+
+    job.client.query(sql, next)
   }
 
   function deleteTeam (job, next) {
@@ -87,8 +93,12 @@ module.exports = function (dbPool, log) {
 
     if (users.length === 0) return next()
 
-    const stmt = dbUtil.buildInsertStmt('INSERT INTO team_members (user_id, team_id) VALUES ', users.map(u => [u.id, teamId]))
-    job.client.query(stmt.statement, stmt.params, next)
+    const sql = SQL`INSERT INTO team_members (user_id, team_id) VALUES `
+    sql.append(SQL`(${users[0].id},${teamId})`)
+    users.forEach((user) => {
+      sql.append(SQL`, (${user.id},${teamId})`)
+    })
+    job.client.query(sql, next)
   }
 
   function insertTeamPolicies (job, next) {
@@ -97,8 +107,12 @@ module.exports = function (dbPool, log) {
 
     if (policies.length === 0) return next()
 
-    const stmt = dbUtil.buildInsertStmt('INSERT INTO team_policies (policy_id, team_id) VALUES ', policies.map(p => [p.id, teamId]))
-    job.client.query(stmt.statement, stmt.params, next)
+    const sql = SQL`INSERT INTO team_policies (policy_id, team_id) VALUES `
+    sql.append(SQL`(${policies[0].id},${teamId})`)
+    policies.forEach((policy) => {
+      sql.append(SQL`, (${policy.id},${teamId})`)
+    })
+    job.client.query(sql, next)
   }
 
   function readDefaultPoliciesIds (job, next) {
