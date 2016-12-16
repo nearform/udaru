@@ -99,15 +99,4 @@ lab.experiment('UserOps', () => {
       done()
     })
   })
-
-  lab.test('read a specific user by token', (done) => {
-    const expected = {id: 2, name: 'Charlie Bucket'}
-    userOps.getUserByToken(2, (err, result) => {
-      expect(err).to.not.exist()
-      expect(result).to.exist()
-      expect(result).to.equal(expected)
-
-      done()
-    })
-  })
 })

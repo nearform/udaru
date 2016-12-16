@@ -10,35 +10,13 @@ var iamMock = require('../../mocks/iamMock')
 const Authorize = proxyquire('../../../lib/authorizeOps', {'iam-js': iamMock})
 
 lab.experiment('authorize', () => {
-  lab.test('isUserAuthorized should return an error if fetching the user returns and error', (done) => {
-    var policyOps = {}
-    var userOps = {getUserByToken: function (userId, cb) {
-      return cb(new Error('test error'))
-    }}
-
-    var authorizeOps = Authorize(userOps, policyOps)
-    authorizeOps.isUserAuthorized({
-      userId: 1,
-      resource: 'database:pg01:balancesheet',
-      action: 'finance:ReadBalanceSheet'
-    }, (err, result) => {
-      expect(err).to.exist()
-      expect(result).to.not.exist()
-      expect(err.message).to.equal('test error')
-
-      done()
-    })
-  })
 
   lab.test('isUserAuthorized - should return an error if fetching the user policies returns and error', (done) => {
     var policyOps = {listAllUserPolicies: function (userId, cb) {
       return cb(new Error('test error'))
     }}
-    var userOps = {getUserByToken: function (userId, cb) {
-      return cb(null, {id: 1234})
-    }}
 
-    var authorizeOps = Authorize(userOps, policyOps)
+    var authorizeOps = Authorize(policyOps)
     authorizeOps.isUserAuthorized({
       userId: 1,
       resource: 'database:pg01:balancesheet',
@@ -56,11 +34,8 @@ lab.experiment('authorize', () => {
     var policyOps = {listAllUserPolicies: function (userId, cb) {
       return cb(null, {policyMock: true})
     }}
-    var userOps = {getUserByToken: function (userId, cb) {
-      return cb(null, {id: 1234})
-    }}
 
-    var authorizeOps = Authorize(userOps, policyOps)
+    var authorizeOps = Authorize(policyOps)
     authorizeOps.isUserAuthorized({
       userId: 1,
       resource: 'database:pg01:balancesheet',
@@ -78,9 +53,8 @@ lab.experiment('authorize', () => {
     var policyOps = {listAllUserPolicies: function (userId, cb) {
       return cb(new Error('test error'))
     }}
-    var userOps = {}
 
-    var authorizeOps = Authorize(userOps, policyOps)
+    var authorizeOps = Authorize(policyOps)
     authorizeOps.listAuthorizations({
       userId: 1,
       resource: 'database:pg01:balancesheet',
@@ -100,11 +74,8 @@ lab.experiment('authorize', () => {
       policies.policyMock = true
       return cb(null, policies)
     }}
-    var userOps = {getUserByToken: function (userId, cb) {
-      return cb(null, {id: 1234})
-    }}
 
-    var authorizeOps = Authorize(userOps, policyOps)
+    var authorizeOps = Authorize(policyOps)
     authorizeOps.listAuthorizations({
       userId: 1,
       resource: 'database:pg01:balancesheet',

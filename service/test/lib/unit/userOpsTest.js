@@ -23,7 +23,7 @@ lab.experiment('userOps', () => {
 
   lab.test('should return an error if the db connection fails', (done) => {
     const userOps = UserOps(utils.getDbPollConnectionError(), {debug: () => {}})
-    const functionsUnderTest = ['getUserOrganizationId', 'listOrgUsers', 'createUser', 'createUserById', 'readUser', 'updateUser', 'deleteUser', 'getUserByToken']
+    const functionsUnderTest = ['getUserOrganizationId', 'listOrgUsers', 'createUser', 'createUserById', 'readUser', 'updateUser', 'deleteUser']
     const tasks = []
 
     functionsUnderTest.forEach((f) => {
@@ -41,7 +41,7 @@ lab.experiment('userOps', () => {
 
   lab.test('should return an error if the first db query fails', (done) => {
     const userOps = UserOps(utils.getDbPollFirstQueryError(), {debug: () => {}})
-    const functionsUnderTest = ['getUserOrganizationId', 'listOrgUsers', 'createUser', 'createUserById', 'readUser', 'getUserByToken']
+    const functionsUnderTest = ['getUserOrganizationId', 'listOrgUsers', 'createUser', 'createUserById', 'readUser']
     const tasks = []
 
     functionsUnderTest.forEach((f) => {
@@ -158,12 +158,5 @@ lab.experiment('userOps', () => {
     const userOps = UserOps(dbPool, {debug: () => {}})
 
     userOps.deleteUser({ id: 1, organizationId: 'WONKA' }, utils.testError(expect, 'Error: query error test', done))
-  })
-
-  lab.test('getUserByToken should return an error if selecting from users returns a rowCount 0', (done) => {
-    const dbPool = utils.getDbPoolErrorForQueryOrRowCount(undefined, undefined, {rowCount: 0})
-    const userOps = UserOps(dbPool, {debug: () => {}})
-
-    userOps.deleteUser({ id: 1, organizationId: 'WONKA' }, utils.testError(expect, 'Error: Not Found', done))
   })
 })

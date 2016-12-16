@@ -15,7 +15,7 @@ const TeamOps = require('../../../lib/teamOps')
 const db = dbConn.create(logger)
 const userOps = UserOps(db.pool, logger)
 const policyOps = PolicyOps(db.pool)
-const authorize = Authorize(userOps, policyOps)
+const authorize = Authorize(policyOps)
 const teamOps = TeamOps(db.pool, logger)
 
 

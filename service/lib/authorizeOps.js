@@ -2,47 +2,27 @@
 /* eslint-disable handle-callback-err */
 const Boom = require('boom')
 const iam = require('iam-js')
-const async = require('async')
 
-module.exports = function (userOps, policyOps) {
+module.exports = function (policyOps) {
   return {
     /*
     * Auth.canDo(user policy set, resource, action) returns "allow" or "deny"
     */
     isUserAuthorized: function isUserAuthorized ({ resource, action, userId }, cb) {
-      async.waterfall([
-        (next) => {
-          userOps.getUserByToken(userId, (err, user) => {
-            if (err) {
-              return next(err)
-            }
-
-            next(null, user)
-          })
-        },
-        (user, next) => {
-          policyOps.listAllUserPolicies({ userId: user.id }, (err, policies) => {
-            if (err) {
-              return next(err)
-            }
-
-            iam(policies, ({ process }) => {
-              process(resource, action, (err, access) => {
-                if (err) {
-                  return next(err)
-                }
-
-                next(null, { access })
-              })
-            })
-          })
-        }
-      ], (err, data) => {
+      policyOps.listAllUserPolicies({ userId }, (err, policies) => {
         if (err) {
           return cb(err)
         }
 
-        cb(null, data)
+        iam(policies, ({ process }) => {
+          process(resource, action, (err, access) => {
+            if (err) {
+              return cb(err)
+            }
+
+            cb(null, { access })
+          })
+        })
       })
     },
 

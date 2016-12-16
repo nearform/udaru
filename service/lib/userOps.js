@@ -352,34 +352,6 @@ module.exports = function (dbPool, log) {
 
         cb()
       })
-    },
-
-    /**
-     * TO BE REMOVED
-     *
-     * Get user info by token
-     *
-     * @param  {String}   userId
-     * @param  {Function} cb
-     */
-    getUserByToken: function getUserByToken (userId, cb) {
-      const sqlQuery = SQL`
-        SELECT id, name
-        FROM users
-        WHERE id = ${userId}
-      `
-      dbPool.query(sqlQuery, function (err, result) {
-        if (err) {
-          return cb(Boom.badImplementation(err))
-        }
-        if (result.rowCount === 0) {
-          return cb(Boom.notFound())
-        }
-
-        const user = result.rows[0]
-
-        return cb(null, user)
-      })
     }
   }
 
