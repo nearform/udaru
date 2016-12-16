@@ -282,7 +282,9 @@ lab.experiment('Users', () => {
   })
 
   lab.test('update user should return 200 for success', (done) => {
-    userOps.updateUser = function (id, params, cb) {
+    userOps.updateUser = function (params, cb) {
+      expect(params.id).to.equal(3)
+      expect(params.organizationId).to.equal('WONKA')
       process.nextTick(() => {
         cb(null, {
           id: 3,
@@ -316,6 +318,8 @@ lab.experiment('Users', () => {
 
   lab.test('update user should return error for error case', (done) => {
     userOps.updateUser = function (params, cb) {
+      expect(params.id).to.equal(1)
+      expect(params.organizationId).to.equal('WONKA')
       process.nextTick(() => {
         cb(Boom.badImplementation())
       })

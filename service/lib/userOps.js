@@ -8,12 +8,13 @@ const SQL = dbUtil.SQL
 module.exports = function (dbPool, log) {
 
   const updateUserInfo = (job, next) => {
-    const { id, name } = job
+    const { id, name, organizationId } = job
 
     const sqlQuery = SQL`
       UPDATE users
       SET name = ${name}
       WHERE id = ${id}
+      AND org_id = ${organizationId}
     `
     job.client.query(sqlQuery, (err, result) => {
       if (err) {
@@ -268,12 +269,11 @@ module.exports = function (dbPool, log) {
     /**
      * Update user details
      *
-     * @param  {Number}   id
-     * @param  {Object}   params { name, teams, policies }
+     * @param  {Object}   params { id, organizationId, name, teams, policies }
      * @param  {Function} cb
      */
-    updateUser: function updateUser (id, params, cb) {
-      const { name, teams, policies } = params
+    updateUser: function updateUser (params, cb) {
+      const { id, organizationId, name, teams, policies } = params
 
       const tasks = [
         (job, next) => {
@@ -281,6 +281,7 @@ module.exports = function (dbPool, log) {
           job.name = name
           job.teams = teams
           job.policies = policies
+          job.organizationId = organizationId
 
           next()
         },

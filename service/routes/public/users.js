@@ -102,15 +102,18 @@ exports.register = function (server, options, next) {
     method: 'PUT',
     path: '/authorization/users/{id}',
     handler: function (request, reply) {
-      const userId = request.params.id
+      const { id: organizationId } = request.authorization.organization
+      const id = request.params.id
       const { name, teams, policies } = request.payload
 
       const params = {
+        id,
+        organizationId,
         name,
         teams,
         policies
       }
-      userOps.updateUser(userId, params, reply)
+      userOps.updateUser(params, reply)
     },
     config: {
       validate: {

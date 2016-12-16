@@ -241,12 +241,14 @@ lab.experiment('OrganizationOps', () => {
       teamOps.updateTeam(teamId, teamData, next)
     })
     tasks.push((next) => {
-      const newUserData = {
+      const updateUserData = {
+        id: userId,
+        organizationId: 'nearForm222',
         name: 'user user',
         teams: [{ id: teamId }],
         policies: [{ id: policyId }]
       }
-      userOps.updateUser(userId, newUserData, next)
+      userOps.updateUser(updateUserData, next)
     })
     tasks.push((next) => {
       organizationOps.deleteById('nearForm222', next)

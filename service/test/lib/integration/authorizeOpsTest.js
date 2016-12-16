@@ -24,6 +24,13 @@ const testUserData = {
   organizationId: 'WONKA'
 }
 
+const updateUserData = {
+  organizationId: testUserData.organizationId,
+  name: testUserData.name,
+  teams: [{ id: 4 }],
+  policies: [{ id: 1 }]
+}
+
 lab.experiment('AuthorizeOps', () => {
   lab.test('check authorization should return access true for allowed', (done) => {
     const tasks = []
@@ -39,12 +46,8 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      const newUserData = {
-        name: 'Salman',
-        teams: [{ id: 4 }],
-        policies: [{ id: 1 }]
-      }
-      userOps.updateUser(testUserId, newUserData, (err, result) => {
+      updateUserData.id = testUserId
+      userOps.updateUser(updateUserData, (err, result) => {
         if (err) return next(err)
 
         next(err)
@@ -88,12 +91,10 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      const newUserData = {
-        name: 'Salman',
-        teams: [{ id: 4 }],
-        policies: [{ id: 5 }]
-      }
-      userOps.updateUser(testUserId, newUserData, (err, result) => {
+      updateUserData.id = testUserId
+      updateUserData.policies = [{ id: 5 }]
+
+      userOps.updateUser(updateUserData, (err, result) => {
         if (err) return next(err)
         next()
       })
@@ -135,12 +136,10 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      const newUserData = {
-        name: 'Salman',
-        teams: [{ id: 4 }],
-        policies: [{ id: 6 }]
-      }
-      userOps.updateUser(testUserId, newUserData, (err, result) => {
+      updateUserData.id = testUserId
+      updateUserData.policies = [{ id: 6 }]
+
+      userOps.updateUser(updateUserData, (err, result) => {
         if (err) next(err)
         next()
       })
@@ -182,12 +181,10 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      const newUserData = {
-        name: 'Salman',
-        teams: [{ id: 4 }],
-        policies: [{ id: 7 }]
-      }
-      userOps.updateUser(testUserId, newUserData, (err, result) => {
+      updateUserData.id = testUserId
+      updateUserData.policies = [{ id: 7 }]
+
+      userOps.updateUser(updateUserData, (err, result) => {
         if (err) next(err)
         next()
       })
@@ -229,12 +226,10 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      const newUserData = {
-        name: 'Salman',
-        teams: [{ id: 4 }],
-        policies: [{ id: 8 }]
-      }
-      userOps.updateUser(testUserId, newUserData, (err, result) => {
+      updateUserData.id = testUserId
+      updateUserData.policies = [{ id: 8 }]
+
+      userOps.updateUser(updateUserData, (err, result) => {
         if (err) next(err)
         next()
       })
@@ -276,12 +271,10 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      const newUserData = {
-        name: 'Salman',
-        teams: [{ id: 4 }],
-        policies: [{ id: 6 }]
-      }
-      userOps.updateUser(testUserId, newUserData, (err, result) => {
+      updateUserData.id = testUserId
+      updateUserData.policies = [{ id: 6 }]
+
+      userOps.updateUser(updateUserData, (err, result) => {
         if (err) next(err)
         next()
       })
@@ -323,12 +316,10 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      const newUserData = {
-        name: 'Salman',
-        teams: [{ id: 4 }],
-        policies: [{ id: 6 }]
-      }
-      userOps.updateUser(testUserId, newUserData, (err, result) => {
+      updateUserData.id = testUserId
+      updateUserData.policies = [{ id: 6 }]
+
+      userOps.updateUser(updateUserData, (err, result) => {
         if (err) next(err)
         next()
       })
@@ -453,12 +444,12 @@ lab.experiment('AuthorizeOps', () => {
 
     // test for user permissions on the resource
     tasks.push((result, cb) => {
-      const newUserData = {
-        name: testUserName,
-        teams: [],
-        policies: [{ id: 3 }]
-      }
-      userOps.updateUser(testUserId, newUserData, cb)
+      updateUserData.id = testUserId
+      updateUserData.name = testUserName
+      updateUserData.teams = []
+      updateUserData.policies = [{ id: 3 }]
+
+      userOps.updateUser(updateUserData, cb)
     })
 
     tasks.push((result, cb) => {
@@ -476,12 +467,12 @@ lab.experiment('AuthorizeOps', () => {
 
     // test for team and user permissions on the resource
     tasks.push((result, cb) => {
-      const newUserData = {
-        name: testUserName,
-        teams: [{ id: 1 }],
-        policies: [{ id: 4 }]
-      }
-      userOps.updateUser(testUserId, newUserData, cb)
+      updateUserData.id = testUserId
+      updateUserData.name = testUserName
+      updateUserData.teams = [{ id: 1 }]
+      updateUserData.policies = [{ id: 4 }]
+
+      userOps.updateUser(updateUserData, cb)
     })
 
     tasks.push((result, cb) => {
