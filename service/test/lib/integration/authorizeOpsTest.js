@@ -488,8 +488,9 @@ lab.experiment('AuthorizeOps', () => {
       })
     })
 
+    // clean-up
     tasks.push((result, cb) => {
-      policyOps.listByOrganization('WONKA', (err, policies) => {
+      policyOps.listByOrganization({ organizationId }, (err, policies) => {
         expect(err).to.not.exist()
 
         const defaultPolicy = policies.find((p) => {
@@ -497,32 +498,22 @@ lab.experiment('AuthorizeOps', () => {
         })
         expect(defaultPolicy).to.exist()
 
-        policyOps.deletePolicyById([defaultPolicy.id], (err, result) => {
+        policyOps.deletePolicy({ id: defaultPolicy.id, organizationId }, (err, result) => {
           expect(err).to.not.exist()
           cb(err, result)
         })
       })
     })
 
-    // clean-up
     tasks.push((result, cb) => {
-      userOps.deleteUserById(testUserId, (err, result) => {
+      userOps.deleteUser({ id: testUserId, organizationId }, (err, result) => {
         expect(err).to.not.exist()
         cb(err, result)
       })
     })
 
     tasks.push((result, cb) => {
-      teamOps.deleteTeamById({ teamId: testTeamId, organizationId: testOrgId }, (err, result) => {
-        expect(err).to.not.exist()
-
-        const defaultPolicy = policies.find((p) => {
-          return p.name === 'Default Team Admin for ' + testTeamId
-        })
-        expect(defaultPolicy).to.exist()
-
-        policyOps.deletePolicy({ id: defaultPolicy.id, organizationId: 'WONKA' }, done)
-      })
+      teamOps.deleteTeamById({ teamId: testTeamId, organizationId }, cb)
     })
 
     async.waterfall(tasks, done)

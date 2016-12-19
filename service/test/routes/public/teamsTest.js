@@ -106,7 +106,7 @@ lab.experiment('Teams', () => {
     }
 
     teamOps.createTeam = (params, cb) => {
-      expect(params).to.equal({ name: 'Team B', description: 'This is Team B', parentId: null, organizationId: 'WONKA' })
+      expect(params).to.equal({ name: 'Team B', description: 'This is Team B', parentId: null, organizationId: 'WONKA', user: undefined })
       process.nextTick(() => {
         cb(null, newTeamStub)
       })

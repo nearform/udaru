@@ -3,7 +3,6 @@
 const Boom = require('boom')
 const async = require('async')
 const dbUtil = require('./dbUtil')
-const SQL = dbUtil.SQL
 const config = require('./config')
 const SQL = dbUtil.SQL
 
