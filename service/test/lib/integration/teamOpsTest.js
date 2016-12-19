@@ -8,17 +8,19 @@ const logger = require('pino')()
 
 const TeamOps = require('../../../lib/teamOps')
 const PolicyOps = require('../../../lib/policyOps')
+const UserOps = require('../../../lib/userOps')
 const dbConn = require('../../../lib/dbConn')
 
 const db = dbConn.create(logger)
 const teamOps = TeamOps(db.pool, logger)
 const policyOps = PolicyOps(db.pool, logger)
+const userOps = UserOps(db.pool, logger)
 
 let testTeamId
 
 lab.experiment('TeamOps', () => {
   lab.test('list of all teams', (done) => {
-    teamOps.listAllTeams({}, (err, result) => {
+    teamOps.listAllTeams((err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
       expect(result.length).to.equal(6)
@@ -29,7 +31,7 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('list of org teams', (done) => {
-    teamOps.listOrgTeams(['WONKA'], (err, result) => {
+    teamOps.listOrgTeams('WONKA', (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
       expect(result.length).to.equal(6)
@@ -53,21 +55,35 @@ lab.experiment('TeamOps', () => {
       expect(result).to.exist()
       expect(result.name).to.equal('Team 4')
 
-      teamOps.updateTeam([testTeamId, 'Team 5', 'description', [{'id': 1, 'name': 'Tom Watson'}, {'id': 2, 'name': 'Michael O\'Brien'}], [{'id': 1, 'name': 'Financial info access'}]], (err, result) => {
+      const teamData = {
+        name: 'Team 5',
+        description: 'description',
+        users: [{'id': 1, 'name': 'Tom Watson'}, {'id': 2, 'name': 'Michael O\'Brien'}],
+        policies: [{'id': 1, 'name': 'Financial info access'}]
+      }
+
+      teamOps.updateTeam(testTeamId, teamData, (err, result) => {
         expect(err).to.not.exist()
         expect(result).to.exist()
         expect(result.name).to.equal('Team 5')
 
-        teamOps.deleteTeamById([testTeamId], (err) => {
-          if (err) return done(err)
+        policyOps.listByOrganization('WONKA', (err, policies) => {
+          expect(err).to.not.exist()
 
-          policyOps.listByOrganization('WONKA', (err, policies) => {
+          const defaultPolicy = policies.find((p) => { return p.name === 'Default Team Admin for ' + testTeamId })
+          expect(defaultPolicy).to.exist()
+
+          teamOps.deleteTeamById({ teamId: testTeamId, organizationId: 'WONKA' }, function (err) {
             expect(err).to.not.exist()
 
-            const defaultPolicy = policies.find((p) => { return p.name === 'Default Team Admin for ' + testTeamId })
-            expect(defaultPolicy).to.exist()
+            // check default policy has been deleted
+            policyOps.listByOrganization('WONKA', (err, policies) => {
+              expect(err).to.not.exist()
 
-            policyOps.deletePolicyById([defaultPolicy.id], done)
+              const defaultPolicy = policies.find((p) => { return p.name === 'Default Team Admin for ' + testTeamId })
+              expect(defaultPolicy).to.not.exist()
+              done()
+            })
           })
         })
       })
@@ -75,7 +91,8 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('read a specific team', (done) => {
-    teamOps.readTeamById([1], (err, result) => {
+    teamOps.readTeamById(1, (err, result) => {
+
       expect(err).to.not.exist()
       expect(result).to.exist()
       expect(result.users.length).to.equal(1)
@@ -105,7 +122,7 @@ lab.experiment('TeamOps', () => {
         policyOps.deletePolicyById([defaultPolicy.id], (err) => {
           expect(err).to.not.exist()
 
-          teamOps.deleteTeamById([result.id], done)
+          teamOps.deleteTeamById({ teamId: result.id, organizationId: 'WONKA' }, done)
         })
       })
     })
@@ -130,7 +147,41 @@ lab.experiment('TeamOps', () => {
         })
         expect(defaultPolicy).to.not.exist()
 
-        teamOps.deleteTeamById([result.id], done)
+        teamOps.deleteTeamById({ teamId: result.id, organizationId: 'WONKA' }, done)
+      })
+    })
+  })
+
+  lab.test('create team support creation of default team admin user', (done) => {
+    const teamData = {
+      name: 'Team 6',
+      description: 'This is a test team for admin user',
+      parentId: null,
+      organizationId: 'WONKA',
+      user: { name: 'Team 6 Admin' }
+    }
+
+    teamOps.createTeam(teamData, function (err, team) {
+      expect(err).to.not.exist()
+      expect(team).to.exist()
+      expect(team.users).to.exist()
+
+      const defaultUser = team.users.find((u) => { return u.name === 'Team 6 Admin' })
+      expect(defaultUser).to.exist()
+
+      userOps.readUserById(defaultUser.id, (err, user) => {
+        expect(err).to.not.exist()
+
+        expect(user.name).to.be.equal('Team 6 Admin')
+
+        const defaultPolicy = user.policies.find((p) => { return p.name === 'Default Team Admin for ' + team.id })
+        expect(defaultPolicy).to.exist()
+
+        teamOps.deleteTeamById({ teamId: team.id, organizationId: 'WONKA' }, (err) => {
+          expect(err).to.not.exist()
+
+          userOps.deleteUserById(user.id, done)
+        })
       })
     })
   })

@@ -176,7 +176,7 @@ lab.experiment('OrganizationOps', () => {
       })
     })
     tasks.push((next) => {
-      teamOps.listAllTeams([], (err, result) => {
+      teamOps.listAllTeams((err, result) => {
         expect(result.length).to.equal(6)
         next(err, result)
       })
@@ -232,7 +232,13 @@ lab.experiment('OrganizationOps', () => {
       })
     })
     tasks.push((next) => {
-      teamOps.updateTeam([teamId, 'Team 4', 'This is a test team', [{ id: userId }], [{ id: policyId }]], next)
+      const teamData = {
+        name: 'Team 4',
+        description: 'This is a test team',
+        users: [{ id: userId }],
+        policies: [{ id: policyId }]
+      }
+      teamOps.updateTeam(teamId, teamData, next)
     })
     tasks.push((next) => {
       const newUserData = {
@@ -253,7 +259,7 @@ lab.experiment('OrganizationOps', () => {
       })
     })
     tasks.push((next) => {
-      teamOps.listAllTeams([], (err, result) => {
+      teamOps.listAllTeams((err, result) => {
         expect(result.length).to.equal(6)
         next(err, result)
       })

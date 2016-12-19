@@ -20,7 +20,7 @@ lab.experiment('Teams', () => {
       name: 'Team B'
     }]
 
-    teamOps.listAllTeams = (params, cb) => {
+    teamOps.listAllTeams = (cb) => {
       process.nextTick(() => {
         cb(null, teamListStub)
       })
@@ -42,7 +42,7 @@ lab.experiment('Teams', () => {
   })
 
   lab.test('get team list should return error for error case', (done) => {
-    teamOps.listAllTeams = (params, cb) => {
+    teamOps.listAllTeams = (cb) => {
       process.nextTick(() => {
         cb(Boom.badImplementation())
       })
@@ -71,7 +71,7 @@ lab.experiment('Teams', () => {
       policies: []
     }
 
-    teamOps.readTeamById = (params, cb) => {
+    teamOps.readTeamById = (id, cb) => {
       process.nextTick(() => {
         cb(null, teamStub)
       })
@@ -175,7 +175,7 @@ lab.experiment('Teams', () => {
       policies: []
     }
 
-    teamOps.updateTeam = (params, cb) => {
+    teamOps.updateTeam = (id, params, cb) => {
       process.nextTick(() => {
         cb(null, teamStub)
       })
@@ -203,7 +203,7 @@ lab.experiment('Teams', () => {
   })
 
   lab.test('update team should return error for error case', (done) => {
-    teamOps.updateTeam = (params, cb) => {
+    teamOps.updateTeam = (id, params, cb) => {
       process.nextTick(() => {
         cb(Boom.badImplementation())
       })

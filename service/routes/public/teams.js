@@ -10,7 +10,7 @@ exports.register = function (server, options, next) {
     method: 'GET',
     path: '/authorization/teams',
     handler: function (request, reply) {
-      teamOps.listAllTeams([], reply)
+      teamOps.listAllTeams(reply)
     },
     config: {
       description: 'Fetch all teams',
@@ -23,13 +23,14 @@ exports.register = function (server, options, next) {
     method: 'POST',
     path: '/authorization/teams',
     handler: function (request, reply) {
-      const { name, description } = request.payload
+      const { name, description, user } = request.payload
 
       const params = {
         name,
         description,
         parentId: null,
-        organizationId: 'WONKA'
+        organizationId: 'WONKA',
+        user
       }
       teamOps.createTeam(params, function (err, res) {
         if (err) {
@@ -43,7 +44,10 @@ exports.register = function (server, options, next) {
       validate: {
         payload: {
           name: Joi.string().required().description('Name of the new team'),
-          description: Joi.string().required().description('Description of new team')
+          description: Joi.string().required().description('Description of new team'),
+          user: Joi.object().optional().description('Default admin user to be added to the team').keys({
+            name: Joi.string().required('Name for the user')
+          })
         }
       },
       description: 'Create a teams',
@@ -56,11 +60,7 @@ exports.register = function (server, options, next) {
     method: 'GET',
     path: '/authorization/teams/{id}',
     handler: function (request, reply) {
-      const params = [
-        request.params.id
-      ]
-
-      teamOps.readTeamById(params, reply)
+      teamOps.readTeamById(request.params.id, reply)
     },
     config: {
       validate: {
@@ -82,15 +82,14 @@ exports.register = function (server, options, next) {
 
       const { name, description, users, policies } = request.payload
 
-      const params = [
-        id,
+      const params = {
         name,
         description,
         users,
         policies
-      ]
+      }
 
-      teamOps.updateTeam(params, reply)
+      teamOps.updateTeam(id, params, reply)
     },
     config: {
       validate: {
@@ -118,9 +117,10 @@ exports.register = function (server, options, next) {
     method: 'DELETE',
     path: '/authorization/teams/{id}',
     handler: function (request, reply) {
-      const params = [
-        request.params.id
-      ]
+      const params = {
+        teamId: request.params.id,
+        organizationId: 'WONKA'
+      }
 
       teamOps.deleteTeamById(params, function (err, res) {
         if (err) {

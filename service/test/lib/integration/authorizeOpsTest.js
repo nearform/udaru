@@ -386,7 +386,7 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((result, cb) => {
-      teamOps.listAllTeams([], (err, result) => {
+      teamOps.listAllTeams((err, result) => {
         expect(result.length).to.equal(6)
         cb(err, result)
       })
@@ -400,13 +400,14 @@ lab.experiment('AuthorizeOps', () => {
         organizationId: testOrgId
       }
       teamOps.createTeam(teamData, (err, result) => {
+        expect(err).to.not.exist()
         testTeamId = result.id
         cb(err, result)
       })
     })
 
     tasks.push((result, cb) => {
-      teamOps.listAllTeams([], (err, result) => {
+      teamOps.listAllTeams((err, result) => {
         expect(result.length).to.equal(7)
         cb(err, result)
       })
@@ -428,7 +429,13 @@ lab.experiment('AuthorizeOps', () => {
 
     // test for team permissions on the resource
     tasks.push((result, cb) => {
-      teamOps.updateTeam([testTeamId, testTeamName, testTeamDesc, [{ id: testUserId }], [{ id: 2 }]], cb)
+      const teamData = {
+        name: testTeamName,
+        description: testTeamDesc,
+        users: [{ id: testUserId }],
+        policies: [{ id: 2 }]
+      }
+      teamOps.updateTeam(testTeamId, teamData, cb)
     })
 
     tasks.push((result, cb) => {
@@ -490,21 +497,6 @@ lab.experiment('AuthorizeOps', () => {
       })
     })
 
-    // clean-up
-    tasks.push((result, cb) => {
-      userOps.deleteUserById(testUserId, (err, result) => {
-        expect(err).to.not.exist()
-        cb(err, result)
-      })
-    })
-
-    tasks.push((result, cb) => {
-      teamOps.deleteTeamById([testTeamId], (err, result) => {
-        expect(err).to.not.exist()
-        cb(err, result)
-      })
-    })
-
     tasks.push((result, cb) => {
       policyOps.listByOrganization('WONKA', (err, policies) => {
         expect(err).to.not.exist()
@@ -514,10 +506,27 @@ lab.experiment('AuthorizeOps', () => {
         })
         expect(defaultPolicy).to.exist()
 
-        policyOps.deletePolicyById([defaultPolicy.id], done)
+        policyOps.deletePolicyById([defaultPolicy.id], (err, result) => {
+          expect(err).to.not.exist()
+          cb(err, result)
+        })
       })
     })
 
+    // clean-up
+    tasks.push((result, cb) => {
+      userOps.deleteUserById(testUserId, (err, result) => {
+        expect(err).to.not.exist()
+        cb(err, result)
+      })
+    })
+
+    tasks.push((result, cb) => {
+      teamOps.deleteTeamById({ teamId: testTeamId, organizationId: testOrgId }, (err, result) => {
+        expect(err).to.not.exist()
+        cb(err, result)
+      })
+    })
     async.waterfall(tasks, done)
   })
 })

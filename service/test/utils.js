@@ -48,31 +48,28 @@ function getDbPollFirstQueryError () {
  * @param  {Object} result
  */
 function getDbPoolErrorForQueryOrRowCount (startsWith, options = {testRollback: false, expect: undefined}, result = {rowCount: 1, rows: []}) {
-  return {
-    connect: function (cb) {
-      var client = {query: (sql, params, cb) => {
-        cb = cb || params
-        if (sql.startsWith(startsWith)) {
-          return cb(new Error('query error test'))
-        }
-        if (options.testRollback && sql.startsWith('ROLLBACK')) {
-          options.expect(sql).to.equal('ROLLBACK')
-        }
-        cb(undefined, result)
-      }}
-      cb(undefined, client, () => {})
-    },
-    query: function (sql, params, cb) {
-      cb = cb || params
-      if (sql.startsWith(startsWith)) {
-        return cb(new Error('query error test'))
-      }
-      if (options.testRollback && sql.startsWith('ROLLBACK')) {
-        options.expect(sql).to.equal('ROLLBACK')
-      }
-      cb(undefined, result)
+  function query (sql, params, cb) {
+    cb = cb || params
+
+    if (sql.text) sql = sql.text
+    sql = sql.trim()
+
+    if (sql.startsWith(startsWith)) {
+      return cb(new Error('query error test'))
     }
+
+    if (options.testRollback && sql.startsWith('ROLLBACK')) {
+      options.expect(sql).to.equal('ROLLBACK')
+    }
+
+    cb(undefined, result)
   }
+
+  function connect (cb) {
+    cb(undefined, { query }, () => {})
+  }
+
+  return { connect, query }
 }
 
 /**

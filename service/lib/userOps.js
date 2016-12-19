@@ -122,6 +122,19 @@ module.exports = function (dbPool, log) {
       })
     },
 
+    insertUser: function insertUser (client, name, organizationId, cb) {
+      const sqlQuery = SQL`
+        INSERT INTO users (
+          id, name, org_id
+        ) VALUES (
+          DEFAULT, ${name}, ${organizationId}
+        )
+        RETURNING id
+      `
+
+      client.query(sqlQuery, cb)
+    },
+
     /**
      * Create a new user
      *
@@ -131,15 +144,7 @@ module.exports = function (dbPool, log) {
     createUser: function createUser (params, cb) {
       const { name, organizationId } = params
 
-      const sqlQuery = SQL`
-        INSERT INTO users (
-          id, name, org_id
-        ) VALUES (
-          DEFAULT, ${name}, ${organizationId}
-        )
-        RETURNING id
-      `
-      dbPool.query(sqlQuery, function (err, result) {
+      userOps.insertUser(dbPool, name, organizationId, (err, result) => {
         if (err) return cb(Boom.badImplementation(err))
 
         userOps.readUserById(result.rows[0].id, cb)
@@ -192,7 +197,7 @@ module.exports = function (dbPool, log) {
           const sqlQuery = SQL`
             SELECT id, name
             FROM users
-            WHERE id = ${id}          
+            WHERE id = ${id}
           `
           client.query(sqlQuery, (err, result) => {
             if (err) {
@@ -233,7 +238,7 @@ module.exports = function (dbPool, log) {
             SELECT pol.id, pol.name, pol.version
             FROM user_policies user_pol, policies pol
             WHERE user_pol.user_id = ${id} AND user_pol.policy_id = pol.id
-            ORDER BY UPPER(pol.name)          
+            ORDER BY UPPER(pol.name)
           `
           client.query(sqlQuery, (err, result) => {
             if (err) {
