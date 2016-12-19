@@ -146,19 +146,12 @@ module.exports = function (dbPool, log) {
   }
 
   var teamOps = {
-    /*
-     * no query args (but may e.g. sort in future)
-     */
-    listAllTeams: function listAllTeams (cb) {
-      dbPool.query('SELECT id, name, description from teams ORDER BY UPPER(name)', function (err, result) {
-        if (err) return cb(Boom.badImplementation(err))
 
-        return cb(null, result.rows)
-      })
-    },
-
-    /*
-     * $1 = org_id
+    /**
+     * List the teams in an organization
+     *
+     * @param  {Object}   params { organizationId }
+     * @param  {Function} cb
      */
     listOrgTeams: function listOrgTeams (params, cb) {
       const { organizationId } = params
@@ -209,14 +202,14 @@ module.exports = function (dbPool, log) {
       dbUtil.withTransaction(dbPool, tasks, (err, res) => {
         if (err) return cb(Boom.badImplementation(err))
 
-        teamOps.readTeamById(res.team.id, cb)
+        teamOps.readTeam({ id: res.team.id, organizationId: params.organizationId }, cb)
       })
     },
 
     /*
      * @param {Number}    id
      */
-    readTeamById: function readTeamById (teamId, cb) {
+    readTeam: function readTeam ({ id, organizationId }, cb) {
       const team = {
         'id': null,
         'name': null,
@@ -231,7 +224,7 @@ module.exports = function (dbPool, log) {
 
         tasks.push((next) => {
           const sql = SQL`
-            SELECT id, name, description from teams WHERE id = ${teamId}
+            SELECT id, name, description from teams WHERE id = ${id} AND org_id = ${organizationId}
           `
 
           client.query(sql, (err, result) => {
@@ -248,7 +241,7 @@ module.exports = function (dbPool, log) {
         tasks.push((next) => {
           const sql = SQL`
             SELECT users.id, users.name from team_members mem, users
-            WHERE mem.team_id = ${teamId} and mem.user_id = users.id ORDER BY UPPER(users.name)
+            WHERE mem.team_id = ${id} and mem.user_id = users.id ORDER BY UPPER(users.name)
           `
           client.query(sql, function (err, result) {
             if (err) return next(err)
@@ -263,7 +256,7 @@ module.exports = function (dbPool, log) {
         tasks.push((next) => {
           const sql = SQL`
             SELECT pol.id, pol.name, pol.version from team_policies tpol, policies pol
-            WHERE tpol.team_id = ${teamId} and tpol.policy_id = pol.id ORDER BY UPPER(pol.name)
+            WHERE tpol.team_id = ${id} and tpol.policy_id = pol.id ORDER BY UPPER(pol.name)
           `
           client.query(sql, function (err, result) {
             if (err) return next(err)
@@ -310,7 +303,7 @@ module.exports = function (dbPool, log) {
     },
 
     /*
-     * @param {Object} params {teamId, organisationId}
+     * @param {Object} params {teamId, organizationId}
      */
     deleteTeamById: function deleteTeamById (params, cb) {
       dbUtil.withTransaction(dbPool, [

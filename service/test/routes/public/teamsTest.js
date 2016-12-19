@@ -75,7 +75,8 @@ lab.experiment('Teams', () => {
       policies: []
     }
 
-    teamOps.readTeamById = (id, cb) => {
+    teamOps.readTeam = (params, cb) => {
+      expect(params).to.equal({ id: 1, organizationId: 'WONKA' })
       process.nextTick(() => {
         cb(null, teamStub)
       })

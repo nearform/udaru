@@ -12,10 +12,9 @@ lab.experiment('teamOps', () => {
   lab.test('should return an error if the db connection fails', (done) => {
     var teamOps = TeamOps(utils.getDbPollConnectionError(), () => {})
     var functionsUnderTest = {
-      'listAllTeams': [],
       'listOrgTeams': ['WONKA'],
       'createTeam': [{name: 'name', description: 'description'}],
-      'readTeamById': [1]
+      'readTeam': [{ id: 1, organizationId: 'WONKA' }]
     }
     var tasks = []
 
@@ -33,10 +32,9 @@ lab.experiment('teamOps', () => {
   lab.test('should return an error if the first db query fails', (done) => {
     var teamOps = TeamOps(utils.getDbPollFirstQueryError(), () => {})
     var functionsUnderTest = {
-      'listAllTeams': [],
       'listOrgTeams': ['WONKA'],
       'createTeam': [{name: 'name', description: 'description'}],
-      'readTeamById': [1]
+      'readTeam': [{ id: 1, organizationId: 'WONKA' }]
     }
     var tasks = []
 
@@ -167,17 +165,17 @@ lab.experiment('teamOps', () => {
     var dbPool = utils.getDbPoolErrorForQueryOrRowCount('BEGIN', {testRollback: true, expect: expect})
     var teamOps = TeamOps(dbPool, () => {})
 
-    teamOps.deleteTeamById({ teamId: 1, organizationId: 'WONKA' }, utils.testError(expect, 'Error: query error test', done))
+    teamOps.deleteTeamById({ id: 1, organizationId: 'WONKA' }, utils.testError(expect, 'Error: query error test', done))
   })
 
-  lab.test('readTeamById should return an error if selecting the team data return rowcount 0', (done) => {
+  lab.test('readTeam should return an error if selecting the team data return rowcount 0', (done) => {
     var dbPool = utils.getDbPoolErrorForQueryOrRowCount(undefined, undefined, {rowCount: 0})
     var teamOps = TeamOps(dbPool, {debug: () => {}})
 
-    teamOps.readTeamById({ teamId: 1, organizationId: 'WONKA' }, utils.testError(expect, 'Not Found', done))
+    teamOps.readTeam({ id: 1, organizationId: 'WONKA' }, utils.testError(expect, 'Not Found', done))
   })
 
-  lab.test('readTeamById should return an error if selecting the team members data fails', (done) => {
+  lab.test('readTeam should return an error if selecting the team members data fails', (done) => {
     var dbPool = {connect: function (cb) {
       var client = {query: (sql, params, cb) => {
         cb = cb || params
@@ -194,10 +192,10 @@ lab.experiment('teamOps', () => {
     }}
     var teamOps = TeamOps(dbPool, {debug: () => {}})
 
-    teamOps.readTeamById({ teamId: 1, organizationId: 'WONKA' }, utils.testError(expect, 'Error: query error test', done))
+    teamOps.readTeam({ id: 1, organizationId: 'WONKA' }, utils.testError(expect, 'Error: query error test', done))
   })
 
-  lab.test('readTeamById should return an error if selecting the policies data fails', (done) => {
+  lab.test('readTeam should return an error if selecting the policies data fails', (done) => {
     var dbPool = {connect: function (cb) {
       var client = {query: (sql, params, cb) => {
         cb = cb || params
@@ -214,6 +212,6 @@ lab.experiment('teamOps', () => {
     }}
     var teamOps = TeamOps(dbPool, {debug: () => {}})
 
-    teamOps.readTeamById({ teamId: 1, organizationId: 'WONKA' }, utils.testError(expect, 'Error: query error test', done))
+    teamOps.readTeam({ id: 1, organizationId: 'WONKA' }, utils.testError(expect, 'Error: query error test', done))
   })
 })

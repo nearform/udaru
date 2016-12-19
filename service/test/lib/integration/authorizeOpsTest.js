@@ -377,7 +377,7 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((result, cb) => {
-      teamOps.listAllTeams((err, result) => {
+      teamOps.listOrgTeams({ organizationId }, (err, result) => {
         expect(result.length).to.equal(6)
         cb(err, result)
       })
@@ -398,7 +398,7 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((result, cb) => {
-      teamOps.listAllTeams((err, result) => {
+      userOps.listOrgUsers({ organizationId }, (err, result) => {
         expect(result.length).to.equal(7)
         cb(err, result)
       })

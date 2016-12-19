@@ -176,8 +176,8 @@ lab.experiment('OrganizationOps', () => {
       })
     })
     tasks.push((next) => {
-      teamOps.listAllTeams((err, result) => {
-        expect(result.length).to.equal(6)
+      teamOps.listOrgTeams({ organizationId: 'nearForm222' }, (err, result) => {
+        expect(result.length).to.equal(0)
         next(err, result)
       })
     })
@@ -261,8 +261,8 @@ lab.experiment('OrganizationOps', () => {
       })
     })
     tasks.push((next) => {
-      teamOps.listAllTeams((err, result) => {
-        expect(result.length).to.equal(6)
+      teamOps.listOrgTeams({ organizationId: 'nearForm222' }, (err, result) => {
+        expect(result.length).to.equal(0)
         next(err, result)
       })
     })

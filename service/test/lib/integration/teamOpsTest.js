@@ -19,16 +19,6 @@ const userOps = UserOps(db.pool, logger)
 let testTeamId
 
 lab.experiment('TeamOps', () => {
-  lab.test('list of all teams', (done) => {
-    teamOps.listAllTeams((err, result) => {
-      expect(err).to.not.exist()
-      expect(result).to.exist()
-      expect(result.length).to.equal(6)
-      // TODO:      t.deepEqual(result, expectedUserList, 'data should be as expected')
-
-      done()
-    })
-  })
 
   lab.test('list of org teams', (done) => {
     teamOps.listOrgTeams({organizationId: 'WONKA'}, (err, result) => {
@@ -91,7 +81,7 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('read a specific team', (done) => {
-    teamOps.readTeamById(1, (err, result) => {
+    teamOps.readTeam({ id: 1, organizationId: 'WONKA' }, (err, result) => {
 
       expect(err).to.not.exist()
       expect(result).to.exist()

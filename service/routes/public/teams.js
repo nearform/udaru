@@ -63,7 +63,10 @@ exports.register = function (server, options, next) {
     method: 'GET',
     path: '/authorization/teams/{id}',
     handler: function (request, reply) {
-      teamOps.readTeamById(request.params.id, reply)
+      const { id: organizationId } = request.authorization.organization
+      const { id } = request.params
+
+      teamOps.readTeam({ id, organizationId }, reply)
     },
     config: {
       validate: {
