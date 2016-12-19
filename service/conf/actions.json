@@ -1,0 +1,43 @@
+{
+  "namespace": "my_auth_ns",
+  "organization": {
+    "text": "my_organization",
+    "operations": {
+      "create": "my_create",
+      "update": "my_update",
+      "read": "my_read",
+      "delete": "my_delete",
+      "list": "my_list"
+    }
+  },
+  "team": {
+    "text": "my_team",
+    "operations": {
+      "create": "my_create",
+      "update": "my_update",
+      "read": "my_read",
+      "delete": "my_delete",
+      "list": "my_list"
+    }
+  },
+  "user": {
+    "text": "my_user",
+    "operations": {
+      "create": "my_create",
+      "update": "my_update",
+      "read": "my_read",
+      "delete": "my_delete",
+      "list": "my_list"
+    }
+  },
+  "policy": {
+    "text": "my_policy",
+    "operations": {
+      "create": "my_create",
+      "update": "my_update",
+      "read": "my_read",
+      "delete": "my_delete",
+      "list": "my_list"
+    }
+  }
+}

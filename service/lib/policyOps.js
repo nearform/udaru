@@ -5,6 +5,7 @@ const async = require('async')
 const dbUtil = require('./dbUtil')
 const config = require('./config')
 const SQL = dbUtil.SQL
+const AuthConfig = require('./config.auth')
 
 function formatInsertValues (policies) {
   if (Array.isArray(policies)) {
@@ -267,7 +268,10 @@ module.exports = function (dbPool) {
     },
 
     createTeamDefaultPolicies: function createTeamDefaultPolicies (client, organizationId, teamId, cb) {
-      const defaultPolicies = config.get('authorization.teams.defaultPolicies', {organizationId, teamId})
+      const defaultPolicies = config.get('authorization.teams.defaultPolicies', {
+        [AuthConfig.Interpolation.organization]: organizationId,
+        [AuthConfig.Interpolation.team]: teamId
+      })
       insertPolicies(client, defaultPolicies, cb)
     },
 

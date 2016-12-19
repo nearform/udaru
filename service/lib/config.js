@@ -1,4 +1,5 @@
 const Reconfig = require('reconfig')
+const AuthConfig = require('./config.auth')
 
 module.exports = new Reconfig({
   pgdb: {
@@ -74,19 +75,25 @@ module.exports = new Reconfig({
           name: 'Default Team Admin for :teamId',
           org_id: ':organizationId',
           statements: {
-            'Statement': [
+            Statement: [
               {
-                'Effect': 'Allow',
-                'Action': [
-                  'authorization:teams:read',
-                  'authorization:teams:update'
+                Effect: 'Allow',
+                Action: [
+                  AuthConfig.Action.ReadTeam,
+                  AuthConfig.Action.UpdateTeam
                 ],
-                'Resource': ['authorization/team/:organizationId/:teamId']
+                Resource: [
+                  AuthConfig.Resource.teams({ organization: { interpolate: true }, team: { interpolate: true } })
+                ]
               },
               {
-                'Effect': 'Allow',
-                'Action': ['authorization:users:*'],
-                'Resource': ['/authorization/user/:organizationId/:teamId/*']
+                Effect: 'Allow',
+                Action: [
+                  AuthConfig.Action.User
+                ],
+                Resource: [
+                  AuthConfig.Resource.users({ organization: { interpolate: true }, team: { interpolate: true } })
+                ]
               }
             ]
           }
