@@ -12,20 +12,12 @@ const db = dbConn.create(logger)
 const policyOps = PolicyOps(db.pool)
 
 lab.experiment('PolicyOps', () => {
-  lab.test('list policies', (done) => {
-    policyOps.listAllPolicies({}, (err, result) => {
+
+  lab.test('list all organization policies', (done) => {
+    policyOps.listByOrganization({ organizationId: 'WONKA' }, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
-      expect(result.length !== 0).to.be.true()
-
-      done()
-    })
-  })
-
-  lab.test('list all policies full', (done) => {
-    policyOps.listAllPoliciesDetails({}, (err, result) => {
-      expect(err).to.not.exist()
-      expect(result).to.exist()
+      expect(result.length).to.equal(8)
 
       const policy = result[0]
       expect(policy.id).to.exist()
@@ -38,7 +30,7 @@ lab.experiment('PolicyOps', () => {
   })
 
   lab.test('read a specific policy', (done) => {
-    policyOps.readPolicyById([1], (err, policy) => {
+    policyOps.readPolicy({ id: 1, organizationId: 'WONKA' }, (err, policy) => {
       expect(err).to.not.exist()
       expect(policy).to.exist()
 
@@ -53,7 +45,7 @@ lab.experiment('PolicyOps', () => {
 
   lab.test('create, update and delete a policy', (done) => {
     const policyData = {
-      version: '2016-07-01',
+      version: 1,
       name: 'Documents Admin',
       organizationId: 'WONKA',
       statements: '{"Statement":[{"Effect":"Allow","Action":["documents:Read"],"Resource":["wonka:documents:/public/*"]}]}'
@@ -66,23 +58,26 @@ lab.experiment('PolicyOps', () => {
       const policyId = policy.id
 
       expect(policy.name).to.equal('Documents Admin')
-      expect(policy.version).to.equal('2016-07-01')
+      expect(policy.version).to.equal('1')
       expect(policy.statements).to.equal({ Statement: [{ Effect: 'Allow', Action: ['documents:Read'], Resource: ['wonka:documents:/public/*'] }] })
 
-      policyData.version = '2016-07-02'
-      policyData.name = 'Documents Admin v2'
-      policyData.statements = '{"Statement":[{"Effect":"Deny","Action":["documents:Read"],"Resource":["wonka:documents:/public/*"]}]}'
+      const updateData = {
+        id: policyId,
+        organizationId: 'WONKA',
+        version: 2,
+        name: 'Documents Admin v2',
+        statements: '{"Statement":[{"Effect":"Deny","Action":["documents:Read"],"Resource":["wonka:documents:/public/*"]}]}'
+      }
 
-      const updateParams = [policyId, policyData.version, policyData.name, policyData.organizationId, policyData.statements]
-      policyOps.updatePolicy(updateParams, (err, policy) => {
+      policyOps.updatePolicy(updateData, (err, policy) => {
         expect(err).to.not.exist()
         expect(policy).to.exist()
 
         expect(policy.name).to.equal('Documents Admin v2')
-        expect(policy.version).to.equal('2016-07-02')
+        expect(policy.version).to.equal(2)
         expect(policy.statements).to.equal({ Statement: [{ Effect: 'Deny', Action: ['documents:Read'], Resource: ['wonka:documents:/public/*'] }] })
 
-        policyOps.deletePolicyById([policyId], done)
+        policyOps.deletePolicy({ id: policyId, organizationId: 'WONKA' }, done)
       })
     })
   })

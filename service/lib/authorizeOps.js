@@ -2,47 +2,30 @@
 /* eslint-disable handle-callback-err */
 const Boom = require('boom')
 const iam = require('iam-js')
-const async = require('async')
 
-module.exports = function (userOps, policyOps) {
+module.exports = function (policyOps) {
   return {
-    /*
-    * Auth.canDo(user policy set, resource, action) returns "allow" or "deny"
-    */
+    /**
+     * Return if a user can perform an action on a certain resource
+     *
+     * @param  {Object}   options { resource, action, userId }
+     * @param  {Function} cb
+     */
     isUserAuthorized: function isUserAuthorized ({ resource, action, userId }, cb) {
-      async.waterfall([
-        (next) => {
-          userOps.getUserByToken(userId, (err, user) => {
-            if (err) {
-              return next(err)
-            }
-
-            next(null, user)
-          })
-        },
-        (user, next) => {
-          policyOps.listAllUserPolicies({ userId: user.id }, (err, policies) => {
-            if (err) {
-              return next(err)
-            }
-
-            iam(policies, ({ process }) => {
-              process(resource, action, (err, access) => {
-                if (err) {
-                  return next(err)
-                }
-
-                next(null, { access })
-              })
-            })
-          })
-        }
-      ], (err, data) => {
+      policyOps.listAllUserPolicies({ userId }, (err, policies) => {
         if (err) {
           return cb(err)
         }
 
-        cb(null, data)
+        iam(policies, ({ process }) => {
+          process(resource, action, (err, access) => {
+            if (err) {
+              return cb(err)
+            }
+
+            cb(null, { access })
+          })
+        })
       })
     },
 
@@ -50,6 +33,12 @@ module.exports = function (userOps, policyOps) {
     // TODO: Note: this needs to take 'Deny' into account and also deal with wildcards.
     // as would be worth looking into the pbac module code for reuse opportunity
     //
+    /**
+     * List all user's actions on a given resource
+     *
+     * @param  {Object}   options { userId, resource }
+     * @param  {Function} cb
+     */
     listAuthorizations: function listAuthorizations ({ userId, resource }, cb) {
       const data = []
       var actions = []

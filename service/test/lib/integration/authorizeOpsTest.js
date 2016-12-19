@@ -15,13 +15,20 @@ const TeamOps = require('../../../lib/teamOps')
 const db = dbConn.create(logger)
 const userOps = UserOps(db.pool, logger)
 const policyOps = PolicyOps(db.pool)
-const authorize = Authorize(userOps, policyOps)
+const authorize = Authorize(policyOps)
 const teamOps = TeamOps(db.pool, logger)
 
 
 const testUserData = {
   name: 'Salman',
   organizationId: 'WONKA'
+}
+
+const updateUserData = {
+  organizationId: testUserData.organizationId,
+  name: testUserData.name,
+  teams: [{ id: 4 }],
+  policies: [{ id: 1 }]
 }
 
 lab.experiment('AuthorizeOps', () => {
@@ -39,12 +46,8 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      const newUserData = {
-        name: 'Salman',
-        teams: [{ id: 4 }],
-        policies: [{ id: 1 }]
-      }
-      userOps.updateUser(testUserId, newUserData, (err, result) => {
+      updateUserData.id = testUserId
+      userOps.updateUser(updateUserData, (err, result) => {
         if (err) return next(err)
 
         next(err)
@@ -64,7 +67,7 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      userOps.deleteUserById(testUserId, (err, result) => {
+      userOps.deleteUser({ id: testUserId, organizationId: 'WONKA' }, (err, result) => {
         expect(err).to.not.exist()
 
         next(err)
@@ -88,12 +91,10 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      const newUserData = {
-        name: 'Salman',
-        teams: [{ id: 4 }],
-        policies: [{ id: 5 }]
-      }
-      userOps.updateUser(testUserId, newUserData, (err, result) => {
+      updateUserData.id = testUserId
+      updateUserData.policies = [{ id: 5 }]
+
+      userOps.updateUser(updateUserData, (err, result) => {
         if (err) return next(err)
         next()
       })
@@ -112,7 +113,7 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      userOps.deleteUserById(testUserId, (err, result) => {
+      userOps.deleteUser({ id: testUserId, organizationId: 'WONKA' }, (err, result) => {
         expect(err).to.not.exist()
         next()
       })
@@ -135,12 +136,10 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      const newUserData = {
-        name: 'Salman',
-        teams: [{ id: 4 }],
-        policies: [{ id: 6 }]
-      }
-      userOps.updateUser(testUserId, newUserData, (err, result) => {
+      updateUserData.id = testUserId
+      updateUserData.policies = [{ id: 6 }]
+
+      userOps.updateUser(updateUserData, (err, result) => {
         if (err) next(err)
         next()
       })
@@ -159,7 +158,7 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      userOps.deleteUserById(testUserId, (err, result) => {
+      userOps.deleteUser({ id: testUserId, organizationId: 'WONKA' }, (err, result) => {
         expect(err).to.not.exist()
         next()
       })
@@ -182,12 +181,10 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      const newUserData = {
-        name: 'Salman',
-        teams: [{ id: 4 }],
-        policies: [{ id: 7 }]
-      }
-      userOps.updateUser(testUserId, newUserData, (err, result) => {
+      updateUserData.id = testUserId
+      updateUserData.policies = [{ id: 7 }]
+
+      userOps.updateUser(updateUserData, (err, result) => {
         if (err) next(err)
         next()
       })
@@ -206,7 +203,7 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      userOps.deleteUserById(testUserId, (err, result) => {
+      userOps.deleteUser({ id: testUserId, organizationId: 'WONKA' }, (err, result) => {
         expect(err).to.not.exist()
         next()
       })
@@ -229,12 +226,10 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      const newUserData = {
-        name: 'Salman',
-        teams: [{ id: 4 }],
-        policies: [{ id: 8 }]
-      }
-      userOps.updateUser(testUserId, newUserData, (err, result) => {
+      updateUserData.id = testUserId
+      updateUserData.policies = [{ id: 8 }]
+
+      userOps.updateUser(updateUserData, (err, result) => {
         if (err) next(err)
         next()
       })
@@ -253,7 +248,7 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      userOps.deleteUserById(testUserId, (err, result) => {
+      userOps.deleteUser({ id: testUserId, organizationId: 'WONKA' }, (err, result) => {
         expect(err).to.not.exist()
         next()
       })
@@ -276,12 +271,10 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      const newUserData = {
-        name: 'Salman',
-        teams: [{ id: 4 }],
-        policies: [{ id: 6 }]
-      }
-      userOps.updateUser(testUserId, newUserData, (err, result) => {
+      updateUserData.id = testUserId
+      updateUserData.policies = [{ id: 6 }]
+
+      userOps.updateUser(updateUserData, (err, result) => {
         if (err) next(err)
         next()
       })
@@ -300,7 +293,7 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      userOps.deleteUserById(testUserId, (err, result) => {
+      userOps.deleteUser({ id: testUserId, organizationId: 'WONKA' }, (err, result) => {
         expect(err).to.not.exist()
         next()
       })
@@ -323,12 +316,10 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      const newUserData = {
-        name: 'Salman',
-        teams: [{ id: 4 }],
-        policies: [{ id: 6 }]
-      }
-      userOps.updateUser(testUserId, newUserData, (err, result) => {
+      updateUserData.id = testUserId
+      updateUserData.policies = [{ id: 6 }]
+
+      userOps.updateUser(updateUserData, (err, result) => {
         if (err) next(err)
         next()
       })
@@ -347,7 +338,7 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((next) => {
-      userOps.deleteUserById(testUserId, (err, result) => {
+      userOps.deleteUser({ id: testUserId, organizationId: 'WONKA' }, (err, result) => {
         expect(err).to.not.exist()
         next()
       })
@@ -363,12 +354,12 @@ lab.experiment('AuthorizeOps', () => {
     const testTeamName = 'Actors'
     const testTeamParent = null
     const testTeamDesc = 'Famous Actors'
-    const testOrgId = 'WONKA'
+    const organizationId = 'WONKA'
     const tasks = []
 
     // set-up
     tasks.push((cb) => {
-      userOps.listAllUsers({}, (err, result) => {
+      userOps.listOrgUsers({ organizationId }, (err, result) => {
         expect(result.length).to.equal(6)
         cb(err, result)
       })
@@ -377,7 +368,7 @@ lab.experiment('AuthorizeOps', () => {
     tasks.push((res, cb) => {
       const userData = {
         name: testUserName,
-        organizationId: testOrgId
+        organizationId
       }
       userOps.createUser(userData, (err, result) => {
         testUserId = result.id
@@ -386,7 +377,7 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((result, cb) => {
-      teamOps.listAllTeams((err, result) => {
+      teamOps.listOrgTeams({ organizationId }, (err, result) => {
         expect(result.length).to.equal(6)
         cb(err, result)
       })
@@ -397,7 +388,7 @@ lab.experiment('AuthorizeOps', () => {
         name: testTeamName,
         description: testTeamDesc,
         parentId: testTeamParent,
-        organizationId: testOrgId
+        organizationId
       }
       teamOps.createTeam(teamData, (err, result) => {
         expect(err).to.not.exist()
@@ -407,7 +398,7 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((result, cb) => {
-      teamOps.listAllTeams((err, result) => {
+      userOps.listOrgUsers({ organizationId }, (err, result) => {
         expect(result.length).to.equal(7)
         cb(err, result)
       })
@@ -430,12 +421,14 @@ lab.experiment('AuthorizeOps', () => {
     // test for team permissions on the resource
     tasks.push((result, cb) => {
       const teamData = {
+        id: testTeamId,
         name: testTeamName,
         description: testTeamDesc,
         users: [{ id: testUserId }],
-        policies: [{ id: 2 }]
+        policies: [{ id: 2 }],
+        organizationId
       }
-      teamOps.updateTeam(testTeamId, teamData, cb)
+      teamOps.updateTeam(teamData, cb)
     })
 
     tasks.push((result, cb) => {
@@ -453,12 +446,12 @@ lab.experiment('AuthorizeOps', () => {
 
     // test for user permissions on the resource
     tasks.push((result, cb) => {
-      const newUserData = {
-        name: testUserName,
-        teams: [],
-        policies: [{ id: 3 }]
-      }
-      userOps.updateUser(testUserId, newUserData, cb)
+      updateUserData.id = testUserId
+      updateUserData.name = testUserName
+      updateUserData.teams = []
+      updateUserData.policies = [{ id: 3 }]
+
+      userOps.updateUser(updateUserData, cb)
     })
 
     tasks.push((result, cb) => {
@@ -476,12 +469,12 @@ lab.experiment('AuthorizeOps', () => {
 
     // test for team and user permissions on the resource
     tasks.push((result, cb) => {
-      const newUserData = {
-        name: testUserName,
-        teams: [{ id: 1 }],
-        policies: [{ id: 4 }]
-      }
-      userOps.updateUser(testUserId, newUserData, cb)
+      updateUserData.id = testUserId
+      updateUserData.name = testUserName
+      updateUserData.teams = [{ id: 1 }]
+      updateUserData.policies = [{ id: 4 }]
+
+      userOps.updateUser(updateUserData, cb)
     })
 
     tasks.push((result, cb) => {
@@ -497,8 +490,9 @@ lab.experiment('AuthorizeOps', () => {
       })
     })
 
+    // clean-up
     tasks.push((result, cb) => {
-      policyOps.listByOrganization('WONKA', (err, policies) => {
+      policyOps.listByOrganization({ organizationId }, (err, policies) => {
         expect(err).to.not.exist()
 
         const defaultPolicy = policies.find((p) => {
@@ -506,27 +500,24 @@ lab.experiment('AuthorizeOps', () => {
         })
         expect(defaultPolicy).to.exist()
 
-        policyOps.deletePolicyById([defaultPolicy.id], (err, result) => {
+        policyOps.deletePolicy({ id: defaultPolicy.id, organizationId }, (err, result) => {
           expect(err).to.not.exist()
           cb(err, result)
         })
       })
     })
 
-    // clean-up
     tasks.push((result, cb) => {
-      userOps.deleteUserById(testUserId, (err, result) => {
+      userOps.deleteUser({ id: testUserId, organizationId }, (err, result) => {
         expect(err).to.not.exist()
         cb(err, result)
       })
     })
 
     tasks.push((result, cb) => {
-      teamOps.deleteTeamById({ teamId: testTeamId, organizationId: testOrgId }, (err, result) => {
-        expect(err).to.not.exist()
-        cb(err, result)
-      })
+      teamOps.deleteTeam({ id: testTeamId, organizationId }, cb)
     })
+
     async.waterfall(tasks, done)
   })
 })

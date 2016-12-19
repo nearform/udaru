@@ -28,10 +28,10 @@ const policyOps = PolicyOps(db.pool)
 lab.experiment('OrganizationOps', () => {
 
   lab.test('list of all organizations', (done) => {
-    organizationOps.list({}, (err, result) => {
+    organizationOps.list((err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
-      expect(result.length).to.equal(5)
+      expect(result.length).to.equal(6)
 
       done()
     })
@@ -43,7 +43,7 @@ lab.experiment('OrganizationOps', () => {
       expect(result.organization).to.exist()
       expect(result.organization.name).to.equal('nearForm')
 
-      policyOps.listByOrganization('nearForm', (err, res) => {
+      policyOps.listByOrganization({organizationId: 'nearForm'}, (err, res) => {
         expect(err).to.not.exist()
         expect(res).to.exist()
         expect(res.length).to.be.at.least(defaultPoliciesNames.length)
@@ -67,7 +67,7 @@ lab.experiment('OrganizationOps', () => {
       expect(result.organization).to.exist()
       expect(result.organization.name).to.equal('nearForm')
 
-      policyOps.listByOrganization('nearForm', (err, res) => {
+      policyOps.listByOrganization({organizationId: 'nearForm'}, (err, res) => {
         expect(err).to.not.exist()
         expect(res).to.exist()
         expect(res).to.be.empty()
@@ -100,7 +100,7 @@ lab.experiment('OrganizationOps', () => {
         expect(res.length).to.equal(1)
         expect(res[0].name).to.equal('example example')
 
-        userOps.readUserById(res[0].id, (err, user) => {
+        userOps.readUser({ id: res[0].id, organizationId: 'nearForm' }, (err, user) => {
           expect(err).to.not.exist()
           expect(user).to.exist()
           expect(user.teams.length).to.equal(0)
@@ -108,9 +108,9 @@ lab.experiment('OrganizationOps', () => {
           organizationOps.deleteById(result.organization.id, (err, res) => {
             expect(err).to.not.exist()
 
-            userOps.listAllUsers({}, (err, res) => {
+            userOps.listOrgUsers({ organizationId: 'nearForm' }, (err, res) => {
               expect(err).to.not.exist()
-              expect(res.length).to.equal(6)
+              expect(res.length).to.equal(0)
               done()
             })
           })
@@ -170,26 +170,26 @@ lab.experiment('OrganizationOps', () => {
 
     const tasks = []
     tasks.push((next) => {
-      userOps.listAllUsers({}, (err, result) => {
+      userOps.listOrgUsers({ organizationId: 'nearForm222' }, (err, result) => {
+        expect(result.length).to.equal(0)
+        next(err, result)
+      })
+    })
+    tasks.push((next) => {
+      teamOps.listOrgTeams({ organizationId: 'nearForm222' }, (err, result) => {
+        expect(result.length).to.equal(0)
+        next(err, result)
+      })
+    })
+    tasks.push((next) => {
+      policyOps.listByOrganization({ organizationId: 'nearForm222' }, (err, result) => {
+        expect(result.length).to.equal(0)
+        next(err, result)
+      })
+    })
+    tasks.push((next) => {
+      organizationOps.list((err, result) => {
         expect(result.length).to.equal(6)
-        next(err, result)
-      })
-    })
-    tasks.push((next) => {
-      teamOps.listAllTeams((err, result) => {
-        expect(result.length).to.equal(6)
-        next(err, result)
-      })
-    })
-    tasks.push((next) => {
-      policyOps.listAllPolicies([], (err, result) => {
-        expect(result.length).to.equal(8)
-        next(err, result)
-      })
-    })
-    tasks.push((next) => {
-      organizationOps.list([], (err, result) => {
-        expect(result.length).to.equal(5)
         next(err, result)
       })
     })
@@ -233,46 +233,50 @@ lab.experiment('OrganizationOps', () => {
     })
     tasks.push((next) => {
       const teamData = {
+        id: teamId,
         name: 'Team 4',
         description: 'This is a test team',
         users: [{ id: userId }],
-        policies: [{ id: policyId }]
+        policies: [{ id: policyId }],
+        organizationId: 'nearForm222'
       }
-      teamOps.updateTeam(teamId, teamData, next)
+      teamOps.updateTeam(teamData, next)
     })
     tasks.push((next) => {
-      const newUserData = {
+      const updateUserData = {
+        id: userId,
+        organizationId: 'nearForm222',
         name: 'user user',
         teams: [{ id: teamId }],
         policies: [{ id: policyId }]
       }
-      userOps.updateUser(userId, newUserData, next)
+      userOps.updateUser(updateUserData, next)
     })
     tasks.push((next) => {
       organizationOps.deleteById('nearForm222', next)
     })
 
     tasks.push((next) => {
-      userOps.listAllUsers([], (err, result) => {
+      userOps.listOrgUsers({ organizationId: 'nearForm222' }, (err, result) => {
+        expect(result.length).to.equal(0)
+        next(err, result)
+      })
+    })
+    tasks.push((next) => {
+      teamOps.listOrgTeams({ organizationId: 'nearForm222' }, (err, result) => {
+        expect(result.length).to.equal(0)
+        next(err, result)
+      })
+    })
+    tasks.push((next) => {
+      policyOps.listByOrganization({ organizationId: 'nearForm222' }, (err, result) => {
+        expect(result.length).to.equal(0)
+        next(err, result)
+      })
+    })
+    tasks.push((next) => {
+      organizationOps.list((err, result) => {
         expect(result.length).to.equal(6)
-        next(err, result)
-      })
-    })
-    tasks.push((next) => {
-      teamOps.listAllTeams((err, result) => {
-        expect(result.length).to.equal(6)
-        next(err, result)
-      })
-    })
-    tasks.push((next) => {
-      policyOps.listAllPolicies([], (err, result) => {
-        expect(result.length).to.equal(8)
-        next(err, result)
-      })
-    })
-    tasks.push((next) => {
-      organizationOps.list([], (err, result) => {
-        expect(result.length).to.equal(5)
         next(err, result)
       })
     })

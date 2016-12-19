@@ -8,12 +8,13 @@ const SQL = dbUtil.SQL
 module.exports = function (dbPool, log) {
 
   const updateUserInfo = (job, next) => {
-    const { id, name } = job
+    const { id, name, organizationId } = job
 
     const sqlQuery = SQL`
       UPDATE users
       SET name = ${name}
       WHERE id = ${id}
+      AND org_id = ${organizationId}
     `
     job.client.query(sqlQuery, (err, result) => {
       if (err) {
@@ -82,25 +83,6 @@ module.exports = function (dbPool, log) {
 
   const userOps = {
     /**
-     * Get all users, in alphabetical order
-     *
-     * @param  {Object}   params
-     * @param  {Function} cb
-     */
-    listAllUsers: function listAllUsers (params, cb) {
-      const sqlQuery = SQL`
-        SELECT *
-        FROM users
-        ORDER BY UPPER(name)
-      `
-      dbPool.query(sqlQuery, function (err, result) {
-        if (err) return cb(Boom.badImplementation(err))
-
-        return cb(null, result.rows)
-      })
-    },
-
-    /**
      * Get organization users, in alphabetical order
      *
      * @param  {Object}   params { organizationId }
@@ -147,7 +129,7 @@ module.exports = function (dbPool, log) {
       userOps.insertUser(dbPool, name, organizationId, (err, result) => {
         if (err) return cb(Boom.badImplementation(err))
 
-        userOps.readUserById(result.rows[0].id, cb)
+        userOps.readUser({ id: result.rows[0].id, organizationId }, cb)
       })
     },
 
@@ -170,20 +152,42 @@ module.exports = function (dbPool, log) {
       dbPool.query(sqlQuery, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
 
-        userOps.readUserById(id, cb)
+        userOps.readUser({ id, organizationId }, cb)
+      })
+    },
+
+    /**
+     * Return the user organizationId
+     *
+     * @param  {Number}   id
+     * @param  {Function} cb
+     */
+    getUserOrganizationId: function getUserOrganizationId (id, cb) {
+      const sqlQuery = SQL`
+        SELECT org_id
+        FROM users
+        WHERE id = ${id}
+      `
+      dbPool.query(sqlQuery, function (err, result) {
+        if (err) return cb(Boom.badImplementation(err))
+        if (result.rowCount === 0) return cb(Boom.notFound())
+
+        return cb(null, result.rows[0].org_id)
       })
     },
 
     /**
      * Get user details
      *
-     * @param  {Number}   id
+     * @param  {Object}   params { id, organizationId }
      * @param  {Function} cb
      */
-    readUserById: function readUserById (id, cb) {
+    readUser: function readUser (params, cb) {
+      const { id, organizationId } = params
       const user = {
-        id: null,
+        id: id,
         name: null,
+        organizationId: organizationId,
         teams: [],
         policies: []
       }
@@ -195,9 +199,10 @@ module.exports = function (dbPool, log) {
 
         tasks.push((next) => {
           const sqlQuery = SQL`
-            SELECT id, name
+            SELECT id, name, org_id
             FROM users
             WHERE id = ${id}
+            AND org_id = ${organizationId}
           `
           client.query(sqlQuery, (err, result) => {
             if (err) {
@@ -208,7 +213,6 @@ module.exports = function (dbPool, log) {
               return next(Boom.notFound())
             }
 
-            user.id = result.rows[0].id
             user.name = result.rows[0].name
 
             next()
@@ -265,12 +269,11 @@ module.exports = function (dbPool, log) {
     /**
      * Update user details
      *
-     * @param  {Number}   id
-     * @param  {Object}   params { name, teams, policies }
+     * @param  {Object}   params { id, organizationId, name, teams, policies }
      * @param  {Function} cb
      */
-    updateUser: function updateUser (id, params, cb) {
-      const { name, teams, policies } = params
+    updateUser: function updateUser (params, cb) {
+      const { id, organizationId, name, teams, policies } = params
 
       const tasks = [
         (job, next) => {
@@ -278,6 +281,7 @@ module.exports = function (dbPool, log) {
           job.name = name
           job.teams = teams
           job.policies = policies
+          job.organizationId = organizationId
 
           next()
         },
@@ -306,10 +310,11 @@ module.exports = function (dbPool, log) {
     /**
      * Delete user
      *
-     * @param  {Number}   id
+     * @param  {params}   { id, organizationId }
      * @param  {Function} cb
      */
-    deleteUserById: function deleteUserById (id, cb) {
+    deleteUser: function deleteUser (params, cb) {
+      const { id, organizationId } = params
       const tasks = [
         (job, next) => {
           job.id = id
@@ -326,7 +331,7 @@ module.exports = function (dbPool, log) {
           job.client.query(sqlQuery, next)
         },
         (job, next) => {
-          const sqlQuery = SQL`DELETE FROM users WHERE id = ${id}`
+          const sqlQuery = SQL`DELETE FROM users WHERE id = ${id} AND org_id = ${organizationId}`
 
           job.client.query(sqlQuery, (err, result) => {
             if (err) {
@@ -347,32 +352,6 @@ module.exports = function (dbPool, log) {
         }
 
         cb()
-      })
-    },
-
-    /**
-     * Get user info by token
-     *
-     * @param  {String}   userId
-     * @param  {Function} cb
-     */
-    getUserByToken: function getUserByToken (userId, cb) {
-      const sqlQuery = SQL`
-        SELECT id, name
-        FROM users
-        WHERE id = ${userId}
-      `
-      dbPool.query(sqlQuery, function (err, result) {
-        if (err) {
-          return cb(Boom.badImplementation(err))
-        }
-        if (result.rowCount === 0) {
-          return cb(Boom.notFound())
-        }
-
-        const user = result.rows[0]
-
-        return cb(null, user)
       })
     }
   }

@@ -10,10 +10,11 @@ exports.register = function (server, options, next) {
     method: 'GET',
     path: '/authorization/users',
     handler: function (request, reply) {
-      userOps.listAllUsers({}, reply)
+      const { id: organizationId } = request.authorization.organization
+      userOps.listOrgUsers({ organizationId }, reply)
     },
     config: {
-      description: 'Fetch all users',
+      description: 'Fetch all users (of the current user organization)',
       notes: 'The GET /authorization/users endpoint returns a list of all users\n',
       tags: ['api', 'service', 'get', 'users']
     }
@@ -23,9 +24,10 @@ exports.register = function (server, options, next) {
     method: 'GET',
     path: '/authorization/users/{id}',
     handler: function (request, reply) {
-      const userId = request.params.id
+      const { id: organizationId } = request.authorization.organization
+      const id = request.params.id
 
-      userOps.readUserById(userId, reply)
+      userOps.readUser({ id, organizationId }, reply)
     },
     config: {
       validate: {
@@ -43,10 +45,12 @@ exports.register = function (server, options, next) {
     method: 'POST',
     path: '/authorization/users',
     handler: function (request, reply) {
+      const { id: organizationId } = request.authorization.organization
       const params = {
         name: request.payload.name,
-        organizationId: 'WONKA' // TODO: hardcode the org_id for now (as not yet fully implemented)
+        organizationId
       }
+
       userOps.createUser(params, function (err, res) {
         if (err) {
           return reply(err)
@@ -71,9 +75,10 @@ exports.register = function (server, options, next) {
     method: 'DELETE',
     path: '/authorization/users/{id}',
     handler: function (request, reply) {
-      const userId = request.params.id
+      const { id: organizationId } = request.authorization.organization
+      const id = request.params.id
 
-      userOps.deleteUserById(userId, function (err, res) {
+      userOps.deleteUser({ id, organizationId }, function (err, res) {
         if (err) {
           return reply(err)
         }
@@ -97,15 +102,18 @@ exports.register = function (server, options, next) {
     method: 'PUT',
     path: '/authorization/users/{id}',
     handler: function (request, reply) {
-      const userId = request.params.id
+      const { id: organizationId } = request.authorization.organization
+      const id = request.params.id
       const { name, teams, policies } = request.payload
 
       const params = {
+        id,
+        organizationId,
         name,
         teams,
         policies
       }
-      userOps.updateUser(userId, params, reply)
+      userOps.updateUser(params, reply)
     },
     config: {
       validate: {

@@ -13,16 +13,6 @@ const userOps = UserOps(db.pool, logger)
 
 lab.experiment('UserOps', () => {
 
-  lab.test('list of all users', (done) => {
-    userOps.listAllUsers({}, (err, result) => {
-      expect(err).to.not.exist()
-      expect(result).to.exist()
-      expect(result.length).to.equal(6)
-
-      done()
-    })
-  })
-
   lab.test('list of org users', (done) => {
     userOps.listOrgUsers({ organizationId: 'WONKA' }, (err, result) => {
       expect(err).to.not.exist()
@@ -42,9 +32,9 @@ lab.experiment('UserOps', () => {
     userOps.createUserById(userData, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
-      expect(result).to.equal({ id: 99, name: 'Mike Teavee', teams: [], policies: [] })
+      expect(result).to.equal({ id: 99, name: 'Mike Teavee', organizationId: 'WONKA', teams: [], policies: [] })
 
-      userOps.deleteUserById(99, done)
+      userOps.deleteUser({ id: 99, organizationId: 'WONKA' }, done)
     })
   })
 
@@ -58,18 +48,20 @@ lab.experiment('UserOps', () => {
       expect(result).to.exist()
       expect(result.name).to.equal('Grandma Josephine')
 
-      userOps.deleteUserById(result.id, done)
+      userOps.deleteUser({ id: result.id, organizationId: 'WONKA' }, done)
     })
   })
 
   lab.test('update a user', (done) => {
     const expected = {id: 6, name: 'Augustus Gloop', teams: [{id: 4, name: 'Dream Team'}], policies: [{id: 1, name: 'DROP ALL TABLES!'}, {id: 2, name: 'THROW DESK'}]}
     const data = {
+      id: 6,
+      organizationId: 'WONKA',
       name: 'Augustus Gloop',
       teams: [{ id: 4, name: 'Dream Team' }],
       policies: [{ id: 1, name: 'DROP ALL TABLES!' }, { id: 2, name: 'THROW DESK' }]
     }
-    userOps.updateUser(6, data, (err, result) => {
+    userOps.updateUser(data, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
       expect(result).to.equal(expected)
@@ -79,8 +71,19 @@ lab.experiment('UserOps', () => {
   })
 
   lab.test('read a specific user', (done) => {
-    const expected = {id: 3, name: 'Veruca Salt', teams: [{id: 3, name: 'Authors'}, {id: 2, name: 'Readers'}], policies: [{id: 2, version: '0.1', name: 'Accountant'}]}
-    userOps.readUserById(3, (err, result) => {
+    const expected = {id: 4, name: 'Veruca Salt', organizationId: 'WONKA', teams: [{id: 3, name: 'Authors'}, {id: 2, name: 'Readers'}], policies: [{id: 2, version: '0.1', name: 'Accountant'}]}
+    userOps.readUser({ id: 4, organizationId: 'WONKA' }, (err, result) => {
+      expect(err).to.not.exist()
+      expect(result).to.exist()
+      expect(result).to.equal(expected)
+
+      done()
+    })
+  })
+
+  lab.test('getUserOrganizationId', (done) => {
+    const expected = 'WONKA'
+    userOps.getUserOrganizationId(4, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
       expect(result).to.equal(expected)
@@ -90,21 +93,10 @@ lab.experiment('UserOps', () => {
   })
 
   lab.test('read a specific user that does not exist', (done) => {
-    userOps.readUserById(987654321, (err, result) => {
+    userOps.readUser({ id: 987654321, organizationId: 'WONKA' }, (err, result) => {
       expect(err).to.exist()
       expect(err.output.statusCode).to.equal(404)
       expect(result).to.not.exist()
-
-      done()
-    })
-  })
-
-  lab.test('read a specific user by token', (done) => {
-    const expected = {id: 1, name: 'Charlie Bucket'}
-    userOps.getUserByToken(1, (err, result) => {
-      expect(err).to.not.exist()
-      expect(result).to.exist()
-      expect(result).to.equal(expected)
 
       done()
     })

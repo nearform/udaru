@@ -59,6 +59,10 @@ const options = { dbPool: db.pool }
 server.register(
   [
     {
+      register: require('./preHandler/user'),
+      options
+    },
+    {
       register: require('./routes/public/users'),
       options
     },

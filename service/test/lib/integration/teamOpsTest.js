@@ -19,19 +19,9 @@ const userOps = UserOps(db.pool, logger)
 let testTeamId
 
 lab.experiment('TeamOps', () => {
-  lab.test('list of all teams', (done) => {
-    teamOps.listAllTeams((err, result) => {
-      expect(err).to.not.exist()
-      expect(result).to.exist()
-      expect(result.length).to.equal(6)
-      // TODO:      t.deepEqual(result, expectedUserList, 'data should be as expected')
-
-      done()
-    })
-  })
 
   lab.test('list of org teams', (done) => {
-    teamOps.listOrgTeams('WONKA', (err, result) => {
+    teamOps.listOrgTeams({organizationId: 'WONKA'}, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
       expect(result.length).to.equal(6)
@@ -56,28 +46,30 @@ lab.experiment('TeamOps', () => {
       expect(result.name).to.equal('Team 4')
 
       const teamData = {
+        id: testTeamId,
         name: 'Team 5',
         description: 'description',
         users: [{'id': 1, 'name': 'Tom Watson'}, {'id': 2, 'name': 'Michael O\'Brien'}],
-        policies: [{'id': 1, 'name': 'Financial info access'}]
+        policies: [{'id': 1, 'name': 'Financial info access'}],
+        organizationId: 'WONKA'
       }
 
-      teamOps.updateTeam(testTeamId, teamData, (err, result) => {
+      teamOps.updateTeam(teamData, (err, result) => {
         expect(err).to.not.exist()
         expect(result).to.exist()
         expect(result.name).to.equal('Team 5')
 
-        policyOps.listByOrganization('WONKA', (err, policies) => {
+        policyOps.listByOrganization({ organizationId: 'WONKA' }, (err, policies) => {
           expect(err).to.not.exist()
 
           const defaultPolicy = policies.find((p) => { return p.name === 'Default Team Admin for ' + testTeamId })
           expect(defaultPolicy).to.exist()
 
-          teamOps.deleteTeamById({ teamId: testTeamId, organizationId: 'WONKA' }, function (err) {
+          teamOps.deleteTeam({ id: testTeamId, organizationId: 'WONKA' }, function (err) {
             expect(err).to.not.exist()
 
             // check default policy has been deleted
-            policyOps.listByOrganization('WONKA', (err, policies) => {
+            policyOps.listByOrganization({ organizationId: 'WONKA' }, (err, policies) => {
               expect(err).to.not.exist()
 
               const defaultPolicy = policies.find((p) => { return p.name === 'Default Team Admin for ' + testTeamId })
@@ -91,7 +83,7 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('read a specific team', (done) => {
-    teamOps.readTeamById(1, (err, result) => {
+    teamOps.readTeam({ id: 1, organizationId: 'WONKA' }, (err, result) => {
 
       expect(err).to.not.exist()
       expect(result).to.exist()
@@ -113,16 +105,16 @@ lab.experiment('TeamOps', () => {
       expect(err).to.not.exist()
       expect(result).to.exist()
 
-      policyOps.listByOrganization('WONKA', (err, policies) => {
+      policyOps.listByOrganization({organizationId: 'WONKA'}, (err, policies) => {
         expect(err).to.not.exist()
 
         const defaultPolicy = policies.find((p) => { return p.name === 'Default Team Admin for ' + result.id })
         expect(defaultPolicy).to.exist()
 
-        policyOps.deletePolicyById([defaultPolicy.id], (err) => {
+        policyOps.deletePolicy({ id: defaultPolicy.id, organizationId: 'WONKA' }, (err) => {
           expect(err).to.not.exist()
 
-          teamOps.deleteTeamById({ teamId: result.id, organizationId: 'WONKA' }, done)
+          teamOps.deleteTeam({ id: result.id, organizationId: 'WONKA' }, done)
         })
       })
     })
@@ -139,7 +131,7 @@ lab.experiment('TeamOps', () => {
       expect(err).to.not.exist()
       expect(result).to.exist()
 
-      policyOps.listByOrganization('WONKA', (err, policies) => {
+      policyOps.listByOrganization({organizationId: 'WONKA'}, (err, policies) => {
         expect(err).to.not.exist()
 
         const defaultPolicy = policies.find((p) => {
@@ -147,7 +139,7 @@ lab.experiment('TeamOps', () => {
         })
         expect(defaultPolicy).to.not.exist()
 
-        teamOps.deleteTeamById({ teamId: result.id, organizationId: 'WONKA' }, done)
+        teamOps.deleteTeam({ id: result.id, organizationId: 'WONKA' }, done)
       })
     })
   })
@@ -169,7 +161,7 @@ lab.experiment('TeamOps', () => {
       const defaultUser = team.users.find((u) => { return u.name === 'Team 6 Admin' })
       expect(defaultUser).to.exist()
 
-      userOps.readUserById(defaultUser.id, (err, user) => {
+      userOps.readUser({ id: defaultUser.id, organizationId: 'WONKA' }, (err, user) => {
         expect(err).to.not.exist()
 
         expect(user.name).to.be.equal('Team 6 Admin')
@@ -177,10 +169,10 @@ lab.experiment('TeamOps', () => {
         const defaultPolicy = user.policies.find((p) => { return p.name === 'Default Team Admin for ' + team.id })
         expect(defaultPolicy).to.exist()
 
-        teamOps.deleteTeamById({ teamId: team.id, organizationId: 'WONKA' }, (err) => {
+        teamOps.deleteTeam({ id: team.id, organizationId: 'WONKA' }, (err) => {
           expect(err).to.not.exist()
 
-          userOps.deleteUserById(user.id, done)
+          userOps.deleteUser({ id: user.id, organizationId: 'WONKA' }, done)
         })
       })
     })

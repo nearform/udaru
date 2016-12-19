@@ -5,6 +5,7 @@ const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 const Boom = require('boom')
 var proxyquire = require('proxyquire')
+var utils = require('./../../utils')
 
 var authorizeMock = {}
 var authRoutes = proxyquire('./../../../routes/public/authorization', { './../../lib/authorizeOps': () => authorizeMock })
@@ -18,10 +19,10 @@ lab.experiment('Authorization', () => {
       })
     }
 
-    const options = {
+    const options = utils.requestOptions({
       method: 'GET',
       url: '/authorization/check/1/action_a/resource_a'
-    }
+    })
 
     server.inject(options, (response) => {
       const result = response.result
@@ -40,10 +41,10 @@ lab.experiment('Authorization', () => {
       })
     }
 
-    const options = {
+    const options = utils.requestOptions({
       method: 'GET',
       url: '/authorization/check/1/action_a/resource_a'
-    }
+    })
 
     server.inject(options, (response) => {
       const result = response.result
@@ -62,10 +63,10 @@ lab.experiment('Authorization', () => {
       })
     }
 
-    const options = {
+    const options = utils.requestOptions({
       method: 'GET',
       url: '/authorization/check/1/action_a/1/resource_a'
-    }
+    })
 
     server.inject(options, (response) => {
       const result = response.result
@@ -91,10 +92,10 @@ lab.experiment('Authorization', () => {
       })
     }
 
-    const options = {
+    const options = utils.requestOptions({
       method: 'GET',
       url: '/authorization/list/1/resource_a'
-    }
+    })
 
     server.inject(options, (response) => {
       const result = response.result
@@ -113,10 +114,10 @@ lab.experiment('Authorization', () => {
       })
     }
 
-    const options = {
+    const options = utils.requestOptions({
       method: 'GET',
       url: '/authorization/list/1/resource_a'
-    }
+    })
 
     server.inject(options, (response) => {
       const result = response.result
@@ -142,10 +143,10 @@ lab.experiment('Authorization', () => {
       })
     }
 
-    const options = {
+    const options = utils.requestOptions({
       method: 'GET',
       url: '/authorization/list/1/my/resource/uri'
-    }
+    })
 
     server.inject(options, (response) => {
       const result = response.result
@@ -168,10 +169,10 @@ lab.experiment('Authorization', () => {
       })
     }
 
-    const options = {
+    const options = utils.requestOptions({
       method: 'GET',
       url: '/authorization/check/1/action_a//my/resource/uri'
-    }
+    })
 
     server.inject(options, (response) => {
       const result = response.result

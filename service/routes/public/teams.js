@@ -10,10 +10,11 @@ exports.register = function (server, options, next) {
     method: 'GET',
     path: '/authorization/teams',
     handler: function (request, reply) {
-      teamOps.listAllTeams(reply)
+      const { id: organizationId } = request.authorization.organization
+      teamOps.listOrgTeams({ organizationId }, reply)
     },
     config: {
-      description: 'Fetch all teams',
+      description: 'Fetch all teams (of the current user organization)',
       notes: 'The GET /authorization/teams endpoint returns a list of all teams\n',
       tags: ['api', 'service', 'get', 'team']
     }
@@ -24,14 +25,16 @@ exports.register = function (server, options, next) {
     path: '/authorization/teams',
     handler: function (request, reply) {
       const { name, description, user } = request.payload
+      const { id: organizationId } = request.authorization.organization
 
       const params = {
         name,
         description,
         parentId: null,
-        organizationId: 'WONKA',
+        organizationId,
         user
       }
+
       teamOps.createTeam(params, function (err, res) {
         if (err) {
           return reply(err)
@@ -60,7 +63,10 @@ exports.register = function (server, options, next) {
     method: 'GET',
     path: '/authorization/teams/{id}',
     handler: function (request, reply) {
-      teamOps.readTeamById(request.params.id, reply)
+      const { id: organizationId } = request.authorization.organization
+      const { id } = request.params
+
+      teamOps.readTeam({ id, organizationId }, reply)
     },
     config: {
       validate: {
@@ -79,17 +85,19 @@ exports.register = function (server, options, next) {
     path: '/authorization/teams/{id}',
     handler: function (request, reply) {
       const id = request.params.id
-
+      const { id: organizationId } = request.authorization.organization
       const { name, description, users, policies } = request.payload
 
       const params = {
+        id,
         name,
         description,
         users,
-        policies
+        policies,
+        organizationId
       }
 
-      teamOps.updateTeam(id, params, reply)
+      teamOps.updateTeam(params, reply)
     },
     config: {
       validate: {
@@ -117,12 +125,10 @@ exports.register = function (server, options, next) {
     method: 'DELETE',
     path: '/authorization/teams/{id}',
     handler: function (request, reply) {
-      const params = {
-        teamId: request.params.id,
-        organizationId: 'WONKA'
-      }
+      const { id } = request.params
+      const { id: organizationId } = request.authorization.organization
 
-      teamOps.deleteTeamById(params, function (err, res) {
+      teamOps.deleteTeam({ id, organizationId }, function (err, res) {
         if (err) {
           return reply(err)
         }

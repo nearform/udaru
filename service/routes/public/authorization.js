@@ -2,11 +2,10 @@
 
 const Joi = require('joi')
 const AuthorizeOps = require('./../../lib/authorizeOps')
-const UserOps = require('./../../lib/userOps')
 const PolicyOps = require('./../../lib/policyOps')
 
 exports.register = function (server, options, next) {
-  const authorize = AuthorizeOps(UserOps(options.dbPool, server.logger()), PolicyOps(options.dbPool))
+  const authorize = AuthorizeOps(PolicyOps(options.dbPool))
 
   server.route({
     method: 'GET',

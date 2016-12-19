@@ -11,7 +11,7 @@ const utils = require('../../utils')
 lab.experiment('organizationOps', () => {
   lab.test('should return an error if the db connection fails', (done) => {
     var organizationOps = OrganizationOps(utils.getDbPollConnectionError(), {debug: () => {}})
-    var functionsUnderTest = ['list', 'create', 'readById', 'update', 'deleteById']
+    var functionsUnderTest = ['create', 'readById', 'update', 'deleteById']
     var tasks = []
 
     functionsUnderTest.forEach((f) => {
@@ -23,9 +23,15 @@ lab.experiment('organizationOps', () => {
     async.series(tasks, done)
   })
 
+  lab.test('list - should return an error if the db connection fails', (done) => {
+    var organizationOps = OrganizationOps(utils.getDbPollConnectionError(), {debug: () => {}})
+
+    organizationOps.list(utils.testError(expect, 'Error: connection error test', done))
+  })
+
   lab.test('should return an error if the first db query fails', (done) => {
     var organizationOps = OrganizationOps(utils.getDbPollFirstQueryError(), {debug: () => {}})
-    var functionsUnderTest = ['list', 'create', 'readById', 'update', 'deleteById']
+    var functionsUnderTest = ['create', 'readById', 'update', 'deleteById']
     var tasks = []
 
     functionsUnderTest.forEach((f) => {
@@ -35,6 +41,12 @@ lab.experiment('organizationOps', () => {
     })
 
     async.series(tasks, done)
+  })
+
+  lab.test('list - should return an error if the db connection fails', (done) => {
+    var organizationOps = OrganizationOps(utils.getDbPollFirstQueryError(), {debug: () => {}})
+
+    organizationOps.list(utils.testError(expect, 'Error: query error test', done))
   })
 
   lab.test('create should return an error if the insert fails', (done) => {
