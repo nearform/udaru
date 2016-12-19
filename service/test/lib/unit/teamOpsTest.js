@@ -8,6 +8,16 @@ const async = require('async')
 const TeamOps = require('../../../lib/teamOps')
 const utils = require('../../utils')
 
+const teamData = {
+  id: 1,
+  name: 'test',
+  description: 'description',
+  users: [],
+  policies: [],
+  organizationId: 'WONKA'
+}
+
+
 lab.experiment('teamOps', () => {
   lab.test('should return an error if the db connection fails', (done) => {
     var teamOps = TeamOps(utils.getDbPollConnectionError(), () => {})
@@ -53,112 +63,60 @@ lab.experiment('teamOps', () => {
     var dbPool = utils.getDbPoolErrorForQueryOrRowCount('BEGIN', {testRollback: true, expect: expect})
     var teamOps = TeamOps(dbPool, () => {})
 
-    const teamData = {
-      name: 'test',
-      description: 'description',
-      users: [],
-      policies: []
-    }
-
-    teamOps.updateTeam(1, teamData, utils.testError(expect, 'Error: query error test', done))
+    teamOps.updateTeam(teamData, utils.testError(expect, 'Error: query error test', done))
   })
 
   lab.test('updateTeam should return an error if updating name and description fails', (done) => {
     var dbPool = utils.getDbPoolErrorForQueryOrRowCount('UPDATE teams', {testRollback: true, expect: expect})
     var teamOps = TeamOps(dbPool, () => {})
 
-    const teamData = {
-      name: 'test',
-      description: 'description',
-      users: [],
-      policies: []
-    }
-
-    teamOps.updateTeam(1, teamData, utils.testError(expect, 'Error: query error test', done))
+    teamOps.updateTeam(teamData, utils.testError(expect, 'Error: query error test', done))
   })
 
   lab.test('updateTeam should return an error if updating name and description returns rowCount 0', (done) => {
     var dbPool = utils.getDbPoolErrorForQueryOrRowCount(undefined, {testRollback: true, expect: expect}, {rowCount: 0})
     var teamOps = TeamOps(dbPool, () => {})
 
-    const teamData = {
-      name: 'test',
-      description: 'description',
-      users: [],
-      policies: []
-    }
-
-    teamOps.updateTeam(1, teamData, utils.testError(expect, 'Not Found', done))
+    teamOps.updateTeam(teamData, utils.testError(expect, 'Not Found', done))
   })
 
   lab.test('updateTeam should return an error if deleting team members fails', (done) => {
     var dbPool = utils.getDbPoolErrorForQueryOrRowCount('DELETE FROM team_members', {testRollback: true, expect: expect})
     var teamOps = TeamOps(dbPool, () => {})
 
-    const teamData = {
-      name: 'test',
-      description: 'description',
-      users: [],
-      policies: []
-    }
-
-    teamOps.updateTeam(1, teamData, utils.testError(expect, 'Error: query error test', done))
+    teamOps.updateTeam(teamData, utils.testError(expect, 'Error: query error test', done))
   })
 
   lab.test('updateTeam should return an error if inserting team members fails', (done) => {
     var dbPool = utils.getDbPoolErrorForQueryOrRowCount('INSERT INTO team_members', {testRollback: true, expect: expect})
     var teamOps = TeamOps(dbPool, () => {})
 
-    const teamData = {
-      name: 'test',
-      description: 'description',
-      users: [{}],
-      policies: [{}]
-    }
+    teamData.users = [{ id: 1 }]
 
-    teamOps.updateTeam(1, teamData, utils.testError(expect, 'Error: query error test', done))
+    teamOps.updateTeam(teamData, utils.testError(expect, 'Error: query error test', done))
   })
 
   lab.test('updateTeam should return an error if deleting team policies fails', (done) => {
     var dbPool = utils.getDbPoolErrorForQueryOrRowCount('DELETE FROM team_policies', {testRollback: true, expect: expect})
     var teamOps = TeamOps(dbPool, () => {})
 
-    const teamData = {
-      name: 'test',
-      description: 'description',
-      users: [],
-      policies: []
-    }
-
-    teamOps.updateTeam(1, teamData, utils.testError(expect, 'Error: query error test', done))
+    teamOps.updateTeam(teamData, utils.testError(expect, 'Error: query error test', done))
   })
 
   lab.test('updateTeam should return an error if inserting team policies fails', (done) => {
     var dbPool = utils.getDbPoolErrorForQueryOrRowCount('INSERT INTO team_policies', {testRollback: true, expect: expect})
     var teamOps = TeamOps(dbPool, () => {})
 
-    const teamData = {
-      name: 'test',
-      description: 'description',
-      users: [{}],
-      policies: [{}]
-    }
+    teamData.policies = [{ id: 1 }]
 
-    teamOps.updateTeam(1, teamData, utils.testError(expect, 'Error: query error test', done))
+    teamOps.updateTeam(teamData, utils.testError(expect, 'Error: query error test', done))
   })
 
   lab.test('updateTeam should return an error if commit fails', (done) => {
     var dbPool = utils.getDbPoolErrorForQueryOrRowCount('COMMIT', {testRollback: true, expect: expect})
     var teamOps = TeamOps(dbPool, () => {})
 
-    const teamData = {
-      name: 'test',
-      description: 'description',
-      users: [{}],
-      policies: [{}]
-    }
-
-    teamOps.updateTeam(1, teamData, utils.testError(expect, 'Error: query error test', done))
+    teamOps.updateTeam(teamData, utils.testError(expect, 'Error: query error test', done))
   })
 
   lab.test('deleteTeamById should return an error if the transaction fails', (done) => {

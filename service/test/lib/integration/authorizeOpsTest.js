@@ -421,12 +421,14 @@ lab.experiment('AuthorizeOps', () => {
     // test for team permissions on the resource
     tasks.push((result, cb) => {
       const teamData = {
+        id: testTeamId,
         name: testTeamName,
         description: testTeamDesc,
         users: [{ id: testUserId }],
-        policies: [{ id: 2 }]
+        policies: [{ id: 2 }],
+        organizationId
       }
-      teamOps.updateTeam(testTeamId, teamData, cb)
+      teamOps.updateTeam(teamData, cb)
     })
 
     tasks.push((result, cb) => {

@@ -85,17 +85,19 @@ exports.register = function (server, options, next) {
     path: '/authorization/teams/{id}',
     handler: function (request, reply) {
       const id = request.params.id
-
+      const { id: organizationId } = request.authorization.organization
       const { name, description, users, policies } = request.payload
 
       const params = {
+        id,
         name,
         description,
         users,
-        policies
+        policies,
+        organizationId
       }
 
-      teamOps.updateTeam(id, params, reply)
+      teamOps.updateTeam(params, reply)
     },
     config: {
       validate: {

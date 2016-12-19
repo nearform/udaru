@@ -129,12 +129,13 @@ module.exports = function (dbPool, log) {
 
   function updateTeamSql (job, next) {
     const teamId = job.teamId
-    const {name, description} = job.params
+    const {name, description, organizationId} = job.params
 
     const sql = SQL`
     UPDATE teams
     SET name = ${name}, description = ${description}
     WHERE id = ${teamId}
+    AND org_id = ${organizationId}
     `
 
     job.client.query(sql, (err, res) => {
@@ -277,12 +278,12 @@ module.exports = function (dbPool, log) {
       })
     },
 
-    /*
-     * @param {Number}    id
-     * @param {Object}    params {name, description, user, policies}
+     /**
+     * @param {Object}    params {id, name, description, user, policies, organizationId }
+     * @param {Function}  cb
      */
-    updateTeam: function updateTeam (id, params, cb) {
-      const { name, description, users, policies } = params
+    updateTeam: function updateTeam (params, cb) {
+      const { id, name, description, users, policies } = params
       const tasks = [
         (job, next) => {
           job.params = params

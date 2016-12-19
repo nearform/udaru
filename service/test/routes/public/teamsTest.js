@@ -181,7 +181,15 @@ lab.experiment('Teams', () => {
       policies: []
     }
 
-    teamOps.updateTeam = (id, params, cb) => {
+    teamOps.updateTeam = (params, cb) => {
+      expect(params).to.equal({
+        id: 2,
+        name: 'Team C',
+        description: 'Team B is now Team C',
+        users: [],
+        policies: [],
+        organizationId: 'WONKA'
+      })
       process.nextTick(() => {
         cb(null, teamStub)
       })
@@ -209,7 +217,15 @@ lab.experiment('Teams', () => {
   })
 
   lab.test('update team should return error for error case', (done) => {
-    teamOps.updateTeam = (id, params, cb) => {
+    teamOps.updateTeam = (params, cb) => {
+      expect(params).to.equal({
+        id: 2,
+        name: 'Team D',
+        description: 'Can Team C become Team D?',
+        users: [],
+        policies: [],
+        organizationId: 'WONKA'
+      })
       process.nextTick(() => {
         cb(Boom.badImplementation())
       })

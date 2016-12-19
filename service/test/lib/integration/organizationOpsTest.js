@@ -233,12 +233,14 @@ lab.experiment('OrganizationOps', () => {
     })
     tasks.push((next) => {
       const teamData = {
+        id: teamId,
         name: 'Team 4',
         description: 'This is a test team',
         users: [{ id: userId }],
-        policies: [{ id: policyId }]
+        policies: [{ id: policyId }],
+        organizationId: 'nearForm222'
       }
-      teamOps.updateTeam(teamId, teamData, next)
+      teamOps.updateTeam(teamData, next)
     })
     tasks.push((next) => {
       const updateUserData = {

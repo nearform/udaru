@@ -46,13 +46,15 @@ lab.experiment('TeamOps', () => {
       expect(result.name).to.equal('Team 4')
 
       const teamData = {
+        id: testTeamId,
         name: 'Team 5',
         description: 'description',
         users: [{'id': 1, 'name': 'Tom Watson'}, {'id': 2, 'name': 'Michael O\'Brien'}],
-        policies: [{'id': 1, 'name': 'Financial info access'}]
+        policies: [{'id': 1, 'name': 'Financial info access'}],
+        organizationId: 'WONKA'
       }
 
-      teamOps.updateTeam(testTeamId, teamData, (err, result) => {
+      teamOps.updateTeam(teamData, (err, result) => {
         expect(err).to.not.exist()
         expect(result).to.exist()
         expect(result.name).to.equal('Team 5')
