@@ -253,7 +253,8 @@ lab.experiment('Teams', () => {
   })
 
   lab.test('delete team should return 204 for success', (done) => {
-    teamOps.deleteTeamById = (params, cb) => {
+    teamOps.deleteTeam = (params, cb) => {
+      expect(params).to.equal({ id: 1, organizationId: 'WONKA' })
       process.nextTick(() => {
         cb(null)
       })
@@ -275,7 +276,8 @@ lab.experiment('Teams', () => {
   })
 
   lab.test('delete team should return error for error case', (done) => {
-    teamOps.deleteTeamById = (params, cb) => {
+    teamOps.deleteTeam = (params, cb) => {
+      expect(params).to.equal({ id: 1, organizationId: 'WONKA' })
       process.nextTick(() => {
         cb(Boom.badImplementation())
       })

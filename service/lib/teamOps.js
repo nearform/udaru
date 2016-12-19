@@ -71,7 +71,7 @@ module.exports = function (dbPool, log) {
     job.client.query(sql, next)
   }
 
-  function deleteTeam (job, next) {
+  function removeTeam (job, next) {
     job.client.query(SQL`DELETE FROM teams WHERE id = ${job.teamId}`, (err, result) => {
       if (err) return next(err)
       if (result.rowCount === 0) return next(Boom.notFound())
@@ -207,8 +207,11 @@ module.exports = function (dbPool, log) {
       })
     },
 
-    /*
-     * @param {Number}    id
+    /**
+     * Fetch specific team data
+     *
+     * @param  {params}   params { id, organizationId }
+     * @param  {Function} cb
      */
     readTeam: function readTeam ({ id, organizationId }, cb) {
       const team = {
@@ -303,13 +306,16 @@ module.exports = function (dbPool, log) {
       })
     },
 
-    /*
-     * @param {Object} params {teamId, organizationId}
+    /**
+     * Delete specific team
+     *
+     * @param  {Object}   params { id, organizationId }
+     * @param  {Function} cb     [description]
      */
-    deleteTeamById: function deleteTeamById (params, cb) {
+    deleteTeam: function deleteTeam (params, cb) {
       dbUtil.withTransaction(dbPool, [
         (job, next) => {
-          job.teamId = params.teamId
+          job.teamId = params.id
           job.organizationId = params.organizationId
           next()
         },
@@ -317,7 +323,7 @@ module.exports = function (dbPool, log) {
         deleteTeamPolicies,
         readDefaultPoliciesIds,
         deleteDefaultPolicies,
-        deleteTeam
+        removeTeam
       ], (err) => {
         if (err) return cb(err.isBoom ? err : Boom.badImplementation(err))
         cb()

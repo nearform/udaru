@@ -515,7 +515,7 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     tasks.push((result, cb) => {
-      teamOps.deleteTeamById({ teamId: testTeamId, organizationId }, cb)
+      teamOps.deleteTeam({ id: testTeamId, organizationId }, cb)
     })
 
     async.waterfall(tasks, done)

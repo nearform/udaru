@@ -119,11 +119,11 @@ lab.experiment('teamOps', () => {
     teamOps.updateTeam(teamData, utils.testError(expect, 'Error: query error test', done))
   })
 
-  lab.test('deleteTeamById should return an error if the transaction fails', (done) => {
+  lab.test('deleteTeam should return an error if the transaction fails', (done) => {
     var dbPool = utils.getDbPoolErrorForQueryOrRowCount('BEGIN', {testRollback: true, expect: expect})
     var teamOps = TeamOps(dbPool, () => {})
 
-    teamOps.deleteTeamById({ id: 1, organizationId: 'WONKA' }, utils.testError(expect, 'Error: query error test', done))
+    teamOps.deleteTeam({ id: 1, organizationId: 'WONKA' }, utils.testError(expect, 'Error: query error test', done))
   })
 
   lab.test('readTeam should return an error if selecting the team data return rowcount 0', (done) => {
