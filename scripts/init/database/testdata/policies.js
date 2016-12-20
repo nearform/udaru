@@ -147,5 +147,55 @@ module.exports = [
         'Resource': ['*']
       }
     ]
-  }]
+  }],
+  [0.1, 'Read All users', 'WONKA', {
+    'Statement':
+      [
+        {
+          'Effect': 'Allow',
+          'Action': ['Read'],
+          'Resource': ['/myapp/users/*']
+        }
+      ]}
+  ],
+  [0.1, 'Read, Delete and Modify specific user', 'WONKA', {
+    'Statement':
+      [
+        {
+          'Effect': 'Allow',
+          'Action': ['Read', 'Delete', 'Edit'],
+          'Resource': ['/myapp/users/username']
+        }
+      ]}
+  ],
+  [0.1, 'Read and Delete teams', 'WONKA', {
+    'Statement':
+      [
+        {
+          'Effect': 'Allow',
+          'Action': ['Read', 'Delete'],
+          'Resource': ['/myapp/teams/*']
+        }
+      ]}
+  ],
+  [0.1, 'Edit teams', 'WONKA', {
+    'Statement':
+      [
+        {
+          'Effect': 'Allow',
+          'Action': ['Edit'],
+          'Resource': ['/myapp/teams/*']
+        }
+      ]}
+  ],
+  [0.1, 'Deny access to specif document', 'WONKA', {
+    'Statement':
+      [
+        {
+          'Effect': 'Deny',
+          'Action': ['Read'],
+          'Resource': ['/myapp/documents/no_access']
+        }
+      ]}
+  ]
 ]

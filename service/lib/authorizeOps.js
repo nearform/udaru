@@ -61,8 +61,8 @@ module.exports = function (policyOps) {
 
         actions = Array.from(new Set(actions)) // dedupe
         // check each action aginst the resource for this user
-        actions.forEach(action => {
-          iam(policies, ({ process }) => {
+        iam(policies, ({ process }) => {
+          actions.forEach(action => {
             process(resource, action, (err, access) => {
               if (err) return errors.push(err)
               if (access) {

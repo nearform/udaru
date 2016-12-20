@@ -448,4 +448,50 @@ lab.experiment('Users', () => {
       done()
     })
   })
+
+  lab.test('List all user actions and resources', (done) => {
+    userOps.listActionsByResource = function (params, cb) {
+      expect(params).to.equal({ id: 1, organizationId: 'WONKA', resources: [] })
+      process.nextTick(() => {
+        cb(null, [])
+      })
+    }
+
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: '/authorization/users/1/actions'
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(200)
+      expect(result).to.equal([])
+
+      done()
+    })
+  })
+
+  lab.test('List all user actions and resources filtered by resources', (done) => {
+    userOps.listActionsByResource = function (params, cb) {
+      expect(params).to.equal({ id: 1, organizationId: 'WONKA', resources: ['a/b/c', 'a/d/f', 'a:re:fff'] })
+      process.nextTick(() => {
+        cb(null, [])
+      })
+    }
+
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: '/authorization/users/1/actions?resources=a/b/c,a/d/f,a:re:fff'
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(200)
+      expect(result).to.equal([])
+
+      done()
+    })
+  })
 })

@@ -308,6 +308,37 @@ exports.register = function (server, options, next) {
     }
   })
 
+  server.route({
+    method: 'GET',
+    path: '/authorization/users/{id}/actions',
+    handler: function (request, reply) {
+      const { id } = request.params
+      const { id: organizationId } = request.authorization.organization
+      const { resources } = request.query
+
+      const params = {
+        id,
+        organizationId,
+        resources: resources ? resources.split(',') : []
+      }
+
+      userOps.listActionsByResource(params, reply)
+    },
+    config: {
+      validate: {
+        params: {
+          id: Joi.number().required().description('user id')
+        },
+        query: {
+          resources: Joi.string().description('comma separated list of resources')
+        }
+      },
+      description: 'List user\'s actions grouped by resource',
+      notes: 'The GET /authorization/users/{id}/actions endpoint list user\'s actions by resource.\nA resources parameter can be used in the query string to get actions only for specific resources.',
+      tags: ['api', 'service', 'list', 'users', 'actions']
+    }
+  })
+
   next()
 }
 
