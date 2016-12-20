@@ -15,16 +15,40 @@ module.exports = function (dbPool, log) {
   const policyOps = PolicyOps(dbPool)
   const userOps = UserOps(dbPool)
 
-  function insertTeam (job, next) {
+  function loadTeamDescendants (job, next) {
     const sql = SQL`
-      INSERT INTO teams (id, name, description, team_parent_id, org_id) VALUES (
+      SELECT id FROM teams WHERE
+      org_id = ${job.organizationId}
+      AND path @ ${job.teamId.toString()}`
+    job.client.query(sql, (err, res) => {
+      if (err) return next(err)
+      if (res.rowCount === 0) return next(Boom.notFound())
+
+      job.teamIds = res.rows.map(getId)
+      next()
+    })
+  }
+
+  function insertTeam (job, next) {
+
+    const sql = SQL`
+      INSERT INTO teams (id, name, description, team_parent_id, org_id, path) VALUES (
         DEFAULT,
         ${job.params.name},
         ${job.params.description},
         ${job.params.parentId},
-        ${job.params.organizationId}
-      )
-      RETURNING id`
+        ${job.params.organizationId},
+      `
+
+    if (job.params.parentId) {
+      sql.append(SQL`
+        (SELECT path FROM teams WHERE id = ${job.params.parentId}) || currval('teams_id_seq')::varchar
+      `)
+    } else {
+      sql.append(SQL`text2ltree(currval('teams_id_seq')::varchar)`)
+    }
+
+    sql.append(SQL`)RETURNING id`)
 
     job.client.query(sql, (err, res) => {
       if (err) return next(err)
@@ -71,12 +95,20 @@ module.exports = function (dbPool, log) {
     job.client.query(sql, next)
   }
 
-  function removeTeam (job, next) {
-    job.client.query(SQL`DELETE FROM teams WHERE id = ${job.teamId}`, (err, result) => {
+  function removeTeams (job, next) {
+    job.client.query(SQL`DELETE FROM teams WHERE id = ANY (${job.teamIds})`, (err, result) => {
       if (err) return next(err)
       if (result.rowCount === 0) return next(Boom.notFound())
       next()
     })
+  }
+
+  function deleteTeamsPolicies (job, next) {
+    job.client.query(SQL`DELETE FROM team_policies WHERE team_id = ANY(${job.teamIds})`, next)
+  }
+
+  function deleteTeamsMembers (job, next) {
+    job.client.query(SQL`DELETE FROM team_members WHERE team_id = ANY(${job.teamIds})`, next)
   }
 
   function deleteTeamPolicies (job, next) {
@@ -115,12 +147,17 @@ module.exports = function (dbPool, log) {
     job.client.query(sql, next)
   }
 
+
   function readDefaultPoliciesIds (job, next) {
-    policyOps.readTeamDefaultPolicies(job.client, job.organizationId, job.teamId, function (err, res) {
-      if (err) return next(err)
-      job.policies = res.rows.map(getId)
-      next()
-    })
+    job.policies = []
+
+    async.each(job.teamIds, (teamId, done) => {
+      policyOps.readTeamDefaultPolicies(job.client, job.organizationId, teamId, function (err, res) {
+        if (err) return done(err)
+        job.policies.push(...res.rows.map(getId))
+        done()
+      })
+    }, next)
   }
 
   function deleteDefaultPolicies (job, next) {
@@ -144,6 +181,36 @@ module.exports = function (dbPool, log) {
 
       next()
     })
+  }
+
+  function moveTeamSql (job, next) {
+    const { parentId, id: teamId } = job.params
+    const sql = SQL`
+      UPDATE teams SET
+      team_parent_id = ${parentId},
+    `
+    if (parentId) {
+      sql.append(SQL`path = ((SELECT path FROM teams WHERE id = ${parentId}) || ${teamId.toString()})`)
+    } else {
+      sql.append(SQL`path = text2ltree(${teamId.toString()})`)
+    }
+
+    sql.append(SQL`
+      WHERE id = ${teamId}
+    `)
+    job.client.query(sql, next)
+  }
+
+  function moveTeamDescendants (job, next) {
+    const { id: teamId } = job.params
+    const sql = SQL`
+      UPDATE teams SET
+      path = (SELECT path FROM teams WHERE id = ${teamId}) || subpath(path, index(path, ${teamId.toString()})+1)
+      WHERE path ~ ${'*.' + teamId.toString() + '.*'}
+      AND id != ${teamId}
+    `
+
+    job.client.query(sql, next)
   }
 
   var teamOps = {
@@ -228,16 +295,19 @@ module.exports = function (dbPool, log) {
 
         tasks.push((next) => {
           const sql = SQL`
-            SELECT id, name, description from teams WHERE id = ${id} AND org_id = ${organizationId}
+            SELECT id, name, description, path from teams WHERE id = ${id} AND org_id = ${organizationId}
           `
 
           client.query(sql, (err, result) => {
             if (err) return next(err)
             if (result.rowCount === 0) return next(Boom.notFound())
 
-            team.id = result.rows[0].id
-            team.name = result.rows[0].name
-            team.description = result.rows[0].description
+            const res = result.rows[0]
+
+            team.id = res.id
+            team.name = res.name
+            team.description = res.description
+            team.path = res.path
             next()
           })
         })
@@ -319,14 +389,32 @@ module.exports = function (dbPool, log) {
           job.organizationId = params.organizationId
           next()
         },
-        deleteTeamMembers,
-        deleteTeamPolicies,
+        loadTeamDescendants,
+        deleteTeamsMembers,
+        deleteTeamsPolicies,
         readDefaultPoliciesIds,
         deleteDefaultPolicies,
-        removeTeam
+        removeTeams
       ], (err) => {
         if (err) return cb(err.isBoom ? err : Boom.badImplementation(err))
         cb()
+      })
+    },
+
+    moveTeam: function moveTeam (params, cb) {
+      const { id, organizationId } = params
+
+      dbUtil.withTransaction(dbPool, [
+        (job, next) => {
+          job.params = params
+          next()
+        },
+        moveTeamSql,
+        moveTeamDescendants
+      ], (err) => {
+        if (err) return cb(err.isBoom ? err : Boom.badImplementation(err))
+
+        teamOps.readTeam({id, organizationId}, cb)
       })
     }
   }

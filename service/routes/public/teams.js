@@ -148,6 +148,67 @@ exports.register = function (server, options, next) {
     }
   })
 
+  server.route({
+    method: 'PUT',
+    path: '/authorization/teams/{id}/nest',
+    handler: function (request, reply) {
+      const params = {
+        id: request.params.id,
+        parentId: request.payload.parentId
+      }
+
+      teamOps.move(params, function (err, res) {
+        if (err) {
+          return reply(err)
+        }
+
+        return reply(res).code(201)
+      })
+    },
+    config: {
+      validate: {
+        params: {
+          id: Joi.number().required().description('The team ID')
+        },
+        payload: {
+          parentId: Joi.number().required().description('The new parent ID')
+        }
+      },
+      description: 'Nest a team',
+      notes: 'The PUT /authorization/teams/{id}/nest endpoint nests a team\n',
+      tags: ['api', 'service', 'nest', 'team']
+    }
+  })
+
+  server.route({
+    method: 'PUT',
+    path: '/authorization/teams/{id}/unnest',
+    handler: function (request, reply) {
+      const params = {
+        id: request.params.id,
+        parentId: null
+      }
+
+      teamOps.move(params, function (err, res) {
+        if (err) {
+          return reply(err)
+        }
+
+        return reply(res).code(201)
+      })
+    },
+    config: {
+      validate: {
+        params: {
+          id: Joi.number().required().description('The team ID')
+        }
+      },
+      description: 'Unnest a team',
+      notes: 'The PUT /authorization/teams/{id}/unnest endpoint unnests a team\n',
+      tags: ['api', 'service', 'nest', 'team']
+    }
+  })
+
   next()
 }
 

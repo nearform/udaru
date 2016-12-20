@@ -79,7 +79,12 @@ module.exports = function (dbPool) {
             p.id = tp.policy_id
           WHERE
             tp.team_id IN (
-              SELECT team_id FROM team_members tm WHERE tm.user_id = ${userId}
+              SELECT team_id FROM teams WHERE path @> (
+                SELECT array_agg(path) FROM teams
+                INNER JOIN team_members tm
+                ON tm.team_id = teams.id
+                WHERE tm.user_id = ${userId}
+              )
             )
         )
       `

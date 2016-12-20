@@ -1,4 +1,6 @@
 
+CREATE EXTENSION ltree;
+
 /* TODO: consider using unique non-sequential ids, for security
   (less predictabiity)
   probably GUID
@@ -34,8 +36,11 @@ CREATE TABLE teams (
   name            VARCHAR(30) NOT NULL,
   description     VARCHAR(90),
   team_parent_id  INT REFERENCES teams(id),
-  org_id          VARCHAR REFERENCES organizations(id) NOT NULL
+  org_id          VARCHAR REFERENCES organizations(id) NOT NULL,
+  path            LTREE DEFAULT (text2ltree(currval('teams_id_seq')::varchar))
 );
+
+CREATE INDEX teams_path_gist_idx ON teams USING GIST (path);
 
 CREATE TABLE team_members (
   team_id  INT REFERENCES teams(id) NOT NULL,
