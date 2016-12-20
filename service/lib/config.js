@@ -58,13 +58,13 @@ module.exports = new Reconfig({
               },
               {
                 Effect: 'Allow',
-                Action: ['authorization:policies:list'],
-                Resource: [':organizationId:/authorization/policies']
+                Action: [Action.ListMyPolicies],
+                Resource: [resources.policies({ organizationId: ':organizationId' })]
               },
               {
                 Effect: 'Allow',
-                Action: ['authorization:policy:read'],
-                Resource: [':organizationId:/authorization/policies/*']
+                Action: [Action.ReadPolicy],
+                Resource: [resources.policies({ organizationId: ':organizationId' })]
               }
             ]
           }
@@ -92,7 +92,7 @@ module.exports = new Reconfig({
               {
                 Effect: 'Allow',
                 Action: [
-                  Action.User
+                  Action.AllUser
                 ],
                 Resource: [
                   resources.users({ organizationId: ':organizationId', teamId: ':teamId' })

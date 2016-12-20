@@ -15,7 +15,8 @@ const resourcesConfig = new Reconfig({
   templates: {
     organizations: '/{{ namespace }}/organization/[organizationId]',
     teams: '/{{ namespace }}/team/[organizationId]/[teamId]',
-    users: '/{{ namespace }}/user/[organizationId]/[teamId]/[userId]'
+    users: '/{{ namespace }}/user/[organizationId]/[teamId]/[userId]',
+    policies: '/{{ namespace }}/policy/[organizationId]'
   }
 }, {
   paramsInterpolation: ['[', ']'],
@@ -61,7 +62,8 @@ module.exports = {
   resources: {
     organizations: getResource.bind(null, 'organizations'),
     teams: getResource.bind(null, 'teams'),
-    users: getResource.bind(null, 'users')
+    users: getResource.bind(null, 'users'),
+    policies: getResource.bind(null, 'policies')
   }
 }
 
