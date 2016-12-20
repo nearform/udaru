@@ -2,6 +2,7 @@
 
 const Joi = require('joi')
 const PolicyOps = require('./../../lib/policyOps')
+const Action = require('./../../lib/config.auth').Action
 
 exports.register = function (server, options, next) {
   const policyOps = PolicyOps(options.dbPool)
@@ -17,7 +18,12 @@ exports.register = function (server, options, next) {
     config: {
       description: 'Fetch all the defined policies',
       notes: 'The GET /authorization/policies endpoint returns a list of all the defined policies\nthe policies will contain only the id, version and name, no statements.\n',
-      tags: ['api', 'service', 'get', 'policies']
+      tags: ['api', 'service', 'get', 'policies'],
+      plugins: {
+        auth: {
+          action: Action.ListMyPolicies
+        }
+      }
     }
   })
 
@@ -38,7 +44,12 @@ exports.register = function (server, options, next) {
       },
       description: 'Fetch all the defined policies',
       notes: 'The GET /authorization/policies/{id} endpoint returns a single policy based on it\'s id.\n',
-      tags: ['api', 'service', 'get', 'policies']
+      tags: ['api', 'service', 'get', 'policies'],
+      plugins: {
+        auth: {
+          action: Action.ReadPolicy
+        }
+      }
     }
   })
 

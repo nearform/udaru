@@ -2,6 +2,7 @@
 
 const Joi = require('joi')
 const TeamOps = require('./../../lib/teamOps')
+const Action = require('./../../lib/config.auth').Action
 
 exports.register = function (server, options, next) {
   const teamOps = TeamOps(options.dbPool, server.logger())
@@ -16,7 +17,12 @@ exports.register = function (server, options, next) {
     config: {
       description: 'Fetch all teams (of the current user organization)',
       notes: 'The GET /authorization/teams endpoint returns a list of all teams\n',
-      tags: ['api', 'service', 'get', 'team']
+      tags: ['api', 'service', 'get', 'team'],
+      plugins: {
+        auth: {
+          action: Action.ListMyTeams
+        }
+      }
     }
   })
 
@@ -55,7 +61,12 @@ exports.register = function (server, options, next) {
       },
       description: 'Create a teams',
       notes: 'The POST /authorization/teams endpoint creates a new team given its data\n',
-      tags: ['api', 'service', 'post', 'team']
+      tags: ['api', 'service', 'post', 'team'],
+      plugins: {
+        auth: {
+          action: Action.CreateTeam
+        }
+      }
     }
   })
 
@@ -76,7 +87,12 @@ exports.register = function (server, options, next) {
       },
       description: 'Fetch a team given its identifier',
       notes: 'The GET /authorization/teams/{id} endpoint returns a single team data\n',
-      tags: ['api', 'service', 'get', 'team']
+      tags: ['api', 'service', 'get', 'team'],
+      plugins: {
+        auth: {
+          action: Action.ReadTeam
+        }
+      }
     }
   })
 
@@ -117,7 +133,12 @@ exports.register = function (server, options, next) {
       },
       description: 'Update a team',
       notes: 'The PUT /authorization/teams endpoint updates a team data\n',
-      tags: ['api', 'service', 'put', 'team']
+      tags: ['api', 'service', 'put', 'team'],
+      plugins: {
+        auth: {
+          action: Action.UpdateTeam
+        }
+      }
     }
   })
 
@@ -144,7 +165,12 @@ exports.register = function (server, options, next) {
       },
       description: 'Delete a team',
       notes: 'The DELETE /authorization/teams endpoint deletes a team\n',
-      tags: ['api', 'service', 'delete', 'team']
+      tags: ['api', 'service', 'delete', 'team'],
+      plugins: {
+        auth: {
+          action: Action.DeleteTeam
+        }
+      }
     }
   })
 

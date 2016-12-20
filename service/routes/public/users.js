@@ -2,6 +2,7 @@
 
 const Joi = require('joi')
 const UserOps = require('./../../lib/userOps')
+const Action = require('./../../lib/config.auth').Action
 
 exports.register = function (server, options, next) {
   const userOps = UserOps(options.dbPool, server.logger())
@@ -19,8 +20,7 @@ exports.register = function (server, options, next) {
       tags: ['api', 'service', 'get', 'users'],
       plugins: {
         auth: {
-          action: 'authorization:users:list', // TODO: reusable actions
-          resource: '/authorization/user/*' // TODO: to be changed/removed
+          action: Action.ListMyUsers
         }
       }
     }
@@ -43,7 +43,12 @@ exports.register = function (server, options, next) {
       },
       description: 'Fetch a user given its identifier',
       notes: 'The GET /authorization/users/{id} endpoint returns a single user data\n',
-      tags: ['api', 'service', 'get', 'users']
+      tags: ['api', 'service', 'get', 'users'],
+      plugins: {
+        auth: {
+          action: Action.ReadUser
+        }
+      }
     }
   })
 
@@ -73,7 +78,12 @@ exports.register = function (server, options, next) {
       },
       description: 'Create a new user',
       notes: 'The POST /authorization/users endpoint creates a new user given its data\n',
-      tags: ['api', 'service', 'post', 'users']
+      tags: ['api', 'service', 'post', 'users'],
+      plugins: {
+        auth: {
+          action: Action.CreateUser
+        }
+      }
     }
   })
 
@@ -100,7 +110,12 @@ exports.register = function (server, options, next) {
       },
       description: 'Delete a user',
       notes: 'The DELETE /authorization/users endpoint delete a user\n',
-      tags: ['api', 'service', 'delete', 'users']
+      tags: ['api', 'service', 'delete', 'users'],
+      plugins: {
+        auth: {
+          action: Action.DeleteUser
+        }
+      }
     }
   })
 
@@ -134,7 +149,12 @@ exports.register = function (server, options, next) {
       },
       description: 'Update a user',
       notes: 'The PUT /authorization/users endpoint updates a user data\n',
-      tags: ['api', 'service', 'put', 'users']
+      tags: ['api', 'service', 'put', 'users'],
+      plugins: {
+        auth: {
+          action: Action.UpdateUser
+        }
+      }
     }
   })
 
