@@ -46,7 +46,8 @@ exports.register = function (server, options, next) {
       tags: ['api', 'service', 'get', 'users'],
       plugins: {
         auth: {
-          action: Action.ReadUser
+          action: Action.ReadUser,
+          getParams: (request) => ({ userId: request.params.id })
         }
       }
     }
@@ -113,7 +114,8 @@ exports.register = function (server, options, next) {
       tags: ['api', 'service', 'delete', 'users'],
       plugins: {
         auth: {
-          action: Action.DeleteUser
+          action: Action.DeleteUser,
+          getParams: (request) => ({ userId: request.params.id })
         }
       }
     }
@@ -152,7 +154,8 @@ exports.register = function (server, options, next) {
       tags: ['api', 'service', 'put', 'users'],
       plugins: {
         auth: {
-          action: Action.UpdateUser
+          action: Action.UpdateUser,
+          getParams: (request) => ({ userId: request.params.id })
         }
       }
     }

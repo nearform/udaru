@@ -31,29 +31,25 @@ internals.implementation = function (server, options) {
 
       const authorization = req.headers.authorization
       if (!authorization) {
-        return reply(Boom.unauthorized(null, 'Basic', settings.unauthorizedAttributes))
+        return reply(Boom.unauthorized('Missing authorization', 'udaru'))
       }
 
       const userId = parseInt(authorization, 10)
 
-      settings.validateFunc(request, userId, (err, isValid, credentials) => {
-        credentials = credentials || null
-
-        if (err) {
-          return reply(err, null, { credentials: credentials })
+      settings.validateFunc(server, request, userId, (error, isValid, user) => {
+        if (error) {
+          return reply(Boom.unauthorized(error.message))
         }
 
         if (!isValid) {
-          return reply(Boom.unauthorized('Invalid user', 'Basic', settings.unauthorizedAttributes), null, { credentials: credentials })
+          return reply(Boom.forbidden('Invalid credentials', 'udaru'))
         }
 
-        if (!credentials ||
-          typeof credentials !== 'object') {
-
+        if (!user || typeof user !== 'object') {
           return reply(Boom.badImplementation('Bad credentials object received'))
         }
 
-        return reply.continue({ credentials: credentials })
+        return reply.continue({ credentials: user })
       })
     }
   }

@@ -90,7 +90,8 @@ exports.register = function (server, options, next) {
       tags: ['api', 'service', 'get', 'team'],
       plugins: {
         auth: {
-          action: Action.ReadTeam
+          action: Action.ReadTeam,
+          getParams: (request) => ({ teamId: request.params.id })
         }
       }
     }
@@ -136,7 +137,8 @@ exports.register = function (server, options, next) {
       tags: ['api', 'service', 'put', 'team'],
       plugins: {
         auth: {
-          action: Action.UpdateTeam
+          action: Action.UpdateTeam,
+          getParams: (request) => ({ teamId: request.params.id })
         }
       }
     }
@@ -168,7 +170,8 @@ exports.register = function (server, options, next) {
       tags: ['api', 'service', 'delete', 'team'],
       plugins: {
         auth: {
-          action: Action.DeleteTeam
+          action: Action.DeleteTeam,
+          getParams: (request) => ({ teamId: request.params.id })
         }
       }
     }

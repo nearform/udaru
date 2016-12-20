@@ -5,13 +5,10 @@ const config = require('./lib/config')
 const dbConn = require('./lib/dbConn')
 
 const Hapi = require('hapi')
-const HapiServiceAuth = require('./hapi-auth-service')
 const server = new Hapi.Server()
 
-// need to move this to a separate file
-const UserOps = require('./lib/userOps')
-const PolicyOps = require('./lib/policyOps')
-const AuthorizeOps = require('./lib/authorizeOps')
+const HapiAuthService = require('./hapi-auth-service')
+const authValidation = require('./hapi-auth-validation')
 
 server.connection({
   port: Number(config.get('hapi.port')),
@@ -53,43 +50,15 @@ server.register(
       register: require('hapi-swagger'),
       options: swaggerOptions
     },
-    HapiServiceAuth
+    HapiAuthService
   ],
   function (err) {
     if (err) {
       throw err
     }
 
-    // TODO: extract validation function
     server.auth.strategy('default', 'service', 'required', {
-      validateFunc: (request, userId, callback) => {
-        const { route } = request
-
-        const authPlugin = route.settings.plugins && route.settings.plugins.auth
-        if (!authPlugin) {
-          return callback(null, false)
-        }
-
-        // TODO: User resource from the route for now, but this needs to by dynaically generated
-        // (but we need full details about a user - org & team)
-        const params = {
-          userId,
-          action: authPlugin.action,
-          resource: authPlugin.resource // for now use the resource from the rou
-        }
-
-        const authorize = AuthorizeOps(UserOps(options.dbPool, server.logger()), PolicyOps(options.dbPool))
-        authorize.isUserAuthorized(params, (err, result) => {
-          if (err) {
-            return callback(err, false)
-          }
-
-          callback(null, result, { id: userId })
-        })
-      },
-      unauthorizedAttributes: {
-        allow: false
-      }
+      validateFunc: authValidation.bind(null, options)
     })
   }
 )

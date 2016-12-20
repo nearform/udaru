@@ -35,7 +35,8 @@ exports.register = function (server, options, next) {
       tags: ['api', 'service', 'organizations'],
       plugins: {
         auth: {
-          action: Action.ReadOrganization
+          action: Action.ReadOrganization,
+          getParams: (request) => ({ organizationId: request.params.id })
         }
       }
     }
@@ -104,7 +105,8 @@ exports.register = function (server, options, next) {
       tags: ['api', 'service', 'delete', 'organization'],
       plugins: {
         auth: {
-          action: Action.DeleteOrganization
+          action: Action.DeleteOrganization,
+          getParams: (request) => ({ organizationId: request.params.id })
         }
       }
     }
@@ -134,7 +136,8 @@ exports.register = function (server, options, next) {
       tags: ['api', 'service', 'put', 'organization'],
       plugins: {
         auth: {
-          action: Action.UpdateOrganization
+          action: Action.UpdateOrganization,
+          getParams: (request) => ({ organizationId: request.params.id })
         }
       }
     }

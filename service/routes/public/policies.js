@@ -47,7 +47,8 @@ exports.register = function (server, options, next) {
       tags: ['api', 'service', 'get', 'policies'],
       plugins: {
         auth: {
-          action: Action.ReadPolicy
+          action: Action.ReadPolicy,
+          getParams: (request) => ({ policyId: request.params.id })
         }
       }
     }
