@@ -8,11 +8,11 @@ module.exports = function (policyOps) {
     /**
      * Return if a user can perform an action on a certain resource
      *
-     * @param  {Object}   options { resource, action, userId }
+     * @param  {Object}   options { resource, action, userId,  }
      * @param  {Function} cb
      */
-    isUserAuthorized: function isUserAuthorized ({ resource, action, userId }, cb) {
-      policyOps.listAllUserPolicies({ userId }, (err, policies) => {
+    isUserAuthorized: function isUserAuthorized ({ resource, action, userId, organizationId }, cb) {
+      policyOps.listAllUserPolicies({ userId, organizationId }, (err, policies) => {
         if (err) {
           return cb(err)
         }
@@ -39,14 +39,14 @@ module.exports = function (policyOps) {
      * @param  {Object}   options { userId, resource }
      * @param  {Function} cb
      */
-    listAuthorizations: function listAuthorizations ({ userId, resource }, cb) {
+    listAuthorizations: function listAuthorizations ({ userId, resource, organizationId }, cb) {
       const data = []
       var actions = []
       var errors = []
       // build the set of actions in the user's policy set
       // can't check per resource as requires wildcard processing
 
-      policyOps.listAllUserPolicies({ userId }, (err, policies) => {
+      policyOps.listAllUserPolicies({ userId, organizationId }, (err, policies) => {
         if (err) return cb(Boom.wrap(err))
 
         policies.forEach(p => {
