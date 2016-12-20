@@ -1,32 +1,24 @@
 const Reconfig = require('reconfig')
 
 const actionsDefinition = require('./../conf/actions.json')
-const resourcesDefinition = require('./../conf/resources.json')
 
 const actionsConfig = new Reconfig({
-  template: '{{ definition.namespace }}:## context ##:## operation ##',
+  template: '{{ definition.namespace }}:[context]:[operation]',
   definition: actionsDefinition
 }, {
-  paramsInterpolation: ['## ', ' ##']
+  paramsInterpolation: ['[', ']']
 })
 
 const resourcesConfig = new Reconfig({
-  namespace: resourcesDefinition.namespace,
+  namespace: 'authorization',
   templates: {
-    organization: '/{{ namespace }}/organization/## organization ##',
-    team: '/{{ namespace }}/team/## organization ##/## team ##',
-    user: '/{{ namespace }}/user/## organization ##/## team ##/## user ##'
-  },
-  definition: resourcesDefinition,
+    organizations: '/{{ namespace }}/organization/[organizationId]',
+    teams: '/{{ namespace }}/team/[organizationId]/[teamId]',
+    users: '/{{ namespace }}/user/[organizationId]/[teamId]/[userId]'
+  }
 }, {
-  paramsInterpolation: ['## ', ' ##']
+  paramsInterpolation: ['[', ']']
 })
-
-const Interpolation = {
-  organization: 'organizationId',
-  team: 'teamId',
-  user: 'userId',
-}
 
 const Actions = {
   // organization
@@ -62,18 +54,14 @@ const Actions = {
   Policy: generateAction('policy')
 }
 
-const Resources = {
-  organizations: getResource.bind(null, 'organization'),
-  teams: getResource.bind(null, 'team'),
-  users: getResource.bind(null, 'user')
-}
-
 module.exports = {
   Action: Actions,
-  Resource: Resources,
-  Interpolation
+  resources: {
+    organizations: getResource.bind(null, 'organizations'),
+    teams: getResource.bind(null, 'teams'),
+    users: getResource.bind(null, 'users')
+  }
 }
-
 
 function generateAction (context, operation) {
   const ctx = actionsConfig.get(`definition.${context}.text`)
@@ -85,35 +73,15 @@ function generateAction (context, operation) {
   })
 }
 
+function getResource (type, data = {}) {
+  const template = resourcesConfig.get(`templates.${type}`)
 
-function getResource (resource, params) {
-  const organization = getResourceValue(params, 'organization')
-  const team = getResourceValue(params, 'team')
-  const user = getResourceValue(params, 'user')
+  const params = template
+    .match(/[^[\]]+(?=])/g)
+    .reduce((prev, match) => {
+      const name = match.replace(/[[]]/g, '')
+      return Object.assign(prev, { [name]: data[name] || '*' })
+    }, {})
 
-  const scope = resourcesConfig.get(`definition.${resource}.scope`)
-  return resourcesConfig.get(`templates.${resource}`, {
-    scope,
-    organization,
-    team,
-    user
-  })
-}
-
-function getResourceValue (params, resource) {
-  let value = '*'
-
-  if (typeof params[resource] === 'string') {
-    value = params[resource]
-  } else if (typeof  params[resource] === 'object') {
-    if (params[resource].interpolate) {
-      value = ':' + Interpolation[resource]
-    }
-    else if (params[resource].context) {
-      const context = resourcesConfig.get(`definition.${resource}.context`)
-      value = `{${context}}`
-    }
-  }
-
-  return value
+  return resourcesConfig.get(`templates.${type}`, params)
 }

@@ -1,43 +1,43 @@
 {
-  "namespace": "my_auth_ns",
+  "namespace": "authorization",
   "organization": {
-    "text": "my_organization",
+    "text": "organizations",
     "operations": {
-      "create": "my_create",
-      "update": "my_update",
-      "read": "my_read",
-      "delete": "my_delete",
-      "list": "my_list"
+      "create": "create",
+      "update": "update",
+      "read": "read",
+      "delete": "delete",
+      "list": "list"
     }
   },
   "team": {
-    "text": "my_team",
+    "text": "teams",
     "operations": {
-      "create": "my_create",
-      "update": "my_update",
-      "read": "my_read",
-      "delete": "my_delete",
-      "list": "my_list"
+      "create": "create",
+      "update": "update",
+      "read": "read",
+      "delete": "delete",
+      "list": "list"
     }
   },
   "user": {
-    "text": "my_user",
+    "text": "users",
     "operations": {
-      "create": "my_create",
-      "update": "my_update",
-      "read": "my_read",
-      "delete": "my_delete",
-      "list": "my_list"
+      "create": "create",
+      "update": "update",
+      "read": "read",
+      "delete": "delete",
+      "list": "list"
     }
   },
   "policy": {
-    "text": "my_policy",
+    "text": "policies",
     "operations": {
-      "create": "my_create",
-      "update": "my_update",
-      "read": "my_read",
-      "delete": "my_delete",
-      "list": "my_list"
+      "create": "create",
+      "update": "update",
+      "read": "read",
+      "delete": "delete",
+      "list": "list"
     }
   }
 }

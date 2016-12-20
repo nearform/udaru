@@ -1,6 +1,9 @@
 const Reconfig = require('reconfig')
 const AuthConfig = require('./config.auth')
 
+const Action = AuthConfig.Action
+const resources = AuthConfig.resources
+
 module.exports = new Reconfig({
   pgdb: {
     user: 'postgres',
@@ -79,20 +82,20 @@ module.exports = new Reconfig({
               {
                 Effect: 'Allow',
                 Action: [
-                  AuthConfig.Action.ReadTeam,
-                  AuthConfig.Action.UpdateTeam
+                  Action.ReadTeam,
+                  Action.UpdateTeam
                 ],
                 Resource: [
-                  AuthConfig.Resource.teams({ organization: { interpolate: true }, team: { interpolate: true } })
+                  resources.teams({ organizationId: ':organizationId', teamId: ':teamId' })
                 ]
               },
               {
                 Effect: 'Allow',
                 Action: [
-                  AuthConfig.Action.User
+                  Action.User
                 ],
                 Resource: [
-                  AuthConfig.Resource.users({ organization: { interpolate: true }, team: { interpolate: true } })
+                  resources.users({ organizationId: ':organizationId', teamId: ':teamId' })
                 ]
               }
             ]
