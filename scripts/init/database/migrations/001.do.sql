@@ -7,7 +7,7 @@ CREATE EXTENSION ltree;
  */
 CREATE TABLE organizations (
  id          VARCHAR(20) UNIQUE,
- name        VARCHAR(30) NOT NULL,
+ name        VARCHAR(64) NOT NULL,
  description VARCHAR(30)
 );
 
@@ -54,5 +54,10 @@ CREATE TABLE user_policies (
 
 CREATE TABLE team_policies (
   team_id   INT REFERENCES teams(id) NOT NULL,
+  policy_id INT REFERENCES policies(id) NOT NULL
+);
+
+CREATE TABLE organization_policies (
+  org_id   VARCHAR(20) REFERENCES organizations(id) NOT NULL,
   policy_id INT REFERENCES policies(id) NOT NULL
 );

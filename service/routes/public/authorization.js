@@ -11,11 +11,13 @@ exports.register = function (server, options, next) {
     method: 'GET',
     path: '/authorization/check/{userId}/{action}/{resource*}',
     handler: function (request, reply) {
+      const { id: organizationId } = request.authorization.organization
       const { resource, action, userId } = request.params
       const params = {
         userId,
         action,
-        resource
+        resource,
+        organizationId
       }
 
       authorize.isUserAuthorized(params, reply)
@@ -38,10 +40,12 @@ exports.register = function (server, options, next) {
     method: 'GET',
     path: '/authorization/list/{userId}/{resource*}',
     handler: function (request, reply) {
+      const { id: organizationId } = request.authorization.organization
       const { resource, userId } = request.params
       const params = {
         userId,
-        resource
+        resource,
+        organizationId
       }
 
       authorize.listAuthorizations(params, reply)

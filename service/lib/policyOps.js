@@ -47,37 +47,26 @@ module.exports = function (dbPool) {
     /**
      * List all user policies
      *
-     * @param  {Object}   params { userId }
+     * @param  {Object}   params { userId, organizationId }
      * @param  {Function} cb
      */
-    listAllUserPolicies: function listAllUserPolicies ({ userId }, cb) {
-      /* Query1: For fetching policies attached directly to the user */
-      /* Query2: For fetching policies attached to the teams the user belongs to */
-      /* TO-DO Query3: For fetching policies attached to the organization the user belongs to */
-      const sql = SQL`(
-
-          SELECT
+    listAllUserPolicies: function listAllUserPolicies ({ userId, organizationId }, cb) {
+      const sql = SQL`
+          SELECT DISTINCT
+            ON (id) id,
             version,
             name,
             statements
           FROM
-            policies p JOIN user_policies up
-          ON
-            p.id = up.policy_id
+            policies p
+          LEFT JOIN
+            user_policies up ON p.id = up.policy_id
+          LEFT JOIN
+            team_policies tp ON p.id = tp.policy_id
+          LEFT JOIN
+            organization_policies op ON p.id = op.policy_id
           WHERE
-            up.user_id = ${userId}
-
-        ) UNION (
-
-          SELECT
-            version,
-            name,
-            statements
-          FROM
-            policies p JOIN team_policies tp
-          ON
-            p.id = tp.policy_id
-          WHERE
+            up.user_id = ${userId} OR
             tp.team_id IN (
               SELECT team_id FROM teams WHERE path @> (
                 SELECT array_agg(path) FROM teams
@@ -85,8 +74,8 @@ module.exports = function (dbPool) {
                 ON tm.team_id = teams.id
                 WHERE tm.user_id = ${userId}
               )
-            )
-        )
+            ) OR
+            op.org_id = ${organizationId}
       `
       dbPool.query(sql, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))

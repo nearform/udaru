@@ -12,7 +12,7 @@ const Authorize = proxyquire('../../../lib/authorizeOps', {'iam-js': iamMock})
 lab.experiment('authorize', () => {
 
   lab.test('isUserAuthorized - should return an error if fetching the user policies returns and error', (done) => {
-    var policyOps = {listAllUserPolicies: function (userId, cb) {
+    var policyOps = {listAllUserPolicies: function (params, cb) {
       return cb(new Error('test error'))
     }}
 
@@ -20,7 +20,8 @@ lab.experiment('authorize', () => {
     authorizeOps.isUserAuthorized({
       userId: 1,
       resource: 'database:pg01:balancesheet',
-      action: 'finance:ReadBalanceSheet'
+      action: 'finance:ReadBalanceSheet',
+      organizationId: 'WONKA'
     }, (err, result) => {
       expect(err).to.exist()
       expect(result).to.not.exist()
@@ -31,7 +32,7 @@ lab.experiment('authorize', () => {
   })
 
   lab.test('isUserAuthorized - should return an error if iam-js returns an error', (done) => {
-    var policyOps = {listAllUserPolicies: function (userId, cb) {
+    var policyOps = {listAllUserPolicies: function (params, cb) {
       return cb(null, {policyMock: true})
     }}
 
@@ -39,7 +40,8 @@ lab.experiment('authorize', () => {
     authorizeOps.isUserAuthorized({
       userId: 1,
       resource: 'database:pg01:balancesheet',
-      action: 'finance:ReadBalanceSheet'
+      action: 'finance:ReadBalanceSheet',
+      organizationId: 'WONKA'
     }, (err, result) => {
       expect(err).to.exist()
       expect(result).to.not.exist()
@@ -50,7 +52,7 @@ lab.experiment('authorize', () => {
   })
 
   lab.test('listAuthorizations - should return an error if fetching the user policies returns and error', (done) => {
-    var policyOps = {listAllUserPolicies: function (userId, cb) {
+    var policyOps = {listAllUserPolicies: function (params, cb) {
       return cb(new Error('test error'))
     }}
 
@@ -58,7 +60,7 @@ lab.experiment('authorize', () => {
     authorizeOps.listAuthorizations({
       userId: 1,
       resource: 'database:pg01:balancesheet',
-      action: 'finance:ReadBalanceSheet'
+      organizationId: 'WONKA'
     }, (err, result) => {
       expect(err).to.exist()
       expect(result).to.not.exist()
@@ -69,7 +71,7 @@ lab.experiment('authorize', () => {
   })
 
   lab.test('isUserAuthorized - should return an error if iam-js returns an error', (done) => {
-    var policyOps = {listAllUserPolicies: function (userId, cb) {
+    var policyOps = {listAllUserPolicies: function (params, cb) {
       let policies = [{Statement: [{Action: ['finance:ReadBalanceSheet'], Resource: ['database:pg01:balancesheet'], Effect: 'Allow'}]}]
       policies.policyMock = true
       return cb(null, policies)
@@ -79,7 +81,7 @@ lab.experiment('authorize', () => {
     authorizeOps.listAuthorizations({
       userId: 1,
       resource: 'database:pg01:balancesheet',
-      action: 'finance:ReadBalanceSheet'
+      organizationId: 'WONKA'
     }, (err, result) => {
       expect(err).to.exist()
       expect(result).to.not.exist()
