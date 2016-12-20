@@ -267,7 +267,7 @@ module.exports = function (dbPool) {
     },
 
     createTeamDefaultPolicies: function createTeamDefaultPolicies (client, organizationId, teamId, cb) {
-      const defaultPolicies = config.get('authorization.teams.defaultPolicies', {organizationId, teamId})
+      const defaultPolicies = config.get('authorization.teams.defaultPolicies', { organizationId, teamId })
       insertPolicies(client, defaultPolicies, cb)
     },
 

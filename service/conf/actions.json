@@ -1,0 +1,43 @@
+{
+  "namespace": "authorization",
+  "organization": {
+    "text": "organizations",
+    "operations": {
+      "create": "create",
+      "update": "update",
+      "read": "read",
+      "delete": "delete",
+      "list": "list"
+    }
+  },
+  "team": {
+    "text": "teams",
+    "operations": {
+      "create": "create",
+      "update": "update",
+      "read": "read",
+      "delete": "delete",
+      "list": "list"
+    }
+  },
+  "user": {
+    "text": "users",
+    "operations": {
+      "create": "create",
+      "update": "update",
+      "read": "read",
+      "delete": "delete",
+      "list": "list"
+    }
+  },
+  "policy": {
+    "text": "policies",
+    "operations": {
+      "create": "create",
+      "update": "update",
+      "read": "read",
+      "delete": "delete",
+      "list": "list"
+    }
+  }
+}

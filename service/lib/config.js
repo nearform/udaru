@@ -1,4 +1,8 @@
 const Reconfig = require('reconfig')
+const AuthConfig = require('./config.auth')
+
+const Action = AuthConfig.Action
+const resources = AuthConfig.resources
 
 module.exports = new Reconfig({
   pgdb: {
@@ -36,31 +40,31 @@ module.exports = new Reconfig({
           name: ':organizationId admin',
           org_id: ':organizationId',
           statements: {
-            'Statement': [
+            Statement: [
               {
-                'Effect': 'Allow',
-                'Action': ['authorization:organization:read'],
-                'Resource': [':organizationId:/authorization/organizations/*']
+                Effect: 'Allow',
+                Action: [Action.ReadOrganization],
+                Resource: [resources.organizations({ organizationId: ':organizationId' })]
               },
               {
-                'Effect': 'Allow',
-                'Action': ['authorization:users:*'],
-                'Resource': [':organizationId:/authorization/users*']
+                Effect: 'Allow',
+                Action: [Action.AllTeam],
+                Resource: [resources.teams({ organizationId: ':organizationId:' })]
               },
               {
-                'Effect': 'Allow',
-                'Action': ['authorization:teams:*'],
-                'Resource': [':organizationId:/authorization/teams*']
+                Effect: 'Allow',
+                Action: [Action.AllUser],
+                Resource: [resources.users({ organizationId: ':organizationId' })]
               },
               {
-                'Effect': 'Allow',
-                'Action': ['authorization:policies:list'],
-                'Resource': [':organizationId:/authorization/policies']
+                Effect: 'Allow',
+                Action: [Action.ListPolicies],
+                Resource: [resources.policies({ organizationId: ':organizationId' })]
               },
               {
-                'Effect': 'Allow',
-                'Action': ['authorization:policy:read'],
-                'Resource': [':organizationId:/authorization/policies/*']
+                Effect: 'Allow',
+                Action: [Action.ReadPolicy],
+                Resource: [resources.policies({ organizationId: ':organizationId' })]
               }
             ]
           }
@@ -74,19 +78,25 @@ module.exports = new Reconfig({
           name: 'Default Team Admin for :teamId',
           org_id: ':organizationId',
           statements: {
-            'Statement': [
+            Statement: [
               {
-                'Effect': 'Allow',
-                'Action': [
-                  'authorization:teams:read',
-                  'authorization:teams:update'
+                Effect: 'Allow',
+                Action: [
+                  Action.ReadTeam,
+                  Action.UpdateTeam
                 ],
-                'Resource': ['authorization/team/:organizationId/:teamId']
+                Resource: [
+                  resources.teams({ organizationId: ':organizationId', teamId: ':teamId' })
+                ]
               },
               {
-                'Effect': 'Allow',
-                'Action': ['authorization:users:*'],
-                'Resource': ['/authorization/user/:organizationId/:teamId/*']
+                Effect: 'Allow',
+                Action: [
+                  Action.AllUser
+                ],
+                Resource: [
+                  resources.users({ organizationId: ':organizationId', teamId: ':teamId' })
+                ]
               }
             ]
           }
