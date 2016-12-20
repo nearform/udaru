@@ -175,7 +175,7 @@ exports.register = function (server, options, next) {
         }
       },
       description: 'Nest a team',
-      notes: 'The PUT /authorization/teams/id/nest endpoint nests a team\n',
+      notes: 'The PUT /authorization/teams/{id}/nest endpoint nests a team\n',
       tags: ['api', 'service', 'nest', 'team']
     }
   })
@@ -204,7 +204,7 @@ exports.register = function (server, options, next) {
         }
       },
       description: 'Unnest a team',
-      notes: 'The PUT /authorization/teams/id/unnest endpoint unnests a team\n',
+      notes: 'The PUT /authorization/teams/{id}/unnest endpoint unnests a team\n',
       tags: ['api', 'service', 'nest', 'team']
     }
   })
