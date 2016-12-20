@@ -160,4 +160,131 @@ lab.experiment('TeamOps', () => {
     })
   })
 
+  lab.test('createTeam should build path', (done) => {
+    const teamData = {
+      name: 'Team Child',
+      description: 'This is a test team for paths',
+      parentId: 1,
+      organizationId: 'WONKA'
+    }
+
+    teamOps.createTeam(teamData, function (err, result) {
+      expect(err).to.not.exist()
+      expect(result).to.exist()
+      expect(result.path).to.equal('1.' + result.id)
+
+      teamOps.deleteTeam({ id: result.id, organizationId: 'WONKA' }, done)
+    })
+  })
+
+  lab.test('deleteTeam should also delete descendants', (done) => {
+    const parentData = {
+      name: 'Team Parent',
+      description: 'This is a test team for paths',
+      parentId: null,
+      organizationId: 'WONKA'
+    }
+    const childData = {
+      name: 'Team Parent',
+      description: 'This is a test team for paths',
+      parentId: null,
+      organizationId: 'WONKA'
+    }
+
+    teamOps.createTeam(parentData, (err, result) => {
+      expect(err).to.not.exist()
+
+      const parentId = result.id
+      childData.parentId = parentId
+
+      teamOps.createTeam(childData, (err, result) => {
+        expect(err).to.not.exist()
+        expect(result).to.exist()
+
+        const childId = result.id
+
+        expect(result.path).to.equal(parentId + '.' + childId)
+
+        teamOps.deleteTeam({ organizationId: 'WONKA', id: parentId }, (err) => {
+          expect(err).to.not.exist()
+
+          teamOps.readTeam({ id: childId, organizationId: 'WONKA' }, (err) => {
+            expect(err).to.exist()
+            expect(err.isBoom).to.be.true()
+            expect(err.message).to.equal('Not Found')
+            done()
+          })
+        })
+      })
+    })
+  })
+
+  lab.test('moveTeam should update path', (done) => {
+    const parentData = {
+      name: 'Team Parent',
+      description: 'This is a test team for paths',
+      parentId: null,
+      organizationId: 'WONKA'
+    }
+    const childData = {
+      name: 'Team Child',
+      description: 'This is a test team for paths',
+      parentId: null,
+      organizationId: 'WONKA'
+    }
+
+    teamOps.createTeam(parentData, (err, result) => {
+      expect(err).to.not.exist()
+
+      const parentId = result.id
+      childData.parentId = parentId
+
+      teamOps.createTeam(childData, (err, result) => {
+        expect(err).to.not.exist()
+        expect(result).to.exist()
+
+        const childId = result.id
+
+        teamOps.moveTeam({ id: parentId, parentId: 3, organizationId: 'WONKA' }, (err, result) => {
+          expect(err).to.not.exist()
+          expect(result).to.exist()
+          expect(result.path).to.equal('3.' + parentId)
+
+          teamOps.readTeam({id: childId, organizationId: 'WONKA'}, (err, result) => {
+            expect(err).to.not.exist()
+            expect(result).to.exist()
+            expect(result.path).to.equal('3.' + parentId + '.' + childId)
+
+            teamOps.deleteTeam({id: parentId, organizationId: 'WONKA'}, done)
+          })
+        })
+      })
+    })
+  })
+
+  lab.test('un-nest team', (done) => {
+    const teamData = {
+      name: 'Team Parent',
+      description: 'This is a test team for paths',
+      parentId: 1,
+      organizationId: 'WONKA'
+    }
+
+    teamOps.createTeam(teamData, (err, result) => {
+      expect(err).to.not.exist()
+
+      const teamId = result.id
+
+      expect(result.path).to.equal('1.' + teamId)
+
+      teamOps.moveTeam({ id: teamId, parentId: null, organizationId: 'WONKA' }, (err, result) => {
+        expect(err).to.not.exist()
+        expect(result).to.exist()
+        expect(result.path).to.equal(teamId.toString())
+
+        teamOps.deleteTeam({id: teamId, organizationId: 'WONKA'}, done)
+      })
+    })
+  })
+
 })
