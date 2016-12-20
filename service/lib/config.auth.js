@@ -6,7 +6,8 @@ const actionsConfig = new Reconfig({
   template: '{{ definition.namespace }}:[context]:[operation]',
   definition: actionsDefinition
 }, {
-  paramsInterpolation: ['[', ']']
+  paramsInterpolation: ['[', ']'],
+  envPrefix: 'LABS_AUTH_ACTIONS'
 })
 
 const resourcesConfig = new Reconfig({
@@ -17,7 +18,8 @@ const resourcesConfig = new Reconfig({
     users: '/{{ namespace }}/user/[organizationId]/[teamId]/[userId]'
   }
 }, {
-  paramsInterpolation: ['[', ']']
+  paramsInterpolation: ['[', ']'],
+  envPrefix: 'LABS_AUTH_RESOURCES'
 })
 
 const Actions = {
@@ -27,7 +29,7 @@ const Actions = {
   ReadOrganization: generateAction('organization', 'read'),
   DeleteOrganization: generateAction('organization', 'delete'),
   ListMyOrganizations: generateAction('organization', 'list'),
-  Organization: generateAction('organization'),
+  AllOrganization: generateAction('organization'),
 
   // team
   CreateTeam: generateAction('team', 'create'),
@@ -35,7 +37,7 @@ const Actions = {
   ReadTeam: generateAction('team', 'read'),
   DeleteTeam: generateAction('team', 'delete'),
   ListMyTeams: generateAction('team', 'list'),
-  Team: generateAction('team'),
+  AllTeam: generateAction('team'),
 
   // user
   CreateUser: generateAction('user', 'create'),
@@ -43,7 +45,7 @@ const Actions = {
   ReadUser: generateAction('user', 'read'),
   DeleteUser: generateAction('user', 'delete'),
   ListMyUsers: generateAction('user', 'list'),
-  User: generateAction('user'),
+  AllUser: generateAction('user'),
 
   // policy
   CreatePolicy: generateAction('policy', 'create'),
@@ -51,7 +53,7 @@ const Actions = {
   ReadPolicy: generateAction('policy', 'read'),
   DeletePolicy: generateAction('policy', 'delete'),
   ListMyPolicies: generateAction('policy', 'list'),
-  Policy: generateAction('policy')
+  AllPolicy: generateAction('policy')
 }
 
 module.exports = {
