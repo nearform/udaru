@@ -29,7 +29,7 @@ const Actions = {
   UpdateOrganization: generateAction('organization', 'update'),
   ReadOrganization: generateAction('organization', 'read'),
   DeleteOrganization: generateAction('organization', 'delete'),
-  ListMyOrganizations: generateAction('organization', 'list'),
+  ListOrganizations: generateAction('organization', 'list'),
   AllOrganization: generateAction('organization'),
 
   // team
@@ -37,7 +37,7 @@ const Actions = {
   UpdateTeam: generateAction('team', 'update'),
   ReadTeam: generateAction('team', 'read'),
   DeleteTeam: generateAction('team', 'delete'),
-  ListMyTeams: generateAction('team', 'list'),
+  ListTeams: generateAction('team', 'list'),
   AllTeam: generateAction('team'),
 
   // user
@@ -45,7 +45,7 @@ const Actions = {
   UpdateUser: generateAction('user', 'update'),
   ReadUser: generateAction('user', 'read'),
   DeleteUser: generateAction('user', 'delete'),
-  ListMyUsers: generateAction('user', 'list'),
+  ListUsers: generateAction('user', 'list'),
   AllUser: generateAction('user'),
 
   // policy
@@ -53,7 +53,7 @@ const Actions = {
   UpdatePolicy: generateAction('policy', 'update'),
   ReadPolicy: generateAction('policy', 'read'),
   DeletePolicy: generateAction('policy', 'delete'),
-  ListMyPolicies: generateAction('policy', 'list'),
+  ListPolicies: generateAction('policy', 'list'),
   AllPolicy: generateAction('policy')
 }
 

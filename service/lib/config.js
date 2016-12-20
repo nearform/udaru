@@ -58,7 +58,7 @@ module.exports = new Reconfig({
               },
               {
                 Effect: 'Allow',
-                Action: [Action.ListMyPolicies],
+                Action: [Action.ListPolicies],
                 Resource: [resources.policies({ organizationId: ':organizationId' })]
               },
               {
