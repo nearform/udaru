@@ -104,11 +104,19 @@ module.exports = function (dbPool, log) {
   }
 
   function deleteTeamsPolicies (job, next) {
-    job.client.query(SQL`DELETE FROM team_policies WHERE team_id = ANY (${job.teamIds})`, next)
+    job.client.query(SQL`DELETE FROM team_policies WHERE team_id = ANY(${job.teamIds})`, next)
   }
 
   function deleteTeamsMembers (job, next) {
-    job.client.query(SQL`DELETE FROM team_members WHERE team_id = ANY (${job.teamIds})`, next)
+    job.client.query(SQL`DELETE FROM team_members WHERE team_id = ANY(${job.teamIds})`, next)
+  }
+
+  function deleteTeamPolicies (job, next) {
+    job.client.query(SQL`DELETE FROM team_policies WHERE team_id = ${job.teamId}`, next)
+  }
+
+  function deleteTeamMembers (job, next) {
+    job.client.query(SQL`DELETE FROM team_members WHERE team_id = ${job.teamId}`, next)
   }
 
   function insertTeamMembers (job, next) {
@@ -356,8 +364,8 @@ module.exports = function (dbPool, log) {
           next()
         },
         updateTeamSql,
-        deleteTeamsMembers,
-        deleteTeamsPolicies,
+        deleteTeamMembers,
+        deleteTeamPolicies,
         insertTeamMembers,
         insertTeamPolicies
       ]
