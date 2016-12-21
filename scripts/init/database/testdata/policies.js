@@ -138,5 +138,14 @@ module.exports = [
           'Resource': ['/my/site/*']
         }
       ]}
-  ]
+  ],
+  [0.1, 'SuperAdmin', 'ROOT', {
+    'Statement': [
+      {
+        'Effect': 'Allow',
+        'Action': ['*'],
+        'Resource': ['*']
+      }
+    ]
+  }]
 ]
