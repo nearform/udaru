@@ -11,7 +11,7 @@ exports.register = function (server, options, next) {
     method: 'GET',
     path: '/authorization/check/{userId}/{action}/{resource*}',
     handler: function (request, reply) {
-      const { organizationId } = request.auth
+      const { organizationId } = request.udaru
       const { resource, action, userId } = request.params
       const params = {
         userId,
@@ -41,7 +41,7 @@ exports.register = function (server, options, next) {
     method: 'GET',
     path: '/authorization/list/{userId}/{resource*}',
     handler: function (request, reply) {
-      const { organizationId } = request.auth
+      const { organizationId } = request.udaru
       const { resource, userId } = request.params
       const params = {
         userId,

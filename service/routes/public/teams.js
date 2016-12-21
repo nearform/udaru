@@ -11,7 +11,7 @@ exports.register = function (server, options, next) {
     method: 'GET',
     path: '/authorization/teams',
     handler: function (request, reply) {
-      const { organizationId } = request.auth
+      const { organizationId } = request.udaru
       teamOps.listOrgTeams({ organizationId }, reply)
     },
     config: {
@@ -31,7 +31,7 @@ exports.register = function (server, options, next) {
     path: '/authorization/teams',
     handler: function (request, reply) {
       const { name, description, user } = request.payload
-      const { organizationId } = request.auth
+      const { organizationId } = request.udaru
 
       const params = {
         name,
@@ -74,7 +74,7 @@ exports.register = function (server, options, next) {
     method: 'GET',
     path: '/authorization/teams/{id}',
     handler: function (request, reply) {
-      const { organizationId } = request.auth
+      const { organizationId } = request.udaru
       const { id } = request.params
 
       teamOps.readTeam({ id, organizationId }, reply)
@@ -102,7 +102,7 @@ exports.register = function (server, options, next) {
     path: '/authorization/teams/{id}',
     handler: function (request, reply) {
       const id = request.params.id
-      const { organizationId } = request.auth
+      const { organizationId } = request.udaru
       const { name, description, users, policies } = request.payload
 
       const params = {
@@ -149,7 +149,7 @@ exports.register = function (server, options, next) {
     path: '/authorization/teams/{id}',
     handler: function (request, reply) {
       const { id } = request.params
-      const { organizationId } = request.auth
+      const { organizationId } = request.udaru
 
       teamOps.deleteTeam({ id, organizationId }, function (err, res) {
         if (err) {

@@ -49,11 +49,18 @@ internals.implementation = function (server, options) {
           return reply(Boom.badImplementation('Bad credentials object received'))
         }
 
-        // TOREV: Are there any better approaches?
-        const { org: organizationId } = request.headers
-        request.auth.organizationId = organizationId || user.organizationId || null
+        // only allow the SuperAdmin to impersonate an org
+        let organizationId = user.organizationId
+        if (organizationId === 'ROOT' && request.headers.org) {
+          organizationId = request.headers.org
+        }
 
-        return reply.continue({ credentials: user })
+        request.udaru = {
+          user,
+          organizationId
+        }
+
+        return reply.continue({ credentials: { scope: 'udaru' } })
       })
     }
   }

@@ -11,7 +11,7 @@ exports.register = function (server, options, next) {
     method: 'GET',
     path: '/authorization/users',
     handler: function (request, reply) {
-      const { organizationId } = request.auth
+      const { organizationId } = request.udaru
       userOps.listOrgUsers({ organizationId }, reply)
     },
     config: {
@@ -30,7 +30,7 @@ exports.register = function (server, options, next) {
     method: 'GET',
     path: '/authorization/users/{id}',
     handler: function (request, reply) {
-      const { organizationId } = request.auth
+      const { organizationId } = request.udaru
       const id = request.params.id
 
       userOps.readUser({ id, organizationId }, reply)
@@ -57,7 +57,7 @@ exports.register = function (server, options, next) {
     method: 'POST',
     path: '/authorization/users',
     handler: function (request, reply) {
-      const { organizationId } = request.auth
+      const { organizationId } = request.udaru
       const params = {
         name: request.payload.name,
         organizationId
@@ -92,7 +92,7 @@ exports.register = function (server, options, next) {
     method: 'DELETE',
     path: '/authorization/users/{id}',
     handler: function (request, reply) {
-      const { organizationId } = request.auth
+      const { organizationId } = request.udaru
       const id = request.params.id
 
       userOps.deleteUser({ id, organizationId }, function (err, res) {
@@ -125,7 +125,7 @@ exports.register = function (server, options, next) {
     method: 'PUT',
     path: '/authorization/users/{id}',
     handler: function (request, reply) {
-      const { organizationId } = request.auth
+      const { organizationId } = request.udaru
       const id = request.params.id
       const { name, teams } = request.payload
 
@@ -166,7 +166,7 @@ exports.register = function (server, options, next) {
     path: '/authorization/users/{id}/policies',
     handler: function (request, reply) {
       const { id } = request.params
-      const { organizationId } = request.auth
+      const { organizationId } = request.udaru
       const { policies } = request.payload
 
       const params = {
@@ -204,7 +204,7 @@ exports.register = function (server, options, next) {
     path: '/authorization/users/{id}/policies',
     handler: function (request, reply) {
       const { id } = request.params
-      const { organizationId } = request.auth
+      const { organizationId } = request.udaru
       const { policies } = request.payload
 
       const params = {
@@ -243,7 +243,7 @@ exports.register = function (server, options, next) {
     path: '/authorization/users/{id}/policies',
     handler: function (request, reply) {
       const { id } = request.params
-      const { organizationId } = request.auth
+      const { organizationId } = request.udaru
 
       userOps.deleteUserPolicies({ id, organizationId }, function (err, res) {
         if (err) {
@@ -276,7 +276,7 @@ exports.register = function (server, options, next) {
     path: '/authorization/users/{userId}/policies/{policyId}',
     handler: function (request, reply) {
       const { userId, policyId } = request.params
-      const { organizationId } = request.auth
+      const { organizationId } = request.udaru
 
       userOps.deleteUserPolicy({ userId, policyId, organizationId }, function (err, res) {
         if (err) {

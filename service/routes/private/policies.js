@@ -17,7 +17,7 @@ exports.register = function (server, options, next) {
       if (!security.hasValidServiceKey(request)) return reply(Boom.forbidden())
 
       const { version, name, statements } = request.payload
-      const { organizationId } = request.auth
+      const { organizationId } = request.udaru
 
       const params = {
         version,
@@ -59,7 +59,7 @@ exports.register = function (server, options, next) {
       if (!security.hasValidServiceKey(request)) return reply(Boom.forbidden())
 
       const { id } = request.params
-      const { organizationId } = request.auth
+      const { organizationId } = request.udaru
       const { version, name, statements } = request.payload
 
       const params = {
@@ -102,7 +102,7 @@ exports.register = function (server, options, next) {
       if (!security.hasValidServiceKey(request)) return reply(Boom.forbidden())
 
       const { id } = request.params
-      const { organizationId } = request.auth
+      const { organizationId } = request.udaru
 
       policyOps.deletePolicy({ id, organizationId }, function (err, res) {
         if (err) {
