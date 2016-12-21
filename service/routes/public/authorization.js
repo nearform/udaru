@@ -23,6 +23,7 @@ exports.register = function (server, options, next) {
       authorize.isUserAuthorized(params, reply)
     },
     config: {
+      auth: false,
       validate: {
         params: {
           userId: Joi.number().required().description('The user that wants to perform the action on a given resource'),
@@ -51,6 +52,7 @@ exports.register = function (server, options, next) {
       authorize.listAuthorizations(params, reply)
     },
     config: {
+      auth: false,
       validate: {
         params: {
           userId: Joi.number().required().description('The user that wants to perform the action on a given resource'),

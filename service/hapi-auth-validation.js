@@ -40,10 +40,8 @@ module.exports = (options, server, request, userId, callback) => {
     (user, next) => {
       const authPlugin = route.settings.plugins && route.settings.plugins.auth
       if (!authPlugin) {
-        // TODO: allow everyone if auth is not defined for a route?
-        return next(null, true, user)
+        return next(null, false)
       }
-
 
       const requestParams = authPlugin.getParams ? authPlugin.getParams(request) : {}
       const buildParams = Object.assign({}, user, requestParams)

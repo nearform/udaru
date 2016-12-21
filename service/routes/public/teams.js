@@ -20,7 +20,7 @@ exports.register = function (server, options, next) {
       tags: ['api', 'service', 'get', 'team'],
       plugins: {
         auth: {
-          action: Action.ListMyTeams
+          action: Action.ListTeams
         }
       }
     }
@@ -205,7 +205,13 @@ exports.register = function (server, options, next) {
       },
       description: 'Nest a team',
       notes: 'The PUT /authorization/teams/{id}/nest endpoint nests a team\n',
-      tags: ['api', 'service', 'nest', 'team']
+      tags: ['api', 'service', 'nest', 'team'],
+      plugins: {
+        auth: {
+          action: Action.ManageTeam,
+          getParams: (request) => ({ teamId: request.params.id })
+        }
+      }
     }
   })
 
@@ -234,7 +240,13 @@ exports.register = function (server, options, next) {
       },
       description: 'Unnest a team',
       notes: 'The PUT /authorization/teams/{id}/unnest endpoint unnests a team\n',
-      tags: ['api', 'service', 'nest', 'team']
+      tags: ['api', 'service', 'nest', 'team'],
+      plugins: {
+        auth: {
+          action: Action.ManageTeam,
+          getParams: (request) => ({ teamId: request.params.id })
+        }
+      }
     }
   })
 

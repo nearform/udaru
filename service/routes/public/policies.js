@@ -21,7 +21,7 @@ exports.register = function (server, options, next) {
       tags: ['api', 'service', 'get', 'policies'],
       plugins: {
         auth: {
-          action: Action.ListMyPolicies
+          action: Action.ListPolicies
         }
       }
     }

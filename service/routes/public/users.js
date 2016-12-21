@@ -20,7 +20,7 @@ exports.register = function (server, options, next) {
       tags: ['api', 'service', 'get', 'users'],
       plugins: {
         auth: {
-          action: Action.ListMyUsers
+          action: Action.ListUsers
         }
       }
     }
@@ -189,7 +189,13 @@ exports.register = function (server, options, next) {
       },
       description: 'Add one or more policies to a user',
       notes: 'The PUT /authorization/users/{id}/policies endpoint add one or more new policies to a user\n',
-      tags: ['api', 'service', 'put', 'users', 'policies']
+      tags: ['api', 'service', 'put', 'users', 'policies'],
+      plugins: {
+        auth: {
+          action: Action.AddUserPolicy,
+          getParams: (request) => ({ userId: request.params.id })
+        }
+      }
     }
   })
 
@@ -222,7 +228,13 @@ exports.register = function (server, options, next) {
       },
       description: 'Clear and replace policies for a user',
       notes: 'The POST /authorization/users/{id}/policies endpoint removes all the user policies and replace them\n',
-      tags: ['api', 'service', 'post', 'users', 'policies']
+      tags: ['api', 'service', 'post', 'users', 'policies'],
+      plugins: {
+        auth: {
+          action: Action.AddUserPolicy,
+          getParams: (request) => ({ userId: request.params.id })
+        }
+      }
     }
   })
 
@@ -249,7 +261,13 @@ exports.register = function (server, options, next) {
       },
       description: 'Clear all user\'s policies',
       notes: 'The DELETE /authorization/users/{id}/policies endpoint removes all the user policies\n',
-      tags: ['api', 'service', 'delete', 'users', 'policies']
+      tags: ['api', 'service', 'delete', 'users', 'policies'],
+      plugins: {
+        auth: {
+          action: Action.RemoveUserPolicy,
+          getParams: (request) => ({ userId: request.params.id })
+        }
+      }
     }
   })
 
@@ -277,7 +295,16 @@ exports.register = function (server, options, next) {
       },
       description: 'Remove a user\'s policy',
       notes: 'The DELETE /authorization/users/{userId}/policies/{policyId} endpoint removes a specific user\'s policy\n',
-      tags: ['api', 'service', 'delete', 'users', 'policies']
+      tags: ['api', 'service', 'delete', 'users', 'policies'],
+      plugins: {
+        auth: {
+          action: Action.RemoveUserPolicy,
+          getParams: (request) => ({
+            userId: request.params.userId,
+            policyId: request.params.policyId
+          })
+        }
+      }
     }
   })
 
