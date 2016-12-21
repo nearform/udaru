@@ -6,32 +6,42 @@ const dbUtil = require('./dbUtil')
 const config = require('./config')
 const SQL = dbUtil.SQL
 
-function formatInsertValues (policies) {
+function toArray (policies) {
   if (Array.isArray(policies)) {
-    return policies.map(policy => [policy.version, policy.name, policy.org_id, policy.statements])
+    return policies
   }
 
-  return Object.keys(policies).map((pName) => {
-    let policy = policies[pName]
-    return [policy.version, policy.name, policy.org_id, policy.statements]
+  const result = []
+  Object.keys(policies).map((pName) => {
+    result.push(policies[pName])
   })
+
+  return result
 }
 
 function insertPolicies (client, policies, cb) {
-  const stmt = dbUtil.buildInsertStmt('INSERT INTO policies (version, name, org_id, statements) VALUES ', formatInsertValues(policies))
-  client.query(stmt.statement + ' RETURNING id', stmt.params, cb)
+  policies = toArray(policies)
+
+  const sql = SQL`INSERT INTO policies (version, name, org_id, statements) VALUES `
+  sql.append(SQL`(${policies[0].version}, ${policies[0].name}, ${policies[0].org_id}, ${policies[0].statements})`)
+  policies.slice(1).forEach((policy) => {
+    sql.append(SQL`, (${policy.version}, ${policy.name}, ${policy.org_id}, ${policy.statements})`)
+  })
+  sql.append(SQL` RETURNING id`)
+
+  client.query(sql, cb)
 }
 
 function deletePolicies (client, ids, cb) {
-  client.query('DELETE FROM policies WHERE id = ANY($1)', [ids], cb)
+  client.query(SQL`DELETE FROM policies WHERE id = ANY (${ids})`, cb)
 }
 
 function deleteTeamsAssociations (client, ids, cb) {
-  client.query('DELETE from team_policies WHERE policy_id = ANY($1)', [ids], cb)
+  client.query(SQL`DELETE from team_policies WHERE policy_id = ANY (${ids})`, cb)
 }
 
 function deleteUsersAssociations (client, ids, cb) {
-  client.query('DELETE from user_policies WHERE policy_id = ANY($1)', [ids], cb)
+  client.query(SQL`DELETE from user_policies WHERE policy_id = ANY (${ids})`, cb)
 }
 
 function getNames (policies) {
@@ -251,7 +261,13 @@ module.exports = function (dbPool) {
         if (err) return cb(err)
 
         const name = config.get('authorization.organizations.defaultPolicies.orgAdmin.name', {'organizationId': organizationId})
-        client.query('SELECT id FROM policies WHERE org_id = $1 AND name = $2', [organizationId, name], function (err, result) {
+        const sqlQuery = SQL`
+          SELECT id
+          FROM policies
+          WHERE org_id = ${organizationId}
+          AND name = ${name}
+        `
+        client.query(sqlQuery, function (err, result) {
           if (err) return cb(err)
           if (result.rowCount === 0) return cb(new Error(`No policy found for org ${organizationId} with name ${name}`))
 
