@@ -11,6 +11,21 @@ function getId (obj) {
   return obj.id
 }
 
+function mapPolicy (row) {
+  return {
+    id: row.id,
+    name: row.name,
+    version: row.version
+  }
+}
+
+function mapUser (row) {
+  return {
+    id: row.id,
+    name: row.name
+  }
+}
+
 module.exports = function (dbPool, log) {
   const policyOps = PolicyOps(dbPool)
   const userOps = UserOps(dbPool)
@@ -111,7 +126,7 @@ module.exports = function (dbPool, log) {
     job.client.query(SQL`DELETE FROM team_members WHERE team_id = ANY(${job.teamIds})`, next)
   }
 
-  function deleteTeamPolicies (job, next) {
+  function clearTeamPolicies (job, next) {
     job.client.query(SQL`DELETE FROM team_policies WHERE team_id = ${job.teamId}`, next)
   }
 
@@ -127,21 +142,21 @@ module.exports = function (dbPool, log) {
 
     const sql = SQL`INSERT INTO team_members (user_id, team_id) VALUES `
     sql.append(SQL`(${users[0].id},${teamId})`)
-    users.forEach((user) => {
+    users.splice(1).forEach((user) => {
       sql.append(SQL`, (${user.id},${teamId})`)
     })
     job.client.query(sql, next)
   }
 
   function insertTeamPolicies (job, next) {
-    const policies = job.params.policies
+    const policies = job.policies
     const teamId = job.teamId
 
     if (policies.length === 0) return next()
 
     const sql = SQL`INSERT INTO team_policies (policy_id, team_id) VALUES `
     sql.append(SQL`(${policies[0].id},${teamId})`)
-    policies.forEach((policy) => {
+    policies.splice(1).forEach((policy) => {
       sql.append(SQL`, (${policy.id},${teamId})`)
     })
     job.client.query(sql, next)
@@ -213,6 +228,18 @@ module.exports = function (dbPool, log) {
     job.client.query(sql, next)
   }
 
+  function removeTeamPolicy (job, next) {
+    const { teamId, policyId } = job
+
+    const sqlQuery = SQL`
+      DELETE FROM team_policies
+      WHERE team_id = ${teamId}
+      AND policy_id = ${policyId}
+    `
+    job.client.query(sqlQuery, next)
+  }
+
+
   var teamOps = {
 
     /**
@@ -282,9 +309,6 @@ module.exports = function (dbPool, log) {
      */
     readTeam: function readTeam ({ id, organizationId }, cb) {
       const team = {
-        'id': null,
-        'name': null,
-        'description': null,
         users: [],
         policies: []
       }
@@ -320,9 +344,7 @@ module.exports = function (dbPool, log) {
           client.query(sql, function (err, result) {
             if (err) return next(err)
 
-            result.rows.forEach(function (row) {
-              team.users.push(row)
-            })
+            team.users = result.rows.map(mapUser)
             next()
           })
         })
@@ -335,9 +357,7 @@ module.exports = function (dbPool, log) {
           client.query(sql, function (err, result) {
             if (err) return next(err)
 
-            result.rows.forEach(function (row) {
-              team.policies.push(row)
-            })
+            team.policies = result.rows.map(mapPolicy)
             next()
           })
         })
@@ -365,9 +385,7 @@ module.exports = function (dbPool, log) {
         },
         updateTeamSql,
         deleteTeamMembers,
-        deleteTeamPolicies,
-        insertTeamMembers,
-        insertTeamPolicies
+        insertTeamMembers
       ]
 
       dbUtil.withTransaction(dbPool, tasks, (err) => {
@@ -415,6 +433,89 @@ module.exports = function (dbPool, log) {
         if (err) return cb(err.isBoom ? err : Boom.badImplementation(err))
 
         teamOps.readTeam({id, organizationId}, cb)
+      })
+    },
+
+    /**
+     * Replace team poilicies
+     *
+     * @param  {Object}   params { id, organizationId, policies }
+     * @param  {Function} cb
+     */
+    replaceTeamPolicies: function replaceTeamPolicies (params, cb) {
+      const { id, organizationId, policies } = params
+      const tasks = [
+        (job, next) => {
+          job.teamId = id
+          job.organizationId = organizationId
+          job.policies = policies
+
+          next()
+        },
+        clearTeamPolicies,
+        insertTeamPolicies
+      ]
+
+      dbUtil.withTransaction(dbPool, tasks, (err, res) => {
+        if (err) {
+          return cb(Boom.badImplementation(err))
+        }
+
+        teamOps.readTeam({ id, organizationId }, cb)
+      })
+    },
+
+    /**
+     * Add one or more policies to a team
+     *
+     * @param  {Object}   params { id, organizationId, policies }
+     * @param  {Function} cb
+     */
+    addTeamPolicies: function addTeamPolicies (params, cb) {
+      const { id, organizationId, policies } = params
+
+      insertTeamPolicies({ client: dbPool, teamId: id, policies }, (err, res) => {
+        if (err) {
+          return cb(Boom.badImplementation(err))
+        }
+
+        teamOps.readTeam({ id, organizationId }, cb)
+      })
+    },
+
+    /**
+     * Remove all team's policies
+     *
+     * @param  {Object}   params { id, organizationId }
+     * @param  {Function} cb
+     */
+    deleteTeamPolicies: function deleteTeamPolicies (params, cb) {
+      const { id, organizationId } = params
+
+      clearTeamPolicies({ teamId: id, client: dbPool }, (err, res) => {
+        if (err) {
+          return cb(Boom.badImplementation(err))
+        }
+
+        teamOps.readTeam({ id, organizationId }, cb)
+      })
+    },
+
+    /**
+     * Remove a specific team policy
+     *
+     * @param  {Object}   params { userId, organizationId, policyId }
+     * @param  {Function} cb
+     */
+    deleteTeamPolicy: function deleteTeamPolicy (params, cb) {
+      const { teamId, organizationId, policyId } = params
+
+      removeTeamPolicy({ client: dbPool, teamId, policyId }, (err, res) => {
+        if (err) {
+          return cb(Boom.badImplementation(err))
+        }
+
+        teamOps.readTeam({ id: teamId, organizationId }, cb)
       })
     }
   }

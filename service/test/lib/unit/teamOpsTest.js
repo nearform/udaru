@@ -96,22 +96,6 @@ lab.experiment('teamOps', () => {
     teamOps.updateTeam(teamData, utils.testError(expect, 'Error: query error test', done))
   })
 
-  lab.test('updateTeam should return an error if deleting team policies fails', (done) => {
-    var dbPool = utils.getDbPoolErrorForQueryOrRowCount('DELETE FROM team_policies', {testRollback: true, expect: expect})
-    var teamOps = TeamOps(dbPool, () => {})
-
-    teamOps.updateTeam(teamData, utils.testError(expect, 'Error: query error test', done))
-  })
-
-  lab.test('updateTeam should return an error if inserting team policies fails', (done) => {
-    var dbPool = utils.getDbPoolErrorForQueryOrRowCount('INSERT INTO team_policies', {testRollback: true, expect: expect})
-    var teamOps = TeamOps(dbPool, () => {})
-
-    teamData.policies = [{ id: 1 }]
-
-    teamOps.updateTeam(teamData, utils.testError(expect, 'Error: query error test', done))
-  })
-
   lab.test('updateTeam should return an error if commit fails', (done) => {
     var dbPool = utils.getDbPoolErrorForQueryOrRowCount('COMMIT', {testRollback: true, expect: expect})
     var teamOps = TeamOps(dbPool, () => {})
