@@ -11,7 +11,7 @@ exports.register = function (server, options, next) {
     method: 'GET',
     path: '/authorization/policies',
     handler: function (request, reply) {
-      const { id: organizationId } = request.authorization.organization
+      const { organizationId } = request.auth
 
       policyOps.listByOrganization({ organizationId }, reply)
     },
@@ -31,7 +31,7 @@ exports.register = function (server, options, next) {
     method: 'GET',
     path: '/authorization/policies/{id}',
     handler: function (request, reply) {
-      const { id: organizationId } = request.authorization.organization
+      const { organizationId } = request.auth
       const { id } = request.params
 
       policyOps.readPolicy({ id, organizationId }, reply)

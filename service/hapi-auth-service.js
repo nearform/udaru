@@ -49,6 +49,10 @@ internals.implementation = function (server, options) {
           return reply(Boom.badImplementation('Bad credentials object received'))
         }
 
+        // TOREV: Are there any better approaches?
+        const { org: organizationId } = request.headers
+        request.auth.organizationId = organizationId || user.organizationId || null
+
         return reply.continue({ credentials: user })
       })
     }
