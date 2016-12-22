@@ -152,12 +152,15 @@ exports.register = function (server, options, next) {
     method: 'PUT',
     path: '/authorization/teams/{id}/nest',
     handler: function (request, reply) {
+      const { id: organizationId } = request.authorization.organization
+
       const params = {
         id: request.params.id,
-        parentId: request.payload.parentId
+        parentId: request.payload.parentId,
+        organizationId
       }
 
-      teamOps.move(params, function (err, res) {
+      teamOps.moveTeam(params, function (err, res) {
         if (err) {
           return reply(err)
         }
@@ -184,12 +187,15 @@ exports.register = function (server, options, next) {
     method: 'PUT',
     path: '/authorization/teams/{id}/unnest',
     handler: function (request, reply) {
+      const { id: organizationId } = request.authorization.organization
+
       const params = {
         id: request.params.id,
-        parentId: null
+        parentId: null,
+        organizationId
       }
 
-      teamOps.move(params, function (err, res) {
+      teamOps.moveTeam(params, function (err, res) {
         if (err) {
           return reply(err)
         }
