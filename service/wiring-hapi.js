@@ -7,6 +7,9 @@ const dbConn = require('./lib/dbConn')
 const Hapi = require('hapi')
 const server = new Hapi.Server()
 
+const HapiAuthService = require('./hapi-auth-service')
+const authValidation = require('./hapi-auth-validation')
+
 server.connection({
   port: Number(config.get('hapi.port')),
   host: config.get('hapi.host'),
@@ -46,10 +49,17 @@ server.register(
     {
       register: require('hapi-swagger'),
       options: swaggerOptions
-    }
+    },
+    HapiAuthService
   ],
   function (err) {
-    if (err) { throw err }
+    if (err) {
+      throw err
+    }
+
+    server.auth.strategy('default', 'service', 'required', {
+      validateFunc: authValidation.bind(null, options)
+    })
   }
 )
 
@@ -58,10 +68,6 @@ const options = { dbPool: db.pool }
 
 server.register(
   [
-    {
-      register: require('./preHandler/user'),
-      options
-    },
     {
       register: require('./routes/public/users'),
       options
@@ -88,7 +94,9 @@ server.register(
     }
   ],
   function (err) {
-    if (err) { throw err }
+    if (err) {
+      throw err
+    }
   }
 )
 

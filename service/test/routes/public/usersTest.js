@@ -143,7 +143,7 @@ lab.experiment('Users', () => {
       },
       headers: {
         authorization: 1,
-        organization_id: 'OILCOUSA'
+        org: 'OILCOUSA'
       }
     })
 

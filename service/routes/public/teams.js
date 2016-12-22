@@ -2,6 +2,7 @@
 
 const Joi = require('joi')
 const TeamOps = require('./../../lib/teamOps')
+const Action = require('./../../lib/config.auth').Action
 
 exports.register = function (server, options, next) {
   const teamOps = TeamOps(options.dbPool, server.logger())
@@ -10,13 +11,18 @@ exports.register = function (server, options, next) {
     method: 'GET',
     path: '/authorization/teams',
     handler: function (request, reply) {
-      const { id: organizationId } = request.authorization.organization
+      const { organizationId } = request.udaru
       teamOps.listOrgTeams({ organizationId }, reply)
     },
     config: {
       description: 'Fetch all teams (of the current user organization)',
       notes: 'The GET /authorization/teams endpoint returns a list of all teams\n',
-      tags: ['api', 'service', 'get', 'team']
+      tags: ['api', 'service', 'get', 'team'],
+      plugins: {
+        auth: {
+          action: Action.ListTeams
+        }
+      }
     }
   })
 
@@ -25,7 +31,7 @@ exports.register = function (server, options, next) {
     path: '/authorization/teams',
     handler: function (request, reply) {
       const { name, description, user } = request.payload
-      const { id: organizationId } = request.authorization.organization
+      const { organizationId } = request.udaru
 
       const params = {
         name,
@@ -55,7 +61,12 @@ exports.register = function (server, options, next) {
       },
       description: 'Create a teams',
       notes: 'The POST /authorization/teams endpoint creates a new team given its data\n',
-      tags: ['api', 'service', 'post', 'team']
+      tags: ['api', 'service', 'post', 'team'],
+      plugins: {
+        auth: {
+          action: Action.CreateTeam
+        }
+      }
     }
   })
 
@@ -63,7 +74,7 @@ exports.register = function (server, options, next) {
     method: 'GET',
     path: '/authorization/teams/{id}',
     handler: function (request, reply) {
-      const { id: organizationId } = request.authorization.organization
+      const { organizationId } = request.udaru
       const { id } = request.params
 
       teamOps.readTeam({ id, organizationId }, reply)
@@ -76,7 +87,13 @@ exports.register = function (server, options, next) {
       },
       description: 'Fetch a team given its identifier',
       notes: 'The GET /authorization/teams/{id} endpoint returns a single team data\n',
-      tags: ['api', 'service', 'get', 'team']
+      tags: ['api', 'service', 'get', 'team'],
+      plugins: {
+        auth: {
+          action: Action.ReadTeam,
+          getParams: (request) => ({ teamId: request.params.id })
+        }
+      }
     }
   })
 
@@ -85,7 +102,7 @@ exports.register = function (server, options, next) {
     path: '/authorization/teams/{id}',
     handler: function (request, reply) {
       const id = request.params.id
-      const { id: organizationId } = request.authorization.organization
+      const { organizationId } = request.udaru
       const { name, description, users, policies } = request.payload
 
       const params = {
@@ -117,7 +134,13 @@ exports.register = function (server, options, next) {
       },
       description: 'Update a team',
       notes: 'The PUT /authorization/teams endpoint updates a team data\n',
-      tags: ['api', 'service', 'put', 'team']
+      tags: ['api', 'service', 'put', 'team'],
+      plugins: {
+        auth: {
+          action: Action.UpdateTeam,
+          getParams: (request) => ({ teamId: request.params.id })
+        }
+      }
     }
   })
 
@@ -126,7 +149,7 @@ exports.register = function (server, options, next) {
     path: '/authorization/teams/{id}',
     handler: function (request, reply) {
       const { id } = request.params
-      const { id: organizationId } = request.authorization.organization
+      const { organizationId } = request.udaru
 
       teamOps.deleteTeam({ id, organizationId }, function (err, res) {
         if (err) {
@@ -144,7 +167,13 @@ exports.register = function (server, options, next) {
       },
       description: 'Delete a team',
       notes: 'The DELETE /authorization/teams endpoint deletes a team\n',
-      tags: ['api', 'service', 'delete', 'team']
+      tags: ['api', 'service', 'delete', 'team'],
+      plugins: {
+        auth: {
+          action: Action.DeleteTeam,
+          getParams: (request) => ({ teamId: request.params.id })
+        }
+      }
     }
   })
 
@@ -179,7 +208,13 @@ exports.register = function (server, options, next) {
       },
       description: 'Nest a team',
       notes: 'The PUT /authorization/teams/{id}/nest endpoint nests a team\n',
-      tags: ['api', 'service', 'nest', 'team']
+      tags: ['api', 'service', 'nest', 'team'],
+      plugins: {
+        auth: {
+          action: Action.ManageTeam,
+          getParams: (request) => ({ teamId: request.params.id })
+        }
+      }
     }
   })
 
@@ -211,7 +246,13 @@ exports.register = function (server, options, next) {
       },
       description: 'Unnest a team',
       notes: 'The PUT /authorization/teams/{id}/unnest endpoint unnests a team\n',
-      tags: ['api', 'service', 'nest', 'team']
+      tags: ['api', 'service', 'nest', 'team'],
+      plugins: {
+        auth: {
+          action: Action.ManageTeam,
+          getParams: (request) => ({ teamId: request.params.id })
+        }
+      }
     }
   })
 

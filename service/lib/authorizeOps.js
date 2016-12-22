@@ -74,7 +74,7 @@ module.exports = function (policyOps) {
 
         if (errors.length > 0) return cb(Boom.wrap(errors.shift()))
         // return thE allowable actions
-        cb(null, {actions: data})
+        cb(null, { actions: data })
       })
     }
   }

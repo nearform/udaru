@@ -2,6 +2,7 @@
 
 const Joi = require('joi')
 const UserOps = require('./../../lib/userOps')
+const Action = require('./../../lib/config.auth').Action
 
 exports.register = function (server, options, next) {
   const userOps = UserOps(options.dbPool, server.logger())
@@ -10,13 +11,18 @@ exports.register = function (server, options, next) {
     method: 'GET',
     path: '/authorization/users',
     handler: function (request, reply) {
-      const { id: organizationId } = request.authorization.organization
+      const { organizationId } = request.udaru
       userOps.listOrgUsers({ organizationId }, reply)
     },
     config: {
       description: 'Fetch all users (of the current user organization)',
       notes: 'The GET /authorization/users endpoint returns a list of all users\n',
-      tags: ['api', 'service', 'get', 'users']
+      tags: ['api', 'service', 'get', 'users'],
+      plugins: {
+        auth: {
+          action: Action.ListUsers
+        }
+      }
     }
   })
 
@@ -24,7 +30,7 @@ exports.register = function (server, options, next) {
     method: 'GET',
     path: '/authorization/users/{id}',
     handler: function (request, reply) {
-      const { id: organizationId } = request.authorization.organization
+      const { organizationId } = request.udaru
       const id = request.params.id
 
       userOps.readUser({ id, organizationId }, reply)
@@ -37,7 +43,13 @@ exports.register = function (server, options, next) {
       },
       description: 'Fetch a user given its identifier',
       notes: 'The GET /authorization/users/{id} endpoint returns a single user data\n',
-      tags: ['api', 'service', 'get', 'users']
+      tags: ['api', 'service', 'get', 'users'],
+      plugins: {
+        auth: {
+          action: Action.ReadUser,
+          getParams: (request) => ({ userId: request.params.id })
+        }
+      }
     }
   })
 
@@ -45,7 +57,7 @@ exports.register = function (server, options, next) {
     method: 'POST',
     path: '/authorization/users',
     handler: function (request, reply) {
-      const { id: organizationId } = request.authorization.organization
+      const { organizationId } = request.udaru
       const params = {
         name: request.payload.name,
         organizationId
@@ -67,7 +79,12 @@ exports.register = function (server, options, next) {
       },
       description: 'Create a new user',
       notes: 'The POST /authorization/users endpoint creates a new user given its data\n',
-      tags: ['api', 'service', 'post', 'users']
+      tags: ['api', 'service', 'post', 'users'],
+      plugins: {
+        auth: {
+          action: Action.CreateUser
+        }
+      }
     }
   })
 
@@ -75,7 +92,7 @@ exports.register = function (server, options, next) {
     method: 'DELETE',
     path: '/authorization/users/{id}',
     handler: function (request, reply) {
-      const { id: organizationId } = request.authorization.organization
+      const { organizationId } = request.udaru
       const id = request.params.id
 
       userOps.deleteUser({ id, organizationId }, function (err, res) {
@@ -94,7 +111,13 @@ exports.register = function (server, options, next) {
       },
       description: 'Delete a user',
       notes: 'The DELETE /authorization/users endpoint delete a user\n',
-      tags: ['api', 'service', 'delete', 'users']
+      tags: ['api', 'service', 'delete', 'users'],
+      plugins: {
+        auth: {
+          action: Action.DeleteUser,
+          getParams: (request) => ({ userId: request.params.id })
+        }
+      }
     }
   })
 
@@ -102,7 +125,7 @@ exports.register = function (server, options, next) {
     method: 'PUT',
     path: '/authorization/users/{id}',
     handler: function (request, reply) {
-      const { id: organizationId } = request.authorization.organization
+      const { organizationId } = request.udaru
       const id = request.params.id
       const { name, teams } = request.payload
 
@@ -128,7 +151,13 @@ exports.register = function (server, options, next) {
       },
       description: 'Update a user',
       notes: 'The PUT /authorization/users endpoint updates a user data\n',
-      tags: ['api', 'service', 'put', 'users']
+      tags: ['api', 'service', 'put', 'users'],
+      plugins: {
+        auth: {
+          action: Action.UpdateUser,
+          getParams: (request) => ({ userId: request.params.id })
+        }
+      }
     }
   })
 
@@ -137,7 +166,7 @@ exports.register = function (server, options, next) {
     path: '/authorization/users/{id}/policies',
     handler: function (request, reply) {
       const { id } = request.params
-      const { id: organizationId } = request.authorization.organization
+      const { organizationId } = request.udaru
       const { policies } = request.payload
 
       const params = {
@@ -160,7 +189,13 @@ exports.register = function (server, options, next) {
       },
       description: 'Add one or more policies to a user',
       notes: 'The PUT /authorization/users/{id}/policies endpoint add one or more new policies to a user\n',
-      tags: ['api', 'service', 'put', 'users', 'policies']
+      tags: ['api', 'service', 'put', 'users', 'policies'],
+      plugins: {
+        auth: {
+          action: Action.AddUserPolicy,
+          getParams: (request) => ({ userId: request.params.id })
+        }
+      }
     }
   })
 
@@ -169,7 +204,7 @@ exports.register = function (server, options, next) {
     path: '/authorization/users/{id}/policies',
     handler: function (request, reply) {
       const { id } = request.params
-      const { id: organizationId } = request.authorization.organization
+      const { organizationId } = request.udaru
       const { policies } = request.payload
 
       const params = {
@@ -193,7 +228,13 @@ exports.register = function (server, options, next) {
       },
       description: 'Clear and replace policies for a user',
       notes: 'The POST /authorization/users/{id}/policies endpoint removes all the user policies and replace them\n',
-      tags: ['api', 'service', 'post', 'users', 'policies']
+      tags: ['api', 'service', 'post', 'users', 'policies'],
+      plugins: {
+        auth: {
+          action: Action.AddUserPolicy,
+          getParams: (request) => ({ userId: request.params.id })
+        }
+      }
     }
   })
 
@@ -202,7 +243,7 @@ exports.register = function (server, options, next) {
     path: '/authorization/users/{id}/policies',
     handler: function (request, reply) {
       const { id } = request.params
-      const { id: organizationId } = request.authorization.organization
+      const { organizationId } = request.udaru
 
       userOps.deleteUserPolicies({ id, organizationId }, function (err, res) {
         if (err) {
@@ -220,7 +261,13 @@ exports.register = function (server, options, next) {
       },
       description: 'Clear all user\'s policies',
       notes: 'The DELETE /authorization/users/{id}/policies endpoint removes all the user policies\n',
-      tags: ['api', 'service', 'delete', 'users', 'policies']
+      tags: ['api', 'service', 'delete', 'users', 'policies'],
+      plugins: {
+        auth: {
+          action: Action.RemoveUserPolicy,
+          getParams: (request) => ({ userId: request.params.id })
+        }
+      }
     }
   })
 
@@ -229,7 +276,7 @@ exports.register = function (server, options, next) {
     path: '/authorization/users/{userId}/policies/{policyId}',
     handler: function (request, reply) {
       const { userId, policyId } = request.params
-      const { id: organizationId } = request.authorization.organization
+      const { organizationId } = request.udaru
 
       userOps.deleteUserPolicy({ userId, policyId, organizationId }, function (err, res) {
         if (err) {
@@ -248,7 +295,16 @@ exports.register = function (server, options, next) {
       },
       description: 'Remove a user\'s policy',
       notes: 'The DELETE /authorization/users/{userId}/policies/{policyId} endpoint removes a specific user\'s policy\n',
-      tags: ['api', 'service', 'delete', 'users', 'policies']
+      tags: ['api', 'service', 'delete', 'users', 'policies'],
+      plugins: {
+        auth: {
+          action: Action.RemoveUserPolicy,
+          getParams: (request) => ({
+            userId: request.params.userId,
+            policyId: request.params.policyId
+          })
+        }
+      }
     }
   })
 

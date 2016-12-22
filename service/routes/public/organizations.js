@@ -2,6 +2,7 @@
 
 const Joi = require('joi')
 const OrganizationOps = require('./../../lib/organizationOps')
+const Action = require('./../../lib/config.auth').Action
 
 exports.register = function (server, options, next) {
   const organizationOps = OrganizationOps(options.dbPool, server.logger())
@@ -14,7 +15,12 @@ exports.register = function (server, options, next) {
     },
     config: {
       description: 'List all the organizations [TBD]',
-      tags: ['api', 'service', 'organizations']
+      tags: ['api', 'service', 'organizations'],
+      plugins: {
+        auth: {
+          action: Action.ListOrganizations
+        }
+      }
     }
   })
 
@@ -26,7 +32,13 @@ exports.register = function (server, options, next) {
     },
     config: {
       description: 'Get organization [TBD]',
-      tags: ['api', 'service', 'organizations']
+      tags: ['api', 'service', 'organizations'],
+      plugins: {
+        auth: {
+          action: Action.ReadOrganization,
+          getParams: (request) => ({ organizationId: request.params.id })
+        }
+      }
     }
   })
 
@@ -62,7 +74,12 @@ exports.register = function (server, options, next) {
       },
       description: 'Create an organization',
       notes: 'The POST /authorization/organizations endpoint will create a new organization, the default organization admin policy and (if provided) its admin.',
-      tags: ['api', 'service', 'post', 'organization']
+      tags: ['api', 'service', 'post', 'organization'],
+      plugins: {
+        auth: {
+          action: Action.CreateOrganization
+        }
+      }
     }
   })
 
@@ -85,7 +102,13 @@ exports.register = function (server, options, next) {
     config: {
       description: 'DELETE an organization',
       notes: 'The DELETE /authorization/organizations/{id} endpoint will delete an organization.',
-      tags: ['api', 'service', 'delete', 'organization']
+      tags: ['api', 'service', 'delete', 'organization'],
+      plugins: {
+        auth: {
+          action: Action.DeleteOrganization,
+          getParams: (request) => ({ organizationId: request.params.id })
+        }
+      }
     }
   })
 
@@ -110,7 +133,13 @@ exports.register = function (server, options, next) {
       },
       description: 'Update an organization',
       notes: 'The PUT /authorization/organizations/{id} endpoint will update an organization name and description',
-      tags: ['api', 'service', 'put', 'organization']
+      tags: ['api', 'service', 'put', 'organization'],
+      plugins: {
+        auth: {
+          action: Action.UpdateOrganization,
+          getParams: (request) => ({ organizationId: request.params.id })
+        }
+      }
     }
   })
 

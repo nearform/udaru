@@ -97,7 +97,8 @@ function testError (expect, errorString, cb) {
 function requestOptions (customOptions) {
   const defaultOptions = {
     headers: {
-      authorization: 2
+      authorization: 1,
+      org: 'WONKA'
     }
   }
 

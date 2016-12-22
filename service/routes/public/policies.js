@@ -2,6 +2,7 @@
 
 const Joi = require('joi')
 const PolicyOps = require('./../../lib/policyOps')
+const Action = require('./../../lib/config.auth').Action
 
 exports.register = function (server, options, next) {
   const policyOps = PolicyOps(options.dbPool)
@@ -10,14 +11,19 @@ exports.register = function (server, options, next) {
     method: 'GET',
     path: '/authorization/policies',
     handler: function (request, reply) {
-      const { id: organizationId } = request.authorization.organization
+      const { organizationId } = request.udaru
 
       policyOps.listByOrganization({ organizationId }, reply)
     },
     config: {
       description: 'Fetch all the defined policies',
       notes: 'The GET /authorization/policies endpoint returns a list of all the defined policies\nthe policies will contain only the id, version and name, no statements.\n',
-      tags: ['api', 'service', 'get', 'policies']
+      tags: ['api', 'service', 'get', 'policies'],
+      plugins: {
+        auth: {
+          action: Action.ListPolicies
+        }
+      }
     }
   })
 
@@ -25,7 +31,7 @@ exports.register = function (server, options, next) {
     method: 'GET',
     path: '/authorization/policies/{id}',
     handler: function (request, reply) {
-      const { id: organizationId } = request.authorization.organization
+      const { organizationId } = request.udaru
       const { id } = request.params
 
       policyOps.readPolicy({ id, organizationId }, reply)
@@ -38,7 +44,13 @@ exports.register = function (server, options, next) {
       },
       description: 'Fetch all the defined policies',
       notes: 'The GET /authorization/policies/{id} endpoint returns a single policy based on it\'s id.\n',
-      tags: ['api', 'service', 'get', 'policies']
+      tags: ['api', 'service', 'get', 'policies'],
+      plugins: {
+        auth: {
+          action: Action.ReadPolicy,
+          getParams: (request) => ({ policyId: request.params.id })
+        }
+      }
     }
   })
 
