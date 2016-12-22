@@ -103,14 +103,13 @@ exports.register = function (server, options, next) {
     handler: function (request, reply) {
       const id = request.params.id
       const { organizationId } = request.udaru
-      const { name, description, users, policies } = request.payload
+      const { name, description, users } = request.payload
 
       const params = {
         id,
         name,
         description,
         users,
-        policies,
         organizationId
       }
 
