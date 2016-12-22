@@ -9,13 +9,6 @@ const PolicyOps = require('./lib/policyOps')
 const AuthorizeOps = require('./lib/authorizeOps')
 
 module.exports = (options, server, request, userId, callback) => {
-  const { route } = request
-
-  const resourceType = route.path.split('/')[2]
-  if (!authConfig.resources[resourceType]) {
-    return callback(null, false, { error: 'Resource builder not found' })
-  }
-
   const userOps = UserOps(options.dbPool, server.logger)
 
   async.waterfall([
@@ -38,6 +31,8 @@ module.exports = (options, server, request, userId, callback) => {
       })
     },
     (user, next) => {
+      const { route } = request
+
       const authPlugin = route.settings.plugins && route.settings.plugins.auth
       if (!authPlugin) {
         return next(null, false)
@@ -46,8 +41,16 @@ module.exports = (options, server, request, userId, callback) => {
       const requestParams = authPlugin.getParams ? authPlugin.getParams(request) : {}
       const buildParams = Object.assign({}, user, requestParams)
 
-      const resourceBuilder = authConfig.resources[resourceType]
-      const resource = resourceBuilder && resourceBuilder(buildParams) || null
+      let resource = authPlugin.resource
+      if (!resource) {
+        const resourceType = route.path.split('/')[2]
+        if (!authConfig.resources[resourceType]) {
+          return callback(null, false, { error: 'Resource builder not found' })
+        }
+
+        const resourceBuilder = authConfig.resources[resourceType]
+        resource = resourceBuilder && resourceBuilder(buildParams) || null
+      }
 
       const params = {
         userId,

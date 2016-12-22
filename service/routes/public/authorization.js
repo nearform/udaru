@@ -1,6 +1,8 @@
 'use strict'
 
 const Joi = require('joi')
+const Action = require('./../../lib/config.auth').Action
+
 const AuthorizeOps = require('./../../lib/authorizeOps')
 const PolicyOps = require('./../../lib/policyOps')
 
@@ -23,7 +25,12 @@ exports.register = function (server, options, next) {
       authorize.isUserAuthorized(params, reply)
     },
     config: {
-      auth: false,
+      plugins: {
+        auth: {
+          action: Action.CheckAccess,
+          resource: 'authorization/access'
+        }
+      },
       validate: {
         params: {
           userId: Joi.number().required().description('The user that wants to perform the action on a given resource'),
@@ -52,7 +59,12 @@ exports.register = function (server, options, next) {
       authorize.listAuthorizations(params, reply)
     },
     config: {
-      auth: false,
+      plugins: {
+        auth: {
+          action: Action.ListActions,
+          resource: 'authorization/actions'
+        }
+      },
       validate: {
         params: {
           userId: Joi.number().required().description('The user that wants to perform the action on a given resource'),

@@ -42,5 +42,12 @@
       "delete": "delete",
       "list": "list"
     }
+  },
+  "authorization": {
+    "text": "authn",
+    "operations": {
+      "access": "access",
+      "actions": "actions"
+    }
   }
 }

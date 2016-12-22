@@ -57,7 +57,11 @@ const Actions = {
   ReadPolicy: generateAction('policy', 'read'),
   DeletePolicy: generateAction('policy', 'delete'),
   ListPolicies: generateAction('policy', 'list'),
-  AllPolicy: generateAction('policy')
+  AllPolicy: generateAction('policy'),
+
+  // authorization
+  CheckAccess: generateAction('authorization', 'access'),
+  ListActions: generateAction('authorization', 'actions')
 }
 
 module.exports = {
