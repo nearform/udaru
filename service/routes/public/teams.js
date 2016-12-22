@@ -209,6 +209,126 @@ exports.register = function (server, options, next) {
     }
   })
 
+  server.route({
+    method: 'PUT',
+    path: '/authorization/teams/{id}/policies',
+    handler: function (request, reply) {
+      const { id } = request.params
+      const { id: organizationId } = request.authorization.organization
+      const { policies } = request.payload
+
+      const params = {
+        id,
+        organizationId,
+        policies
+      }
+      teamOps.addTeamPolicies(params, reply)
+    },
+    config: {
+      validate: {
+        params: {
+          id: Joi.number().required().description('Team id')
+        },
+        payload: {
+          policies: Joi.array().required().items(Joi.object().keys({
+            id: Joi.number().required()
+          }))
+        }
+      },
+      description: 'Add one or more policies to a team',
+      notes: 'The PUT /authorization/teams/{id}/policies endpoint add one or more new policies to a team\n',
+      tags: ['api', 'service', 'put', 'teams', 'policies']
+    }
+  })
+
+  server.route({
+    method: 'POST',
+    path: '/authorization/teams/{id}/policies',
+    handler: function (request, reply) {
+      const { id } = request.params
+      const { id: organizationId } = request.authorization.organization
+      const { policies } = request.payload
+
+      const params = {
+        id,
+        organizationId,
+        policies
+      }
+
+      teamOps.replaceTeamPolicies(params, reply)
+    },
+    config: {
+      validate: {
+        params: {
+          id: Joi.number().required().description('Team id')
+        },
+        payload: {
+          policies: Joi.array().required().items(Joi.object().keys({
+            id: Joi.number().required()
+          }))
+        }
+      },
+      description: 'Clear and replace policies for a team',
+      notes: 'The POST /authorization/teams/{id}/policies endpoint removes all the team policies and replace them\n',
+      tags: ['api', 'service', 'post', 'teams', 'policies']
+    }
+  })
+
+  server.route({
+    method: 'DELETE',
+    path: '/authorization/teams/{id}/policies',
+    handler: function (request, reply) {
+      const { id } = request.params
+      const { id: organizationId } = request.authorization.organization
+
+      teamOps.deleteTeamPolicies({ id, organizationId }, function (err, res) {
+        if (err) {
+          return reply(err)
+        }
+
+        return reply().code(204)
+      })
+    },
+    config: {
+      validate: {
+        params: {
+          id: Joi.number().required().description('Team id')
+        }
+      },
+      description: 'Clear all team policies',
+      notes: 'The DELETE /authorization/teams/{id}/policies endpoint removes all the team policies\n',
+      tags: ['api', 'service', 'delete', 'teams', 'policies']
+    }
+  })
+
+  server.route({
+    method: 'DELETE',
+    path: '/authorization/teams/{teamId}/policies/{policyId}',
+    handler: function (request, reply) {
+      const { teamId, policyId } = request.params
+      const { id: organizationId } = request.authorization.organization
+
+      teamOps.deleteTeamPolicy({ teamId, policyId, organizationId }, function (err, res) {
+        if (err) {
+          return reply(err)
+        }
+
+        return reply().code(204)
+      })
+    },
+    config: {
+      validate: {
+        params: {
+          teamId: Joi.number().required().description('Team id'),
+          policyId: Joi.number().required().description('Policy id')
+        }
+      },
+      description: 'Remove a team policy',
+      notes: 'The DELETE /authorization/teams/{teamId}/policies/{policyId} endpoint removes a specific team policy\n',
+      tags: ['api', 'service', 'delete', 'teams', 'policies']
+    }
+  })
+
   next()
 }
 
