@@ -1,3 +1,23 @@
+/*
+ *  {
+ *    "policies": [
+ *      {
+ *        "version": "",
+ *        "name": "policy name",
+ *        "statements": [
+ *          {
+ *            "Effect": "Allow/Deny",
+ *            "Action": "act",
+ *            "Resource": "res"
+ *          },
+ *          { ... }
+ *        ]
+ *      },
+ *      { ... }
+ *    ]
+ *  }
+ */
+
 const jsonfile = require('jsonfile')
 const minimist = require('minimist')
 
