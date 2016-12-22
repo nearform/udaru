@@ -222,8 +222,7 @@ lab.experiment('AuthorizeOps', () => {
         id: testTeamId,
         name: testTeamName,
         description: testTeamDesc,
-        users: [{ id: testUserId }],
-        policies: [{ id: 2 }],
+        users: [testUserId],
         organizationId
       }
       teamOps.updateTeam(teamData, cb)

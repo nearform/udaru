@@ -236,8 +236,7 @@ lab.experiment('OrganizationOps', () => {
         id: teamId,
         name: 'Team 4',
         description: 'This is a test team',
-        users: [{ id: userId }],
-        policies: [{ id: policyId }],
+        users: [userId],
         organizationId: 'nearForm222'
       }
       teamOps.updateTeam(teamData, next)

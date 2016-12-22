@@ -49,8 +49,7 @@ lab.experiment('TeamOps', () => {
         id: testTeamId,
         name: 'Team 5',
         description: 'description',
-        users: [{'id': 1, 'name': 'Tom Watson'}, {'id': 2, 'name': 'Michael O\'Brien'}],
-        policies: [{'id': 1, 'name': 'Financial info access'}],
+        users: [1, 2],
         organizationId: 'WONKA'
       }
 
@@ -58,6 +57,11 @@ lab.experiment('TeamOps', () => {
         expect(err).to.not.exist()
         expect(result).to.exist()
         expect(result.name).to.equal('Team 5')
+        expect(result.users).to.have.length(2)
+        expect(result.users).to.only.include([
+          {'id': 1, 'name': 'Super User'},
+          {'id': 2, 'name': 'Charlie Bucket'}
+        ])
 
         policyOps.listByOrganization({ organizationId: 'WONKA' }, (err, policies) => {
           expect(err).to.not.exist()
@@ -293,13 +297,13 @@ lab.experiment('TeamOps', () => {
       expect(team).to.exist()
       expect(team.policies).to.equal([{ id: 1, name: 'Director', version: '0.1' }])
 
-      teamOps.replaceTeamPolicies({ id: 1, policies: [{ id: 2 }, { id: 3 }], organizationId: 'WONKA' }, (err, team) => {
+      teamOps.replaceTeamPolicies({ id: 1, policies: [2, 3], organizationId: 'WONKA' }, (err, team) => {
         expect(err).to.not.exist()
         expect(team).to.exist()
         expect(team.policies).to.have.length(2)
         expect(team.policies).to.only.include([{ id: 2, name: 'Accountant', version: '0.1' }, { id: 3, name: 'Sys admin', version: '0.1' }])
 
-        teamOps.replaceTeamPolicies({ id: 1, policies: [{ id: 1 }], organizationId: 'WONKA' }, (err, team) => {
+        teamOps.replaceTeamPolicies({ id: 1, policies: [1], organizationId: 'WONKA' }, (err, team) => {
           expect(err).to.not.exist()
           done()
         })
@@ -313,13 +317,13 @@ lab.experiment('TeamOps', () => {
       expect(team).to.exist()
       expect(team.policies).to.equal([{ id: 1, name: 'Director', version: '0.1' }])
 
-      teamOps.addTeamPolicies({ id: 1, policies: [{ id: 2 }, { id: 3 }], organizationId: 'WONKA' }, (err, team) => {
+      teamOps.addTeamPolicies({ id: 1, policies: [2, 3], organizationId: 'WONKA' }, (err, team) => {
         expect(err).to.not.exist()
         expect(team).to.exist()
         expect(team.policies).to.have.length(3)
         expect(team.policies).to.only.include([{ id: 1, name: 'Director', version: '0.1' }, { id: 2, name: 'Accountant', version: '0.1' }, { id: 3, name: 'Sys admin', version: '0.1' }])
 
-        teamOps.replaceTeamPolicies({ id: 1, policies: [{ id: 1 }], organizationId: 'WONKA' }, (err, team) => {
+        teamOps.replaceTeamPolicies({ id: 1, policies: [1], organizationId: 'WONKA' }, (err, team) => {
           expect(err).to.not.exist()
           done()
         })
@@ -338,7 +342,7 @@ lab.experiment('TeamOps', () => {
         expect(team).to.exist()
         expect(team.policies).to.equal([])
 
-        teamOps.replaceTeamPolicies({ id: 1, policies: [{ id: 1 }], organizationId: 'WONKA' }, (err, team) => {
+        teamOps.replaceTeamPolicies({ id: 1, policies: [1], organizationId: 'WONKA' }, (err, team) => {
           expect(err).to.not.exist()
           done()
         })
@@ -358,7 +362,7 @@ lab.experiment('TeamOps', () => {
         expect(team).to.exist()
         expect(team.policies).to.equal([])
 
-        teamOps.replaceTeamPolicies({ id: 1, policies: [{ id: 1 }], organizationId: 'WONKA' }, (err, team) => {
+        teamOps.replaceTeamPolicies({ id: 1, policies: [1], organizationId: 'WONKA' }, (err, team) => {
           expect(err).to.not.exist()
           done()
         })

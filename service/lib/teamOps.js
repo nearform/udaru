@@ -141,9 +141,9 @@ module.exports = function (dbPool, log) {
     if (users.length === 0) return next()
 
     const sql = SQL`INSERT INTO team_members (user_id, team_id) VALUES `
-    sql.append(SQL`(${users[0].id},${teamId})`)
-    users.splice(1).forEach((user) => {
-      sql.append(SQL`, (${user.id},${teamId})`)
+    sql.append(SQL`(${users[0]},${teamId})`)
+    users.slice(1).forEach((userId) => {
+      sql.append(SQL`, (${userId},${teamId})`)
     })
     job.client.query(sql, next)
   }
@@ -155,9 +155,9 @@ module.exports = function (dbPool, log) {
     if (policies.length === 0) return next()
 
     const sql = SQL`INSERT INTO team_policies (policy_id, team_id) VALUES `
-    sql.append(SQL`(${policies[0].id},${teamId})`)
-    policies.splice(1).forEach((policy) => {
-      sql.append(SQL`, (${policy.id},${teamId})`)
+    sql.append(SQL`(${policies[0]},${teamId})`)
+    policies.slice(1).forEach((policyId) => {
+      sql.append(SQL`, (${policyId},${teamId})`)
     })
     job.client.query(sql, next)
   }
@@ -376,7 +376,7 @@ module.exports = function (dbPool, log) {
      * @param {Function}  cb
      */
     updateTeam: function updateTeam (params, cb) {
-      const { id, name, description, users, policies } = params
+      const { id, organizationId } = params
       const tasks = [
         (job, next) => {
           job.params = params
@@ -390,7 +390,8 @@ module.exports = function (dbPool, log) {
 
       dbUtil.withTransaction(dbPool, tasks, (err) => {
         if (err) return cb(err.isBoom ? err : Boom.badImplementation(err))
-        cb(null, {id, name, description, users, policies})
+
+        teamOps.readTeam({ id, organizationId }, cb)
       })
     },
 
