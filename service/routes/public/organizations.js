@@ -14,7 +14,7 @@ exports.register = function (server, options, next) {
       organizationOps.list(reply)
     },
     config: {
-      description: 'List all the organizations [TBD]',
+      description: 'List all the organizations',
       tags: ['api', 'service', 'organizations'],
       plugins: {
         auth: {
@@ -31,7 +31,7 @@ exports.register = function (server, options, next) {
       organizationOps.readById(request.params.id, reply)
     },
     config: {
-      description: 'Get organization [TBD]',
+      description: 'Get organization',
       tags: ['api', 'service', 'organizations'],
       plugins: {
         auth: {

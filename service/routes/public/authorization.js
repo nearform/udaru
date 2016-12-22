@@ -38,7 +38,7 @@ exports.register = function (server, options, next) {
           resource: Joi.string().required().description('The resource that the user wants to perform the action on')
         }
       },
-      description: 'Authorize user action against a resource [TBD]',
+      description: 'Authorize user action against a resource',
       notes: 'The GET /authorization/check/{userId}/{action}/{resource} endpoint returns is a user can perform and action\non a resource\n',
       tags: ['api', 'service', 'authorization']
     }
