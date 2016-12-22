@@ -49,7 +49,7 @@ module.exports = new Reconfig({
               {
                 Effect: 'Allow',
                 Action: [Action.AllTeam],
-                Resource: [resources.teams({ organizationId: ':organizationId:' })]
+                Resource: [resources.teams({ organizationId: ':organizationId' })]
               },
               {
                 Effect: 'Allow',
