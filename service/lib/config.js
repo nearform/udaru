@@ -33,6 +33,26 @@ module.exports = new Reconfig({
     }
   },
   authorization: {
+    superUser: {
+      organization: {
+        id: 'ROOT',
+        name: 'SuperOrganization',
+        description: 'SuperUser Organization'
+      },
+      name: 'SuperUser',
+      defaultPolicy: {
+        version: '1',
+        name: 'SuperUser',
+        organizationId: ':organizationId',
+        statements: {
+          Statement: [{
+            Effect: 'Allow',
+            Action: ['*'],
+            Resource: ['*']
+          }]
+        }
+      }
+    },
     organizations: {
       defaultPolicies: {
         orgAdmin: {
