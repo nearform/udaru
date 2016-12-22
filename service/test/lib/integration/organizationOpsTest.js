@@ -160,7 +160,8 @@ lab.experiment('OrganizationOps', () => {
   })
 
   lab.test('deleting an organization should remove teams and members from that organization', (done) => {
-    let teamId, policyId, userId
+    let teamId, userId
+
     const policy = {
       version: '2016-07-01',
       name: 'Documents Admin',
@@ -226,8 +227,6 @@ lab.experiment('OrganizationOps', () => {
     tasks.push((next) => {
       policyOps.createPolicy(policy, function (err, result) {
         if (err) return next(err)
-
-        policyId = result.id
         next()
       })
     })
@@ -246,8 +245,7 @@ lab.experiment('OrganizationOps', () => {
         id: userId,
         organizationId: 'nearForm222',
         name: 'user user',
-        teams: [{ id: teamId }],
-        policies: [{ id: policyId }]
+        teams: [teamId]
       }
       userOps.updateUser(updateUserData, next)
     })

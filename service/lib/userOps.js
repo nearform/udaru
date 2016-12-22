@@ -98,9 +98,9 @@ module.exports = function (dbPool, log) {
         team_id, user_id
       ) VALUES
     `
-    sqlQuery.append(SQL`(${teams[0].id}, ${userId})`)
-    teams.slice(1).forEach((t) => {
-      sqlQuery.append(SQL`, (${t.id}, ${userId})`)
+    sqlQuery.append(SQL`(${teams[0]}, ${userId})`)
+    teams.slice(1).forEach((teamId) => {
+      sqlQuery.append(SQL`, (${teamId}, ${userId})`)
     })
 
     job.client.query(sqlQuery, next)
@@ -135,9 +135,9 @@ module.exports = function (dbPool, log) {
         policy_id, user_id
       ) VALUES
     `
-    sqlQuery.append(SQL`(${policies[0].id}, ${userId})`)
-    policies.slice(1).forEach((p) => {
-      sqlQuery.append(SQL`, (${p.id}, ${userId})`)
+    sqlQuery.append(SQL`(${policies[0]}, ${userId})`)
+    policies.slice(1).forEach((policyId) => {
+      sqlQuery.append(SQL`, (${policyId}, ${userId})`)
     })
 
     job.client.query(sqlQuery, next)
