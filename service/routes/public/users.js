@@ -313,7 +313,7 @@ exports.register = function (server, options, next) {
     path: '/authorization/users/{id}/actions',
     handler: function (request, reply) {
       const { id } = request.params
-      const { id: organizationId } = request.authorization.organization
+      const { organizationId } = request.udaru
       const { resources } = request.query
 
       const params = {
@@ -335,7 +335,13 @@ exports.register = function (server, options, next) {
       },
       description: 'List user\'s actions grouped by resource',
       notes: 'The GET /authorization/users/{id}/actions endpoint list user\'s actions by resource.\nA resources parameter can be used in the query string to get actions only for specific resources.',
-      tags: ['api', 'service', 'list', 'users', 'actions']
+      tags: ['api', 'service', 'list', 'users', 'actions'],
+      plugins: {
+        auth: {
+          action: Action.ReadUser,
+          getParams: (request) => ({ userId: request.params.id })
+        }
+      }
     }
   })
 
