@@ -124,12 +124,7 @@ exports.register = function (server, options, next) {
         payload: {
           name: Joi.string().required().description('Updated team name'),
           description: Joi.string().required().description('Updated team description'),
-          users: Joi.array().required().items(Joi.object().keys({
-            id: Joi.number().required()
-          })),
-          policies: Joi.array().required().items(Joi.object().keys({
-            id: Joi.number().required()
-          }))
+          users: Joi.array().items(Joi.number()).required().description('User ids')
         }
       },
       description: 'Update a team',
@@ -277,9 +272,7 @@ exports.register = function (server, options, next) {
           id: Joi.number().required().description('Team id')
         },
         payload: {
-          policies: Joi.array().required().items(Joi.object().keys({
-            id: Joi.number().required()
-          }))
+          policies: Joi.array().items(Joi.number()).required().description('Policy ids')
         }
       },
       description: 'Add one or more policies to a team',
@@ -310,9 +303,7 @@ exports.register = function (server, options, next) {
           id: Joi.number().required().description('Team id')
         },
         payload: {
-          policies: Joi.array().required().items(Joi.object().keys({
-            id: Joi.number().required()
-          }))
+          policies: Joi.array().items(Joi.number()).required().description('Policy ids')
         }
       },
       description: 'Clear and replace policies for a team',
