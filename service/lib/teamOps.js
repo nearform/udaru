@@ -319,7 +319,7 @@ module.exports = function (dbPool, log) {
 
         tasks.push((next) => {
           const sql = SQL`
-            SELECT id, name, description, path from teams WHERE id = ${id} AND org_id = ${organizationId}
+            SELECT id, name, description, path FROM teams WHERE id = ${id} AND org_id = ${organizationId}
           `
 
           client.query(sql, (err, result) => {
@@ -338,7 +338,7 @@ module.exports = function (dbPool, log) {
 
         tasks.push((next) => {
           const sql = SQL`
-            SELECT users.id, users.name from team_members mem, users
+            SELECT users.id, users.name FROM team_members mem, users
             WHERE mem.team_id = ${id} and mem.user_id = users.id ORDER BY UPPER(users.name)
           `
           client.query(sql, function (err, result) {
@@ -351,7 +351,7 @@ module.exports = function (dbPool, log) {
 
         tasks.push((next) => {
           const sql = SQL`
-            SELECT pol.id, pol.name, pol.version from team_policies tpol, policies pol
+            SELECT pol.id, pol.name, pol.version FROM team_policies tpol, policies pol
             WHERE tpol.team_id = ${id} and tpol.policy_id = pol.id ORDER BY UPPER(pol.name)
           `
           client.query(sql, function (err, result) {

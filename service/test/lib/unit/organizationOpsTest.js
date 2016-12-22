@@ -67,7 +67,7 @@ lab.experiment('organizationOps', () => {
     var dbPool = utils.getDbPoolErrorForQueryOrRowCount(undefined, {testRollback: true, expect: expect}, {rowCount: 0})
     var organizationOps = OrganizationOps(dbPool, {debug: () => {}})
 
-    organizationOps.deleteById({}, utils.testError(expect, 'Not Found', done))
+    organizationOps.deleteById({}, utils.testError(expect, 'Error: Not Found', done))
   })
 
   lab.test('update should return an error if the update return rowcount 0', (done) => {

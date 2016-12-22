@@ -2,34 +2,6 @@
 
 const async = require('async')
 
-function rollback (client, done) {
-  client.query('ROLLBACK', function (err) {
-    // if there was a problem rolling back the query
-    // something is seriously messed up.  Return the error
-    // to the done function to close & remove this client from
-    // the pool.  If you leave a client in the pool with an unaborted
-    // transaction weird, hard to diagnose problems might happen.
-    return done(err)
-  })
-}
-
-function buildInsertStmt (insert, rows) {
-  const params = []
-  const chunks = []
-  rows.forEach(row => {
-    const valueClause = []
-    row.forEach(p => {
-      params.push(p)
-      valueClause.push('$' + params.length)
-    })
-    chunks.push('(' + valueClause.join(', ') + ')')
-  })
-  return {
-    statement: insert + chunks.join(', '),
-    params: params
-  }
-}
-
 function connect (job, next) {
   job.client.connect((err, conn, release) => {
     if (err) return next(err)
@@ -111,8 +83,6 @@ class SqlStatement {
 }
 
 module.exports = {
-  rollback: rollback,
-  buildInsertStmt: buildInsertStmt,
   withTransaction: withTransaction,
   SQL: SQL
 }
