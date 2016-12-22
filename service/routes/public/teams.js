@@ -211,7 +211,7 @@ exports.register = function (server, options, next) {
       tags: ['api', 'service', 'nest', 'team'],
       plugins: {
         auth: {
-          action: Action.ManageTeam,
+          action: Action.ManageTeams,
           getParams: (request) => ({ teamId: request.params.id })
         }
       }
@@ -249,7 +249,7 @@ exports.register = function (server, options, next) {
       tags: ['api', 'service', 'nest', 'team'],
       plugins: {
         auth: {
-          action: Action.ManageTeam,
+          action: Action.ManageTeams,
           getParams: (request) => ({ teamId: request.params.id })
         }
       }
