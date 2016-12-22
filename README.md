@@ -58,8 +58,38 @@ As the Postgresql docker container has its 5432 port forwarded on the local mach
 
 To access the database using the pgAdmin you have to fill in also the container IP beside the database names and access credentials. The container IP can be seen with `docker ps`.
 
-
 ## Service
+
+### Setup SuperUser
+
+The init script needs to be run in order to setup the SuperUser: `node service/scripts/init`
+ 
+### Load policies from file
+
+Another script is available to load policies from a file  
+Usage: `node service/script/loadPolicies --org=FOO policies.json`  
+JSON structure (TBD):  
+```json
+{
+  "policies": [
+    {
+      "version": "",
+      "name": "policy name",
+      "statements": [
+        {
+          "Effect": "Allow/Deny",
+          "Action": "act",
+          "Resource": "res"
+        },
+        { /*...*/ }
+      ]
+    },
+    { /*...*/ }
+  ]
+}
+```
+
+---
 
 The service will respond to commands such as a list users request:
 
