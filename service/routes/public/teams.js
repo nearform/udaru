@@ -181,7 +181,7 @@ exports.register = function (server, options, next) {
     method: 'PUT',
     path: '/authorization/teams/{id}/nest',
     handler: function (request, reply) {
-      const { id: organizationId } = request.authorization.organization
+      const { organizationId } = request.udaru
 
       const params = {
         id: request.params.id,
@@ -222,7 +222,7 @@ exports.register = function (server, options, next) {
     method: 'PUT',
     path: '/authorization/teams/{id}/unnest',
     handler: function (request, reply) {
-      const { id: organizationId } = request.authorization.organization
+      const { organizationId } = request.udaru
 
       const params = {
         id: request.params.id,
@@ -261,7 +261,7 @@ exports.register = function (server, options, next) {
     path: '/authorization/teams/{id}/policies',
     handler: function (request, reply) {
       const { id } = request.params
-      const { id: organizationId } = request.authorization.organization
+      const { organizationId } = request.udaru
       const { policies } = request.payload
 
       const params = {
@@ -293,7 +293,7 @@ exports.register = function (server, options, next) {
     path: '/authorization/teams/{id}/policies',
     handler: function (request, reply) {
       const { id } = request.params
-      const { id: organizationId } = request.authorization.organization
+      const { organizationId } = request.udaru
       const { policies } = request.payload
 
       const params = {
@@ -326,7 +326,7 @@ exports.register = function (server, options, next) {
     path: '/authorization/teams/{id}/policies',
     handler: function (request, reply) {
       const { id } = request.params
-      const { id: organizationId } = request.authorization.organization
+      const { organizationId } = request.udaru
 
       teamOps.deleteTeamPolicies({ id, organizationId }, function (err, res) {
         if (err) {
@@ -353,7 +353,7 @@ exports.register = function (server, options, next) {
     path: '/authorization/teams/{teamId}/policies/{policyId}',
     handler: function (request, reply) {
       const { teamId, policyId } = request.params
-      const { id: organizationId } = request.authorization.organization
+      const { organizationId } = request.udaru
 
       teamOps.deleteTeamPolicy({ teamId, policyId, organizationId }, function (err, res) {
         if (err) {
