@@ -92,7 +92,7 @@ lab.experiment('policyOps', () => {
     var dbPool = utils.getDbPoolErrorForQueryOrRowCount(undefined, {testRollback: true, expect: expect}, {rowCount: 0})
     var policyOps = PolicyOps(dbPool, () => {})
 
-    policyOps.deletePolicy({ id: 1, organizationId: 'WONKA' }, utils.testError(expect, 'Not Found', done))
+    policyOps.deletePolicy({ id: 1, organizationId: 'WONKA' }, utils.testError(expect, 'Error: Not Found', done))
   })
 
   lab.test('deletePolicy should return an error if the delete commit fails', (done) => {
