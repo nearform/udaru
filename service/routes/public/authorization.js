@@ -11,10 +11,11 @@ exports.register = function (server, options, next) {
 
   server.route({
     method: 'GET',
-    path: '/authorization/check/{userId}/{action}/{resource*}',
+    path: '/authorization/access/{userId}/{action}/{resource*}',
     handler: function (request, reply) {
       const { organizationId } = request.udaru
       const { resource, action, userId } = request.params
+
       const params = {
         userId,
         action,
@@ -39,7 +40,7 @@ exports.register = function (server, options, next) {
         }
       },
       description: 'Authorize user action against a resource',
-      notes: 'The GET /authorization/check/{userId}/{action}/{resource} endpoint returns is a user can perform and action\non a resource\n',
+      notes: 'The GET /authorization/check/{userId}/{action}/{resource} endpoint returns if a user can perform and action\non a resource\n',
       tags: ['api', 'service', 'authorization']
     }
   })
