@@ -121,8 +121,8 @@ exports.register = function (server, options, next) {
           id: Joi.number().required().description('The team ID')
         },
         payload: {
-          name: Joi.string().required().description('Updated team name'),
-          description: Joi.string().required().description('Updated team description'),
+          name: Joi.string().description('Updated team name'),
+          description: Joi.string().description('Updated team description'),
           users: Joi.array().items(Joi.number()).required().description('User ids')
         }
       },
