@@ -17,7 +17,7 @@ lab.experiment('UserOps', () => {
     userOps.listOrgUsers({ organizationId: 'WONKA' }, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
-      expect(result.length).to.equal(6)
+      expect(result.length).to.equal(7)
 
       done()
     })
@@ -176,6 +176,63 @@ lab.experiment('UserOps', () => {
           done()
         })
       })
+    })
+  })
+
+  lab.test('list user\'actions by resource', (done) => {
+    userOps.listActionsByResource({ id: 8, organizationId: 'WONKA', resources: [] }, (err, resources) => {
+      expect(err).to.not.exist()
+      expect(resources).to.exist()
+      expect(resources).to.equal({
+        '/myapp/users/*': [
+          'Read'
+        ],
+        '/myapp/users/username': [
+          'Read',
+          'Delete',
+          'Edit'
+        ],
+        '/myapp/teams/*': [
+          'Read',
+          'Delete',
+          'Edit'
+        ]
+      })
+
+      done()
+    })
+  })
+
+  lab.test('list user\'actions by single resource', (done) => {
+    userOps.listActionsByResource({ id: 8, organizationId: 'WONKA', resources: ['/myapp/users/*'] }, (err, resources) => {
+      expect(err).to.not.exist()
+      expect(resources).to.exist()
+      expect(resources).to.equal({
+        '/myapp/users/*': [
+          'Read'
+        ]
+      })
+
+      done()
+    })
+  })
+
+  lab.test('list user\'actions by multiple resources', (done) => {
+    userOps.listActionsByResource({ id: 8, organizationId: 'WONKA', resources: ['/myapp/users/*', '/myapp/teams/*'] }, (err, resources) => {
+      expect(err).to.not.exist()
+      expect(resources).to.exist()
+      expect(resources).to.equal({
+        '/myapp/users/*': [
+          'Read'
+        ],
+        '/myapp/teams/*': [
+          'Read',
+          'Delete',
+          'Edit'
+        ]
+      })
+
+      done()
     })
   })
 })

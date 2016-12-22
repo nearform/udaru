@@ -115,6 +115,7 @@ module.exports = function (dbPool) {
             ) OR
             op.org_id = ${organizationId}
       `
+
       dbPool.query(sql, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
 

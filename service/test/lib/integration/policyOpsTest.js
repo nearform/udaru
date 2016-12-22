@@ -17,7 +17,7 @@ lab.experiment('PolicyOps', () => {
     policyOps.listByOrganization({ organizationId: 'WONKA' }, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
-      expect(result.length).to.equal(8)
+      expect(result.length).to.equal(13)
 
       const policy = result[0]
       expect(policy.id).to.exist()
