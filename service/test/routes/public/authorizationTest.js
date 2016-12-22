@@ -21,7 +21,7 @@ lab.experiment('Authorization', () => {
 
     const options = utils.requestOptions({
       method: 'GET',
-      url: '/authorization/check/1/action_a/resource_a'
+      url: '/authorization/access/1/action_a/resource_a'
     })
 
     server.inject(options, (response) => {
@@ -43,7 +43,7 @@ lab.experiment('Authorization', () => {
 
     const options = utils.requestOptions({
       method: 'GET',
-      url: '/authorization/check/1/action_a/resource_a'
+      url: '/authorization/access/1/action_a/resource_a'
     })
 
     server.inject(options, (response) => {
@@ -65,7 +65,7 @@ lab.experiment('Authorization', () => {
 
     const options = utils.requestOptions({
       method: 'GET',
-      url: '/authorization/check/1/action_a/1/resource_a'
+      url: '/authorization/access/1/action_a/1/resource_a'
     })
 
     server.inject(options, (response) => {
@@ -171,7 +171,7 @@ lab.experiment('Authorization', () => {
 
     const options = utils.requestOptions({
       method: 'GET',
-      url: '/authorization/check/1/action_a//my/resource/uri'
+      url: '/authorization/access/1/action_a//my/resource/uri'
     })
 
     server.inject(options, (response) => {
