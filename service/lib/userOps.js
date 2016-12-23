@@ -6,6 +6,7 @@ const dbUtil = require('./dbUtil')
 const PolicyOps = require('./policyOps')
 const iam = require('iam-js')
 const SQL = dbUtil.SQL
+const mapping = dbUtil.mapping
 
 function generateCheckfunctions (actionsByResource, policies, res) {
   let tasks = []
@@ -162,7 +163,7 @@ module.exports = function (dbPool, log) {
       dbPool.query(sqlQuery, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
 
-        return cb(null, result.rows)
+        return cb(null, result.rows.map(mapping.user))
       })
     },
 
@@ -246,13 +247,7 @@ module.exports = function (dbPool, log) {
      */
     readUser: function readUser (params, cb) {
       const { id, organizationId } = params
-      const user = {
-        id: id,
-        name: null,
-        organizationId,
-        teams: [],
-        policies: []
-      }
+      let user
 
       dbPool.connect(function (err, client, done) {
         if (err) return cb(Boom.badImplementation(err))
@@ -275,7 +270,7 @@ module.exports = function (dbPool, log) {
               return next(Boom.notFound())
             }
 
-            user.name = result.rows[0].name
+            user = mapping.user(result.rows[0])
 
             next()
           })
@@ -293,7 +288,7 @@ module.exports = function (dbPool, log) {
               return next(err)
             }
 
-            user.teams = result.rows.map((row) => row)
+            user.teams = result.rows.map(mapping.team.simple)
 
             next()
           })
@@ -311,7 +306,7 @@ module.exports = function (dbPool, log) {
               return next(err)
             }
 
-            user.policies = result.rows.map((row) => row)
+            user.policies = result.rows.map(mapping.policy.simple)
 
             next()
           })

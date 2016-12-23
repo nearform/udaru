@@ -5,6 +5,7 @@ const async = require('async')
 const dbUtil = require('./dbUtil')
 const config = require('./config')
 const SQL = dbUtil.SQL
+const mapping = dbUtil.mapping
 
 function toArray (policies) {
   if (Array.isArray(policies)) {
@@ -118,14 +119,7 @@ module.exports = function (dbPool) {
 
       dbPool.query(sql, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
-
-        const userPolicies = result.rows.map(row => ({
-          Version: row.version,
-          Name: row.name,
-          Statement: row.statements.Statement
-        }))
-
-        return cb(null, userPolicies)
+        cb(null, result.rows.map(mapping.policy.iam))
       })
     },
 
@@ -147,7 +141,7 @@ module.exports = function (dbPool) {
       dbPool.query(sqlQuery, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
 
-        return cb(null, result.rows)
+        return cb(null, result.rows.map(mapping.policy))
       })
     },
 
@@ -168,7 +162,7 @@ module.exports = function (dbPool) {
         if (err) return cb(Boom.badImplementation(err))
         if (result.rowCount === 0) return cb(Boom.notFound())
 
-        return cb(null, result.rows[0])
+        return cb(null, mapping.policy(result.rows[0]))
       })
     },
 
@@ -216,7 +210,7 @@ module.exports = function (dbPool) {
         if (err) return cb(Boom.badImplementation(err))
         if (result.rowCount === 0) return cb(Boom.notFound())
 
-        return cb(null, {id, version, name, statements: JSON.parse(statements)})
+        policyOps.readPolicy({ id, organizationId }, cb)
       })
     },
 

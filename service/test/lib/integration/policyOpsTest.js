@@ -74,7 +74,7 @@ lab.experiment('PolicyOps', () => {
         expect(policy).to.exist()
 
         expect(policy.name).to.equal('Documents Admin v2')
-        expect(policy.version).to.equal(2)
+        expect(policy.version).to.equal('2')
         expect(policy.statements).to.equal({ Statement: [{ Effect: 'Deny', Action: ['documents:Read'], Resource: ['wonka:documents:/public/*'] }] })
 
         policyOps.deletePolicy({ id: policyId, organizationId: 'WONKA' }, done)
