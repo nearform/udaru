@@ -171,6 +171,138 @@ lab.experiment('Teams', () => {
     })
   })
 
+  lab.test('update team validation nothing in payload', (done) => {
+    const options = utils.requestOptions({
+      method: 'PUT',
+      url: '/authorization/teams/2',
+      payload: {
+      }
+    })
+
+    server.inject(options, (response) => {
+      expect(response.statusCode).to.equal(400)
+
+      done()
+    })
+  })
+
+  lab.test('update only team users', (done) => {
+    const teamStub = {
+      id: 2,
+      name: 'Team C',
+      description: 'Team B is now Team C',
+      users: [],
+      policies: []
+    }
+
+    teamOps.updateTeam = (params, cb) => {
+      expect(params).to.equal({ id: 2,
+        name: undefined,
+        description: undefined,
+        users: [],
+        organizationId: 'WONKA'
+      })
+      process.nextTick(() => {
+        cb(null, teamStub)
+      })
+    }
+
+    const options = utils.requestOptions({
+      method: 'PUT',
+      url: '/authorization/teams/2',
+      payload: {
+        users: []
+      }
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(200)
+      expect(result).to.equal(teamStub)
+
+      done()
+    })
+  })
+
+  lab.test('update only team name', (done) => {
+    const teamStub = {
+      id: 2,
+      name: 'Team C',
+      description: 'Team B is now Team C',
+      users: [],
+      policies: []
+    }
+
+    teamOps.updateTeam = (params, cb) => {
+      expect(params).to.equal({ id: 2,
+        name: 'Team C',
+        description: undefined,
+        users: undefined,
+        organizationId: 'WONKA'
+      })
+      process.nextTick(() => {
+        cb(null, teamStub)
+      })
+    }
+
+    const options = utils.requestOptions({
+      method: 'PUT',
+      url: '/authorization/teams/2',
+      payload: {
+        name: 'Team C'
+      }
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(200)
+      expect(result).to.equal(teamStub)
+
+      done()
+    })
+  })
+
+  lab.test('update only team description', (done) => {
+    const teamStub = {
+      id: 2,
+      name: 'Team C',
+      description: 'Team B is now Team C',
+      users: [],
+      policies: []
+    }
+
+    teamOps.updateTeam = (params, cb) => {
+      expect(params).to.equal({ id: 2,
+        name: undefined,
+        description: 'Team B is now Team C',
+        users: undefined,
+        organizationId: 'WONKA'
+      })
+      process.nextTick(() => {
+        cb(null, teamStub)
+      })
+    }
+
+    const options = utils.requestOptions({
+      method: 'PUT',
+      url: '/authorization/teams/2',
+      payload: {
+        description: 'Team B is now Team C'
+      }
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(200)
+      expect(result).to.equal(teamStub)
+
+      done()
+    })
+  })
+
   lab.test('update team', (done) => {
     const teamStub = {
       id: 2,

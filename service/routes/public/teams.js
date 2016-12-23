@@ -101,7 +101,7 @@ exports.register = function (server, options, next) {
     method: 'PUT',
     path: '/authorization/teams/{id}',
     handler: function (request, reply) {
-      const id = request.params.id
+      const { id } = request.params
       const { organizationId } = request.udaru
       const { name, description, users } = request.payload
 
@@ -120,11 +120,11 @@ exports.register = function (server, options, next) {
         params: {
           id: Joi.number().required().description('The team ID')
         },
-        payload: {
-          name: Joi.string().required().description('Updated team name'),
-          description: Joi.string().required().description('Updated team description'),
-          users: Joi.array().items(Joi.number()).required().description('User ids')
-        }
+        payload: Joi.object().keys({
+          name: Joi.string().description('Updated team name'),
+          description: Joi.string().description('Updated team description'),
+          users: Joi.array().description('User ids')
+        }).or('name', 'description', 'users')
       },
       description: 'Update a team',
       notes: 'The PUT /authorization/teams endpoint updates a team data\n',

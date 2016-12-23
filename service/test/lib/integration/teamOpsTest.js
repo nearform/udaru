@@ -86,6 +86,76 @@ lab.experiment('TeamOps', () => {
     })
   })
 
+  lab.test('create, update only the name and delete a team', (done) => {
+    teamOps.createTeam(teamData, function (err, result) {
+      testTeamId = result.id
+
+      expect(err).to.not.exist()
+
+      const updateData = {
+        id: testTeamId,
+        name: 'Team 5',
+        organizationId: 'WONKA'
+      }
+
+      teamOps.updateTeam(updateData, (err, result) => {
+        expect(err).to.not.exist()
+        expect(result).to.exist()
+        expect(result.name).to.equal('Team 5')
+        expect(result.description).to.equal(teamData.description)
+
+        teamOps.deleteTeam({ id: testTeamId, organizationId: 'WONKA' }, done)
+      })
+    })
+  })
+
+  lab.test('create, update only the description and delete a team', (done) => {
+    teamOps.createTeam(teamData, function (err, result) {
+      testTeamId = result.id
+
+      expect(err).to.not.exist()
+
+      const updateData = {
+        id: testTeamId,
+        description: 'new desc',
+        organizationId: 'WONKA'
+      }
+
+      teamOps.updateTeam(updateData, (err, result) => {
+        expect(err).to.not.exist()
+        expect(result).to.exist()
+        expect(result.description).to.equal('new desc')
+        expect(result.name).to.equal(teamData.name)
+
+        teamOps.deleteTeam({ id: testTeamId, organizationId: 'WONKA' }, done)
+      })
+    })
+  })
+
+  lab.test('create, update only the users and delete a team', (done) => {
+    teamOps.createTeam(teamData, function (err, result) {
+      testTeamId = result.id
+
+      expect(err).to.not.exist()
+
+      const updateData = {
+        id: testTeamId,
+        users: [1, 2, 3],
+        organizationId: 'WONKA'
+      }
+
+      teamOps.updateTeam(updateData, (err, result) => {
+        expect(err).to.not.exist()
+        expect(result).to.exist()
+        expect(result.description).to.equal(teamData.description)
+        expect(result.name).to.equal(teamData.name)
+        expect(result.users).to.equal([{ id: 2, name: 'Charlie Bucket' }, { id: 3, name: 'Mike Teavee' }, { id: 1, name: 'Super User' }])
+
+        teamOps.deleteTeam({ id: testTeamId, organizationId: 'WONKA' }, done)
+      })
+    })
+  })
+
   lab.test('read a specific team', (done) => {
     teamOps.readTeam({ id: 1, organizationId: 'WONKA' }, (err, result) => {
 

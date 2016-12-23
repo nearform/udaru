@@ -168,13 +168,23 @@ module.exports = function (dbPool, log) {
   function updateTeamSql (job, next) {
     const teamId = job.teamId
     const {name, description, organizationId} = job.params
+    const updates = []
 
-    const sql = SQL`
-    UPDATE teams
-    SET name = ${name}, description = ${description}
-    WHERE id = ${teamId}
-    AND org_id = ${organizationId}
-    `
+    if (!name && !description) {
+      return next()
+    }
+
+    const sql = SQL` UPDATE teams SET `
+
+    if (name) { updates.push(SQL`name = ${name}`) }
+    if (description) { updates.push(SQL`description = ${description}`) }
+
+    sql.append(sql.glue(updates, ' , '))
+
+    sql.append(SQL`
+      WHERE id = ${teamId}
+      AND org_id = ${organizationId}
+    `)
 
     job.client.query(sql, (err, res) => {
       if (err) return next(err)
@@ -356,17 +366,20 @@ module.exports = function (dbPool, log) {
      * @param {Function}  cb
      */
     updateTeam: function updateTeam (params, cb) {
-      const { id, organizationId } = params
+      const { id, organizationId, users } = params
       const tasks = [
         (job, next) => {
           job.params = params
           job.teamId = id
           next()
         },
-        updateTeamSql,
-        deleteTeamMembers,
-        insertTeamMembers
+        updateTeamSql
       ]
+
+      if (users) {
+        tasks.push(deleteTeamMembers)
+        tasks.push(insertTeamMembers)
+      }
 
       dbUtil.withTransaction(dbPool, tasks, (err) => {
         if (err) return cb(err.isBoom ? err : Boom.badImplementation(err))

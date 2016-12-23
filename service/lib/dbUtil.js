@@ -61,8 +61,38 @@ class SqlStatement {
     this.values = values
   }
 
+  glue (pieces, separator) {
+    const result = pieces
+      .map((piece) => {
+        piece.strings = piece.strings.filter(s => !!s.trim())
+
+        return piece
+      })
+      .reduce((res, current) => {
+        res.strings = res.strings.concat(current.strings)
+        res.values = res.values.concat(current.values)
+
+        return res
+      }, { strings: [], values: [] })
+
+    result.strings = result.strings.map((value, index) => {
+      if (index === 0 || value.trim() === '') {
+        return value
+      }
+
+      return separator + value
+    }).concat([' '])
+
+    return new SqlStatement(
+      result.strings,
+      result.values
+    )
+  }
+
   get text () {
-    return this.strings.reduce((prev, curr, i) => prev + '$' + i + curr).replace(/^\s+/, '')
+    return this.strings.reduce((prev, curr, i) => {
+      return prev + '$' + i + curr
+    }).replace(/^\s+/, '')
   }
 
   append (statement) {
