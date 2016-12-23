@@ -5,6 +5,8 @@ const dbUtil = require('./dbUtil')
 const PolicyOps = require('./policyOps')
 const SQL = dbUtil.SQL
 
+const mapping = dbUtil.mapping
+
 function fetchOrganizationUsers (job, next) {
   const { id } = job
 
@@ -153,7 +155,7 @@ module.exports = function (dbPool, log) {
       dbPool.query(sqlQuery, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
 
-        return cb(null, result.rows)
+        return cb(null, result.rows.map(mapping.organization))
       })
     },
 
@@ -214,7 +216,7 @@ module.exports = function (dbPool, log) {
         if (err) return cb(Boom.badImplementation(err))
         if (result.rowCount === 0) return cb(Boom.notFound())
 
-        return cb(null, result.rows[0])
+        return cb(null, mapping.organization(result.rows[0]))
       })
     },
 
@@ -266,7 +268,7 @@ module.exports = function (dbPool, log) {
         if (err) return cb(Boom.badImplementation(err))
         if (result.rowCount === 0) return cb(Boom.notFound())
 
-        return cb(null, { id, name, description })
+        organizationOps.readById(id, cb)
       })
     }
   }

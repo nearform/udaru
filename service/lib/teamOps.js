@@ -6,24 +6,10 @@ const SQL = dbUtil.SQL
 const async = require('async')
 const PolicyOps = require('./policyOps')
 const UserOps = require('./userOps')
+const mapping = dbUtil.mapping
 
 function getId (obj) {
   return obj.id
-}
-
-function mapPolicy (row) {
-  return {
-    id: row.id,
-    name: row.name,
-    version: row.version
-  }
-}
-
-function mapUser (row) {
-  return {
-    id: row.id,
-    name: row.name
-  }
 }
 
 module.exports = function (dbPool, log) {
@@ -260,7 +246,7 @@ module.exports = function (dbPool, log) {
       dbPool.query(sqlQuery, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
 
-        return cb(null, result.rows)
+        return cb(null, result.rows.map(mapping.team))
       })
     },
 
@@ -308,11 +294,8 @@ module.exports = function (dbPool, log) {
      * @param  {Function} cb
      */
     readTeam: function readTeam ({ id, organizationId }, cb) {
-      const team = {
-        users: [],
-        policies: []
-      }
       const tasks = []
+      let team
 
       dbPool.connect((err, client, done) => {
         if (err) return cb(Boom.badImplementation(err))
@@ -326,12 +309,9 @@ module.exports = function (dbPool, log) {
             if (err) return next(err)
             if (result.rowCount === 0) return next(Boom.notFound())
 
-            const res = result.rows[0]
-
-            team.id = res.id
-            team.name = res.name
-            team.description = res.description
-            team.path = res.path
+            team = mapping.team(result.rows[0])
+            team.users = []
+            team.policies = []
             next()
           })
         })
@@ -344,7 +324,7 @@ module.exports = function (dbPool, log) {
           client.query(sql, function (err, result) {
             if (err) return next(err)
 
-            team.users = result.rows.map(mapUser)
+            team.users = result.rows.map(mapping.user.simple)
             next()
           })
         })
@@ -357,7 +337,7 @@ module.exports = function (dbPool, log) {
           client.query(sql, function (err, result) {
             if (err) return next(err)
 
-            team.policies = result.rows.map(mapPolicy)
+            team.policies = result.rows.map(mapping.policy.simple)
             next()
           })
         })
