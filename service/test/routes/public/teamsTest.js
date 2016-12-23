@@ -102,8 +102,7 @@ lab.experiment('Teams', () => {
       id: 2,
       name: 'Team B',
       description: 'This is Team B',
-      users: [],
-      policies: []
+      users: []
     }
 
     teamOps.createTeam = (params, cb) => {
@@ -177,8 +176,7 @@ lab.experiment('Teams', () => {
       id: 2,
       name: 'Team C',
       description: 'Team B is now Team C',
-      users: [],
-      policies: []
+      users: []
     }
 
     teamOps.updateTeam = (params, cb) => {
@@ -187,7 +185,6 @@ lab.experiment('Teams', () => {
         name: 'Team C',
         description: 'Team B is now Team C',
         users: [],
-        policies: [],
         organizationId: 'WONKA'
       })
       process.nextTick(() => {
@@ -201,8 +198,7 @@ lab.experiment('Teams', () => {
       payload: {
         name: 'Team C',
         description: 'Team B is now Team C',
-        users: [],
-        policies: []
+        users: []
       }
     })
 
@@ -223,7 +219,6 @@ lab.experiment('Teams', () => {
         name: 'Team D',
         description: 'Can Team C become Team D?',
         users: [],
-        policies: [],
         organizationId: 'WONKA'
       })
       process.nextTick(() => {
@@ -237,8 +232,7 @@ lab.experiment('Teams', () => {
       payload: {
         name: 'Team D',
         description: 'Can Team C become Team D?',
-        users: [],
-        policies: []
+        users: []
       }
     })
 

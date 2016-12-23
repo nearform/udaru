@@ -28,7 +28,7 @@ const testUserData = {
 const updateUserData = {
   organizationId,
   name: 'Salman',
-  teams: [{ id: 4 }]
+  teams: [4]
 }
 
 
@@ -42,7 +42,7 @@ lab.experiment('AuthorizeOps', () => {
       userOps.updateUser(updateUserData, (err, result) => {
         if (err) return done(err)
 
-        userOps.replaceUserPolicies({ id: testUserId, policies: [{ id: 1 }], organizationId }, done)
+        userOps.replaceUserPolicies({ id: testUserId, policies: [1], organizationId }, done)
       })
     })
   })
@@ -69,7 +69,7 @@ lab.experiment('AuthorizeOps', () => {
 
   lab.test('authorize isUserAuthorized - check on a resource and action with wildcards both in action and resource', (done) => {
 
-    userOps.replaceUserPolicies({ id: testUserId, policies: [{ id: 5 }], organizationId }, (err, result) => {
+    userOps.replaceUserPolicies({ id: testUserId, policies: [5], organizationId }, (err, result) => {
       if (err) return done(err)
 
       authorize.isUserAuthorized({ userId: testUserId, resource: 'database:pg01:balancesheet', action: 'database:dropTable' }, (err, result) => {
@@ -86,7 +86,7 @@ lab.experiment('AuthorizeOps', () => {
 
   lab.test('authorize isUserAuthorized - check on a resource and action with wildcards only for resource', (done) => {
 
-    userOps.replaceUserPolicies({ id: testUserId, policies: [{ id: 6 }], organizationId }, (err, result) => {
+    userOps.replaceUserPolicies({ id: testUserId, policies: [6], organizationId }, (err, result) => {
       if (err) return done(err)
 
       authorize.isUserAuthorized({ userId: testUserId, resource: 'database:pg01:balancesheet', action: 'database:Read' }, (err, result) => {
@@ -102,7 +102,7 @@ lab.experiment('AuthorizeOps', () => {
   })
 
   lab.test('authorize isUserAuthorized - check on a resource and action with wildcards only for action', (done) => {
-    userOps.replaceUserPolicies({ id: testUserId, policies: [{ id: 7 }], organizationId }, (err, result) => {
+    userOps.replaceUserPolicies({ id: testUserId, policies: [7], organizationId }, (err, result) => {
       if (err) return done(err)
 
       authorize.isUserAuthorized({ userId: testUserId, resource: 'database:pg01:balancesheet', action: 'database:Delete' }, (err, result) => {
@@ -118,7 +118,7 @@ lab.experiment('AuthorizeOps', () => {
   })
 
   lab.test('authorize isUserAuthorized - check on a resource and action with wildcards for URL resource', (done) => {
-    userOps.replaceUserPolicies({ id: testUserId, policies: [{ id: 8 }], organizationId }, (err, result) => {
+    userOps.replaceUserPolicies({ id: testUserId, policies: [8], organizationId }, (err, result) => {
       if (err) return done(err)
 
       authorize.isUserAuthorized({ userId: testUserId, resource: '/my/site/i/should/read/this', action: 'Read' }, (err, result) => {
@@ -134,7 +134,7 @@ lab.experiment('AuthorizeOps', () => {
   })
 
   lab.test('authorize isUserAuthorized - should return false if the policies has a wildcard on the resource but we are asking for the wrong action', (done) => {
-    userOps.replaceUserPolicies({ id: testUserId, policies: [{ id: 6 }], organizationId }, (err, result) => {
+    userOps.replaceUserPolicies({ id: testUserId, policies: [6], organizationId }, (err, result) => {
       if (err) return done(err)
 
       authorize.isUserAuthorized({ userId: testUserId, resource: 'database:pg01:balancesheet', action: 'database:Write' }, (err, result) => {
@@ -150,7 +150,7 @@ lab.experiment('AuthorizeOps', () => {
   })
 
   lab.test('authorize isUserAuthorized - should return false if the policies has a wildcard on the action but we are asking for the wrong resource', (done) => {
-    userOps.replaceUserPolicies({ id: testUserId, policies: [{ id: 6 }], organizationId }, (err, result) => {
+    userOps.replaceUserPolicies({ id: testUserId, policies: [6], organizationId }, (err, result) => {
       if (err) return done(err)
 
       authorize.isUserAuthorized({ userId: testUserId, resource: 'database:pg01:notMyTable', action: 'database:Write' }, (err, result) => {
@@ -222,8 +222,7 @@ lab.experiment('AuthorizeOps', () => {
         id: testTeamId,
         name: testTeamName,
         description: testTeamDesc,
-        users: [{ id: testUserId }],
-        policies: [{ id: 2 }],
+        users: [testUserId],
         organizationId
       }
       teamOps.updateTeam(teamData, cb)
@@ -248,7 +247,7 @@ lab.experiment('AuthorizeOps', () => {
       userOps.updateUser(updateUserData, cb)
     })
     tasks.push((result, cb) => {
-      userOps.replaceUserPolicies({ id: testUserId, policies: [{ id: 3 }], organizationId }, cb)
+      userOps.replaceUserPolicies({ id: testUserId, policies: [3], organizationId }, cb)
     })
 
     tasks.push((result, cb) => {
@@ -266,11 +265,11 @@ lab.experiment('AuthorizeOps', () => {
 
     // test for team and user permissions on the resource
     tasks.push((result, cb) => {
-      updateUserData.teams = [{ id: 1 }]
+      updateUserData.teams = [1]
       userOps.updateUser(updateUserData, cb)
     })
     tasks.push((result, cb) => {
-      userOps.replaceUserPolicies({ id: testUserId, policies: [{ id: 4 }], organizationId }, cb)
+      userOps.replaceUserPolicies({ id: testUserId, policies: [4], organizationId }, cb)
     })
 
     tasks.push((result, cb) => {
