@@ -1,6 +1,6 @@
 const Reconfig = require('reconfig')
 
-const actionsDefinition = require('./../conf/actions.json')
+const actionsDefinition = require('./../../conf/actions.json')
 
 const actionsConfig = new Reconfig({
   template: '{{ definition.namespace }}:[context]:[operation]',

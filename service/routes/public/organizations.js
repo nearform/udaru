@@ -1,8 +1,8 @@
 'use strict'
 
 const Joi = require('joi')
-const organizationOps = require('./../../lib/organizationOps')
-const Action = require('./../../lib/config.auth').Action
+const organizationOps = require('./../../lib/ops/organizationOps')
+const Action = require('./../../lib/config/config.auth').Action
 
 exports.register = function (server, options, next) {
 

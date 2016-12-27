@@ -8,7 +8,7 @@ var proxyquire = require('proxyquire')
 var utils = require('./../../utils')
 
 var authorizeMock = {}
-var authRoutes = proxyquire('./../../../routes/public/authorization', { './../../lib/authorizeOps': () => authorizeMock })
+var authRoutes = proxyquire('./../../../routes/public/authorization', { './../../lib/ops/authorizeOps': () => authorizeMock })
 var server = proxyquire('./../../../wiring-hapi', { './routes/public/authorization': authRoutes })
 
 lab.experiment('Authorization', () => {

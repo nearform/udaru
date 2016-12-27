@@ -1,8 +1,8 @@
 const jsonfile = require('jsonfile')
 const minimist = require('minimist')
 const db = require('./../lib/db')
-const policyOps = require('./../lib/policyOps')
-const organizationOps = require('./../lib/organizationOps')
+const policyOps = require('./../lib/ops/policyOps')
+const organizationOps = require('./../lib/ops/organizationOps')
 
 const exit = (message, db) => {
   console.log(message)

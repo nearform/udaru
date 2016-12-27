@@ -8,7 +8,7 @@ var proxyquire = require('proxyquire')
 var utils = require('./../../utils')
 
 var userOps = {}
-var usersRoutes = proxyquire('./../../../routes/public/users', { './../../lib/userOps': userOps })
+var usersRoutes = proxyquire('./../../../routes/public/users', { './../../lib/ops/userOps': userOps })
 var server = proxyquire('./../../../wiring-hapi', { './routes/public/users': usersRoutes })
 
 lab.experiment('Users', () => {

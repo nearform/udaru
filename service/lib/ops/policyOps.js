@@ -2,9 +2,9 @@
 
 const Boom = require('boom')
 const async = require('async')
-const db = require('./db')
-const config = require('./config')
-const dbUtil = require('./dbUtil')
+const db = require('./../db')
+const config = require('./../config')
+const dbUtil = require('./../dbUtil')
 const SQL = dbUtil.SQL
 const mapping = dbUtil.mapping
 

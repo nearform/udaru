@@ -2,10 +2,10 @@
 
 const Boom = require('boom')
 const async = require('async')
-const db = require('./db')
+const db = require('./../db')
 const policyOps = require('./policyOps')
 const iam = require('iam-js')
-const dbUtil = require('./dbUtil')
+const dbUtil = require('./../dbUtil')
 const SQL = dbUtil.SQL
 const mapping = dbUtil.mapping
 

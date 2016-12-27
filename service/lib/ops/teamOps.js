@@ -1,11 +1,11 @@
 'use strict'
 
 const Boom = require('boom')
-const db = require('./db')
+const db = require('./../db')
 const async = require('async')
 const policyOps = require('./policyOps')
 const userOps = require('./userOps')
-const dbUtil = require('./dbUtil')
+const dbUtil = require('./../dbUtil')
 const SQL = dbUtil.SQL
 const mapping = dbUtil.mapping
 

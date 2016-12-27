@@ -3,8 +3,8 @@
 const Joi = require('joi')
 const Boom = require('boom')
 const security = require('./../security')
-const Action = require('./../../lib/config.auth').Action
-const policyOps = require('./../../lib/policyOps')
+const Action = require('./../../lib/config/config.auth').Action
+const policyOps = require('./../../lib/ops/policyOps')
 
 exports.register = function (server, options, next) {
 

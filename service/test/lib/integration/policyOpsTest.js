@@ -4,7 +4,7 @@ const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 
-const policyOps = require('../../../lib/policyOps')
+const policyOps = require('../../../lib/ops/policyOps')
 
 lab.experiment('PolicyOps', () => {
 

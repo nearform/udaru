@@ -5,9 +5,9 @@ const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 
-const teamOps = require('../../../lib/teamOps')
-const policyOps = require('../../../lib/policyOps')
-const userOps = require('../../../lib/userOps')
+const teamOps = require('../../../lib/ops/teamOps')
+const policyOps = require('../../../lib/ops/policyOps')
+const userOps = require('../../../lib/ops/userOps')
 
 let testTeamId
 const teamData = {

@@ -5,9 +5,9 @@ const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 const async = require('async')
 
-const Authorize = require('../../../lib/authorizeOps')
-const userOps = require('../../../lib/userOps')
-const teamOps = require('../../../lib/teamOps')
+const Authorize = require('../../../lib/ops/authorizeOps')
+const userOps = require('../../../lib/ops/userOps')
+const teamOps = require('../../../lib/ops/teamOps')
 
 const authorize = Authorize()
 

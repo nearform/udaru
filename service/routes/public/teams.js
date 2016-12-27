@@ -1,8 +1,8 @@
 'use strict'
 
 const Joi = require('joi')
-const teamOps = require('./../../lib/teamOps')
-const Action = require('./../../lib/config.auth').Action
+const teamOps = require('./../../lib/ops/teamOps')
+const Action = require('./../../lib/config/config.auth').Action
 
 exports.register = function (server, options, next) {
 
