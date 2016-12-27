@@ -3,9 +3,8 @@
 const Boom = require('boom')
 const db = require('./../db')
 const policyOps = require('./policyOps')
-const dbUtil = require('./../dbUtil')
-const SQL = dbUtil.SQL
-const mapping = dbUtil.mapping
+const SQL = require('./../db/SQL')
+const mapping = require('./../mapping')
 
 function fetchOrganizationUsers (job, next) {
   const { id } = job

@@ -5,9 +5,8 @@ const db = require('./../db')
 const async = require('async')
 const policyOps = require('./policyOps')
 const userOps = require('./userOps')
-const dbUtil = require('./../dbUtil')
-const SQL = dbUtil.SQL
-const mapping = dbUtil.mapping
+const SQL = require('./../db/SQL')
+const mapping = require('./../mapping')
 
 function getId (obj) {
   return obj.id

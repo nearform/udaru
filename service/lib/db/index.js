@@ -2,8 +2,8 @@
 
 const pg = require('pg')
 const async = require('async')
-const config = require('./config')
-const logger = require('./logger')
+const config = require('./../config')
+const logger = require('./../logger')
 
 /** @see https://github.com/brianc/node-pg-pool#a-note-on-instances */
 const pool = new pg.Pool(config.get('pgdb'))

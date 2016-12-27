@@ -4,9 +4,8 @@ const Boom = require('boom')
 const async = require('async')
 const db = require('./../db')
 const config = require('./../config')
-const dbUtil = require('./../dbUtil')
-const SQL = dbUtil.SQL
-const mapping = dbUtil.mapping
+const SQL = require('./../db/SQL')
+const mapping = require('./../mapping')
 
 function toArray (policies) {
   if (Array.isArray(policies)) {

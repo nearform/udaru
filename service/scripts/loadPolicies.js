@@ -7,7 +7,7 @@ const organizationOps = require('./../lib/ops/organizationOps')
 const exit = (message, db) => {
   console.log(message)
   if (db) {
-    db.shutdown({}, () => {
+    db.shutdown(() => {
       process.exit()
     })
   }
@@ -52,7 +52,7 @@ organizationOps.readById(organizationId, (error, organization) => {
       return exit(err, db)
     }
 
-    db.shutdown({}, () => {
+    db.shutdown(() => {
       console.log('Done!')
     })
   })

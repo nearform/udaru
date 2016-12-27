@@ -4,10 +4,9 @@ const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 
-const dbUtil = require('../../../lib/dbUtil')
-const SQL = dbUtil.SQL
+const SQL = require('./../../../lib/db/SQL')
 
-lab.experiment('dbUtil', () => {
+lab.experiment('SQL', () => {
 
   lab.test('SQL helper - build complex query with append', (done) => {
     const name = 'Team 5'

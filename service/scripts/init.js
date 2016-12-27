@@ -1,7 +1,6 @@
 const config = require('./../lib/config')
 const db = require('./../lib/db')
-const dbUtil = require('./../lib/dbUtil')
-const SQL = dbUtil.SQL
+const SQL = require('./../lib/db/SQL')
 
 const organizationOps = require('./../lib/ops/organizationOps')
 const userOps = require('./../lib/ops/userOps')
@@ -63,7 +62,7 @@ db.withTransaction(tasks, (error, x) => {
     process.exit()
   }
 
-  db.shutdown({}, () => {
+  db.shutdown(() => {
     console.log('done')
   })
 })

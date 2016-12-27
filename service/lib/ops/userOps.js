@@ -5,9 +5,8 @@ const async = require('async')
 const db = require('./../db')
 const policyOps = require('./policyOps')
 const iam = require('iam-js')
-const dbUtil = require('./../dbUtil')
-const SQL = dbUtil.SQL
-const mapping = dbUtil.mapping
+const SQL = require('./../db/SQL')
+const mapping = require('./../mapping')
 
 function generateCheckfunctions (actionsByResource, policies, res) {
   let tasks = []
