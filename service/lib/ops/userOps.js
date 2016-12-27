@@ -176,6 +176,7 @@ const userOps = {
     policies.slice(1).forEach((policyId) => {
       sqlQuery.append(SQL`, (${policyId}, ${id})`)
     })
+    sqlQuery.append(SQL` ON CONFLICT ON CONSTRAINT user_policy_link DO NOTHING`)
 
     client.query(sqlQuery, cb)
   },

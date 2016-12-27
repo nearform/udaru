@@ -44,20 +44,24 @@ CREATE INDEX teams_path_gist_idx ON teams USING GIST (path);
 
 CREATE TABLE team_members (
   team_id  INT REFERENCES teams(id) NOT NULL,
-  user_id  INT REFERENCES users(id) NOT NULL
+  user_id  INT REFERENCES users(id) NOT NULL,
+  CONSTRAINT team_member_link PRIMARY KEY(team_id, user_id)
 );
 
 CREATE TABLE user_policies (
   user_id   INT REFERENCES users(id) NOT NULL,
-  policy_id INT REFERENCES policies(id) NOT NULL
+  policy_id INT REFERENCES policies(id) NOT NULL,
+  CONSTRAINT user_policy_link PRIMARY KEY(policy_id, user_id)
 );
 
 CREATE TABLE team_policies (
   team_id   INT REFERENCES teams(id) NOT NULL,
-  policy_id INT REFERENCES policies(id) NOT NULL
+  policy_id INT REFERENCES policies(id) NOT NULL,
+  CONSTRAINT team_policy_link PRIMARY KEY(team_id, policy_id)
 );
 
 CREATE TABLE organization_policies (
   org_id   VARCHAR(20) REFERENCES organizations(id) NOT NULL,
-  policy_id INT REFERENCES policies(id) NOT NULL
+  policy_id INT REFERENCES policies(id) NOT NULL,
+  CONSTRAINT org_policy_link PRIMARY KEY(org_id, policy_id)
 );
