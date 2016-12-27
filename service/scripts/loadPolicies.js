@@ -6,7 +6,7 @@ const dbUtil = require('./../lib/dbUtil')
 const db = dbConn.create(console)
 
 const OrganizationOps = require('./../lib/organizationOps')
-const organizationOps = OrganizationOps(db.pool, console)
+const organizationOps = OrganizationOps()
 
 const PolicyOps = require('./../lib/policyOps')
 const policyOps = PolicyOps(db.pool, console)

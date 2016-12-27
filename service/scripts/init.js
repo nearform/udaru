@@ -9,7 +9,7 @@ const OrganizationOps = require('./../lib/organizationOps')
 const UserOps = require('./../lib/userOps')
 const PolicyOps = require('./../lib/policyOps')
 
-const organizationOps = OrganizationOps(db.pool, console)
+const organizationOps = OrganizationOps()
 const userOps = UserOps(db.pool, console)
 const policyOps = PolicyOps(db.pool, console)
 

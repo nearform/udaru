@@ -2,8 +2,9 @@
 
 const Boom = require('boom')
 const async = require('async')
-const dbUtil = require('./dbUtil')
+const db = require('./db')
 const config = require('./config')
+const dbUtil = require('./dbUtil')
 const SQL = dbUtil.SQL
 const mapping = dbUtil.mapping
 
@@ -79,7 +80,7 @@ function removePolicy (job, next) {
   })
 }
 
-module.exports = function (dbPool) {
+module.exports = function () {
 
   var policyOps = {
 
@@ -117,7 +118,7 @@ module.exports = function (dbPool) {
             op.org_id = ${organizationId}
       `
 
-      dbPool.query(sql, function (err, result) {
+      db.query(sql, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
         cb(null, result.rows.map(mapping.policy.iam))
       })
@@ -138,7 +139,7 @@ module.exports = function (dbPool) {
         WHERE org_id = ${organizationId}
         ORDER BY UPPER(name)
       `
-      dbPool.query(sqlQuery, function (err, result) {
+      db.query(sqlQuery, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
 
         return cb(null, result.rows.map(mapping.policy))
@@ -158,7 +159,7 @@ module.exports = function (dbPool) {
         WHERE id = ${id}
         AND org_id = ${organizationId}
       `
-      dbPool.query(sqlQuery, function (err, result) {
+      db.query(sqlQuery, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
         if (result.rowCount === 0) return cb(Boom.notFound())
 
@@ -175,7 +176,7 @@ module.exports = function (dbPool) {
     createPolicy: function createPolicy (params, cb) {
       const { version, name, organizationId, statements } = params
 
-      insertPolicies(dbPool, [{
+      insertPolicies(db, [{
         version: version,
         name: name,
         org_id: organizationId,
@@ -206,7 +207,7 @@ module.exports = function (dbPool) {
           id = ${id}
           AND org_id = ${organizationId}
       `
-      dbPool.query(sqlQuery, function (err, result) {
+      db.query(sqlQuery, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
         if (result.rowCount === 0) return cb(Boom.notFound())
 
@@ -234,7 +235,7 @@ module.exports = function (dbPool) {
         removePolicy
       ]
 
-      dbUtil.withTransaction(dbPool, tasks, (err, res) => {
+      db.withTransaction(tasks, (err, res) => {
         if (err) return cb(Boom.badImplementation(err))
         cb()
       })

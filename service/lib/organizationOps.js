@@ -1,10 +1,10 @@
 'use strict'
 
 const Boom = require('boom')
-const dbUtil = require('./dbUtil')
+const db = require('./db')
 const PolicyOps = require('./policyOps')
+const dbUtil = require('./dbUtil')
 const SQL = dbUtil.SQL
-
 const mapping = dbUtil.mapping
 
 function fetchOrganizationUsers (job, next) {
@@ -88,8 +88,8 @@ function insertOrganization (job, next) {
   })
 }
 
-module.exports = function (dbPool, log) {
-  const policyOps = PolicyOps(dbPool)
+module.exports = function () {
+  const policyOps = PolicyOps()
 
   function createDefaultPolicies (job, next) {
     policyOps.createOrgDefaultPolicies(job.client, job.organization.id, function (err, id) {
@@ -152,7 +152,7 @@ module.exports = function (dbPool, log) {
         FROM organizations
         ORDER BY UPPER(name)
       `
-      dbPool.query(sqlQuery, function (err, result) {
+      db.query(sqlQuery, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
 
         return cb(null, result.rows.map(mapping.organization))
@@ -182,6 +182,7 @@ module.exports = function (dbPool, log) {
         },
         insertOrganization
       ]
+
       if (!createOnly) {
         tasks.push(
           createDefaultPolicies,
@@ -189,7 +190,7 @@ module.exports = function (dbPool, log) {
         )
       }
 
-      dbUtil.withTransaction(dbPool, tasks, (err, res) => {
+      db.withTransaction(tasks, (err, res) => {
         if (err) return cb(Boom.badImplementation(err))
 
         organizationOps.readById(res.organization.id, (err, organization) => {
@@ -212,7 +213,7 @@ module.exports = function (dbPool, log) {
         FROM organizations
         WHERE id = ${id}
       `
-      dbPool.query(sqlQuery, function (err, result) {
+      db.query(sqlQuery, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
         if (result.rowCount === 0) return cb(Boom.notFound())
 
@@ -243,7 +244,7 @@ module.exports = function (dbPool, log) {
         deleteOrganization
       ]
 
-      dbUtil.withTransaction(dbPool, tasks, (err, res) => {
+      db.withTransaction(tasks, (err, res) => {
         if (err) return cb(Boom.badImplementation(err))
         cb()
       })
@@ -264,7 +265,7 @@ module.exports = function (dbPool, log) {
           description = ${description}
         WHERE id = ${id}
       `
-      dbPool.query(sqlQuery, function (err, result) {
+      db.query(sqlQuery, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
         if (result.rowCount === 0) return cb(Boom.notFound())
 

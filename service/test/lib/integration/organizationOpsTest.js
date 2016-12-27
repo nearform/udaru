@@ -20,7 +20,7 @@ const defaultPoliciesNames = Object.keys(defaultPolicies).map((pName) => {
 
 
 const db = dbConn.create(logger)
-const organizationOps = OrganizationOps(db.pool, logger)
+const organizationOps = OrganizationOps()
 const teamOps = TeamOps(db.pool, logger)
 const userOps = UserOps(db.pool, logger)
 const policyOps = PolicyOps(db.pool)

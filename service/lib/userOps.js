@@ -2,9 +2,10 @@
 
 const Boom = require('boom')
 const async = require('async')
-const dbUtil = require('./dbUtil')
+const db = require('./db')
 const PolicyOps = require('./policyOps')
 const iam = require('iam-js')
+const dbUtil = require('./dbUtil')
 const SQL = dbUtil.SQL
 const mapping = dbUtil.mapping
 
@@ -58,7 +59,7 @@ function actionsByresource (resources, policies) {
 
 module.exports = function (dbPool, log) {
 
-  const policyOps = new PolicyOps(dbPool)
+  const policyOps = new PolicyOps()
 
   const updateUserInfo = (job, next) => {
     const { id, name, organizationId } = job
@@ -160,7 +161,7 @@ module.exports = function (dbPool, log) {
         WHERE org_id = ${organizationId}
         ORDER BY UPPER(name)
       `
-      dbPool.query(sqlQuery, function (err, result) {
+      db.query(sqlQuery, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
 
         return cb(null, result.rows.map(mapping.user))
@@ -189,7 +190,7 @@ module.exports = function (dbPool, log) {
     createUser: function createUser (params, cb) {
       const { name, organizationId } = params
 
-      userOps.insertUser(dbPool, name, organizationId, (err, result) => {
+      userOps.insertUser(db, name, organizationId, (err, result) => {
         if (err) return cb(Boom.badImplementation(err))
 
         userOps.readUser({ id: result.rows[0].id, organizationId }, cb)
@@ -212,7 +213,7 @@ module.exports = function (dbPool, log) {
           ${id}, ${name}, ${organizationId}
         )
       `
-      dbPool.query(sqlQuery, function (err, result) {
+      db.query(sqlQuery, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
 
         userOps.readUser({ id, organizationId }, cb)
@@ -231,7 +232,7 @@ module.exports = function (dbPool, log) {
         FROM users
         WHERE id = ${id}
       `
-      dbPool.query(sqlQuery, function (err, result) {
+      db.query(sqlQuery, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
         if (result.rowCount === 0) return cb(Boom.notFound())
 
@@ -249,77 +250,72 @@ module.exports = function (dbPool, log) {
       const { id, organizationId } = params
       let user
 
-      dbPool.connect(function (err, client, done) {
-        if (err) return cb(Boom.badImplementation(err))
+      const tasks = []
 
-        const tasks = []
-
-        tasks.push((next) => {
-          const sqlQuery = SQL`
-            SELECT id, name, org_id
-            FROM users
-            WHERE id = ${id}
-            AND org_id = ${organizationId}
-          `
-          client.query(sqlQuery, (err, result) => {
-            if (err) {
-              return next(err)
-            }
-
-            if (result.rowCount === 0) {
-              return next(Boom.notFound())
-            }
-
-            user = mapping.user(result.rows[0])
-
-            next()
-          })
-        })
-
-        tasks.push((next) => {
-          const sqlQuery = SQL`
-            SELECT teams.id, teams.name
-            FROM team_members mem, teams
-            WHERE mem.user_id = ${id} AND mem.team_id = teams.id
-            ORDER BY UPPER(teams.name)
-          `
-          client.query(sqlQuery, (err, result) => {
-            if (err) {
-              return next(err)
-            }
-
-            user.teams = result.rows.map(mapping.team.simple)
-
-            next()
-          })
-        })
-
-        tasks.push((next) => {
-          const sqlQuery = SQL`
-            SELECT pol.id, pol.name, pol.version
-            FROM user_policies user_pol, policies pol
-            WHERE user_pol.user_id = ${id} AND user_pol.policy_id = pol.id
-            ORDER BY UPPER(pol.name)
-          `
-          client.query(sqlQuery, (err, result) => {
-            if (err) {
-              return next(err)
-            }
-
-            user.policies = result.rows.map(mapping.policy.simple)
-
-            next()
-          })
-        })
-
-        async.series(tasks, (err) => {
+      tasks.push((next) => {
+        const sqlQuery = SQL`
+          SELECT id, name, org_id
+          FROM users
+          WHERE id = ${id}
+          AND org_id = ${organizationId}
+        `
+        db.query(sqlQuery, (err, result) => {
           if (err) {
-            return cb(err.isBoom ? err : Boom.badImplementation(err))
+            return next(err)
           }
 
-          done()
-          return cb(null, user)
+          if (result.rowCount === 0) {
+            return next(Boom.notFound())
+          }
+
+          user = mapping.user(result.rows[0])
+
+          next()
         })
+      })
+
+      tasks.push((next) => {
+        const sqlQuery = SQL`
+          SELECT teams.id, teams.name
+          FROM team_members mem, teams
+          WHERE mem.user_id = ${id} AND mem.team_id = teams.id
+          ORDER BY UPPER(teams.name)
+        `
+        db.query(sqlQuery, (err, result) => {
+          if (err) {
+            return next(err)
+          }
+
+          user.teams = result.rows.map(mapping.team.simple)
+
+          next()
+        })
+      })
+
+      tasks.push((next) => {
+        const sqlQuery = SQL`
+          SELECT pol.id, pol.name, pol.version
+          FROM user_policies user_pol, policies pol
+          WHERE user_pol.user_id = ${id} AND user_pol.policy_id = pol.id
+          ORDER BY UPPER(pol.name)
+        `
+        db.query(sqlQuery, (err, result) => {
+          if (err) {
+            return next(err)
+          }
+
+          user.policies = result.rows.map(mapping.policy.simple)
+
+          next()
+        })
+      })
+
+      async.series(tasks, (err) => {
+        if (err) {
+          return cb(err.isBoom ? err : Boom.badImplementation(err))
+        }
+
+        return cb(null, user)
       })
     },
 
@@ -349,7 +345,7 @@ module.exports = function (dbPool, log) {
         tasks.push(addUserTeams)
       }
 
-      dbUtil.withTransaction(dbPool, tasks, (err, res) => {
+      db.withTransaction(tasks, (err, res) => {
         if (err) {
           return cb(Boom.badImplementation(err))
         }
@@ -381,7 +377,7 @@ module.exports = function (dbPool, log) {
         tasks.push(insertUserPolicies)
       }
 
-      dbUtil.withTransaction(dbPool, tasks, (err, res) => {
+      db.withTransaction(tasks, (err, res) => {
         if (err) {
           return cb(Boom.badImplementation(err))
         }
@@ -412,7 +408,7 @@ module.exports = function (dbPool, log) {
         insertUserPolicies
       ]
 
-      dbUtil.withTransaction(dbPool, tasks, (err, res) => {
+      db.withTransaction(tasks, (err, res) => {
         if (err) {
           return cb(Boom.badImplementation(err))
         }
@@ -438,7 +434,7 @@ module.exports = function (dbPool, log) {
         clearUserPolicies
       ]
 
-      dbUtil.withTransaction(dbPool, tasks, (err, res) => {
+      db.withTransaction(tasks, (err, res) => {
         if (err) {
           return cb(Boom.badImplementation(err))
         }
@@ -465,7 +461,7 @@ module.exports = function (dbPool, log) {
         removeUserPolicy
       ]
 
-      dbUtil.withTransaction(dbPool, tasks, (err, res) => {
+      db.withTransaction(tasks, (err, res) => {
         if (err) {
           return cb(Boom.badImplementation(err))
         }
@@ -513,7 +509,7 @@ module.exports = function (dbPool, log) {
         }
       ]
 
-      dbUtil.withTransaction(dbPool, tasks, (err, res) => {
+      db.withTransaction(tasks, (err, res) => {
         if (err) {
           return cb(Boom.badImplementation(err))
         }

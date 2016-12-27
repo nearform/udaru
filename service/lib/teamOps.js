@@ -1,11 +1,12 @@
 'use strict'
 
 const Boom = require('boom')
-const dbUtil = require('./dbUtil')
-const SQL = dbUtil.SQL
+const db = require('./db')
 const async = require('async')
 const PolicyOps = require('./policyOps')
 const UserOps = require('./userOps')
+const dbUtil = require('./dbUtil')
+const SQL = dbUtil.SQL
 const mapping = dbUtil.mapping
 
 function getId (obj) {
@@ -13,7 +14,7 @@ function getId (obj) {
 }
 
 module.exports = function (dbPool, log) {
-  const policyOps = PolicyOps(dbPool)
+  const policyOps = PolicyOps()
   const userOps = UserOps(dbPool)
 
   function loadTeamDescendants (job, next) {
@@ -253,7 +254,7 @@ module.exports = function (dbPool, log) {
         WHERE org_id = ${organizationId}
         ORDER BY UPPER(name)
       `
-      dbPool.query(sqlQuery, function (err, result) {
+      db.query(sqlQuery, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
 
         return cb(null, result.rows.map(mapping.team))
@@ -290,7 +291,7 @@ module.exports = function (dbPool, log) {
         )
       }
 
-      dbUtil.withTransaction(dbPool, tasks, (err, res) => {
+      db.withTransaction(tasks, (err, res) => {
         if (err) return cb(Boom.badImplementation(err))
 
         teamOps.readTeam({ id: res.team.id, organizationId: params.organizationId }, cb)
@@ -307,57 +308,52 @@ module.exports = function (dbPool, log) {
       const tasks = []
       let team
 
-      dbPool.connect((err, client, done) => {
-        if (err) return cb(Boom.badImplementation(err))
+      tasks.push((next) => {
+        const sql = SQL`
+          SELECT id, name, description, path FROM teams WHERE id = ${id} AND org_id = ${organizationId}
+        `
 
-        tasks.push((next) => {
-          const sql = SQL`
-            SELECT id, name, description, path FROM teams WHERE id = ${id} AND org_id = ${organizationId}
-          `
+        db.query(sql, (err, result) => {
+          if (err) return next(err)
+          if (result.rowCount === 0) return next(Boom.notFound())
 
-          client.query(sql, (err, result) => {
-            if (err) return next(err)
-            if (result.rowCount === 0) return next(Boom.notFound())
-
-            team = mapping.team(result.rows[0])
-            team.users = []
-            team.policies = []
-            next()
-          })
+          team = mapping.team(result.rows[0])
+          team.users = []
+          team.policies = []
+          next()
         })
+      })
 
-        tasks.push((next) => {
-          const sql = SQL`
-            SELECT users.id, users.name FROM team_members mem, users
-            WHERE mem.team_id = ${id} and mem.user_id = users.id ORDER BY UPPER(users.name)
-          `
-          client.query(sql, function (err, result) {
-            if (err) return next(err)
+      tasks.push((next) => {
+        const sql = SQL`
+          SELECT users.id, users.name FROM team_members mem, users
+          WHERE mem.team_id = ${id} and mem.user_id = users.id ORDER BY UPPER(users.name)
+        `
+        db.query(sql, function (err, result) {
+          if (err) return next(err)
 
-            team.users = result.rows.map(mapping.user.simple)
-            next()
-          })
+          team.users = result.rows.map(mapping.user.simple)
+          next()
         })
+      })
 
-        tasks.push((next) => {
-          const sql = SQL`
-            SELECT pol.id, pol.name, pol.version FROM team_policies tpol, policies pol
-            WHERE tpol.team_id = ${id} and tpol.policy_id = pol.id ORDER BY UPPER(pol.name)
-          `
-          client.query(sql, function (err, result) {
-            if (err) return next(err)
+      tasks.push((next) => {
+        const sql = SQL`
+          SELECT pol.id, pol.name, pol.version FROM team_policies tpol, policies pol
+          WHERE tpol.team_id = ${id} and tpol.policy_id = pol.id ORDER BY UPPER(pol.name)
+        `
+        db.query(sql, function (err, result) {
+          if (err) return next(err)
 
-            team.policies = result.rows.map(mapping.policy.simple)
-            next()
-          })
+          team.policies = result.rows.map(mapping.policy.simple)
+          next()
         })
+      })
 
-        async.series(tasks, (err) => {
-          if (err) return cb(err.isBoom ? err : Boom.badImplementation(err))
+      async.series(tasks, (err) => {
+        if (err) return cb(err.isBoom ? err : Boom.badImplementation(err))
 
-          done()
-          return cb(null, team)
-        })
+        return cb(null, team)
       })
     },
 
@@ -381,7 +377,7 @@ module.exports = function (dbPool, log) {
         tasks.push(insertTeamMembers)
       }
 
-      dbUtil.withTransaction(dbPool, tasks, (err) => {
+      db.withTransaction(tasks, (err) => {
         if (err) return cb(err.isBoom ? err : Boom.badImplementation(err))
 
         teamOps.readTeam({ id, organizationId }, cb)
@@ -395,7 +391,7 @@ module.exports = function (dbPool, log) {
      * @param  {Function} cb     [description]
      */
     deleteTeam: function deleteTeam (params, cb) {
-      dbUtil.withTransaction(dbPool, [
+      db.withTransaction([
         (job, next) => {
           job.teamId = params.id
           job.organizationId = params.organizationId
@@ -416,7 +412,7 @@ module.exports = function (dbPool, log) {
     moveTeam: function moveTeam (params, cb) {
       const { id, organizationId } = params
 
-      dbUtil.withTransaction(dbPool, [
+      db.withTransaction([
         (job, next) => {
           job.params = params
           next()
@@ -450,7 +446,7 @@ module.exports = function (dbPool, log) {
         insertTeamPolicies
       ]
 
-      dbUtil.withTransaction(dbPool, tasks, (err, res) => {
+      db.withTransaction(tasks, (err, res) => {
         if (err) {
           return cb(Boom.badImplementation(err))
         }
@@ -468,7 +464,7 @@ module.exports = function (dbPool, log) {
     addTeamPolicies: function addTeamPolicies (params, cb) {
       const { id, organizationId, policies } = params
 
-      insertTeamPolicies({ client: dbPool, teamId: id, policies }, (err, res) => {
+      insertTeamPolicies({ client: db, teamId: id, policies }, (err, res) => {
         if (err) {
           return cb(Boom.badImplementation(err))
         }
@@ -486,7 +482,7 @@ module.exports = function (dbPool, log) {
     deleteTeamPolicies: function deleteTeamPolicies (params, cb) {
       const { id, organizationId } = params
 
-      clearTeamPolicies({ teamId: id, client: dbPool }, (err, res) => {
+      clearTeamPolicies({ teamId: id, client: db }, (err, res) => {
         if (err) {
           return cb(Boom.badImplementation(err))
         }
@@ -504,7 +500,7 @@ module.exports = function (dbPool, log) {
     deleteTeamPolicy: function deleteTeamPolicy (params, cb) {
       const { teamId, organizationId, policyId } = params
 
-      removeTeamPolicy({ client: dbPool, teamId, policyId }, (err, res) => {
+      removeTeamPolicy({ client: db, teamId, policyId }, (err, res) => {
         if (err) {
           return cb(Boom.badImplementation(err))
         }

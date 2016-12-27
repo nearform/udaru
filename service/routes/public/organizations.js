@@ -5,7 +5,7 @@ const OrganizationOps = require('./../../lib/organizationOps')
 const Action = require('./../../lib/config.auth').Action
 
 exports.register = function (server, options, next) {
-  const organizationOps = OrganizationOps(options.dbPool, server.logger())
+  const organizationOps = OrganizationOps()
 
   server.route({
     method: 'GET',
