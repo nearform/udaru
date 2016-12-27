@@ -1,12 +1,10 @@
 'use strict'
 
 const Joi = require('joi')
-const PolicyOps = require('./../../lib/policyOps')
+const policyOps = require('./../../lib/policyOps')
 const Action = require('./../../lib/config.auth').Action
 
 exports.register = function (server, options, next) {
-  const policyOps = PolicyOps(options.dbPool)
-
   server.route({
     method: 'GET',
     path: '/authorization/policies',

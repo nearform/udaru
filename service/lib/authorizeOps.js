@@ -2,8 +2,9 @@
 /* eslint-disable handle-callback-err */
 const Boom = require('boom')
 const iam = require('iam-js')
+const policyOps = require('./policyOps')
 
-module.exports = function (policyOps) {
+module.exports = function () {
   return {
     /**
      * Return if a user can perform an action on a certain resource

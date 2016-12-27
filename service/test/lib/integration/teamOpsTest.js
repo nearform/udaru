@@ -4,17 +4,10 @@
 const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
-const logger = require('pino')()
 
-const TeamOps = require('../../../lib/teamOps')
-const PolicyOps = require('../../../lib/policyOps')
-const UserOps = require('../../../lib/userOps')
-const dbConn = require('../../../lib/dbConn')
-
-const db = dbConn.create(logger)
-const teamOps = TeamOps(db.pool, logger)
-const policyOps = PolicyOps(db.pool, logger)
-const userOps = UserOps(db.pool, logger)
+const teamOps = require('../../../lib/teamOps')
+const policyOps = require('../../../lib/policyOps')
+const userOps = require('../../../lib/userOps')
 
 let testTeamId
 const teamData = {

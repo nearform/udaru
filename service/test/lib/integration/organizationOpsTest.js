@@ -3,27 +3,18 @@
 const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
-const logger = require('pino')()
 const async = require('async')
 
-const OrganizationOps = require('../../../lib/organizationOps')
-const TeamOps = require('../../../lib/teamOps')
-const UserOps = require('../../../lib/userOps')
-const PolicyOps = require('../../../lib/policyOps')
-const dbConn = require('../../../lib/dbConn')
+const organizationOps = require('../../../lib/organizationOps')
+const teamOps = require('../../../lib/teamOps')
+const userOps = require('../../../lib/userOps')
+const policyOps = require('../../../lib/policyOps')
 const config = require('../../../lib/config')
 const defaultPolicies = config.get('authorization.organizations.defaultPolicies', { 'organizationId': 'nearForm' })
 const defaultPoliciesNames = Object.keys(defaultPolicies).map((pName) => {
   let policy = defaultPolicies[pName]
   return policy.name
 })
-
-
-const db = dbConn.create(logger)
-const organizationOps = OrganizationOps()
-const teamOps = TeamOps(db.pool, logger)
-const userOps = UserOps(db.pool, logger)
-const policyOps = PolicyOps(db.pool)
 
 lab.experiment('OrganizationOps', () => {
 

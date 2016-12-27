@@ -4,11 +4,9 @@ const Joi = require('joi')
 const Boom = require('boom')
 const security = require('./../security')
 const Action = require('./../../lib/config.auth').Action
-
-const PolicyOps = require('./../../lib/policyOps')
+const policyOps = require('./../../lib/policyOps')
 
 exports.register = function (server, options, next) {
-  const policyOps = PolicyOps(options.dbPool)
 
   server.route({
     method: 'POST',

@@ -1,11 +1,10 @@
 'use strict'
 
 const Joi = require('joi')
-const TeamOps = require('./../../lib/teamOps')
+const teamOps = require('./../../lib/teamOps')
 const Action = require('./../../lib/config.auth').Action
 
 exports.register = function (server, options, next) {
-  const teamOps = TeamOps(options.dbPool, server.logger())
 
   server.route({
     method: 'GET',

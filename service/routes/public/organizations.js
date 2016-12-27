@@ -1,11 +1,10 @@
 'use strict'
 
 const Joi = require('joi')
-const OrganizationOps = require('./../../lib/organizationOps')
+const organizationOps = require('./../../lib/organizationOps')
 const Action = require('./../../lib/config.auth').Action
 
 exports.register = function (server, options, next) {
-  const organizationOps = OrganizationOps()
 
   server.route({
     method: 'GET',

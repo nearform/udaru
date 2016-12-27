@@ -4,12 +4,7 @@ const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 
-const PolicyOps = require('../../../lib/policyOps')
-const dbConn = require('../../../lib/dbConn')
-const logger = require('pino')()
-
-const db = dbConn.create(logger)
-const policyOps = PolicyOps(db.pool)
+const policyOps = require('../../../lib/policyOps')
 
 lab.experiment('PolicyOps', () => {
 

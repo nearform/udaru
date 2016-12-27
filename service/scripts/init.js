@@ -1,17 +1,11 @@
 const config = require('./../lib/config')
-const dbConn = require('./../lib/dbConn')
+const db = require('./../lib/db')
 const dbUtil = require('./../lib/dbUtil')
-
-const db = dbConn.create(console)
 const SQL = dbUtil.SQL
 
-const OrganizationOps = require('./../lib/organizationOps')
-const UserOps = require('./../lib/userOps')
-const PolicyOps = require('./../lib/policyOps')
-
-const organizationOps = OrganizationOps()
-const userOps = UserOps(db.pool, console)
-const policyOps = PolicyOps(db.pool, console)
+const organizationOps = require('./../lib/organizationOps')
+const userOps = require('./../lib/userOps')
+const policyOps = require('./../lib/policyOps')
 
 function createOrganization (job, next) {
   const superOrganizationData = config.get('authorization.superUser.organization')
@@ -54,7 +48,7 @@ function attachPolicy (job, next) {
   const { user, policy } = job
 
   const sqlQuery = SQL`INSERT INTO user_policies (user_id, policy_id) VALUES (${user.id}, ${policy.id})`
-  db.pool.query(sqlQuery, next)
+  db.query(sqlQuery, next)
 }
 
 const tasks = [
@@ -63,7 +57,7 @@ const tasks = [
   createPolicy,
   attachPolicy
 ]
-dbUtil.withTransaction(db.pool, tasks, (error, x) => {
+db.withTransaction(tasks, (error, x) => {
   if (error) {
     console.log(error)
     process.exit()
