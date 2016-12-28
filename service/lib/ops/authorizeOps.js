@@ -29,12 +29,6 @@ module.exports = {
     })
   },
 
-  //
-  // TODO: Note: this needs to take 'Deny' into account and also deal with wildcards.
-  // as would be worth looking into the pbac module code for reuse opportunity
-  //
-  // build the set of actions in the user's policy set
-  // can't check per resource as requires wildcard processing
   /**
    * List all user's actions on a given resource
    *
@@ -42,41 +36,16 @@ module.exports = {
    * @param  {Function} cb
    */
   listAuthorizations: function listAuthorizations ({ userId, resource, organizationId }, cb) {
-    const data = []
-    var actions = []
-    var errors = []
-
     policyOps.listAllUserPolicies({ userId, organizationId }, (err, policies) => {
       if (err) return cb(Boom.wrap(err))
 
-      policies.forEach(p => {
-        p.Statement.forEach(s => {
-          if (s.Effect === 'Deny') {
-            return
-          }
+      iam(policies, ({ actions }) => {
+        actions(resource, (err, result) => {
+          if (err) return cb(err)
 
-          s.Action.forEach(a => {
-            actions.push(a)
-          })
+          cb(null, { actions: result })
         })
       })
-
-      actions = Array.from(new Set(actions)) // dedupe
-      // check each action aginst the resource for this user
-      iam(policies, ({ process }) => {
-        actions.forEach(action => {
-          process(resource, action, (err, access) => {
-            if (err) return errors.push(err)
-            if (access) {
-              data.push(action)
-            }
-          })
-        })
-      })
-
-      if (errors.length > 0) return cb(Boom.wrap(errors.shift()))
-      // return thE allowable actions
-      cb(null, { actions: data })
     })
   }
 }
