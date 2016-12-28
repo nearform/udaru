@@ -1,0 +1,112 @@
+[
+  {
+    "version": "0.1",
+    "name": "read bau-1",
+    "org_id": "nearForm",
+    "statements": {
+      "Statement": [{
+        "Effect": "Allow",
+        "Action": [
+          "FOO:scenario:read"
+        ],
+        "Resource": [
+          "FOO:orga:CLOUDCUCKOO:scenario:bau-1"
+        ]
+      }]
+    }
+  },
+  {
+    "version": "0.1",
+    "name": "filter anything",
+    "org_id": "nearForm",
+    "statements": {
+      "Statement": [{
+        "Effect": "Allow",
+        "Action": [
+          "FOO:scenario:filter"
+        ],
+        "Resource": [
+          "FOO:orga:CLOUDCUCKOO:scenario:*:entity:north-america-id",
+          "FOO:orga:CLOUDCUCKOO:scenario:*:entity:south-america-id",
+          "FOO:orga:CLOUDCUCKOO:scenario:*:entity:europe-id",
+          "FOO:orga:CLOUDCUCKOO:scenario:*:entity:asia-id",
+          "FOO:orga:CLOUDCUCKOO:scenario:*:entity:africa-id",
+          "FOO:orga:CLOUDCUCKOO:scenario:*:entity:oceania-id",
+          "FOO:orga:CLOUDCUCKOO:scenario:*:entity:usa-id",
+          "FOO:orga:CLOUDCUCKOO:scenario:*:entity:china-id",
+          "FOO:orga:CLOUDCUCKOO:scenario:*:entity:transportation-id",
+          "FOO:orga:CLOUDCUCKOO:scenario:*:entity:other-renewable-id"
+        ]
+      }]
+    }
+  },
+  {
+    "version": "0.1",
+    "name": "read-download bau-1",
+    "org_id": "nearForm",
+    "statements": {
+      "Statement": [{
+        "Effect": "Allow",
+        "Action": [
+          "FOO:scenario:read",
+          "FOO:scenario:download"
+        ],
+        "Resource": [
+          "FOO:orga:CLOUDCUCKOO:scenario:bau-1"
+        ]
+      }]
+    }
+  },
+  {
+    "version": "0.1",
+    "name": "granular read and clone bau-1",
+    "org_id": "nearForm",
+    "statements": {
+      "Statement": [{
+        "Effect": "Allow",
+        "Action": [
+          "FOO:scenario:granular-read",
+          "FOO:scenario:clone"
+        ],
+        "Resource": [
+          "FOO:orga:CLOUDCUCKOO:scenario:bau-1"
+        ]
+      }]
+    }
+  },
+  {
+    "version": "0.1",
+    "name": "all on *",
+    "org_id": "nearForm",
+    "statements": {
+      "Statement": [{
+        "Effect": "Allow",
+        "Action": [
+          "FOO:scenario:granular-read",
+          "FOO:scenario:clone",
+          "FOO:scenario:download",
+          "FOO:scenario:delete"
+        ],
+        "Resource": [
+          "FOO:orga:shell:scenario:*"
+        ]
+      }]
+    }
+  },
+  {
+    "version": "0.1",
+    "name": "all on *",
+    "org_id": "nearForm",
+    "statements": {
+      "Statement": [{
+        "Effect": "Allow",
+        "Action": [
+          "FOO:scenario:publish"
+        ],
+        "Resource": [
+          "FOO:orga:shell:scenario:*"
+        ]
+      }]
+    }
+  }
+]

@@ -33,6 +33,8 @@ module.exports = {
   // TODO: Note: this needs to take 'Deny' into account and also deal with wildcards.
   // as would be worth looking into the pbac module code for reuse opportunity
   //
+  // build the set of actions in the user's policy set
+  // can't check per resource as requires wildcard processing
   /**
    * List all user's actions on a given resource
    *
@@ -43,18 +45,18 @@ module.exports = {
     const data = []
     var actions = []
     var errors = []
-    // build the set of actions in the user's policy set
-    // can't check per resource as requires wildcard processing
 
     policyOps.listAllUserPolicies({ userId, organizationId }, (err, policies) => {
       if (err) return cb(Boom.wrap(err))
 
       policies.forEach(p => {
         p.Statement.forEach(s => {
+          if (s.Effect === 'Deny') {
+            return
+          }
+
           s.Action.forEach(a => {
-            if (s.Resource.indexOf(resource) > -1) {
-              actions.push(a)
-            }
+            actions.push(a)
           })
         })
       })

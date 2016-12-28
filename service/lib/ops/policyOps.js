@@ -117,6 +117,7 @@ const policyOps = {
 
     db.query(sql, function (err, result) {
       if (err) return cb(Boom.badImplementation(err))
+
       cb(null, result.rows.map(mapping.policy.iam))
     })
   },
