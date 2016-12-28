@@ -3,58 +3,8 @@
 const Boom = require('boom')
 const async = require('async')
 const db = require('./../db')
-const policyOps = require('./policyOps')
-const iam = require('iam-js')
 const SQL = require('./../db/SQL')
 const mapping = require('./../mapping')
-
-function generateCheckfunctions (actionsByResource, policies, res) {
-  let tasks = []
-
-  iam(policies, ({ process }) => {
-    Object.keys(actionsByResource).forEach((resource) => {
-      let actions = actionsByResource[resource]
-      actions.forEach((action) => {
-        tasks.push((next) => {
-          process(resource, action, (err, access) => {
-            if (err) return next(err)
-
-            if (access) {
-              res[resource] = res[resource] ? res[resource].concat(action) : [action]
-            }
-
-            next()
-          })
-        })
-      })
-    })
-  })
-
-  return tasks
-}
-
-
-function actionsByresource (resources, policies) {
-  let res = {}
-
-  policies.forEach((policy) => {
-    policy.Statement.forEach((statement) => {
-      if (statement.Effect === 'Deny') {
-        return
-      }
-
-      statement.Resource.forEach((resource) => {
-        if (resources.length > 0 && resources.indexOf(resource) === -1) {
-          return
-        }
-
-        res[resource] = res[resource] ? res[resource].concat(statement.Action) : statement.Action
-      })
-    })
-  })
-
-  return res
-}
 
 const updateUserInfo = (job, next) => {
   const { id, name, organizationId } = job
@@ -533,30 +483,6 @@ const userOps = {
       }
 
       cb()
-    })
-  },
-
-  /**
-   * List all user actions by resource
-   *
-   * @param  {Obejct}   params { id, organizationId, resources }
-   * @param  {Function} cb
-   */
-  listActionsByResource: function listActionsByResource (params, cb) {
-    const { id: userId, organizationId, resources } = params
-
-    policyOps.listAllUserPolicies({ userId, organizationId }, (err, policies) => {
-      if (err) return cb(err)
-
-      let res = {}
-      let actionsByResource = actionsByresource(resources, policies)
-      let tasks = generateCheckfunctions(actionsByResource, policies, res)
-
-      async.series(tasks, (err) => {
-        if (err) return cb(err)
-
-        cb(null, res)
-      })
     })
   }
 }
