@@ -3,10 +3,9 @@
 const Joi = require('joi')
 const Action = require('./../../lib/config/config.auth').Action
 
-const AuthorizeOps = require('./../../lib/ops/authorizeOps')
+const authorize = require('./../../lib/ops/authorizeOps')
 
 exports.register = function (server, options, next) {
-  const authorize = AuthorizeOps()
 
   server.route({
     method: 'GET',

@@ -5,7 +5,7 @@ const async = require('async')
 const authConfig = require('./lib/config/config.auth')
 
 const userOps = require('./lib/ops/userOps')
-const AuthorizeOps = require('./lib/ops/authorizeOps')
+const authorize = require('./lib/ops/authorizeOps')
 
 module.exports = (options, server, request, userId, callback) => {
   async.waterfall([
@@ -55,7 +55,6 @@ module.exports = (options, server, request, userId, callback) => {
         resource
       }
 
-      const authorize = AuthorizeOps()
       authorize.isUserAuthorized(params, (error, result) => {
         if (error) {
           return next(error)
