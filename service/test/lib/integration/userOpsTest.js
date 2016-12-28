@@ -33,6 +33,20 @@ lab.experiment('UserOps', () => {
     })
   })
 
+  lab.test('create user in not existing organization', (done) => {
+    const userData = {
+      id: 99,
+      name: 'Mike Teavee',
+      organizationId: 'DO_NOT_EXIST_ORG'
+    }
+    userOps.createUserById(userData, (err, result) => {
+      expect(err).to.exist()
+      expect(result).to.not.exist()
+
+      done()
+    })
+  })
+
   lab.test('create a user (and delete it)', (done) => {
     const userData = {
       name: 'Grandma Josephine',

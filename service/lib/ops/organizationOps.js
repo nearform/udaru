@@ -122,6 +122,19 @@ function insertOrgAdminUser (job, next) {
 
 var organizationOps = {
 
+  exists: function exists (id, cb) {
+    const sqlQuery = SQL`
+      SELECT id
+      FROM organizations
+      WHERE id = ${id}
+    `
+    db.query(sqlQuery, function (err, result) {
+      if (err) return cb(Boom.badImplementation(err))
+
+      return cb(null, result.rowCount !== 0)
+    })
+  },
+
   /**
    * Fetch all organizations
    *
