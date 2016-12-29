@@ -2,10 +2,10 @@
 
 const async = require('async')
 
-const authConfig = require('./lib/config/config.auth')
+const authConfig = require('./../lib/config/config.auth')
 
-const userOps = require('./lib/ops/userOps')
-const authorize = require('./lib/ops/authorizeOps')
+const userOps = require('./../lib/ops/userOps')
+const authorize = require('./../lib/ops/authorizeOps')
 
 module.exports = (options, server, request, userId, callback) => {
   async.waterfall([

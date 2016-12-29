@@ -6,8 +6,8 @@ const config = require('./lib/config')
 const Hapi = require('hapi')
 const server = new Hapi.Server()
 
-const HapiAuthService = require('./hapi-auth-service')
-const authValidation = require('./hapi-auth-validation')
+const HapiAuthService = require('./security/hapi-auth-service')
+const authValidation = require('./security/hapi-auth-validation')
 
 server.connection({
   port: Number(config.get('hapi.port')),

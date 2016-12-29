@@ -2,7 +2,7 @@
 
 const Joi = require('joi')
 const Boom = require('boom')
-const security = require('./../security')
+const serviceKey = require('./../../security/serviceKey')
 const Action = require('./../../lib/config/config.auth').Action
 const policyOps = require('./../../lib/ops/policyOps')
 
@@ -12,7 +12,7 @@ exports.register = function (server, options, next) {
     method: 'POST',
     path: '/authorization/policies',
     handler: function (request, reply) {
-      if (!security.hasValidServiceKey(request)) return reply(Boom.forbidden())
+      if (!serviceKey.hasValidServiceKey(request)) return reply(Boom.forbidden())
 
       const { version, name, statements } = request.payload
       const { organizationId } = request.udaru
@@ -54,7 +54,7 @@ exports.register = function (server, options, next) {
     method: 'PUT',
     path: '/authorization/policies/{id}',
     handler: function (request, reply) {
-      if (!security.hasValidServiceKey(request)) return reply(Boom.forbidden())
+      if (!serviceKey.hasValidServiceKey(request)) return reply(Boom.forbidden())
 
       const { id } = request.params
       const { organizationId } = request.udaru
@@ -97,7 +97,7 @@ exports.register = function (server, options, next) {
     method: 'DELETE',
     path: '/authorization/policies/{id}',
     handler: function (request, reply) {
-      if (!security.hasValidServiceKey(request)) return reply(Boom.forbidden())
+      if (!serviceKey.hasValidServiceKey(request)) return reply(Boom.forbidden())
 
       const { id } = request.params
       const { organizationId } = request.udaru
