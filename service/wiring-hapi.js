@@ -80,6 +80,9 @@ server.register(
       register: require('./routes/public/organizations')
     },
     {
+      register: require('./routes/public/monitor')
+    },
+    {
       register: require('./routes/private/policies')
     }
   ],
