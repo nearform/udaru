@@ -8,11 +8,11 @@ module.exports = {
   /**
    * Return if a user can perform an action on a certain resource
    *
-   * @param  {Object}   options { resource, action, userId,  }
+   * @param  {Object}   options { resource, action, token, organizationId  }
    * @param  {Function} cb
    */
-  isUserAuthorized: function isUserAuthorized ({ resource, action, userId, organizationId }, cb) {
-    policyOps.listAllUserPolicies({ userId, organizationId }, (err, policies) => {
+  isUserAuthorized: function isUserAuthorized ({ resource, action, token, organizationId }, cb) {
+    policyOps.listAllUserPolicies({ token, organizationId }, (err, policies) => {
       if (err) {
         return cb(err)
       }
@@ -32,11 +32,11 @@ module.exports = {
   /**
    * List all user's actions on a given resource
    *
-   * @param  {Object}   options { userId, resource }
+   * @param  {Object}   options { token, resource }
    * @param  {Function} cb
    */
-  listAuthorizations: function listAuthorizations ({ userId, resource, organizationId }, cb) {
-    policyOps.listAllUserPolicies({ userId, organizationId }, (err, policies) => {
+  listAuthorizations: function listAuthorizations ({ token, resource, organizationId }, cb) {
+    policyOps.listAllUserPolicies({ token, organizationId }, (err, policies) => {
       if (err) return cb(Boom.wrap(err))
 
       iam(policies, ({ actions }) => {

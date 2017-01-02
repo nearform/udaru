@@ -27,6 +27,7 @@ CREATE TABLE ref_actions (
 /* TODO: users should have additional 'username' column */
 CREATE TABLE users (
   id        SERIAL UNIQUE,
+  token     VARCHAR(256) NOT NULL UNIQUE,
   name      VARCHAR(50) NOT NULL,
   org_id    VARCHAR REFERENCES organizations(id) NOT NULL
 );

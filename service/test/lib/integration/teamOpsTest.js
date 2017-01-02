@@ -58,6 +58,7 @@ lab.experiment('TeamOps', () => {
 
         const defaultPolicy = policies.find((p) => { return p.name === 'Default Team Admin for ' + testTeamId })
         expect(defaultPolicy).to.not.exist()
+
         done()
       })
     })
@@ -84,8 +85,8 @@ lab.experiment('TeamOps', () => {
       expect(result.name).to.equal('Team 5')
       expect(result.users).to.have.length(2)
       expect(result.users).to.only.include([
-        {'id': 1, 'name': 'Super User'},
-        {'id': 2, 'name': 'Charlie Bucket'}
+        { token: 'ROOTtoken', 'name': 'Super User' },
+        { token: 'CharlieToken', 'name': 'Charlie Bucket' }
       ])
 
       policyOps.listByOrganization({ organizationId: 'WONKA' }, (err, policies) => {
@@ -109,15 +110,15 @@ lab.experiment('TeamOps', () => {
       expect(result.name).to.equal('Team 5')
       expect(result.users).to.have.length(2)
       expect(result.users).to.only.include([
-        {'id': 1, 'name': 'Super User'},
-        {'id': 2, 'name': 'Charlie Bucket'}
+        { token: 'ROOTtoken', 'name': 'Super User' },
+        { token: 'CharlieToken', 'name': 'Charlie Bucket' }
       ])
 
       done()
     })
   })
 
-  lab.test('create, update only the name and delete a team', (done) => {
+  lab.test('update only the name and delete a team', (done) => {
     const updateData = {
       id: testTeamId,
       name: 'Team 5',
@@ -134,7 +135,7 @@ lab.experiment('TeamOps', () => {
     })
   })
 
-  lab.test('create, update only the description and delete a team', (done) => {
+  lab.test('update only the description and delete a team', (done) => {
     const updateData = {
       id: testTeamId,
       description: 'new desc',
@@ -151,7 +152,7 @@ lab.experiment('TeamOps', () => {
     })
   })
 
-  lab.test('create, update only the users and delete a team', (done) => {
+  lab.test('update only the users and delete a team', (done) => {
     const updateData = {
       id: testTeamId,
       users: [1, 2, 3],
@@ -163,7 +164,11 @@ lab.experiment('TeamOps', () => {
       expect(result).to.exist()
       expect(result.description).to.equal(teamData.description)
       expect(result.name).to.equal(teamData.name)
-      expect(result.users).to.equal([{ id: 2, name: 'Charlie Bucket' }, { id: 3, name: 'Mike Teavee' }, { id: 1, name: 'Super User' }])
+      expect(result.users).to.equal([
+        { token: 'CharlieToken', name: 'Charlie Bucket' },
+        { token: 'MikeToken', name: 'Mike Teavee' },
+        { token: 'ROOTtoken', name: 'Super User' }
+      ])
 
       done()
     })
@@ -220,7 +225,7 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('create team support creation of default team admin user', (done) => {
-    teamData.user = { name: 'Team 6 Admin' }
+    teamData.user = { name: 'Team 6 Admin', token: 'testtokenTA' }
 
     teamOps.createTeam(teamData, function (err, team) {
       expect(err).to.not.exist()
@@ -230,18 +235,22 @@ lab.experiment('TeamOps', () => {
       const defaultUser = team.users.find((u) => { return u.name === 'Team 6 Admin' })
       expect(defaultUser).to.exist()
 
-      userOps.readUser({ id: defaultUser.id, organizationId: 'WONKA' }, (err, user) => {
+      userOps.getIdFromToken(defaultUser.token, (err, id) => {
         expect(err).to.not.exist()
 
-        expect(user.name).to.be.equal('Team 6 Admin')
-
-        const defaultPolicy = user.policies.find((p) => { return p.name === 'Default Team Admin for ' + team.id })
-        expect(defaultPolicy).to.exist()
-
-        teamOps.deleteTeam({ id: team.id, organizationId: 'WONKA' }, (err) => {
+        userOps.readUser({ id, organizationId: 'WONKA' }, (err, user) => {
           expect(err).to.not.exist()
 
-          userOps.deleteUser({ id: user.id, organizationId: 'WONKA' }, done)
+          expect(user.name).to.be.equal('Team 6 Admin')
+
+          const defaultPolicy = user.policies.find((p) => { return p.name === 'Default Team Admin for ' + team.id })
+          expect(defaultPolicy).to.exist()
+
+          teamOps.deleteTeam({ id: team.id, organizationId: 'WONKA' }, (err) => {
+            expect(err).to.not.exist()
+
+            userOps.deleteUser({ token: user.token, organizationId: 'WONKA' }, done)
+          })
         })
       })
     })

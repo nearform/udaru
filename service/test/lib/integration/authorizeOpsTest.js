@@ -15,14 +15,17 @@ const fs = require('fs')
 const path = require('path')
 
 let testUserId
+let testUserToken
 let testTeamId
 const organizationId = 'WONKA'
 const testUserData = {
   name: 'Salman',
+  token: 'testtokenSalman',
   organizationId
 }
 const updateUserData = {
   organizationId,
+  token: 'testtokenSalman',
   name: 'Salman',
   teams: [4]
 }
@@ -30,29 +33,34 @@ const updateUserData = {
 
 lab.experiment('AuthorizeOps', () => {
   lab.before((done) => {
-    userOps.createUser(testUserData, (err, result) => {
+    userOps.createUser(testUserData, (err, user) => {
       if (err) return done(err)
-      testUserId = result.id
+      testUserId = user.id
+      testUserToken = user.token
 
       updateUserData.id = testUserId
       userOps.updateUser(updateUserData, (err, result) => {
         if (err) return done(err)
 
-        userOps.replaceUserPolicies({ id: testUserId, policies: [1], organizationId }, done)
+        userOps.replaceUserPolicies({ token: testUserToken, policies: [1], organizationId }, done)
       })
     })
   })
 
   lab.after((done) => {
-    userOps.deleteUser({ id: testUserId, organizationId: 'WONKA' }, (err, res) => {
+    userOps.deleteUser({ token: testUserToken, organizationId: 'WONKA' }, (err, res) => {
       if (err) return done(err)
 
-      teamOps.deleteTeam({ id: testTeamId, organizationId }, done)
+      if (testTeamId) {
+        return teamOps.deleteTeam({ id: testTeamId, organizationId }, done)
+      }
+
+      done()
     })
   })
 
   lab.test('check authorization should return access true for allowed', (done) => {
-    authorize.isUserAuthorized({ userId: testUserId, resource: 'database:pg01:balancesheet', action: 'finance:ReadBalanceSheet' }, (err, result) => {
+    authorize.isUserAuthorized({ token: testUserToken, resource: 'database:pg01:balancesheet', action: 'finance:ReadBalanceSheet' }, (err, result) => {
       if (err) return done(err)
 
       expect(err).to.not.exist()
@@ -65,10 +73,10 @@ lab.experiment('AuthorizeOps', () => {
 
   lab.test('authorize isUserAuthorized - check on a resource and action with wildcards both in action and resource', (done) => {
 
-    userOps.replaceUserPolicies({ id: testUserId, policies: [5], organizationId }, (err, result) => {
+    userOps.replaceUserPolicies({ token: testUserToken, policies: [5], organizationId }, (err, result) => {
       if (err) return done(err)
 
-      authorize.isUserAuthorized({ userId: testUserId, resource: 'database:pg01:balancesheet', action: 'database:dropTable' }, (err, result) => {
+      authorize.isUserAuthorized({ token: testUserToken, resource: 'database:pg01:balancesheet', action: 'database:dropTable' }, (err, result) => {
         if (err) return done(err)
 
         expect(err).to.not.exist()
@@ -82,10 +90,10 @@ lab.experiment('AuthorizeOps', () => {
 
   lab.test('authorize isUserAuthorized - check on a resource and action with wildcards only for resource', (done) => {
 
-    userOps.replaceUserPolicies({ id: testUserId, policies: [6], organizationId }, (err, result) => {
+    userOps.replaceUserPolicies({ token: testUserToken, policies: [6], organizationId }, (err, result) => {
       if (err) return done(err)
 
-      authorize.isUserAuthorized({ userId: testUserId, resource: 'database:pg01:balancesheet', action: 'database:Read' }, (err, result) => {
+      authorize.isUserAuthorized({ token: testUserToken, resource: 'database:pg01:balancesheet', action: 'database:Read' }, (err, result) => {
         if (err) return done(err)
 
         expect(err).to.not.exist()
@@ -98,10 +106,10 @@ lab.experiment('AuthorizeOps', () => {
   })
 
   lab.test('authorize isUserAuthorized - check on a resource and action with wildcards only for action', (done) => {
-    userOps.replaceUserPolicies({ id: testUserId, policies: [7], organizationId }, (err, result) => {
+    userOps.replaceUserPolicies({ token: testUserToken, policies: [7], organizationId }, (err, result) => {
       if (err) return done(err)
 
-      authorize.isUserAuthorized({ userId: testUserId, resource: 'database:pg01:balancesheet', action: 'database:Delete' }, (err, result) => {
+      authorize.isUserAuthorized({ token: testUserToken, resource: 'database:pg01:balancesheet', action: 'database:Delete' }, (err, result) => {
         if (err) return done(err)
 
         expect(err).to.not.exist()
@@ -114,10 +122,10 @@ lab.experiment('AuthorizeOps', () => {
   })
 
   lab.test('authorize isUserAuthorized - check on a resource and action with wildcards for URL resource', (done) => {
-    userOps.replaceUserPolicies({ id: testUserId, policies: [8], organizationId }, (err, result) => {
+    userOps.replaceUserPolicies({ token: testUserToken, policies: [8], organizationId }, (err, result) => {
       if (err) return done(err)
 
-      authorize.isUserAuthorized({ userId: testUserId, resource: '/my/site/i/should/read/this', action: 'Read' }, (err, result) => {
+      authorize.isUserAuthorized({ token: testUserToken, resource: '/my/site/i/should/read/this', action: 'Read' }, (err, result) => {
         if (err) return done(err)
 
         expect(err).to.not.exist()
@@ -130,10 +138,10 @@ lab.experiment('AuthorizeOps', () => {
   })
 
   lab.test('authorize isUserAuthorized - should return false if the policies has a wildcard on the resource but we are asking for the wrong action', (done) => {
-    userOps.replaceUserPolicies({ id: testUserId, policies: [6], organizationId }, (err, result) => {
+    userOps.replaceUserPolicies({ token: testUserToken, policies: [6], organizationId }, (err, result) => {
       if (err) return done(err)
 
-      authorize.isUserAuthorized({ userId: testUserId, resource: 'database:pg01:balancesheet', action: 'database:Write' }, (err, result) => {
+      authorize.isUserAuthorized({ token: testUserToken, resource: 'database:pg01:balancesheet', action: 'database:Write' }, (err, result) => {
         if (err) return done(err)
 
         expect(err).to.not.exist()
@@ -146,10 +154,10 @@ lab.experiment('AuthorizeOps', () => {
   })
 
   lab.test('authorize isUserAuthorized - should return false if the policies has a wildcard on the action but we are asking for the wrong resource', (done) => {
-    userOps.replaceUserPolicies({ id: testUserId, policies: [6], organizationId }, (err, result) => {
+    userOps.replaceUserPolicies({ token: testUserToken, policies: [6], organizationId }, (err, result) => {
       if (err) return done(err)
 
-      authorize.isUserAuthorized({ userId: testUserId, resource: 'database:pg01:notMyTable', action: 'database:Write' }, (err, result) => {
+      authorize.isUserAuthorized({ token: testUserToken, resource: 'database:pg01:notMyTable', action: 'database:Write' }, (err, result) => {
         if (err) return done(err)
 
         expect(err).to.not.exist()
@@ -174,7 +182,7 @@ lab.experiment('AuthorizeOps', () => {
       userOps.updateUser(updateUserData, cb)
     })
     tasks.push((result, cb) => {
-      userOps.replaceUserPolicies({ id: testUserId, policies: [], organizationId }, cb)
+      userOps.replaceUserPolicies({ token: testUserToken, policies: [], organizationId }, cb)
     })
 
     tasks.push((result, cb) => {
@@ -201,7 +209,7 @@ lab.experiment('AuthorizeOps', () => {
     // test for no permissions on the resource
     tasks.push((result, cb) => {
       authorize.listAuthorizations({
-        userId: testUserId,
+        token: testUserToken,
         resource: 'database:pg01:balancesheet'
       }, (err, result) => {
         expect(err).to.not.exist()
@@ -226,7 +234,7 @@ lab.experiment('AuthorizeOps', () => {
 
     tasks.push((result, cb) => {
       authorize.listAuthorizations({
-        userId: testUserId,
+        token: testUserToken,
         resource: 'database:pg01:balancesheet'
       }, (err, result) => {
         expect(err).to.not.exist()
@@ -243,12 +251,12 @@ lab.experiment('AuthorizeOps', () => {
       userOps.updateUser(updateUserData, cb)
     })
     tasks.push((result, cb) => {
-      userOps.replaceUserPolicies({ id: testUserId, policies: [3], organizationId }, cb)
+      userOps.replaceUserPolicies({ token: testUserToken, policies: [3], organizationId }, cb)
     })
 
     tasks.push((result, cb) => {
       authorize.listAuthorizations({
-        userId: testUserId,
+        token: testUserToken,
         resource: 'database:pg01:balancesheet'
       }, (err, result) => {
         expect(err).to.not.exist()
@@ -265,12 +273,12 @@ lab.experiment('AuthorizeOps', () => {
       userOps.updateUser(updateUserData, cb)
     })
     tasks.push((result, cb) => {
-      userOps.replaceUserPolicies({ id: testUserId, policies: [4], organizationId }, cb)
+      userOps.replaceUserPolicies({ token: testUserToken, policies: [4], organizationId }, cb)
     })
 
     tasks.push((result, cb) => {
       authorize.listAuthorizations({
-        userId: testUserId,
+        token: testUserToken,
         resource: 'database:pg01:balancesheet'
       }, (err, result) => {
         expect(err).to.not.exist()

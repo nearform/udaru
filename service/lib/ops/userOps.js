@@ -7,11 +7,12 @@ const SQL = require('./../db/SQL')
 const mapping = require('./../mapping')
 
 const updateUserInfo = (job, next) => {
-  const { id, name, organizationId } = job
+  const { id, name, token, organizationId } = job
 
   const sqlQuery = SQL`
     UPDATE users
-    SET name = ${name}
+    SET name = ${name},
+        token = ${token}
     WHERE id = ${id}
     AND org_id = ${organizationId}
   `
@@ -80,6 +81,26 @@ const insertUserPolicies = (job, next) => {
   userOps.insertPolicies(job.client, userId, policies, next)
 }
 
+const selectUserId = (job, next) => {
+  selectUserIdFromToken(job.client, job.token, (err, id) => {
+    if (err) return next(err)
+
+    job.id = id
+    next()
+  })
+}
+
+const selectUserIdFromToken = (client, token, cb) => {
+  const sqlQuery = SQL`SELECT id FROM users WHERE token = ${token}`
+
+  client.query(sqlQuery, (err, res) => {
+    if (err) return cb(err)
+    if (res.rowCount === 0) return cb(Boom.notFound())
+
+    cb(null, res.rows[0].id)
+  })
+}
+
 const userOps = {
   /**
    * Get organization users, in alphabetical order
@@ -103,12 +124,12 @@ const userOps = {
     })
   },
 
-  insertUser: function insertUser (client, name, organizationId, cb) {
+  insertUser: function insertUser (client, name, token, organizationId, cb) {
     const sqlQuery = SQL`
       INSERT INTO users (
-        id, name, org_id
+        id, name, token, org_id
       ) VALUES (
-        DEFAULT, ${name}, ${organizationId}
+        DEFAULT, ${name}, ${token}, ${organizationId}
       )
       RETURNING id
     `
@@ -147,17 +168,17 @@ const userOps = {
   /**
    * Create a new user
    *
-   * @param  {Object}   params { name, organizationId }
+   * @param  {Object}   params { name, token, organizationId }
    * @param  {Function} cb
    */
   createUser: function createUser (params, cb) {
-    const { name, organizationId } = params
+    const { name, token, organizationId } = params
 
     userOps.organizationExists(organizationId, (err, res) => {
       if (err) return cb(Boom.badImplementation(err))
       if (!res) return cb(Boom.badRequest(`Organization '${organizationId}' does not exists`))
 
-      userOps.insertUser(db, name, organizationId, (err, result) => {
+      userOps.insertUser(db, name, token, organizationId, (err, result) => {
         if (err) return cb(Boom.badImplementation(err))
 
         userOps.readUser({ id: result.rows[0].id, organizationId }, cb)
@@ -172,13 +193,13 @@ const userOps = {
    * @param  {Function} cb
    */
   createUserById: function createUserById (params, cb) {
-    const { id, name, organizationId } = params
+    const { id, name, token, organizationId } = params
 
     const sqlQuery = SQL`
       INSERT INTO users (
-        id, name, org_id
+        id, name, token, org_id
       ) VALUES (
-        ${id}, ${name}, ${organizationId}
+        ${id}, ${name}, ${token}, ${organizationId}
       )
     `
     db.query(sqlQuery, function (err, result) {
@@ -191,20 +212,45 @@ const userOps = {
   /**
    * Return the user organizationId
    *
-   * @param  {Number}   id
+   * @param  {String}   token
    * @param  {Function} cb
    */
-  getUserOrganizationId: function getUserOrganizationId (id, cb) {
+  getUserOrganizationId: function getUserOrganizationId (token, cb) {
     const sqlQuery = SQL`
       SELECT org_id
       FROM users
-      WHERE id = ${id}
+      WHERE token = ${token}
     `
     db.query(sqlQuery, function (err, result) {
       if (err) return cb(Boom.badImplementation(err))
       if (result.rowCount === 0) return cb(Boom.notFound())
 
       return cb(null, result.rows[0].org_id)
+    })
+  },
+
+  /**
+   * Fetch the user id given her token
+   *
+   * @param  {String}   token [description]
+   * @param  {Function} cb    [description]
+   */
+  getIdFromToken: function getIdFromToken (token, cb) {
+    const sqlQuery = SQL`
+      SELECT id
+      FROM users
+      WHERE token = ${token}
+    `
+    db.query(sqlQuery, (err, result) => {
+      if (err) {
+        return cb(err)
+      }
+
+      if (result.rowCount === 0) {
+        return cb(Boom.notFound())
+      }
+
+      cb(null, result.rows[0].id)
     })
   },
 
@@ -222,7 +268,7 @@ const userOps = {
 
     tasks.push((next) => {
       const sqlQuery = SQL`
-        SELECT id, name, org_id
+        SELECT id, name, token, org_id
         FROM users
         WHERE id = ${id}
         AND org_id = ${organizationId}
@@ -287,24 +333,52 @@ const userOps = {
     })
   },
 
+
+  /**
+   * Get user data
+   *
+   * @param  {Object}   params { token }
+   * @param  {Function} cb
+   */
+  readUserByToken: function readUserByToken (params, cb) {
+    const { token } = params
+    const sqlQuery = SQL`
+      SELECT id, name, token, org_id
+      FROM users
+      WHERE token = ${token}
+    `
+    db.query(sqlQuery, (err, result) => {
+      if (err) {
+        return cb(err.isBoom ? err : Boom.badImplementation(err))
+      }
+
+      if (result.rowCount === 0) {
+        return cb(Boom.notFound())
+      }
+
+      return cb(null, mapping.user(result.rows[0]))
+    })
+  },
+
   /**
    * Update user details
    *
-   * @param  {Object}   params { id, organizationId, name, teams }
+   * @param  {Object}   params { token, organizationId, name, teams }
    * @param  {Function} cb
    */
   updateUser: function updateUser (params, cb) {
-    const { id, organizationId, name, teams } = params
-
+    let id
+    const { token, organizationId, name, teams } = params
     const tasks = [
       (job, next) => {
-        job.id = id
+        job.token = token
         job.name = name
         job.teams = teams
         job.organizationId = organizationId
 
         next()
       },
+      selectUserId,
       updateUserInfo
     ]
 
@@ -312,6 +386,10 @@ const userOps = {
     if (teams.length > 0) {
       tasks.push(addUserTeams)
     }
+    tasks.push((job, next) => {
+      id = job.id
+      next()
+    })
 
     db.withTransaction(tasks, (err, res) => {
       if (err) {
@@ -325,25 +403,32 @@ const userOps = {
   /**
    * Replace user poilicies
    *
-   * @param  {Object}   params { id, organizationId, policies }
+   * @param  {Object}   params { token, organizationId, policies }
    * @param  {Function} cb
    */
   replaceUserPolicies: function replaceUserPolicies (params, cb) {
-    const { id, organizationId, policies } = params
+    let id
+    const { token, organizationId, policies } = params
     const tasks = [
       (job, next) => {
-        job.id = id
+        job.token = token
         job.organizationId = organizationId
         job.policies = policies
 
         next()
       },
+      selectUserId,
       clearUserPolicies
     ]
 
     if (policies.length > 0) {
       tasks.push(insertUserPolicies)
     }
+
+    tasks.push((job, next) => {
+      id = job.id
+      next()
+    })
 
     db.withTransaction(tasks, (err, res) => {
       if (err) {
@@ -357,49 +442,59 @@ const userOps = {
   /**
    * Add one or more policies to a user
    *
-   * @param  {Object}   params { id, organizationId, policies }
+   * @param  {Object}   params { token, organizationId, policies }
    * @param  {Function} cb
    */
   addUserPolicies: function addUserPolicies (params, cb) {
-    const { id, organizationId, policies } = params
-    if (policies.length <= 0) {
-      return userOps.readUser({ id, organizationId }, cb)
-    }
+    const { token, organizationId, policies } = params
+    selectUserIdFromToken(db, token, (err, id) => {
+      if (err) return cb(err)
 
-    const tasks = [
-      (job, next) => {
-        job.id = id
-        job.policies = policies
-
-        next()
-      },
-      insertUserPolicies
-    ]
-
-    db.withTransaction(tasks, (err, res) => {
-      if (err) {
-        return cb(Boom.badImplementation(err))
+      if (policies.length <= 0) {
+        return userOps.readUser({ id, organizationId }, cb)
       }
 
-      userOps.readUser({ id, organizationId }, cb)
+      const tasks = [
+        (job, next) => {
+          job.id = id
+          job.policies = policies
+
+          next()
+        },
+        insertUserPolicies
+      ]
+
+      db.withTransaction(tasks, (err, res) => {
+        if (err) {
+          return cb(Boom.badImplementation(err))
+        }
+
+        userOps.readUser({ id, organizationId }, cb)
+      })
     })
   },
 
   /**
    * Rmove all user's policies
    *
-   * @param  {Object}   params { id, organizationId }
+   * @param  {Object}   params { token, organizationId }
    * @param  {Function} cb
    */
   deleteUserPolicies: function deleteUserPolicies (params, cb) {
-    const { id, organizationId } = params
+    let id
+    const { token, organizationId } = params
     const tasks = [
       (job, next) => {
-        job.id = id
+        job.token = token
 
         next()
       },
-      clearUserPolicies
+      selectUserId,
+      clearUserPolicies,
+      (job, next) => {
+        id = job.id
+        next()
+      }
     ]
 
     db.withTransaction(tasks, (err, res) => {
@@ -414,19 +509,25 @@ const userOps = {
   /**
    * Rmove all user's policies
    *
-   * @param  {Object}   params { userId, organizationId, policyId }
+   * @param  {Object}   params { token, organizationId, policyId }
    * @param  {Function} cb
    */
   deleteUserPolicy: function deleteUserPolicy (params, cb) {
-    const { userId, organizationId, policyId } = params
+    let id
+    const { token, organizationId, policyId } = params
     const tasks = [
       (job, next) => {
-        job.id = userId
+        job.token = token
         job.policyId = policyId
 
         next()
       },
-      removeUserPolicy
+      selectUserId,
+      removeUserPolicy,
+      (job, next) => {
+        id = job.id
+        next()
+      }
     ]
 
     db.withTransaction(tasks, (err, res) => {
@@ -434,42 +535,40 @@ const userOps = {
         return cb(Boom.badImplementation(err))
       }
 
-      userOps.readUser({ id: userId, organizationId }, cb)
+      userOps.readUser({ id, organizationId }, cb)
     })
   },
 
   /**
    * Delete user
    *
-   * @param  {params}   { id, organizationId }
+   * @param  {params}   { token, organizationId }
    * @param  {Function} cb
    */
   deleteUser: function deleteUser (params, cb) {
-    const { id, organizationId } = params
+    const { token, organizationId } = params
     const tasks = [
       (job, next) => {
-        job.id = id
+        job.token = token
         next()
       },
+      selectUserId,
       (job, next) => {
-        const sqlQuery = SQL`DELETE FROM user_policies WHERE user_id = ${id}`
+        const sqlQuery = SQL`DELETE FROM user_policies WHERE user_id = ${job.id}`
 
         job.client.query(sqlQuery, next)
       },
       (job, next) => {
-        const sqlQuery = SQL`DELETE FROM team_members WHERE user_id = ${id}`
+        const sqlQuery = SQL`DELETE FROM team_members WHERE user_id = ${job.id}`
 
         job.client.query(sqlQuery, next)
       },
       (job, next) => {
-        const sqlQuery = SQL`DELETE FROM users WHERE id = ${id} AND org_id = ${organizationId}`
+        const sqlQuery = SQL`DELETE FROM users WHERE id = ${job.id} AND org_id = ${organizationId}`
 
         job.client.query(sqlQuery, (err, result) => {
           if (err) {
             return next(err)
-          }
-          if (result.rowCount === 0) {
-            return next(Boom.notFound())
           }
 
           next()
