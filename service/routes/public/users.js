@@ -39,7 +39,11 @@ exports.register = function (server, options, next) {
       const { organizationId } = request.udaru
       const { token } = request.params
 
-      userOps.readUserByToken({ token, organizationId }, reply)
+      userOps.getIdFromToken(token, (err, id) => {
+        if (err) return reply(err)
+
+        userOps.readUser({ id, organizationId }, reply)
+      })
     },
     config: {
       validate: {

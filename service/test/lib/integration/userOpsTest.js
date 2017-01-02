@@ -7,7 +7,6 @@ const lab = exports.lab = Lab.script()
 const userOps = require('../../../lib/ops/userOps')
 
 lab.experiment('UserOps', () => {
-
   lab.test('list of org users', (done) => {
     userOps.listOrgUsers({ organizationId: 'WONKA' }, (err, result) => {
       expect(err).to.not.exist()

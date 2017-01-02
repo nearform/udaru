@@ -37,8 +37,15 @@ lab.experiment('Users', () => {
   })
 
   lab.test('get single user should return error for error case', (done) => {
-    userOps.readUserByToken = function (params, cb) {
-      expect(params).to.equal({ token: 'AugustusToken', organizationId: 'WONKA' })
+    userOps.getIdFromToken = function (token, cb) {
+      expect(token).to.equal('AugustusToken')
+      process.nextTick(() => {
+        cb(null, 12)
+      })
+    }
+
+    userOps.readUser = function (params, cb) {
+      expect(params).to.equal({ id: 12, organizationId: 'WONKA' })
       process.nextTick(() => {
         cb(Boom.badImplementation())
       })

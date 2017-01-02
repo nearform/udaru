@@ -49,7 +49,14 @@ lab.experiment('Users', () => {
         id: 5,
         name: 'Augustus Gloop',
         organizationId: 'WONKA',
-        token: 'AugustusToken'
+        token: 'AugustusToken',
+        policies: [],
+        teams: [
+          {
+            id: 1,
+            name: 'Admins'
+          }
+        ]
       })
 
       done()
