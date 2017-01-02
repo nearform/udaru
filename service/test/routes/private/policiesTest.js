@@ -51,7 +51,6 @@ lab.experiment('Policies', () => {
       id: 2,
       version: '2016-07-01',
       name: 'Documents Admin',
-      organizationId: 'WONKA',
       statements: '{"Statement":[{"Effect":"Allow","Action":["documents:Read"],"Resource":["wonka:documents:/public/*"]}]}'
     }
 
@@ -122,7 +121,6 @@ lab.experiment('Policies', () => {
       id: 2,
       version: '2016-07-01',
       name: 'Documents Admin - updated',
-      organizationId: 'WONKA',
       statements: '{"Statement":[{"Effect":"Allow","Action":["documents:Update"],"Resource":["wonka:documents:/public/*"]}]}'
     }
 

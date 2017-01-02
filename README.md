@@ -114,13 +114,26 @@ JSON structure:
 }
 ```
 
+### Service API documentation
+
+The Swagger API documentation gives explanations on the exposed API.
+
+To run Swagger:
+
+```
+npm run start:service
+```
+
+and then go to `http://localhost:8080/documentation`
+
+The Swagger documentation also gives the ability to execute calls to the API and see their results.
+
+
 ## API
 
 An example API route for fetching all the users is: http://localhost:8000/authorization/users
 
 Curl examples for all the routes can be found in api/route.js
-
-Swagger documentation can be found once the API is running by visiting: http://localhost:8000/documentation
 
 To expose the routes start both the service and the API with the following:
 

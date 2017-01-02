@@ -72,7 +72,7 @@ lab.experiment('Users', () => {
       id: 1,
       name: 'John',
       policies: [],
-      team: []
+      teams: []
     }
 
     userOps.readUser = function (params, cb) {
@@ -125,7 +125,7 @@ lab.experiment('Users', () => {
       id: 2,
       name: 'Salman',
       policies: [],
-      team: []
+      teams: []
     }
 
     userOps.createUser = function (params, cb) {
@@ -162,7 +162,7 @@ lab.experiment('Users', () => {
       id: 2,
       name: 'Salman',
       policies: [],
-      team: []
+      teams: []
     }
 
     userOps.createUser = function (params, cb) {
@@ -348,7 +348,7 @@ lab.experiment('Users', () => {
       id: 1,
       name: 'John',
       policies: [{ id: 1, name: 'new policy' }],
-      team: []
+      teams: []
     }
 
     userOps.addUserPolicies = function (params, cb) {
@@ -381,7 +381,7 @@ lab.experiment('Users', () => {
       id: 1,
       name: 'John',
       policies: [],
-      team: []
+      teams: []
     }
 
     userOps.replaceUserPolicies = function (params, cb) {

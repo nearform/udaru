@@ -71,7 +71,7 @@ lab.experiment('Policies', () => {
       id: 1,
       name: 'SysAdmin',
       version: '0.1',
-      statements: [{
+      statements: {
         'Statement': [
           {
             'Action': [
@@ -92,7 +92,7 @@ lab.experiment('Policies', () => {
             ]
           }
         ]
-      }]
+      }
     }
 
     policyOps.readPolicy = (params, cb) => {

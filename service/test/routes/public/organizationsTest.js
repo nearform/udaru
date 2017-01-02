@@ -36,6 +36,8 @@ lab.experiment('Organizations', () => {
     server.inject(options, (response) => {
       const result = response.result
 
+      console.log(result)
+
       expect(response.statusCode).to.equal(200)
       expect(result).to.equal(expected)
 
