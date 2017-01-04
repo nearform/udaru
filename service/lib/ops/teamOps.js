@@ -127,6 +127,7 @@ function insertTeamMembers (job, next) {
   users.slice(1).forEach((userId) => {
     sql.append(SQL`, (${userId},${teamId})`)
   })
+  sql.append(SQL` ON CONFLICT ON CONSTRAINT team_member_link DO NOTHING`)
   job.client.query(sql, next)
 }
 
@@ -141,6 +142,7 @@ function insertTeamPolicies (job, next) {
   policies.slice(1).forEach((policyId) => {
     sql.append(SQL`, (${policyId},${teamId})`)
   })
+  sql.append(SQL` ON CONFLICT ON CONSTRAINT team_policy_link DO NOTHING`)
   job.client.query(sql, next)
 }
 

@@ -8,6 +8,8 @@ There are 4 package.json files present in the repository (root, component, servi
 
 ## Database
 
+**Important note:** the app needs PostgreSQL >= 9.5
+
 Running the initial demo (first cut of the service) uses Postgres in a Docker running instance, which can be created with:
 
 ```
@@ -54,21 +56,44 @@ npm run pg:load-test-data
 ```
 
 ###pgAdmin database access
+
 As the Postgresql docker container has its 5432 port forwarded on the local machine the database can be accessed with pgAdmin.
 
 To access the database using the pgAdmin you have to fill in also the container IP beside the database names and access credentials. The container IP can be seen with `docker ps`.
 
 ## Service
 
+The service will respond to commands such as a list users request:
+
+    {role: 'authorization', cmd: 'list', type: 'users'}
+
+with data in the form:
+
+    [ { id: 1, name: 'Charlie Bucket' },
+      { id: 2, name: 'Grandpa Joe' },
+      { id: 3, name: 'Veruca Salt' },
+      { id: 4, name: 'Willy Wonka' } ]
+
+It also has a shutdown operation, which should be called when finished with the
+service:
+
+    {role: 'authorization', cmd: 'done'}
+
+
 ### Setup SuperUser
 
 The init script needs to be run in order to setup the SuperUser: `node service/scripts/init`
- 
+
+**Note:** if you have already ran some tests or loaded the test data, you will need to run `npm pg:init` again to reset the db.
+
 ### Load policies from file
 
-Another script is available to load policies from a file  
-Usage: `node service/script/loadPolicies --org=FOO policies.json`  
-JSON structure (TBD):  
+Another script is available to load policies from a file
+
+Usage: `node service/script/loadPolicies --org=FOO policies.json`
+
+JSON structure:
+
 ```json
 {
   "policies": [
@@ -88,24 +113,6 @@ JSON structure (TBD):
   ]
 }
 ```
-
----
-
-The service will respond to commands such as a list users request:
-
-    {role: 'authorization', cmd: 'list', type: 'users'}
-
-with data in the form:
-
-    [ { id: 1, name: 'Charlie Bucket' },
-      { id: 2, name: 'Grandpa Joe' },
-      { id: 3, name: 'Veruca Salt' },
-      { id: 4, name: 'Willy Wonka' } ]
-
-It also has a shutdown operation, which should be called when finished with the
-service:
-
-    {role: 'authorization', cmd: 'done'}
 
 ## API
 

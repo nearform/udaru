@@ -150,6 +150,25 @@ lab.experiment('UserOps', () => {
     })
   })
 
+  lab.test('add twice the same policy to a user', (done) => {
+    userOps.readUser({ id: 4, organizationId: 'WONKA' }, (err, user) => {
+      expect(err).to.not.exist()
+      expect(user).to.exist()
+      expect(user.policies).to.equal([{ id: 2, name: 'Accountant', version: '0.1' }])
+
+      userOps.addUserPolicies({ id: 4, policies: [1, 2, 3], organizationId: 'WONKA' }, (err, user) => {
+        expect(err).to.not.exist()
+        expect(user).to.exist()
+        expect(user.policies).to.equal([{ id: 2, name: 'Accountant', version: '0.1' }, { id: 1, name: 'Director', version: '0.1' }, { id: 3, name: 'Sys admin', version: '0.1' }])
+
+        userOps.replaceUserPolicies({ id: 4, policies: [2], organizationId: 'WONKA' }, (err, user) => {
+          expect(err).to.not.exist()
+          done()
+        })
+      })
+    })
+  })
+
   lab.test('delete user\'s policies', (done) => {
     userOps.readUser({ id: 4, organizationId: 'WONKA' }, (err, user) => {
       expect(err).to.not.exist()
