@@ -3,6 +3,7 @@
 const Boom = require('boom')
 const db = require('./../db')
 const policyOps = require('./policyOps')
+const userOps = require('./userOps')
 const SQL = require('./../db/SQL')
 const mapping = require('./../mapping')
 
@@ -98,35 +99,19 @@ function createDefaultPolicies (job, next) {
 /**
  * Insert a new user and attach to it the organization admin policy
  *
- * NOTE: we are not using userOps.createUser because we need to execute this operation in a transaction with the same client.
- *
  * @param  {Object}   job
  * @param  {Function} next
  */
 function insertOrgAdminUser (job, next) {
   if (job.user) {
-    const insertUser = SQL`
-      INSERT INTO users (
-        id, name, org_id
-      )
-      VALUES (
-        DEFAULT, ${job.user.name}, ${job.organization.id}
-      )
-      RETURNING id
-    `
-    job.client.query(insertUser, (err, res) => {
+    const { name } = job.user
+    const { id: organizationId } = job.organization
+
+    userOps.insertUser(job.client, name, organizationId, (err, res) => {
       if (err) return next(err)
       job.user.id = res.rows[0].id
 
-      const insertUserPolicy = SQL`
-        INSERT INTO user_policies (
-          user_id, policy_id
-        )
-        VALUES (
-          ${job.user.id}, ${job.adminPolicyId}
-        )
-      `
-      job.client.query(insertUserPolicy, next)
+      userOps.insertPolicies(job.client, job.user.id, [job.adminPolicyId], next)
     })
 
     return

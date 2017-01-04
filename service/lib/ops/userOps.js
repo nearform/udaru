@@ -127,17 +127,7 @@ const removeUserPolicy = (job, next) => {
 const insertUserPolicies = (job, next) => {
   const { id: userId, policies } = job
 
-  const sqlQuery = SQL`
-    INSERT INTO user_policies (
-      policy_id, user_id
-    ) VALUES
-  `
-  sqlQuery.append(SQL`(${policies[0]}, ${userId})`)
-  policies.slice(1).forEach((policyId) => {
-    sqlQuery.append(SQL`, (${policyId}, ${userId})`)
-  })
-
-  job.client.query(sqlQuery, next)
+  userOps.insertPolicies(job.client, userId, policies, next)
 }
 
 const userOps = {
@@ -172,6 +162,20 @@ const userOps = {
       )
       RETURNING id
     `
+
+    client.query(sqlQuery, cb)
+  },
+
+  insertPolicies: function insertUser (client, id, policies, cb) {
+    const sqlQuery = SQL`
+      INSERT INTO user_policies (
+        policy_id, user_id
+      ) VALUES
+    `
+    sqlQuery.append(SQL`(${policies[0]}, ${id})`)
+    policies.slice(1).forEach((policyId) => {
+      sqlQuery.append(SQL`, (${policyId}, ${id})`)
+    })
 
     client.query(sqlQuery, cb)
   },
