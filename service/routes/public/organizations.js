@@ -3,6 +3,7 @@
 const Joi = require('joi')
 const organizationOps = require('./../../lib/ops/organizationOps')
 const Action = require('./../../lib/config/config.auth').Action
+const swagger = require('./../../swagger')
 
 exports.register = function (server, options, next) {
 
@@ -19,7 +20,13 @@ exports.register = function (server, options, next) {
         auth: {
           action: Action.ListOrganizations
         }
-      }
+      },
+      validate: {
+        headers: Joi.object({
+          'authorization': Joi.any().required()
+        }).unknown()
+      },
+      response: {schema: swagger.OrganizationList}
     }
   })
 
@@ -37,7 +44,16 @@ exports.register = function (server, options, next) {
           action: Action.ReadOrganization,
           getParams: (request) => ({ organizationId: request.params.id })
         }
-      }
+      },
+      validate: {
+        params: {
+          id: Joi.string().required().description('organization id')
+        },
+        headers: Joi.object({
+          'authorization': Joi.any().required()
+        }).unknown()
+      },
+      response: {schema: swagger.Organization}
     }
   })
 
@@ -69,7 +85,10 @@ exports.register = function (server, options, next) {
           user: Joi.object().keys({
             name: Joi.string().required()
           })
-        }
+        },
+        headers: Joi.object({
+          'authorization': Joi.any().required()
+        }).unknown()
       },
       description: 'Create an organization',
       notes: 'The POST /authorization/organizations endpoint will create a new organization, the default organization admin policy and (if provided) its admin.',
@@ -78,7 +97,8 @@ exports.register = function (server, options, next) {
         auth: {
           action: Action.CreateOrganization
         }
-      }
+      },
+      response: {schema: swagger.OrganizationAndUser}
     }
   })
 
@@ -107,6 +127,14 @@ exports.register = function (server, options, next) {
           action: Action.DeleteOrganization,
           getParams: (request) => ({ organizationId: request.params.id })
         }
+      },
+      validate: {
+        params: {
+          id: Joi.string().required().description('organization id')
+        },
+        headers: Joi.object({
+          'authorization': Joi.any().required()
+        }).unknown()
       }
     }
   })
@@ -125,10 +153,16 @@ exports.register = function (server, options, next) {
     },
     config: {
       validate: {
+        params: {
+          id: Joi.string().required().description('organization id')
+        },
         payload: {
           name: Joi.string().required().description('organization name'),
           description: Joi.string().required().description('organization description')
-        }
+        },
+        headers: Joi.object({
+          'authorization': Joi.any().required()
+        }).unknown()
       },
       description: 'Update an organization',
       notes: 'The PUT /authorization/organizations/{id} endpoint will update an organization name and description',
@@ -138,7 +172,8 @@ exports.register = function (server, options, next) {
           action: Action.UpdateOrganization,
           getParams: (request) => ({ organizationId: request.params.id })
         }
-      }
+      },
+      response: {schema: swagger.Organization}
     }
   })
 

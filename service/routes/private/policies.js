@@ -5,6 +5,7 @@ const Boom = require('boom')
 const serviceKey = require('./../../security/serviceKey')
 const Action = require('./../../lib/config/config.auth').Action
 const policyOps = require('./../../lib/ops/policyOps')
+const swagger = require('./../../swagger')
 
 exports.register = function (server, options, next) {
 
@@ -37,7 +38,13 @@ exports.register = function (server, options, next) {
           version: Joi.string().required().description('policy version'),
           name: Joi.string().required().description('policy name'),
           statements: Joi.string().required().description('policy statements')
-        }
+        },
+        query: {
+          sig: Joi.string().required()
+        },
+        headers: Joi.object({
+          'authorization': Joi.any().required()
+        }).unknown()
       },
       description: 'Create a policy for the current user organization',
       notes: 'The POST /authorization/policies endpoint is a private endpoint. It can be accessed only using a service key.\nThis service key needs to be passed as a query string in the form "sig=<key>"\n',
@@ -46,7 +53,8 @@ exports.register = function (server, options, next) {
         auth: {
           action: Action.CreatePolicy
         }
-      }
+      },
+      response: {schema: swagger.Policy}
     }
   })
 
@@ -79,7 +87,13 @@ exports.register = function (server, options, next) {
           version: Joi.string().required().description('policy version'),
           name: Joi.string().required().description('policy name'),
           statements: Joi.string().required().description('policy statements')
-        }
+        },
+        query: {
+          sig: Joi.string().required()
+        },
+        headers: Joi.object({
+          'authorization': Joi.any().required()
+        }).unknown()
       },
       description: 'Update a policy of the current user organization',
       notes: 'The PUT /authorization/policies/{id} endpoint is a private endpoint. It can be accessed only using a service key.\nThis service key needs to be passed as a query string in the form "sig=<key>"\n',
@@ -89,7 +103,8 @@ exports.register = function (server, options, next) {
           action: Action.UpdatePolicy,
           getParams: (request) => ({ policyId: request.params.id })
         }
-      }
+      },
+      response: {schema: swagger.Policy}
     }
   })
 
@@ -114,7 +129,13 @@ exports.register = function (server, options, next) {
       validate: {
         params: {
           id: Joi.number().required().description('policy id')
-        }
+        },
+        query: {
+          sig: Joi.string().required()
+        },
+        headers: Joi.object({
+          'authorization': Joi.any().required()
+        }).unknown()
       },
       description: 'Delete a policy',
       notes: 'The DELETE /authorization/policies/{id} endpoint is a private endpoint. It can be accessed only using a service key.\nThis service key needs to be passed as a query string in the form "sig=<key>"\n',

@@ -3,6 +3,7 @@
 const Joi = require('joi')
 const userOps = require('./../../lib/ops/userOps')
 const Action = require('./../../lib/config/config.auth').Action
+const swagger = require('./../../swagger')
 
 exports.register = function (server, options, next) {
 
@@ -21,7 +22,13 @@ exports.register = function (server, options, next) {
         auth: {
           action: Action.ListUsers
         }
-      }
+      },
+      validate: {
+        headers: Joi.object({
+          'authorization': Joi.any().required()
+        }).unknown()
+      },
+      response: {schema: swagger.UserList}
     }
   })
 
@@ -38,7 +45,10 @@ exports.register = function (server, options, next) {
       validate: {
         params: {
           id: Joi.number().required().description('user id')
-        }
+        },
+        headers: Joi.object({
+          'authorization': Joi.any().required()
+        }).unknown()
       },
       description: 'Fetch a user given its identifier',
       notes: 'The GET /authorization/users/{id} endpoint returns a single user data\n',
@@ -48,7 +58,8 @@ exports.register = function (server, options, next) {
           action: Action.ReadUser,
           getParams: (request) => ({ userId: request.params.id })
         }
-      }
+      },
+      response: {schema: swagger.User}
     }
   })
 
@@ -74,7 +85,10 @@ exports.register = function (server, options, next) {
       validate: {
         payload: {
           name: Joi.string().required().description('User name')
-        }
+        },
+        headers: Joi.object({
+          'authorization': Joi.any().required()
+        }).unknown()
       },
       description: 'Create a new user',
       notes: 'The POST /authorization/users endpoint creates a new user given its data\n',
@@ -83,7 +97,8 @@ exports.register = function (server, options, next) {
         auth: {
           action: Action.CreateUser
         }
-      }
+      },
+      response: {schema: swagger.User}
     }
   })
 
@@ -106,7 +121,10 @@ exports.register = function (server, options, next) {
       validate: {
         params: {
           id: Joi.number().required().description('user id')
-        }
+        },
+        headers: Joi.object({
+          'authorization': Joi.any().required()
+        }).unknown()
       },
       description: 'Delete a user',
       notes: 'The DELETE /authorization/users endpoint delete a user\n',
@@ -146,7 +164,10 @@ exports.register = function (server, options, next) {
           teams: Joi.array().required().items(Joi.object().keys({
             id: Joi.number().required()
           }))
-        }
+        },
+        headers: Joi.object({
+          'authorization': Joi.any().required()
+        }).unknown()
       },
       description: 'Update a user',
       notes: 'The PUT /authorization/users endpoint updates a user data\n',
@@ -156,7 +177,8 @@ exports.register = function (server, options, next) {
           action: Action.UpdateUser,
           getParams: (request) => ({ userId: request.params.id })
         }
-      }
+      },
+      response: {schema: swagger.User}
     }
   })
 
@@ -184,7 +206,10 @@ exports.register = function (server, options, next) {
           policies: Joi.array().required().items(Joi.object().keys({
             id: Joi.number().required()
           }))
-        }
+        },
+        headers: Joi.object({
+          'authorization': Joi.any().required()
+        }).unknown()
       },
       description: 'Add one or more policies to a user',
       notes: 'The PUT /authorization/users/{id}/policies endpoint add one or more new policies to a user\n',
@@ -194,7 +219,8 @@ exports.register = function (server, options, next) {
           action: Action.AddUserPolicy,
           getParams: (request) => ({ userId: request.params.id })
         }
-      }
+      },
+      response: {schema: swagger.User}
     }
   })
 
@@ -223,7 +249,10 @@ exports.register = function (server, options, next) {
           policies: Joi.array().required().items(Joi.object().keys({
             id: Joi.number().required()
           }))
-        }
+        },
+        headers: Joi.object({
+          'authorization': Joi.any().required()
+        }).unknown()
       },
       description: 'Clear and replace policies for a user',
       notes: 'The POST /authorization/users/{id}/policies endpoint removes all the user policies and replace them\n',
@@ -233,7 +262,8 @@ exports.register = function (server, options, next) {
           action: Action.AddUserPolicy,
           getParams: (request) => ({ userId: request.params.id })
         }
-      }
+      },
+      response: {schema: swagger.User}
     }
   })
 
@@ -256,7 +286,10 @@ exports.register = function (server, options, next) {
       validate: {
         params: {
           id: Joi.number().required().description('user id')
-        }
+        },
+        headers: Joi.object({
+          'authorization': Joi.any().required()
+        }).unknown()
       },
       description: 'Clear all user\'s policies',
       notes: 'The DELETE /authorization/users/{id}/policies endpoint removes all the user policies\n',
@@ -290,7 +323,10 @@ exports.register = function (server, options, next) {
         params: {
           userId: Joi.number().required().description('user id'),
           policyId: Joi.number().required().description('policy id')
-        }
+        },
+        headers: Joi.object({
+          'authorization': Joi.any().required()
+        }).unknown()
       },
       description: 'Remove a user\'s policy',
       notes: 'The DELETE /authorization/users/{userId}/policies/{policyId} endpoint removes a specific user\'s policy\n',
