@@ -4,6 +4,7 @@ const Boom = require('boom')
 const async = require('async')
 const db = require('./../db')
 const policyOps = require('./policyOps')
+const organizationOps = require('./organizationOps')
 const iam = require('iam-js')
 const SQL = require('./../db/SQL')
 const mapping = require('./../mapping')
@@ -189,10 +190,15 @@ const userOps = {
   createUser: function createUser (params, cb) {
     const { name, organizationId } = params
 
-    userOps.insertUser(db, name, organizationId, (err, result) => {
+    organizationOps.exists(organizationId, (err, res) => {
       if (err) return cb(Boom.badImplementation(err))
+      if (!res) return cb(Boom.badRequest(`Organization '${organizationId}' does not exists`))
 
-      userOps.readUser({ id: result.rows[0].id, organizationId }, cb)
+      userOps.insertUser(db, name, organizationId, (err, result) => {
+        if (err) return cb(Boom.badImplementation(err))
+
+        userOps.readUser({ id: result.rows[0].id, organizationId }, cb)
+      })
     })
   },
 
