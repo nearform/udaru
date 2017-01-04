@@ -4,7 +4,6 @@ const Boom = require('boom')
 const async = require('async')
 const db = require('./../db')
 const policyOps = require('./policyOps')
-const organizationOps = require('./organizationOps')
 const iam = require('iam-js')
 const SQL = require('./../db/SQL')
 const mapping = require('./../mapping')
@@ -167,7 +166,7 @@ const userOps = {
     client.query(sqlQuery, cb)
   },
 
-  insertPolicies: function insertUser (client, id, policies, cb) {
+  insertPolicies: function insertPolicies (client, id, policies, cb) {
     const sqlQuery = SQL`
       INSERT INTO user_policies (
         policy_id, user_id
@@ -181,6 +180,19 @@ const userOps = {
     client.query(sqlQuery, cb)
   },
 
+  organizationExists: function organizationExists (id, cb) {
+    const sqlQuery = SQL`
+      SELECT id
+      FROM organizations
+      WHERE id = ${id}
+    `
+    db.query(sqlQuery, function (err, result) {
+      if (err) return cb(Boom.badImplementation(err))
+
+      return cb(null, result.rowCount !== 0)
+    })
+  },
+
   /**
    * Create a new user
    *
@@ -190,7 +202,7 @@ const userOps = {
   createUser: function createUser (params, cb) {
     const { name, organizationId } = params
 
-    organizationOps.exists(organizationId, (err, res) => {
+    userOps.organizationExists(organizationId, (err, res) => {
       if (err) return cb(Boom.badImplementation(err))
       if (!res) return cb(Boom.badRequest(`Organization '${organizationId}' does not exists`))
 
