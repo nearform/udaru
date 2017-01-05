@@ -63,26 +63,34 @@ To access the database using the pgAdmin you have to fill in also the container 
 
 ## Service
 
-The service will respond to commands such as a list users request:
+The service will respond http calls such as
 
-    {role: 'authorization', cmd: 'list', type: 'users'}
+```
+GET /authorization/users
+```
 
 with data in the form:
 
-    [ { id: 1, name: 'Charlie Bucket' },
-      { id: 2, name: 'Grandpa Joe' },
-      { id: 3, name: 'Veruca Salt' },
-      { id: 4, name: 'Willy Wonka' } ]
+```
+[
+  { id: 'CharlieId', name: 'Charlie Bucket' },
+  { id: 'GrandpaId', name: 'Grandpa Joe' },
+  { id: 'VerucaId', name: 'Veruca Salt' },
+  { id: 'WillyId', name: 'Willy Wonka' }
+]
+```
 
-It also has a shutdown operation, which should be called when finished with the
-service:
-
-    {role: 'authorization', cmd: 'done'}
-
+To get more information see [Service Api documentation](#service-api-documentation)
 
 ### Setup SuperUser
 
 The init script needs to be run in order to setup the SuperUser: `node service/scripts/init`
+
+If you want to specify a better SuperUser id (default is `SuperUserId`) you can prefix the script as follow:
+
+```
+LABS_AUTH_SERVICE_authorization_superUser_id=myComplexId12345 node service/scripts/init
+```
 
 **Note:** if you have already ran some tests or loaded the test data, you will need to run `npm pg:init` again to reset the db.
 

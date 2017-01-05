@@ -20,6 +20,7 @@ function createUser (job, next) {
   const { organization } = job
 
   const superUserData = {
+    id: config.get('authorization.superUser.id'),
     name: config.get('authorization.superUser.name'),
     organizationId: organization.id
   }

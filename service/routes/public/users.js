@@ -44,7 +44,7 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.number().required().description('user id')
+          id: Joi.string().required().description('user id')
         },
         headers: Joi.object({
           'authorization': Joi.any().required()
@@ -68,12 +68,9 @@ exports.register = function (server, options, next) {
     path: '/authorization/users',
     handler: function (request, reply) {
       const { organizationId } = request.udaru
-      const params = {
-        name: request.payload.name,
-        organizationId
-      }
+      const { id, name } = request.payload
 
-      userOps.createUser(params, function (err, res) {
+      userOps.createUser({ id, name, organizationId }, function (err, res) {
         if (err) {
           return reply(err)
         }
@@ -84,6 +81,7 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         payload: {
+          id: Joi.string().description('user id'),
           name: Joi.string().required().description('User name')
         },
         headers: Joi.object({
@@ -120,7 +118,7 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.number().required().description('user id')
+          id: Joi.string().required().description('user id')
         },
         headers: Joi.object({
           'authorization': Joi.any().required()
@@ -157,7 +155,7 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.number().required().description('user id')
+          id: Joi.string().required().description('user id')
         },
         payload: {
           name: Joi.string().required().description('user name'),
@@ -200,12 +198,10 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.number().required().description('user id')
+          id: Joi.string().required().description('user id')
         },
         payload: {
-          policies: Joi.array().required().items(Joi.object().keys({
-            id: Joi.number().required()
-          }))
+          policies: Joi.array().required().items(Joi.number().required())
         },
         headers: Joi.object({
           'authorization': Joi.any().required()
@@ -243,12 +239,10 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.number().required().description('user id')
+          id: Joi.string().required().description('user id')
         },
         payload: {
-          policies: Joi.array().required().items(Joi.object().keys({
-            id: Joi.number().required()
-          }))
+          policies: Joi.array().required().items(Joi.number().required())
         },
         headers: Joi.object({
           'authorization': Joi.any().required()
@@ -285,7 +279,7 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.number().required().description('user id')
+          id: Joi.string().required().description('user id')
         },
         headers: Joi.object({
           'authorization': Joi.any().required()
@@ -321,7 +315,7 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          userId: Joi.number().required().description('user id'),
+          userId: Joi.string().required().description('user id'),
           policyId: Joi.number().required().description('policy id')
         },
         headers: Joi.object({
