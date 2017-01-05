@@ -40,6 +40,7 @@ module.exports = new Reconfig({
         description: 'SuperUser Organization'
       },
       name: 'SuperUser',
+      token: 'SuperUserToken',
       defaultPolicy: {
         version: '1',
         name: 'SuperUser',

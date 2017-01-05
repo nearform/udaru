@@ -7,19 +7,10 @@ const authConfig = require('./../lib/config/config.auth')
 const userOps = require('./../lib/ops/userOps')
 const authorize = require('./../lib/ops/authorizeOps')
 
-module.exports = (options, server, request, userId, callback) => {
+module.exports = (options, server, request, token, callback) => {
   async.waterfall([
     (next) => {
-      userOps.getUserOrganizationId(userId, (error, organizationId) => {
-        if (error) {
-          return next({ message: 'Bad credentials' })
-        }
-
-        next(null, organizationId)
-      })
-    },
-    (organizationId, next) => {
-      userOps.readUser({ id: userId, organizationId }, (error, user) => {
+      userOps.readUserByToken({ token }, (error, user) => {
         if (error) {
           return next({ message: 'Bad credentials' })
         }
@@ -50,7 +41,7 @@ module.exports = (options, server, request, userId, callback) => {
       }
 
       const params = {
-        userId,
+        token: user.token,
         action: authPlugin.action,
         resource
       }

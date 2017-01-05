@@ -83,7 +83,8 @@ exports.register = function (server, options, next) {
           name: Joi.string().required().description('organization name'),
           description: Joi.string().required().description('organization description'),
           user: Joi.object().keys({
-            name: Joi.string().required()
+            name: Joi.string().required('Name for the user'),
+            token: Joi.string().required('user identifier')
           })
         },
         headers: Joi.object({

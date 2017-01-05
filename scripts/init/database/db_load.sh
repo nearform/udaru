@@ -8,7 +8,7 @@ SELECT 'Database installed, schemaversion = ' || MAX(version) from schemaversion
 \cd '/testdata'
 \! pwd
 \COPY organizations(id, name, description) FROM 'organizations.csv' (FORMAT csv)
-\COPY users(name, org_id) FROM 'users.csv' (FORMAT csv)
+\COPY users(name, org_id, token) FROM 'users.csv' (FORMAT csv)
 \COPY teams(name, description, team_parent_id, org_id) FROM 'teams.csv' (FORMAT csv)
 \COPY team_members(user_id, team_id) FROM 'team_members.csv' (FORMAT csv)
 EOF"

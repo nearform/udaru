@@ -1,8 +1,8 @@
-Super User,ROOT
-Charlie Bucket,WONKA
-Mike Teavee,WONKA
-Veruca Salt,WONKA
-Augustus Gloop,WONKA
-Willy Wonka,WONKA
-Modify Me,WONKA
-Many Polices,WONKA
+Super User,ROOT,ROOTtoken
+Charlie Bucket,WONKA,CharlieToken
+Mike Teavee,WONKA,MikeToken
+Veruca Salt,WONKA,VerucaToken
+Augustus Gloop,WONKA,AugustusToken
+Willy Wonka,WONKA,WillyToken
+Modify Me,WONKA,ModifyToken
+Many Polices,WONKA,ManyToken

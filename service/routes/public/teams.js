@@ -61,7 +61,8 @@ exports.register = function (server, options, next) {
           name: Joi.string().required().description('Name of the new team'),
           description: Joi.string().required().description('Description of new team'),
           user: Joi.object().optional().description('Default admin user to be added to the team').keys({
-            name: Joi.string().required('Name for the user')
+            name: Joi.string().required('Name for the user'),
+            token: Joi.string().required('user identifier')
           })
         },
         headers: Joi.object({

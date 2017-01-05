@@ -65,7 +65,7 @@ function createDefaultPolicies (job, next) {
 function createDefaultUser (job, next) {
   if (!job.params.user) return next()
 
-  userOps.insertUser(job.client, job.params.user.name, job.params.organizationId, (err, user) => {
+  userOps.insertUser(job.client, job.params.user.name, job.params.user.token, job.params.organizationId, (err, user) => {
     if (err) return next(err)
 
     job.user = user.rows[0]
@@ -307,7 +307,10 @@ var teamOps = {
 
     tasks.push((next) => {
       const sql = SQL`
-        SELECT id, name, description, path FROM teams WHERE id = ${id} AND org_id = ${organizationId}
+        SELECT id, name, description, path
+        FROM teams
+        WHERE id = ${id}
+        AND org_id = ${organizationId}
       `
 
       db.query(sql, (err, result) => {
@@ -323,8 +326,11 @@ var teamOps = {
 
     tasks.push((next) => {
       const sql = SQL`
-        SELECT users.id, users.name FROM team_members mem, users
-        WHERE mem.team_id = ${id} and mem.user_id = users.id ORDER BY UPPER(users.name)
+        SELECT users.token, users.name
+        FROM team_members mem, users
+        WHERE mem.team_id = ${id}
+        AND mem.user_id = users.id
+        ORDER BY UPPER(users.name)
       `
       db.query(sql, function (err, result) {
         if (err) return next(err)
@@ -336,8 +342,11 @@ var teamOps = {
 
     tasks.push((next) => {
       const sql = SQL`
-        SELECT pol.id, pol.name, pol.version FROM team_policies tpol, policies pol
-        WHERE tpol.team_id = ${id} and tpol.policy_id = pol.id ORDER BY UPPER(pol.name)
+        SELECT pol.id, pol.name, pol.version
+        FROM team_policies tpol, policies pol
+        WHERE tpol.team_id = ${id}
+        AND tpol.policy_id = pol.id
+        ORDER BY UPPER(pol.name)
       `
       db.query(sql, function (err, result) {
         if (err) return next(err)

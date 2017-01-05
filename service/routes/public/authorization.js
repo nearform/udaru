@@ -9,13 +9,13 @@ exports.register = function (server, options, next) {
 
   server.route({
     method: 'GET',
-    path: '/authorization/access/{userId}/{action}/{resource*}',
+    path: '/authorization/access/{token}/{action}/{resource*}',
     handler: function (request, reply) {
       const { organizationId } = request.udaru
-      const { resource, action, userId } = request.params
+      const { resource, action, token } = request.params
 
       const params = {
-        userId,
+        token,
         action,
         resource,
         organizationId
@@ -32,7 +32,7 @@ exports.register = function (server, options, next) {
       },
       validate: {
         params: {
-          userId: Joi.number().required().description('The user that wants to perform the action on a given resource'),
+          token: Joi.string().required().description('The user token that identifies the user'),
           action: Joi.string().required().description('The action to check'),
           resource: Joi.string().required().description('The resource that the user wants to perform the action on')
         },
@@ -41,7 +41,7 @@ exports.register = function (server, options, next) {
         }).unknown()
       },
       description: 'Authorize user action against a resource',
-      notes: 'The GET /authorization/check/{userId}/{action}/{resource} endpoint returns if a user can perform and action\non a resource\n',
+      notes: 'The GET /authorization/check/{token}/{action}/{resource} endpoint returns if a user can perform and action\non a resource\n',
       tags: ['api', 'service', 'authorization'],
       response: {schema: Joi.object({
         access: Joi.boolean()
@@ -51,12 +51,12 @@ exports.register = function (server, options, next) {
 
   server.route({
     method: 'GET',
-    path: '/authorization/list/{userId}/{resource*}',
+    path: '/authorization/list/{token}/{resource*}',
     handler: function (request, reply) {
       const { organizationId } = request.udaru
-      const { resource, userId } = request.params
+      const { resource, token } = request.params
       const params = {
-        userId,
+        token,
         resource,
         organizationId
       }
@@ -72,7 +72,7 @@ exports.register = function (server, options, next) {
       },
       validate: {
         params: {
-          userId: Joi.number().required().description('The user that wants to perform the action on a given resource'),
+          token: Joi.string().required().description('The user token that identifies the user'),
           resource: Joi.string().required().description('The resource that the user wants to perform the action on')
         },
         headers: Joi.object({
@@ -80,7 +80,7 @@ exports.register = function (server, options, next) {
         }).unknown()
       },
       description: 'List all the actions a user can perform on a resource',
-      notes: 'The GET /authorization/list/{userId}/{resource} endpoint returns a list of all the actions a user\ncan perform on a given resource\n',
+      notes: 'The GET /authorization/list/{token}/{resource} endpoint returns a list of all the actions a user\ncan perform on a given resource\n',
       tags: ['api', 'service', 'authorization'],
       response: {schema: Joi.object({
         actions: Joi.array().items(Joi.string())
