@@ -74,7 +74,8 @@ lab.experiment('OrganizationOps', () => {
       name: 'nearForm',
       description: 'nearform description',
       user: {
-        name: 'example example'
+        name: 'example example',
+        token: 'testtoken-example-example'
       }
     }, (err, result) => {
       expect(err).to.not.exist()
@@ -206,6 +207,7 @@ lab.experiment('OrganizationOps', () => {
     tasks.push((next) => {
       const userData = {
         name: 'Grandma Josephine',
+        token: 'testtokenGJ',
         organizationId: 'nearForm222'
       }
       userOps.createUser(userData, function (err, result) {
@@ -233,7 +235,7 @@ lab.experiment('OrganizationOps', () => {
     })
     tasks.push((next) => {
       const updateUserData = {
-        id: userId,
+        token: 'testtokenGJ',
         organizationId: 'nearForm222',
         name: 'user user',
         teams: [teamId]

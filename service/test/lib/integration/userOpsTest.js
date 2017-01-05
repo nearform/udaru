@@ -21,15 +21,16 @@ lab.experiment('UserOps', () => {
   lab.test('create and delete a user by ID', (done) => {
     const userData = {
       id: 99,
+      token: 'testtoken99',
       name: 'Mike Teavee',
       organizationId: 'WONKA'
     }
     userOps.createUserById(userData, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
-      expect(result).to.equal({ id: 99, name: 'Mike Teavee', organizationId: 'WONKA', teams: [], policies: [] })
+      expect(result).to.equal({ id: 99, name: 'Mike Teavee', token: 'testtoken99', organizationId: 'WONKA', teams: [], policies: [] })
 
-      userOps.deleteUser({ id: 99, organizationId: 'WONKA' }, done)
+      userOps.deleteUser({ token: 'testtoken99', organizationId: 'WONKA' }, done)
     })
   })
 
@@ -50,6 +51,7 @@ lab.experiment('UserOps', () => {
   lab.test('create a user (and delete it)', (done) => {
     const userData = {
       name: 'Grandma Josephine',
+      token: 'testtokenGJ',
       organizationId: 'WONKA'
     }
     userOps.createUser(userData, function (err, result) {
@@ -57,16 +59,16 @@ lab.experiment('UserOps', () => {
       expect(result).to.exist()
       expect(result.name).to.equal('Grandma Josephine')
 
-      userOps.deleteUser({ id: result.id, organizationId: 'WONKA' }, done)
+      userOps.deleteUser({ token: 'testtokenGJ', organizationId: 'WONKA' }, done)
     })
   })
 
   lab.test('update a user', (done) => {
-    const expected = { id: 6, name: 'Augustus Gloop', organizationId: 'WONKA', teams: [{ id: 4, name: 'Managers' }], policies: [] }
+    const expected = { id: 5, name: 'Augustus Gloop updated', token: 'AugustusToken', organizationId: 'WONKA', teams: [{ id: 4, name: 'Managers' }], policies: [] }
     const data = {
-      id: 6,
+      token: 'AugustusToken',
       organizationId: 'WONKA',
-      name: 'Augustus Gloop',
+      name: 'Augustus Gloop updated',
       teams: [4]
     }
 
@@ -75,13 +77,15 @@ lab.experiment('UserOps', () => {
       expect(result).to.exist()
       expect(result).to.equal(expected)
 
-      data.teams = [4, 5]
+      data.teams = [1]
+      data.name = 'Augustus Gloop'
+      data.token = 'AugustusToken'
       userOps.updateUser(data, done)
     })
   })
 
   lab.test('read a specific user', (done) => {
-    const expected = { id: 4, name: 'Veruca Salt', organizationId: 'WONKA', teams: [{ id: 3, name: 'Authors' }, { id: 2, name: 'Readers' }], policies: [{ id: 2, version: '0.1', name: 'Accountant' }] }
+    const expected = { id: 4, name: 'Veruca Salt', token: 'VerucaToken', organizationId: 'WONKA', teams: [{ id: 3, name: 'Authors' }, { id: 2, name: 'Readers' }], policies: [{ id: 2, version: '0.1', name: 'Accountant' }] }
     userOps.readUser({ id: 4, organizationId: 'WONKA' }, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
@@ -93,7 +97,7 @@ lab.experiment('UserOps', () => {
 
   lab.test('getUserOrganizationId', (done) => {
     const expected = 'WONKA'
-    userOps.getUserOrganizationId(4, (err, result) => {
+    userOps.getUserOrganizationId('VerucaToken', (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
       expect(result).to.equal(expected)
@@ -118,12 +122,12 @@ lab.experiment('UserOps', () => {
       expect(user).to.exist()
       expect(user.policies).to.equal([{ id: 2, name: 'Accountant', version: '0.1' }])
 
-      userOps.replaceUserPolicies({ id: 4, policies: [1, 3], organizationId: 'WONKA' }, (err, user) => {
+      userOps.replaceUserPolicies({ token: user.token, policies: [1, 3], organizationId: 'WONKA' }, (err, user) => {
         expect(err).to.not.exist()
         expect(user).to.exist()
         expect(user.policies).to.equal([{ id: 1, name: 'Director', version: '0.1' }, { id: 3, name: 'Sys admin', version: '0.1' }])
 
-        userOps.replaceUserPolicies({ id: 4, policies: [2], organizationId: 'WONKA' }, (err, user) => {
+        userOps.replaceUserPolicies({ token: user.token, policies: [2], organizationId: 'WONKA' }, (err, user) => {
           expect(err).to.not.exist()
           done()
         })
@@ -137,12 +141,12 @@ lab.experiment('UserOps', () => {
       expect(user).to.exist()
       expect(user.policies).to.equal([{ id: 2, name: 'Accountant', version: '0.1' }])
 
-      userOps.addUserPolicies({ id: 4, policies: [1, 3], organizationId: 'WONKA' }, (err, user) => {
+      userOps.addUserPolicies({ token: user.token, policies: [1, 3], organizationId: 'WONKA' }, (err, user) => {
         expect(err).to.not.exist()
         expect(user).to.exist()
         expect(user.policies).to.equal([{ id: 2, name: 'Accountant', version: '0.1' }, { id: 1, name: 'Director', version: '0.1' }, { id: 3, name: 'Sys admin', version: '0.1' }])
 
-        userOps.replaceUserPolicies({ id: 4, policies: [2], organizationId: 'WONKA' }, (err, user) => {
+        userOps.replaceUserPolicies({ token: user.token, policies: [2], organizationId: 'WONKA' }, (err, user) => {
           expect(err).to.not.exist()
           done()
         })
@@ -156,12 +160,12 @@ lab.experiment('UserOps', () => {
       expect(user).to.exist()
       expect(user.policies).to.equal([{ id: 2, name: 'Accountant', version: '0.1' }])
 
-      userOps.addUserPolicies({ id: 4, policies: [1, 2, 3], organizationId: 'WONKA' }, (err, user) => {
+      userOps.addUserPolicies({ token: user.token, policies: [1, 2, 3], organizationId: 'WONKA' }, (err, user) => {
         expect(err).to.not.exist()
         expect(user).to.exist()
         expect(user.policies).to.equal([{ id: 2, name: 'Accountant', version: '0.1' }, { id: 1, name: 'Director', version: '0.1' }, { id: 3, name: 'Sys admin', version: '0.1' }])
 
-        userOps.replaceUserPolicies({ id: 4, policies: [2], organizationId: 'WONKA' }, (err, user) => {
+        userOps.replaceUserPolicies({ token: user.token, policies: [2], organizationId: 'WONKA' }, (err, user) => {
           expect(err).to.not.exist()
           done()
         })
@@ -175,12 +179,12 @@ lab.experiment('UserOps', () => {
       expect(user).to.exist()
       expect(user.policies).to.equal([{ id: 2, name: 'Accountant', version: '0.1' }])
 
-      userOps.deleteUserPolicies({ id: 4, organizationId: 'WONKA' }, (err, user) => {
+      userOps.deleteUserPolicies({ token: user.token, organizationId: 'WONKA' }, (err, user) => {
         expect(err).to.not.exist()
         expect(user).to.exist()
         expect(user.policies).to.equal([])
 
-        userOps.replaceUserPolicies({ id: 4, policies: [2], organizationId: 'WONKA' }, (err, user) => {
+        userOps.replaceUserPolicies({ token: user.token, policies: [2], organizationId: 'WONKA' }, (err, user) => {
           expect(err).to.not.exist()
           done()
         })
@@ -194,12 +198,12 @@ lab.experiment('UserOps', () => {
       expect(user).to.exist()
       expect(user.policies).to.equal([{ id: 2, name: 'Accountant', version: '0.1' }])
 
-      userOps.deleteUserPolicy({ userId: 4, policyId: 2, organizationId: 'WONKA' }, (err, user) => {
+      userOps.deleteUserPolicy({ token: user.token, policyId: 2, organizationId: 'WONKA' }, (err, user) => {
         expect(err).to.not.exist()
         expect(user).to.exist()
         expect(user.policies).to.equal([])
 
-        userOps.replaceUserPolicies({ id: 4, policies: [2], organizationId: 'WONKA' }, (err, user) => {
+        userOps.replaceUserPolicies({ token: user.token, policies: [2], organizationId: 'WONKA' }, (err, user) => {
           expect(err).to.not.exist()
           done()
         })

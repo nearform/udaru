@@ -9,7 +9,7 @@
 function requestOptions (customOptions) {
   const defaultOptions = {
     headers: {
-      authorization: 1,
+      authorization: 'ROOTtoken',
       org: 'WONKA'
     }
   }

@@ -34,29 +34,29 @@ exports.register = function (server, options, next) {
 
   server.route({
     method: 'GET',
-    path: '/authorization/users/{id}',
+    path: '/authorization/users/{token}',
     handler: function (request, reply) {
       const { organizationId } = request.udaru
-      const id = request.params.id
+      const { token } = request.params
 
-      userOps.readUser({ id, organizationId }, reply)
+      userOps.readUserByToken({ token, organizationId }, reply)
     },
     config: {
       validate: {
         params: {
-          id: Joi.number().required().description('user id')
+          token: Joi.string().required().description('user token')
         },
         headers: Joi.object({
           'authorization': Joi.any().required()
         }).unknown()
       },
       description: 'Fetch a user given its identifier',
-      notes: 'The GET /authorization/users/{id} endpoint returns a single user data\n',
+      notes: 'The GET /authorization/users/{token} endpoint returns a single user data\n',
       tags: ['api', 'service', 'get', 'users'],
       plugins: {
         auth: {
           action: Action.ReadUser,
-          getParams: (request) => ({ userId: request.params.id })
+          getParams: (request) => ({ userId: request.params.token })
         }
       },
       response: {schema: swagger.User}
@@ -68,8 +68,10 @@ exports.register = function (server, options, next) {
     path: '/authorization/users',
     handler: function (request, reply) {
       const { organizationId } = request.udaru
+      const { name, token } = request.payload
       const params = {
-        name: request.payload.name,
+        name,
+        token,
         organizationId
       }
 
@@ -84,7 +86,8 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         payload: {
-          name: Joi.string().required().description('User name')
+          name: Joi.string().required().description('User name'),
+          token: Joi.string().required().description('User unique identifier')
         },
         headers: Joi.object({
           'authorization': Joi.any().required()
@@ -104,12 +107,12 @@ exports.register = function (server, options, next) {
 
   server.route({
     method: 'DELETE',
-    path: '/authorization/users/{id}',
+    path: '/authorization/users/{token}',
     handler: function (request, reply) {
       const { organizationId } = request.udaru
-      const id = request.params.id
+      const { token } = request.params
 
-      userOps.deleteUser({ id, organizationId }, function (err, res) {
+      userOps.deleteUser({ token, organizationId }, function (err, res) {
         if (err) {
           return reply(err)
         }
@@ -120,19 +123,19 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.number().required().description('user id')
+          token: Joi.string().required().description('user token')
         },
         headers: Joi.object({
           'authorization': Joi.any().required()
         }).unknown()
       },
       description: 'Delete a user',
-      notes: 'The DELETE /authorization/users endpoint delete a user\n',
+      notes: 'The DELETE /authorization/users/{token} endpoint delete a user\n',
       tags: ['api', 'service', 'delete', 'users'],
       plugins: {
         auth: {
           action: Action.DeleteUser,
-          getParams: (request) => ({ userId: request.params.id })
+          getParams: (request) => ({ userId: request.params.token })
         }
       }
     }
@@ -140,24 +143,24 @@ exports.register = function (server, options, next) {
 
   server.route({
     method: 'PUT',
-    path: '/authorization/users/{id}',
+    path: '/authorization/users/{token}',
     handler: function (request, reply) {
       const { organizationId } = request.udaru
-      const id = request.params.id
+      const { token } = request.params
       const { name, teams } = request.payload
 
       const params = {
-        id,
-        organizationId,
+        token,
         name,
-        teams
+        teams,
+        organizationId
       }
       userOps.updateUser(params, reply)
     },
     config: {
       validate: {
         params: {
-          id: Joi.number().required().description('user id')
+          token: Joi.string().required().description('user token')
         },
         payload: {
           name: Joi.string().required().description('user name'),
@@ -170,12 +173,12 @@ exports.register = function (server, options, next) {
         }).unknown()
       },
       description: 'Update a user',
-      notes: 'The PUT /authorization/users endpoint updates a user data\n',
+      notes: 'The PUT /authorization/users/{token} endpoint updates a user data\n',
       tags: ['api', 'service', 'put', 'users'],
       plugins: {
         auth: {
           action: Action.UpdateUser,
-          getParams: (request) => ({ userId: request.params.id })
+          getParams: (request) => ({ userId: request.params.token })
         }
       },
       response: {schema: swagger.User}
@@ -184,14 +187,14 @@ exports.register = function (server, options, next) {
 
   server.route({
     method: 'PUT',
-    path: '/authorization/users/{id}/policies',
+    path: '/authorization/users/{token}/policies',
     handler: function (request, reply) {
-      const { id } = request.params
+      const { token } = request.params
       const { organizationId } = request.udaru
       const { policies } = request.payload
 
       const params = {
-        id,
+        token,
         organizationId,
         policies
       }
@@ -200,24 +203,22 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.number().required().description('user id')
+          token: Joi.string().required().description('user token')
         },
         payload: {
-          policies: Joi.array().required().items(Joi.object().keys({
-            id: Joi.number().required()
-          }))
+          policies: Joi.array().required().items(Joi.number().required())
         },
         headers: Joi.object({
           'authorization': Joi.any().required()
         }).unknown()
       },
       description: 'Add one or more policies to a user',
-      notes: 'The PUT /authorization/users/{id}/policies endpoint add one or more new policies to a user\n',
+      notes: 'The PUT /authorization/users/{token}/policies endpoint add one or more new policies to a user\n',
       tags: ['api', 'service', 'put', 'users', 'policies'],
       plugins: {
         auth: {
           action: Action.AddUserPolicy,
-          getParams: (request) => ({ userId: request.params.id })
+          getParams: (request) => ({ userId: request.params.token })
         }
       },
       response: {schema: swagger.User}
@@ -226,14 +227,14 @@ exports.register = function (server, options, next) {
 
   server.route({
     method: 'POST',
-    path: '/authorization/users/{id}/policies',
+    path: '/authorization/users/{token}/policies',
     handler: function (request, reply) {
-      const { id } = request.params
+      const { token } = request.params
       const { organizationId } = request.udaru
       const { policies } = request.payload
 
       const params = {
-        id,
+        token,
         organizationId,
         policies
       }
@@ -243,24 +244,22 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.number().required().description('user id')
+          token: Joi.string().required().description('user token')
         },
         payload: {
-          policies: Joi.array().required().items(Joi.object().keys({
-            id: Joi.number().required()
-          }))
+          policies: Joi.array().required().items(Joi.number().required())
         },
         headers: Joi.object({
           'authorization': Joi.any().required()
         }).unknown()
       },
       description: 'Clear and replace policies for a user',
-      notes: 'The POST /authorization/users/{id}/policies endpoint removes all the user policies and replace them\n',
+      notes: 'The POST /authorization/users/{token}/policies endpoint removes all the user policies and replace them\n',
       tags: ['api', 'service', 'post', 'users', 'policies'],
       plugins: {
         auth: {
           action: Action.AddUserPolicy,
-          getParams: (request) => ({ userId: request.params.id })
+          getParams: (request) => ({ userId: request.params.token })
         }
       },
       response: {schema: swagger.User}
@@ -269,12 +268,12 @@ exports.register = function (server, options, next) {
 
   server.route({
     method: 'DELETE',
-    path: '/authorization/users/{id}/policies',
+    path: '/authorization/users/{token}/policies',
     handler: function (request, reply) {
-      const { id } = request.params
+      const { token } = request.params
       const { organizationId } = request.udaru
 
-      userOps.deleteUserPolicies({ id, organizationId }, function (err, res) {
+      userOps.deleteUserPolicies({ token, organizationId }, function (err, res) {
         if (err) {
           return reply(err)
         }
@@ -285,19 +284,19 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.number().required().description('user id')
+          token: Joi.string().required().description('user token')
         },
         headers: Joi.object({
           'authorization': Joi.any().required()
         }).unknown()
       },
       description: 'Clear all user\'s policies',
-      notes: 'The DELETE /authorization/users/{id}/policies endpoint removes all the user policies\n',
+      notes: 'The DELETE /authorization/users/{token}/policies endpoint removes all the user policies\n',
       tags: ['api', 'service', 'delete', 'users', 'policies'],
       plugins: {
         auth: {
           action: Action.RemoveUserPolicy,
-          getParams: (request) => ({ userId: request.params.id })
+          getParams: (request) => ({ userId: request.params.token })
         }
       }
     }
@@ -305,12 +304,12 @@ exports.register = function (server, options, next) {
 
   server.route({
     method: 'DELETE',
-    path: '/authorization/users/{userId}/policies/{policyId}',
+    path: '/authorization/users/{token}/policies/{policyId}',
     handler: function (request, reply) {
-      const { userId, policyId } = request.params
+      const { token, policyId } = request.params
       const { organizationId } = request.udaru
 
-      userOps.deleteUserPolicy({ userId, policyId, organizationId }, function (err, res) {
+      userOps.deleteUserPolicy({ token, policyId, organizationId }, function (err, res) {
         if (err) {
           return reply(err)
         }
@@ -321,7 +320,7 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          userId: Joi.number().required().description('user id'),
+          token: Joi.string().required().description('user token'),
           policyId: Joi.number().required().description('policy id')
         },
         headers: Joi.object({
@@ -329,13 +328,13 @@ exports.register = function (server, options, next) {
         }).unknown()
       },
       description: 'Remove a user\'s policy',
-      notes: 'The DELETE /authorization/users/{userId}/policies/{policyId} endpoint removes a specific user\'s policy\n',
+      notes: 'The DELETE /authorization/users/{token}/policies/{policyId} endpoint removes a specific user\'s policy\n',
       tags: ['api', 'service', 'delete', 'users', 'policies'],
       plugins: {
         auth: {
           action: Action.RemoveUserPolicy,
           getParams: (request) => ({
-            userId: request.params.userId,
+            userId: request.params.token,
             policyId: request.params.policyId
           })
         }

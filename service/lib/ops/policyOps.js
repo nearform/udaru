@@ -84,11 +84,21 @@ const policyOps = {
   /**
    * List all user policies
    *
-   * @param  {Object}   params { userId, organizationId }
+   * @param  {Object}   params { token, organizationId }
    * @param  {Function} cb
    */
-  listAllUserPolicies: function listAllUserPolicies ({ userId, organizationId }, cb) {
-    const sql = SQL`
+  listAllUserPolicies: function listAllUserPolicies ({ token, organizationId }, cb) {
+    const selectUserId = SQL`
+      SELECT id
+      FROM users
+      WHERE token = ${token}
+    `
+    db.query(selectUserId, function (err, result) {
+      if (err) return cb(Boom.badImplementation(err))
+      if (result.rowCount === 0) return cb(Boom.notFound())
+
+      const userId = result.rows[0].id
+      const sql = SQL`
         SELECT DISTINCT
           ON (id) id,
           version,
@@ -113,12 +123,13 @@ const policyOps = {
             )
           ) OR
           op.org_id = ${organizationId}
-    `
+      `
 
-    db.query(sql, function (err, result) {
-      if (err) return cb(Boom.badImplementation(err))
+      db.query(sql, function (err, result) {
+        if (err) return cb(Boom.badImplementation(err))
 
-      cb(null, result.rows.map(mapping.policy.iam))
+        cb(null, result.rows.map(mapping.policy.iam))
+      })
     })
   },
 

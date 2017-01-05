@@ -40,13 +40,14 @@ function mapUser (row) {
   return {
     id: row.id,
     name: row.name,
+    token: row.token,
     organizationId: row.org_id
   }
 }
 
 function mapUserSimple (row) {
   return {
-    id: row.id,
+    token: row.token,
     name: row.name
   }
 }
