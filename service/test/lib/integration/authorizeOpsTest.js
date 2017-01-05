@@ -294,8 +294,8 @@ lab.experiment('AuthorizeOps', () => {
 })
 
 lab.experiment('AuthorizeOps - list and access with multiple policies', () => {
-  let adminId
   let savedPolicies
+  const adminToken = 'testadmintoken'
   const organizationId = 'nearForm'
 
   lab.before((done) => {
@@ -306,10 +306,8 @@ lab.experiment('AuthorizeOps - list and access with multiple policies', () => {
       return policy
     })
 
-    organizationOps.create({ id: organizationId, name: 'nearForm', description: 'nearform description', user: { name: 'admin' } }, (err, res) => {
+    organizationOps.create({ id: organizationId, name: 'nearForm', description: 'nearform description', user: { name: 'admin', token: adminToken } }, (err, res) => {
       if (err) return done(err)
-
-      adminId = res.user.id
 
       const tasks = policies.map((policy, index) => {
         return (next) => {
@@ -328,11 +326,11 @@ lab.experiment('AuthorizeOps - list and access with multiple policies', () => {
   })
 
   lab.test('check list simple action', (done) => {
-    userOps.replaceUserPolicies({ id: adminId, organizationId, policies: [ savedPolicies[0].id ] }, (err, res) => {
+    userOps.replaceUserPolicies({ token: adminToken, organizationId, policies: [ savedPolicies[0].id ] }, (err, res) => {
       if (err) return done(err)
 
       authorize.listAuthorizations({
-        userId: adminId,
+        token: adminToken,
         resource: 'FOO:orga:CLOUDCUCKOO:scenario:bau-1',
         organizationId
       }, (err, res) => {
@@ -346,14 +344,14 @@ lab.experiment('AuthorizeOps - list and access with multiple policies', () => {
 
   lab.test('check list simple action on multiple resources', (done) => {
     userOps.replaceUserPolicies({
-      id: adminId,
+      token: adminToken,
       organizationId,
       policies: [ savedPolicies[0].id, savedPolicies[1].id ]
     }, (err, res) => {
       if (err) return done(err)
 
       authorize.listAuthorizations({
-        userId: adminId,
+        token: adminToken,
         resource: 'FOO:orga:CLOUDCUCKOO:scenario:TEST:entity:north-america-id',
         organizationId
       }, (err, res) => {
@@ -367,14 +365,14 @@ lab.experiment('AuthorizeOps - list and access with multiple policies', () => {
 
   lab.test('check list multiple actions', (done) => {
     userOps.replaceUserPolicies({
-      id: adminId,
+      token: adminToken,
       organizationId,
       policies: [ savedPolicies[4].id, savedPolicies[5].id ]
     }, (err, res) => {
       if (err) return done(err)
 
       authorize.listAuthorizations({
-        userId: adminId,
+        token: adminToken,
         resource: 'FOO:orga:shell:scenario:TEST',
         organizationId
       }, (err, res) => {

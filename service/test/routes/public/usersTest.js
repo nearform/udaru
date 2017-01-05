@@ -87,7 +87,7 @@ lab.experiment('Users', () => {
 
   lab.test('delete user should return error for error case', (done) => {
     userOps.deleteUser = function (params, cb) {
-      expect(params).to.equal({ id: 1, organizationId: 'WONKA' })
+      expect(params).to.equal({ token: '1', organizationId: 'WONKA' })
       process.nextTick(() => {
         cb(Boom.badImplementation())
       })
