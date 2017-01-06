@@ -61,6 +61,7 @@ exports.register = function (server, options, next) {
           name: Joi.string().required().description('Name of the new team'),
           description: Joi.string().required().description('Description of new team'),
           user: Joi.object().optional().description('Default admin user to be added to the team').keys({
+            id: Joi.string().description('user id'),
             name: Joi.string().required('Name for the user')
           })
         },
@@ -137,7 +138,7 @@ exports.register = function (server, options, next) {
         payload: Joi.object().keys({
           name: Joi.string().description('Updated team name'),
           description: Joi.string().description('Updated team description'),
-          users: Joi.array().description('User ids')
+          users: Joi.array().items(Joi.string()).description('User ids')
         }).or('name', 'description', 'users'),
         headers: Joi.object({
           'authorization': Joi.any().required()

@@ -32,7 +32,7 @@ exports.register = function (server, options, next) {
       },
       validate: {
         params: {
-          userId: Joi.number().required().description('The user that wants to perform the action on a given resource'),
+          userId: Joi.string().required().description('The user that wants to perform the action on a given resource'),
           action: Joi.string().required().description('The action to check'),
           resource: Joi.string().required().description('The resource that the user wants to perform the action on')
         },
@@ -72,7 +72,7 @@ exports.register = function (server, options, next) {
       },
       validate: {
         params: {
-          userId: Joi.number().required().description('The user that wants to perform the action on a given resource'),
+          userId: Joi.string().required().description('The user that wants to perform the action on a given resource'),
           resource: Joi.string().required().description('The resource that the user wants to perform the action on')
         },
         headers: Joi.object({

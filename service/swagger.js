@@ -28,7 +28,7 @@ const PolicyRef = Joi.object({
 })
 
 const UserRef = Joi.object({
-  id: Joi.number(),
+  id: Joi.string(),
   name: Joi.string()
 })
 
@@ -49,7 +49,7 @@ const TeamRef = Joi.object({
 })
 
 const User = Joi.object({
-  id: Joi.number(),
+  id: Joi.string(),
   name: Joi.string(),
   organizationId: Joi.string(),
   teams: Joi.array().items(TeamRef),

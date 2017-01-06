@@ -104,10 +104,10 @@ function createDefaultPolicies (job, next) {
  */
 function insertOrgAdminUser (job, next) {
   if (job.user) {
-    const { name } = job.user
+    const { id, name } = job.user
     const { id: organizationId } = job.organization
 
-    userOps.insertUser(job.client, name, organizationId, (err, res) => {
+    userOps.insertUser(job.client, { id, name, organizationId }, (err, res) => {
       if (err) return next(err)
       job.user.id = res.rows[0].id
 

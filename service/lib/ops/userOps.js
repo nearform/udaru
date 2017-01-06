@@ -5,6 +5,7 @@ const async = require('async')
 const db = require('./../db')
 const SQL = require('./../db/SQL')
 const mapping = require('./../mapping')
+const uuidV4 = require('uuid/v4')
 
 const updateUserInfo = (job, next) => {
   const { id, name, organizationId } = job
@@ -103,12 +104,25 @@ const userOps = {
     })
   },
 
-  insertUser: function insertUser (client, name, organizationId, cb) {
+  /**
+   * Insert a new user into the database
+   *
+   * @param  {Object}      client
+   * @param  {String|null} options.id
+   * @param  {String}      options.name
+   * @param  {String}      options.organizationId
+   * @param  {Function}    cb
+   */
+  insertUser: function insertUser (client, { id, name, organizationId }, cb) {
+    if (!id) {
+      id = uuidV4()
+    }
+
     const sqlQuery = SQL`
       INSERT INTO users (
         id, name, org_id
       ) VALUES (
-        DEFAULT, ${name}, ${organizationId}
+        ${id}, ${name}, ${organizationId}
       )
       RETURNING id
     `
@@ -147,44 +161,21 @@ const userOps = {
   /**
    * Create a new user
    *
-   * @param  {Object}   params { name, organizationId }
+   * @param  {Object}   params { id, name, organizationId } "id" can be null
    * @param  {Function} cb
    */
   createUser: function createUser (params, cb) {
-    const { name, organizationId } = params
+    const { id, name, organizationId } = params
 
     userOps.organizationExists(organizationId, (err, res) => {
       if (err) return cb(Boom.badImplementation(err))
       if (!res) return cb(Boom.badRequest(`Organization '${organizationId}' does not exists`))
 
-      userOps.insertUser(db, name, organizationId, (err, result) => {
+      userOps.insertUser(db, { id, name, organizationId }, (err, result) => {
         if (err) return cb(Boom.badImplementation(err))
 
         userOps.readUser({ id: result.rows[0].id, organizationId }, cb)
       })
-    })
-  },
-
-  /**
-   * Create a new user (allows passing in of ID for test purposes)
-   *
-   * @param  {Object}   params { id, name, organizationId }
-   * @param  {Function} cb
-   */
-  createUserById: function createUserById (params, cb) {
-    const { id, name, organizationId } = params
-
-    const sqlQuery = SQL`
-      INSERT INTO users (
-        id, name, org_id
-      ) VALUES (
-        ${id}, ${name}, ${organizationId}
-      )
-    `
-    db.query(sqlQuery, function (err, result) {
-      if (err) return cb(Boom.badImplementation(err))
-
-      userOps.readUser({ id, organizationId }, cb)
     })
   },
 

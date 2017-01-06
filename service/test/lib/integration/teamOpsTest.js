@@ -20,7 +20,7 @@ const teamData = {
 const updateData = {
   name: 'Team 5',
   description: 'description',
-  users: [1, 2],
+  users: ['ROOTid', 'CharlieId'],
   organizationId: 'WONKA'
 }
 
@@ -75,7 +75,7 @@ lab.experiment('TeamOps', () => {
     })
   })
 
-  lab.test('create, update and delete a team', (done) => {
+  lab.test('create and delete a team', (done) => {
     updateData.id = testTeamId
 
     teamOps.updateTeam(updateData, (err, result) => {
@@ -84,8 +84,8 @@ lab.experiment('TeamOps', () => {
       expect(result.name).to.equal('Team 5')
       expect(result.users).to.have.length(2)
       expect(result.users).to.only.include([
-        {'id': 1, 'name': 'Super User'},
-        {'id': 2, 'name': 'Charlie Bucket'}
+        {'id': 'ROOTid', 'name': 'Super User'},
+        {'id': 'CharlieId', 'name': 'Charlie Bucket'}
       ])
 
       policyOps.listByOrganization({ organizationId: 'WONKA' }, (err, policies) => {
@@ -101,7 +101,7 @@ lab.experiment('TeamOps', () => {
 
   lab.test('Add twice the same user to a team', (done) => {
     updateData.id = testTeamId
-    updateData.users = [1, 1, 2]
+    updateData.users = ['ROOTid', 'ROOTid', 'CharlieId']
 
     teamOps.updateTeam(updateData, (err, result) => {
       expect(err).to.not.exist()
@@ -109,8 +109,8 @@ lab.experiment('TeamOps', () => {
       expect(result.name).to.equal('Team 5')
       expect(result.users).to.have.length(2)
       expect(result.users).to.only.include([
-        {'id': 1, 'name': 'Super User'},
-        {'id': 2, 'name': 'Charlie Bucket'}
+        {'id': 'ROOTid', 'name': 'Super User'},
+        {'id': 'CharlieId', 'name': 'Charlie Bucket'}
       ])
 
       done()
@@ -154,7 +154,7 @@ lab.experiment('TeamOps', () => {
   lab.test('create, update only the users and delete a team', (done) => {
     const updateData = {
       id: testTeamId,
-      users: [1, 2, 3],
+      users: ['ROOTid', 'CharlieId', 'MikeId'],
       organizationId: 'WONKA'
     }
 
@@ -163,7 +163,11 @@ lab.experiment('TeamOps', () => {
       expect(result).to.exist()
       expect(result.description).to.equal(teamData.description)
       expect(result.name).to.equal(teamData.name)
-      expect(result.users).to.equal([{ id: 2, name: 'Charlie Bucket' }, { id: 3, name: 'Mike Teavee' }, { id: 1, name: 'Super User' }])
+      expect(result.users).to.equal([
+        { id: 'CharlieId', name: 'Charlie Bucket' },
+        { id: 'MikeId', name: 'Mike Teavee' },
+        { id: 'ROOTid', name: 'Super User' }
+      ])
 
       done()
     })
@@ -234,6 +238,33 @@ lab.experiment('TeamOps', () => {
         expect(err).to.not.exist()
 
         expect(user.name).to.be.equal('Team 6 Admin')
+
+        const defaultPolicy = user.policies.find((p) => { return p.name === 'Default Team Admin for ' + team.id })
+        expect(defaultPolicy).to.exist()
+
+        teamOps.deleteTeam({ id: team.id, organizationId: 'WONKA' }, (err) => {
+          expect(err).to.not.exist()
+
+          userOps.deleteUser({ id: user.id, organizationId: 'WONKA' }, done)
+        })
+      })
+    })
+  })
+
+  lab.test('create team support creation of default team admin user and specific user id', (done) => {
+    teamData.user = { name: 'Team 6 Admin', id: 'testAdminId' }
+
+    teamOps.createTeam(teamData, function (err, team) {
+      expect(err).to.not.exist()
+      expect(team).to.exist()
+      expect(team.users).to.exist()
+      expect(team.users.length).to.equal(1)
+      expect(team.users[0]).to.equal({ id: 'testAdminId', name: 'Team 6 Admin' })
+
+      const defaultUser = team.users[0]
+
+      userOps.readUser({ id: defaultUser.id, organizationId: 'WONKA' }, (err, user) => {
+        expect(err).to.not.exist()
 
         const defaultPolicy = user.policies.find((p) => { return p.name === 'Default Team Admin for ' + team.id })
         expect(defaultPolicy).to.exist()
