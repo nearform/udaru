@@ -352,7 +352,7 @@ lab.experiment('Users', () => {
     }
 
     userOps.addUserPolicies = function (params, cb) {
-      expect(params).to.equal({ id: 1, organizationId: 'WONKA', policies: [ { id: 1 } ] })
+      expect(params).to.equal({ id: 1, organizationId: 'WONKA', policies: [1] })
       process.nextTick(() => {
         cb(null, expected)
       })

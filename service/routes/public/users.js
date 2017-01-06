@@ -172,7 +172,7 @@ exports.register = function (server, options, next) {
       const params = {
         id,
         organizationId,
-        policies
+        policies: policies.map(({id}) => id)
       }
       userOps.addUserPolicies(params, reply)
     },
