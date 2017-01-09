@@ -42,6 +42,9 @@ const Actions = {
   AddTeamPolicy: generateAction('team', 'addPolicy'),
   ReplaceTeamPolicy: generateAction('team', 'replacePolicy'),
   RemoveTeamPolicy: generateAction('team', 'removePolicy'),
+  AddTeamMemeber: generateAction('team', 'addMemeber'),
+  ReplaceTeamMemeber: generateAction('team', 'replaceMemeber'),
+  RemoveTeamMemeber: generateAction('team', 'removeMemeber'),
   AllTeam: generateAction('team'),
 
   // user

@@ -69,7 +69,6 @@ lab.experiment('Teams', () => {
         id: 2,
         name: 'Team D',
         description: 'Can Team C become Team D?',
-        users: [],
         organizationId: 'WONKA'
       })
       process.nextTick(() => {
@@ -82,8 +81,7 @@ lab.experiment('Teams', () => {
       url: '/authorization/teams/2',
       payload: {
         name: 'Team D',
-        description: 'Can Team C become Team D?',
-        users: []
+        description: 'Can Team C become Team D?'
       }
     })
 

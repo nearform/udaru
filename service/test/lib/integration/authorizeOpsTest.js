@@ -216,12 +216,10 @@ lab.experiment('AuthorizeOps', () => {
     tasks.push((result, cb) => {
       const teamData = {
         id: testTeamId,
-        name: testTeamName,
-        description: testTeamDesc,
         users: [testUserId],
         organizationId
       }
-      teamOps.updateTeam(teamData, cb)
+      teamOps.replaceUsersInTeam(teamData, cb)
     })
 
     tasks.push((result, cb) => {
