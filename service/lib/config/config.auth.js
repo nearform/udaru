@@ -39,6 +39,9 @@ const Actions = {
   DeleteTeam: generateAction('team', 'delete'),
   ListTeams: generateAction('team', 'list'),
   ManageTeams: generateAction('team', 'manage'),
+  AddTeamPolicy: generateAction('team', 'addPolicy'),
+  ReplaceTeamPolicy: generateAction('team', 'replacePolicy'),
+  RemoveTeamPolicy: generateAction('team', 'removePolicy'),
   AllTeam: generateAction('team'),
 
   // user
@@ -48,6 +51,7 @@ const Actions = {
   DeleteUser: generateAction('user', 'delete'),
   ListUsers: generateAction('user', 'list'),
   AddUserPolicy: generateAction('user', 'addPolicy'),
+  ReplaceUserPolicy: generateAction('user', 'replacePolicy'),
   RemoveUserPolicy: generateAction('user', 'removePolicy'),
   AllUser: generateAction('user'),
 

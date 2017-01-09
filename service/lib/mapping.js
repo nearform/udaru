@@ -58,7 +58,8 @@ function mapTeam (row) {
     id: row.id,
     name: row.name,
     description: row.description,
-    path: row.path
+    path: row.path,
+    organizationId: row.org_id
   }
 }
 

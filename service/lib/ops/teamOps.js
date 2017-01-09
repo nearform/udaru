@@ -309,7 +309,7 @@ var teamOps = {
 
     tasks.push((next) => {
       const sql = SQL`
-        SELECT id, name, description, path
+        SELECT *
         FROM teams
         WHERE id = ${id}
         AND org_id = ${organizationId}
@@ -320,6 +320,7 @@ var teamOps = {
         if (result.rowCount === 0) return next(Boom.notFound())
 
         team = mapping.team(result.rows[0])
+
         team.users = []
         team.policies = []
         next()
