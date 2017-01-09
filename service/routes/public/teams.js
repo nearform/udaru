@@ -310,6 +310,12 @@ exports.register = function (server, options, next) {
       description: 'Add one or more policies to a team',
       notes: 'The PUT /authorization/teams/{id}/policies endpoint add one or more new policies to a team\n',
       tags: ['api', 'service', 'put', 'teams', 'policies'],
+      plugins: {
+        auth: {
+          action: Action.AddTeamPolicy,
+          getParams: (request) => ({ teamId: request.params.id })
+        }
+      },
       response: {schema: swagger.Team}
     }
   })
@@ -345,6 +351,12 @@ exports.register = function (server, options, next) {
       description: 'Clear and replace policies for a team',
       notes: 'The POST /authorization/teams/{id}/policies endpoint removes all the team policies and replace them\n',
       tags: ['api', 'service', 'post', 'teams', 'policies'],
+      plugins: {
+        auth: {
+          action: Action.ReplaceTeamPolicy,
+          getParams: (request) => ({ teamId: request.params.id })
+        }
+      },
       response: {schema: swagger.Team}
     }
   })
@@ -376,6 +388,12 @@ exports.register = function (server, options, next) {
       description: 'Clear all team policies',
       notes: 'The DELETE /authorization/teams/{id}/policies endpoint removes all the team policies\n',
       tags: ['api', 'service', 'delete', 'teams', 'policies'],
+      plugins: {
+        auth: {
+          action: Action.RemoveTeamPolicy,
+          getParams: (request) => ({ teamId: request.params.id })
+        }
+      },
       response: {schema: swagger.Team}
     }
   })
@@ -408,6 +426,12 @@ exports.register = function (server, options, next) {
       description: 'Remove a team policy',
       notes: 'The DELETE /authorization/teams/{teamId}/policies/{policyId} endpoint removes a specific team policy\n',
       tags: ['api', 'service', 'delete', 'teams', 'policies'],
+      plugins: {
+        auth: {
+          action: Action.RemoveTeamPolicy,
+          getParams: (request) => ({ teamId: request.params.id })
+        }
+      },
       response: {schema: swagger.Team}
     }
   })

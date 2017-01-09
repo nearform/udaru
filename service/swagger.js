@@ -38,7 +38,8 @@ const Team = Joi.object({
   description: Joi.string(),
   path: Joi.string(),
   users: Joi.array().items(UserRef),
-  policies: Joi.array().items(PolicyRef)
+  policies: Joi.array().items(PolicyRef),
+  organizationId: Joi.string()
 })
 
 const TeamList = Joi.array().items(Team)

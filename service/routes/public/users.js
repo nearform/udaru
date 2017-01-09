@@ -253,7 +253,7 @@ exports.register = function (server, options, next) {
       tags: ['api', 'service', 'post', 'users', 'policies'],
       plugins: {
         auth: {
-          action: Action.AddUserPolicy,
+          action: Action.ReplaceUserPolicy,
           getParams: (request) => ({ userId: request.params.id })
         }
       },
