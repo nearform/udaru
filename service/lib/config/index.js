@@ -39,6 +39,7 @@ module.exports = new Reconfig({
         name: 'SuperOrganization',
         description: 'SuperUser Organization'
       },
+      id: 'SuperUserId',
       name: 'SuperUser',
       defaultPolicy: {
         version: '1',

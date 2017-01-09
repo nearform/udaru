@@ -34,7 +34,7 @@ internals.implementation = function (server, options) {
         return reply(Boom.unauthorized('Missing authorization', 'udaru'))
       }
 
-      const userId = parseInt(authorization, 10)
+      const userId = String(authorization)
 
       settings.validateFunc(server, request, userId, (error, isValid, user) => {
         if (error) {

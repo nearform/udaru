@@ -3,27 +3,18 @@
 const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
-const logger = require('pino')()
 const async = require('async')
 
-const OrganizationOps = require('../../../lib/organizationOps')
-const TeamOps = require('../../../lib/teamOps')
-const UserOps = require('../../../lib/userOps')
-const PolicyOps = require('../../../lib/policyOps')
-const dbConn = require('../../../lib/dbConn')
+const organizationOps = require('../../../lib/ops/organizationOps')
+const teamOps = require('../../../lib/ops/teamOps')
+const userOps = require('../../../lib/ops/userOps')
+const policyOps = require('../../../lib/ops/policyOps')
 const config = require('../../../lib/config')
 const defaultPolicies = config.get('authorization.organizations.defaultPolicies', { 'organizationId': 'nearForm' })
 const defaultPoliciesNames = Object.keys(defaultPolicies).map((pName) => {
   let policy = defaultPolicies[pName]
   return policy.name
 })
-
-
-const db = dbConn.create(logger)
-const organizationOps = OrganizationOps(db.pool, logger)
-const teamOps = TeamOps(db.pool, logger)
-const userOps = UserOps(db.pool, logger)
-const policyOps = PolicyOps(db.pool)
 
 lab.experiment('OrganizationOps', () => {
 
@@ -93,6 +84,49 @@ lab.experiment('OrganizationOps', () => {
       expect(result.user).to.exist()
       expect(result.user.name).to.equal('example example')
       expect(result.user.id).to.not.be.null()
+
+      userOps.listOrgUsers({ organizationId: 'nearForm' }, (err, res) => {
+        expect(err).to.not.exist()
+        expect(res).to.exist()
+        expect(res.length).to.equal(1)
+        expect(res[0].name).to.equal('example example')
+
+        userOps.readUser({ id: res[0].id, organizationId: 'nearForm' }, (err, user) => {
+          expect(err).to.not.exist()
+          expect(user).to.exist()
+          expect(user.teams.length).to.equal(0)
+
+          organizationOps.deleteById(result.organization.id, (err, res) => {
+            expect(err).to.not.exist()
+
+            userOps.listOrgUsers({ organizationId: 'nearForm' }, (err, res) => {
+              expect(err).to.not.exist()
+              expect(res.length).to.equal(0)
+              done()
+            })
+          })
+        })
+      })
+    })
+  })
+
+  lab.test('create an organization specifying a user and its id, should create the user and assign the OrgAdmin policy to it', (done) => {
+    organizationOps.create({
+      id: 'nearForm',
+      name: 'nearForm',
+      description: 'nearform description',
+      user: {
+        id: 'myspecialid',
+        name: 'example example'
+      }
+    }, (err, result) => {
+      expect(err).to.not.exist()
+      expect(result).to.exist()
+      expect(result.organization).to.exist()
+      expect(result.organization.name).to.equal('nearForm')
+      expect(result.user).to.exist()
+      expect(result.user.name).to.equal('example example')
+      expect(result.user.id).to.equal('myspecialid')
 
       userOps.listOrgUsers({ organizationId: 'nearForm' }, (err, res) => {
         expect(err).to.not.exist()

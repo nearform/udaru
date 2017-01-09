@@ -1,11 +1,11 @@
 'use strict'
 
 const Joi = require('joi')
-const UserOps = require('./../../lib/userOps')
-const Action = require('./../../lib/config.auth').Action
+const userOps = require('./../../lib/ops/userOps')
+const Action = require('./../../lib/config/config.auth').Action
+const swagger = require('./../../swagger')
 
 exports.register = function (server, options, next) {
-  const userOps = UserOps(options.dbPool, server.logger())
 
   server.route({
     method: 'GET',
@@ -22,7 +22,13 @@ exports.register = function (server, options, next) {
         auth: {
           action: Action.ListUsers
         }
-      }
+      },
+      validate: {
+        headers: Joi.object({
+          'authorization': Joi.any().required()
+        }).unknown()
+      },
+      response: {schema: swagger.UserList}
     }
   })
 
@@ -38,8 +44,11 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.number().required().description('user id')
-        }
+          id: Joi.string().required().description('user id')
+        },
+        headers: Joi.object({
+          'authorization': Joi.any().required()
+        }).unknown()
       },
       description: 'Fetch a user given its identifier',
       notes: 'The GET /authorization/users/{id} endpoint returns a single user data\n',
@@ -49,7 +58,8 @@ exports.register = function (server, options, next) {
           action: Action.ReadUser,
           getParams: (request) => ({ userId: request.params.id })
         }
-      }
+      },
+      response: {schema: swagger.User}
     }
   })
 
@@ -58,12 +68,9 @@ exports.register = function (server, options, next) {
     path: '/authorization/users',
     handler: function (request, reply) {
       const { organizationId } = request.udaru
-      const params = {
-        name: request.payload.name,
-        organizationId
-      }
+      const { id, name } = request.payload
 
-      userOps.createUser(params, function (err, res) {
+      userOps.createUser({ id, name, organizationId }, function (err, res) {
         if (err) {
           return reply(err)
         }
@@ -74,8 +81,12 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         payload: {
+          id: Joi.string().description('user id'),
           name: Joi.string().required().description('User name')
-        }
+        },
+        headers: Joi.object({
+          'authorization': Joi.any().required()
+        }).unknown()
       },
       description: 'Create a new user',
       notes: 'The POST /authorization/users endpoint creates a new user given its data\n',
@@ -84,7 +95,8 @@ exports.register = function (server, options, next) {
         auth: {
           action: Action.CreateUser
         }
-      }
+      },
+      response: {schema: swagger.User}
     }
   })
 
@@ -106,8 +118,11 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.number().required().description('user id')
-        }
+          id: Joi.string().required().description('user id')
+        },
+        headers: Joi.object({
+          'authorization': Joi.any().required()
+        }).unknown()
       },
       description: 'Delete a user',
       notes: 'The DELETE /authorization/users endpoint delete a user\n',
@@ -140,14 +155,17 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.number().required().description('user id')
+          id: Joi.string().required().description('user id')
         },
         payload: {
           name: Joi.string().required().description('user name'),
           teams: Joi.array().required().items(Joi.object().keys({
             id: Joi.number().required()
           }))
-        }
+        },
+        headers: Joi.object({
+          'authorization': Joi.any().required()
+        }).unknown()
       },
       description: 'Update a user',
       notes: 'The PUT /authorization/users endpoint updates a user data\n',
@@ -157,7 +175,8 @@ exports.register = function (server, options, next) {
           action: Action.UpdateUser,
           getParams: (request) => ({ userId: request.params.id })
         }
-      }
+      },
+      response: {schema: swagger.User}
     }
   })
 
@@ -179,13 +198,14 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.number().required().description('user id')
+          id: Joi.string().required().description('user id')
         },
         payload: {
-          policies: Joi.array().required().items(Joi.object().keys({
-            id: Joi.number().required()
-          }))
-        }
+          policies: Joi.array().required().items(Joi.number().required())
+        },
+        headers: Joi.object({
+          'authorization': Joi.any().required()
+        }).unknown()
       },
       description: 'Add one or more policies to a user',
       notes: 'The PUT /authorization/users/{id}/policies endpoint add one or more new policies to a user\n',
@@ -195,7 +215,8 @@ exports.register = function (server, options, next) {
           action: Action.AddUserPolicy,
           getParams: (request) => ({ userId: request.params.id })
         }
-      }
+      },
+      response: {schema: swagger.User}
     }
   })
 
@@ -218,13 +239,14 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.number().required().description('user id')
+          id: Joi.string().required().description('user id')
         },
         payload: {
-          policies: Joi.array().required().items(Joi.object().keys({
-            id: Joi.number().required()
-          }))
-        }
+          policies: Joi.array().required().items(Joi.number().required())
+        },
+        headers: Joi.object({
+          'authorization': Joi.any().required()
+        }).unknown()
       },
       description: 'Clear and replace policies for a user',
       notes: 'The POST /authorization/users/{id}/policies endpoint removes all the user policies and replace them\n',
@@ -234,7 +256,8 @@ exports.register = function (server, options, next) {
           action: Action.AddUserPolicy,
           getParams: (request) => ({ userId: request.params.id })
         }
-      }
+      },
+      response: {schema: swagger.User}
     }
   })
 
@@ -256,8 +279,11 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.number().required().description('user id')
-        }
+          id: Joi.string().required().description('user id')
+        },
+        headers: Joi.object({
+          'authorization': Joi.any().required()
+        }).unknown()
       },
       description: 'Clear all user\'s policies',
       notes: 'The DELETE /authorization/users/{id}/policies endpoint removes all the user policies\n',
@@ -289,9 +315,12 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          userId: Joi.number().required().description('user id'),
+          userId: Joi.string().required().description('user id'),
           policyId: Joi.number().required().description('policy id')
-        }
+        },
+        headers: Joi.object({
+          'authorization': Joi.any().required()
+        }).unknown()
       },
       description: 'Remove a user\'s policy',
       notes: 'The DELETE /authorization/users/{userId}/policies/{policyId} endpoint removes a specific user\'s policy\n',
@@ -303,43 +332,6 @@ exports.register = function (server, options, next) {
             userId: request.params.userId,
             policyId: request.params.policyId
           })
-        }
-      }
-    }
-  })
-
-  server.route({
-    method: 'GET',
-    path: '/authorization/users/{id}/actions',
-    handler: function (request, reply) {
-      const { id } = request.params
-      const { organizationId } = request.udaru
-      const { resources } = request.query
-
-      const params = {
-        id,
-        organizationId,
-        resources: resources ? resources.split(',') : []
-      }
-
-      userOps.listActionsByResource(params, reply)
-    },
-    config: {
-      validate: {
-        params: {
-          id: Joi.number().required().description('user id')
-        },
-        query: {
-          resources: Joi.string().description('comma separated list of resources')
-        }
-      },
-      description: 'List user\'s actions grouped by resource',
-      notes: 'The GET /authorization/users/{id}/actions endpoint list user\'s actions by resource.\nA resources parameter can be used in the query string to get actions only for specific resources.',
-      tags: ['api', 'service', 'list', 'users', 'actions'],
-      plugins: {
-        auth: {
-          action: Action.ReadUser,
-          getParams: (request) => ({ userId: request.params.id })
         }
       }
     }

@@ -8,7 +8,7 @@ var proxyquire = require('proxyquire')
 var utils = require('./../../utils')
 
 var policyOps = {}
-var policiesRoutes = proxyquire('./../../../routes/public/policies', { './../../lib/policyOps': () => policyOps })
+var policiesRoutes = proxyquire('./../../../routes/public/policies', { './../../lib/ops/policyOps': policyOps })
 var server = proxyquire('./../../../wiring-hapi', { './routes/public/policies': policiesRoutes })
 
 lab.experiment('Policies', () => {
@@ -71,7 +71,7 @@ lab.experiment('Policies', () => {
       id: 1,
       name: 'SysAdmin',
       version: '0.1',
-      statements: [{
+      statements: {
         'Statement': [
           {
             'Action': [
@@ -92,7 +92,7 @@ lab.experiment('Policies', () => {
             ]
           }
         ]
-      }]
+      }
     }
 
     policyOps.readPolicy = (params, cb) => {

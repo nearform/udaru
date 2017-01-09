@@ -7,7 +7,7 @@ var proxyquire = require('proxyquire')
 var utils = require('./../../utils')
 
 var organizationOps = {}
-var organizationsRoutes = proxyquire('./../../../routes/public/organizations', { './../../lib/organizationOps': () => organizationOps })
+var organizationsRoutes = proxyquire('./../../../routes/public/organizations', { './../../lib/ops/organizationOps': organizationOps })
 var server = proxyquire('./../../../wiring-hapi', { './routes/public/organizations': organizationsRoutes })
 
 lab.experiment('Organizations', () => {
@@ -106,6 +106,7 @@ lab.experiment('Organizations', () => {
       name: 'nearForm',
       description: 'nearForm org',
       user: {
+        id: 'exampleId',
         name: 'example'
       }
     }

@@ -8,6 +8,8 @@ There are 4 package.json files present in the repository (root, component, servi
 
 ## Database
 
+**Important note:** the app needs PostgreSQL >= 9.5
+
 Running the initial demo (first cut of the service) uses Postgres in a Docker running instance, which can be created with:
 
 ```
@@ -54,21 +56,52 @@ npm run pg:load-test-data
 ```
 
 ###pgAdmin database access
+
 As the Postgresql docker container has its 5432 port forwarded on the local machine the database can be accessed with pgAdmin.
 
 To access the database using the pgAdmin you have to fill in also the container IP beside the database names and access credentials. The container IP can be seen with `docker ps`.
 
 ## Service
 
+The service will respond http calls such as
+
+```
+GET /authorization/users
+```
+
+with data in the form:
+
+```
+[
+  { id: 'CharlieId', name: 'Charlie Bucket' },
+  { id: 'GrandpaId', name: 'Grandpa Joe' },
+  { id: 'VerucaId', name: 'Veruca Salt' },
+  { id: 'WillyId', name: 'Willy Wonka' }
+]
+```
+
+To get more information see [Service Api documentation](#service-api-documentation)
+
 ### Setup SuperUser
 
 The init script needs to be run in order to setup the SuperUser: `node service/scripts/init`
- 
+
+If you want to specify a better SuperUser id (default is `SuperUserId`) you can prefix the script as follow:
+
+```
+LABS_AUTH_SERVICE_authorization_superUser_id=myComplexId12345 node service/scripts/init
+```
+
+**Note:** if you have already ran some tests or loaded the test data, you will need to run `npm pg:init` again to reset the db.
+
 ### Load policies from file
 
-Another script is available to load policies from a file  
-Usage: `node service/script/loadPolicies --org=FOO policies.json`  
-JSON structure (TBD):  
+Another script is available to load policies from a file
+
+Usage: `node service/script/loadPolicies --org=FOO policies.json`
+
+JSON structure:
+
 ```json
 {
   "policies": [
@@ -89,31 +122,26 @@ JSON structure (TBD):
 }
 ```
 
----
+### Service API documentation
 
-The service will respond to commands such as a list users request:
+The Swagger API documentation gives explanations on the exposed API.
 
-    {role: 'authorization', cmd: 'list', type: 'users'}
+To run Swagger:
 
-with data in the form:
+```
+npm run start:service
+```
 
-    [ { id: 1, name: 'Charlie Bucket' },
-      { id: 2, name: 'Grandpa Joe' },
-      { id: 3, name: 'Veruca Salt' },
-      { id: 4, name: 'Willy Wonka' } ]
+and then go to `http://localhost:8080/documentation`
 
-It also has a shutdown operation, which should be called when finished with the
-service:
+The Swagger documentation also gives the ability to execute calls to the API and see their results.
 
-    {role: 'authorization', cmd: 'done'}
 
 ## API
 
 An example API route for fetching all the users is: http://localhost:8000/authorization/users
 
 Curl examples for all the routes can be found in api/route.js
-
-Swagger documentation can be found once the API is running by visiting: http://localhost:8000/documentation
 
 To expose the routes start both the service and the API with the following:
 

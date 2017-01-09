@@ -2,13 +2,12 @@
 
 const packageJson = require('./package.json')
 const config = require('./lib/config')
-const dbConn = require('./lib/dbConn')
 
 const Hapi = require('hapi')
 const server = new Hapi.Server()
 
-const HapiAuthService = require('./hapi-auth-service')
-const authValidation = require('./hapi-auth-validation')
+const HapiAuthService = require('./security/hapi-auth-service')
+const authValidation = require('./security/hapi-auth-validation')
 
 server.connection({
   port: Number(config.get('hapi.port')),
@@ -19,6 +18,7 @@ server.connection({
 })
 
 const swaggerOptions = {
+  jsonEditor: true,
   info: {
     title: 'Authorization API Documentation',
     version: packageJson.version
@@ -58,39 +58,33 @@ server.register(
     }
 
     server.auth.strategy('default', 'service', 'required', {
-      validateFunc: authValidation.bind(null, options)
+      validateFunc: authValidation.bind(null, {})
     })
   }
 )
 
-const db = dbConn.create(server.logger())
-const options = { dbPool: db.pool }
-
 server.register(
   [
     {
-      register: require('./routes/public/users'),
-      options
+      register: require('./routes/public/users')
     },
     {
-      register: require('./routes/public/policies'),
-      options
+      register: require('./routes/public/policies')
     },
     {
-      register: require('./routes/public/teams'),
-      options
+      register: require('./routes/public/teams')
     },
     {
-      register: require('./routes/public/authorization'),
-      options
+      register: require('./routes/public/authorization')
     },
     {
-      register: require('./routes/public/organizations'),
-      options
+      register: require('./routes/public/organizations')
     },
     {
-      register: require('./routes/private/policies'),
-      options
+      register: require('./routes/public/monitor')
+    },
+    {
+      register: require('./routes/private/policies')
     }
   ],
   function (err) {

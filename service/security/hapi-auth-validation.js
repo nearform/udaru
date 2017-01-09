@@ -2,15 +2,12 @@
 
 const async = require('async')
 
-const authConfig = require('./lib/config.auth')
+const authConfig = require('./../lib/config/config.auth')
 
-const UserOps = require('./lib/userOps')
-const PolicyOps = require('./lib/policyOps')
-const AuthorizeOps = require('./lib/authorizeOps')
+const userOps = require('./../lib/ops/userOps')
+const authorize = require('./../lib/ops/authorizeOps')
 
 module.exports = (options, server, request, userId, callback) => {
-  const userOps = UserOps(options.dbPool, server.logger)
-
   async.waterfall([
     (next) => {
       userOps.getUserOrganizationId(userId, (error, organizationId) => {
@@ -58,7 +55,6 @@ module.exports = (options, server, request, userId, callback) => {
         resource
       }
 
-      const authorize = AuthorizeOps(PolicyOps(options.dbPool))
       authorize.isUserAuthorized(params, (error, result) => {
         if (error) {
           return next(error)

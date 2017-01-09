@@ -1,12 +1,11 @@
 'use strict'
 
 const Joi = require('joi')
-const PolicyOps = require('./../../lib/policyOps')
-const Action = require('./../../lib/config.auth').Action
+const policyOps = require('./../../lib/ops/policyOps')
+const Action = require('./../../lib/config/config.auth').Action
+const swagger = require('./../../swagger')
 
 exports.register = function (server, options, next) {
-  const policyOps = PolicyOps(options.dbPool)
-
   server.route({
     method: 'GET',
     path: '/authorization/policies',
@@ -23,7 +22,13 @@ exports.register = function (server, options, next) {
         auth: {
           action: Action.ListPolicies
         }
-      }
+      },
+      validate: {
+        headers: Joi.object({
+          'authorization': Joi.any().required()
+        }).unknown()
+      },
+      response: {schema: swagger.PolicyList}
     }
   })
 
@@ -40,7 +45,10 @@ exports.register = function (server, options, next) {
       validate: {
         params: {
           id: Joi.number().required().description('policy id')
-        }
+        },
+        headers: Joi.object({
+          'authorization': Joi.any().required()
+        }).unknown()
       },
       description: 'Fetch all the defined policies',
       notes: 'The GET /authorization/policies/{id} endpoint returns a single policy based on it\'s id.\n',
@@ -50,7 +58,8 @@ exports.register = function (server, options, next) {
           action: Action.ReadPolicy,
           getParams: (request) => ({ policyId: request.params.id })
         }
-      }
+      },
+      response: {schema: swagger.Policy}
     }
   })
 

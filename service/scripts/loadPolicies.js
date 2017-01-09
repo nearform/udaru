@@ -1,20 +1,13 @@
 const jsonfile = require('jsonfile')
 const minimist = require('minimist')
-
-const dbConn = require('./../lib/dbConn')
-const dbUtil = require('./../lib/dbUtil')
-const db = dbConn.create(console)
-
-const OrganizationOps = require('./../lib/organizationOps')
-const organizationOps = OrganizationOps(db.pool, console)
-
-const PolicyOps = require('./../lib/policyOps')
-const policyOps = PolicyOps(db.pool, console)
+const db = require('./../lib/db')
+const policyOps = require('./../lib/ops/policyOps')
+const organizationOps = require('./../lib/ops/organizationOps')
 
 const exit = (message, db) => {
   console.log(message)
   if (db) {
-    db.shutdown({}, () => {
+    db.shutdown(() => {
       process.exit()
     })
   }
@@ -54,12 +47,12 @@ organizationOps.readById(organizationId, (error, organization) => {
     return (job, next) => policyOps.createPolicy(policyData, next)
   })
 
-  dbUtil.withTransaction(db.pool, tasks, (err, x) => {
+  db.withTransaction(tasks, (err, x) => {
     if (err) {
-      exit(err, db)
+      return exit(err, db)
     }
 
-    db.shutdown({}, () => {
+    db.shutdown(() => {
       console.log('Done!')
     })
   })

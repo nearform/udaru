@@ -4,19 +4,15 @@ const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 const async = require('async')
-const logger = require('pino')()
 
-const dbConn = require('../../../lib/dbConn')
-const Authorize = require('../../../lib/authorizeOps')
-const UserOps = require('../../../lib/userOps')
-const PolicyOps = require('../../../lib/policyOps')
-const TeamOps = require('../../../lib/teamOps')
+const authorize = require('../../../lib/ops/authorizeOps')
+const organizationOps = require('../../../lib/ops/organizationOps')
+const userOps = require('../../../lib/ops/userOps')
+const teamOps = require('../../../lib/ops/teamOps')
+const policyOps = require('../../../lib/ops/policyOps')
 
-const db = dbConn.create(logger)
-const userOps = UserOps(db.pool, logger)
-const policyOps = PolicyOps(db.pool)
-const authorize = Authorize(policyOps)
-const teamOps = TeamOps(db.pool, logger)
+const fs = require('fs')
+const path = require('path')
 
 let testUserId
 let testTeamId
@@ -286,5 +282,109 @@ lab.experiment('AuthorizeOps', () => {
     })
 
     async.waterfall(tasks, done)
+  })
+})
+
+lab.experiment('AuthorizeOps - list and access with multiple policies', () => {
+  let adminId
+  let savedPolicies
+  const organizationId = 'nearForm'
+
+  lab.before((done) => {
+    const policies = JSON.parse(fs.readFileSync(path.join(__dirname, 'policies.json'), { encoding: 'utf8' }))
+    policies.map((policy) => {
+      policy.statements = JSON.stringify(policy.statements)
+
+      return policy
+    })
+
+    organizationOps.create({ id: organizationId, name: 'nearForm', description: 'nearform description', user: { name: 'admin' } }, (err, res) => {
+      if (err) return done(err)
+
+      adminId = res.user.id
+
+      const tasks = policies.map((policy, index) => {
+        return (next) => {
+          policy.organizationId = organizationId
+          policyOps.createPolicy(policy, next)
+        }
+      })
+
+      async.series(tasks, (err, res) => {
+        if (err) return done(err)
+
+        savedPolicies = res
+        done()
+      })
+    })
+  })
+
+  lab.test('check list simple action', (done) => {
+    userOps.replaceUserPolicies({ id: adminId, organizationId, policies: [ savedPolicies[0].id ] }, (err, res) => {
+      if (err) return done(err)
+
+      authorize.listAuthorizations({
+        userId: adminId,
+        resource: 'FOO:orga:CLOUDCUCKOO:scenario:bau-1',
+        organizationId
+      }, (err, res) => {
+        expect(err).to.not.exist()
+        expect(res).to.equal({ actions: ['FOO:scenario:read'] })
+
+        done()
+      })
+    })
+  })
+
+  lab.test('check list simple action on multiple resources', (done) => {
+    userOps.replaceUserPolicies({
+      id: adminId,
+      organizationId,
+      policies: [ savedPolicies[0].id, savedPolicies[1].id ]
+    }, (err, res) => {
+      if (err) return done(err)
+
+      authorize.listAuthorizations({
+        userId: adminId,
+        resource: 'FOO:orga:CLOUDCUCKOO:scenario:TEST:entity:north-america-id',
+        organizationId
+      }, (err, res) => {
+        expect(err).to.not.exist()
+        expect(res).to.equal({ actions: ['FOO:scenario:filter'] })
+
+        done()
+      })
+    })
+  })
+
+  lab.test('check list multiple actions', (done) => {
+    userOps.replaceUserPolicies({
+      id: adminId,
+      organizationId,
+      policies: [ savedPolicies[4].id, savedPolicies[5].id ]
+    }, (err, res) => {
+      if (err) return done(err)
+
+      authorize.listAuthorizations({
+        userId: adminId,
+        resource: 'FOO:orga:shell:scenario:TEST',
+        organizationId
+      }, (err, res) => {
+        expect(err).to.not.exist()
+        expect(res).to.equal({ actions: [
+          'FOO:scenario:granular-read',
+          'FOO:scenario:clone',
+          'FOO:scenario:download',
+          'FOO:scenario:delete',
+          'FOO:scenario:publish'
+        ]})
+
+        done()
+      })
+    })
+  })
+
+  lab.after((done) => {
+    organizationOps.deleteById('nearForm', done)
   })
 })
