@@ -20,6 +20,9 @@ const teamData = {
 const updateData = {
   name: 'Team 5',
   description: 'description',
+  organizationId: 'WONKA'
+}
+const updateTeamMembersData = {
   users: ['ROOTid', 'CharlieId'],
   organizationId: 'WONKA'
 }
@@ -40,11 +43,18 @@ lab.experiment('TeamOps', () => {
 
   lab.afterEach((done) => {
     const data = _.clone(teamData)
+    const membersData = _.clone(updateTeamMembersData)
     data.id = testTeamId
+    membersData.id = testTeamId
 
     teamOps.updateTeam(data, (err, result) => {
       expect(err).to.not.exist()
-      done()
+
+      teamOps.replaceUsersInTeam(membersData, (err, result) => {
+        expect(err).to.not.exist()
+
+        done()
+      })
     })
   })
 
@@ -75,18 +85,13 @@ lab.experiment('TeamOps', () => {
     })
   })
 
-  lab.test('create and delete a team', (done) => {
+  lab.test('create a team', (done) => {
     updateData.id = testTeamId
 
     teamOps.updateTeam(updateData, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
       expect(result.name).to.equal('Team 5')
-      expect(result.users).to.have.length(2)
-      expect(result.users).to.only.include([
-        {'id': 'ROOTid', 'name': 'Super User'},
-        {'id': 'CharlieId', 'name': 'Charlie Bucket'}
-      ])
 
       policyOps.listByOrganization({ organizationId: 'WONKA' }, (err, policies) => {
         expect(err).to.not.exist()
@@ -107,17 +112,12 @@ lab.experiment('TeamOps', () => {
       expect(err).to.not.exist()
       expect(result).to.exist()
       expect(result.name).to.equal('Team 5')
-      expect(result.users).to.have.length(2)
-      expect(result.users).to.only.include([
-        {'id': 'ROOTid', 'name': 'Super User'},
-        {'id': 'CharlieId', 'name': 'Charlie Bucket'}
-      ])
 
       done()
     })
   })
 
-  lab.test('create, update only the name and delete a team', (done) => {
+  lab.test('create, update only the team name', (done) => {
     const updateData = {
       id: testTeamId,
       name: 'Team 5',
@@ -134,7 +134,7 @@ lab.experiment('TeamOps', () => {
     })
   })
 
-  lab.test('create, update only the description and delete a team', (done) => {
+  lab.test('create, update only the team description', (done) => {
     const updateData = {
       id: testTeamId,
       description: 'new desc',
@@ -146,28 +146,6 @@ lab.experiment('TeamOps', () => {
       expect(result).to.exist()
       expect(result.description).to.equal('new desc')
       expect(result.name).to.equal(teamData.name)
-
-      done()
-    })
-  })
-
-  lab.test('create, update only the users and delete a team', (done) => {
-    const updateData = {
-      id: testTeamId,
-      users: ['ROOTid', 'CharlieId', 'MikeId'],
-      organizationId: 'WONKA'
-    }
-
-    teamOps.updateTeam(updateData, (err, result) => {
-      expect(err).to.not.exist()
-      expect(result).to.exist()
-      expect(result.description).to.equal(teamData.description)
-      expect(result.name).to.equal(teamData.name)
-      expect(result.users).to.equal([
-        { id: 'CharlieId', name: 'Charlie Bucket' },
-        { id: 'MikeId', name: 'Mike Teavee' },
-        { id: 'ROOTid', name: 'Super User' }
-      ])
 
       done()
     })
@@ -484,7 +462,6 @@ lab.experiment('TeamOps', () => {
     })
   })
 
-
   lab.test('delete specific team policy', (done) => {
     teamOps.readTeam({ id: 1, organizationId: 'WONKA' }, (err, team) => {
       expect(err).to.not.exist()
@@ -501,6 +478,73 @@ lab.experiment('TeamOps', () => {
           done()
         })
       })
+    })
+  })
+
+  lab.test('add users to a team', (done) => {
+    const id = 1
+    const users = ['WillyId']
+    const organizationId = 'WONKA'
+
+    teamOps.addUsersToTeam({ id, users, organizationId }, (err, team) => {
+      expect(err).to.not.exist()
+      expect(team).to.exist()
+      expect(team.users).to.equal([
+        {
+          id: 'AugustusId',
+          name: 'Augustus Gloop'
+        },
+        {
+          id: 'WillyId',
+          name: 'Willy Wonka'
+        }
+      ])
+
+      teamOps.replaceUsersInTeam({ id, users: ['AugustusId'], organizationId }, done)
+    })
+  })
+
+  lab.test('replace users of a team', (done) => {
+    const id = 1
+    const users = ['WillyId']
+    const organizationId = 'WONKA'
+
+    teamOps.replaceUsersInTeam({ id, users, organizationId }, (err, team) => {
+      expect(err).to.not.exist()
+      expect(team).to.exist()
+      expect(team.users).to.equal([
+        {
+          id: 'WillyId',
+          name: 'Willy Wonka'
+        }
+      ])
+
+      teamOps.replaceUsersInTeam({ id, users: ['AugustusId'], organizationId }, done)
+    })
+  })
+
+  lab.test('delete users of a team', (done) => {
+    const id = 1
+    const organizationId = 'WONKA'
+
+    teamOps.deleteTeamMembers({ id, organizationId }, (err, result) => {
+      expect(err).to.not.exist()
+      expect(result).to.not.exist()
+
+      teamOps.replaceUsersInTeam({ id, users: ['AugustusId'], organizationId }, done)
+    })
+  })
+
+  lab.test('delete users of a team', (done) => {
+    const id = 2
+    const userId = 'CharlieId'
+    const organizationId = 'WONKA'
+
+    teamOps.deleteTeamMember({ id, userId, organizationId }, (err, result) => {
+      expect(err).to.not.exist()
+      expect(result).to.not.exist()
+
+      teamOps.replaceUsersInTeam({ id, users: ['CharlieId', 'VerucaId'], organizationId }, done)
     })
   })
 
