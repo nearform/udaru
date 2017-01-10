@@ -6,6 +6,7 @@ const db = require('./../db')
 const config = require('./../config')
 const SQL = require('./../db/SQL')
 const mapping = require('./../mapping')
+const utils = require('./utils')
 
 function toArray (policies) {
   if (Array.isArray(policies)) {
@@ -30,19 +31,19 @@ function insertPolicies (client, policies, cb) {
   })
   sql.append(SQL` RETURNING id`)
 
-  client.query(sql, cb)
+  client.query(sql, utils.boomErrorWrapper(cb))
 }
 
 function deletePolicies (client, ids, cb) {
-  client.query(SQL`DELETE FROM policies WHERE id = ANY (${ids})`, cb)
+  client.query(SQL`DELETE FROM policies WHERE id = ANY (${ids})`, utils.boomErrorWrapper(cb))
 }
 
 function deleteTeamsAssociations (client, ids, cb) {
-  client.query(SQL`DELETE FROM team_policies WHERE policy_id = ANY (${ids})`, cb)
+  client.query(SQL`DELETE FROM team_policies WHERE policy_id = ANY (${ids})`, utils.boomErrorWrapper(cb))
 }
 
 function deleteUsersAssociations (client, ids, cb) {
-  client.query(SQL`DELETE FROM user_policies WHERE policy_id = ANY (${ids})`, cb)
+  client.query(SQL`DELETE FROM user_policies WHERE policy_id = ANY (${ids})`, utils.boomErrorWrapper(cb))
 }
 
 function getNames (policies) {
@@ -72,8 +73,8 @@ function removePolicy (job, next) {
     AND org_id = ${organizationId}
   `
   job.client.query(sqlQuery, (err, res) => {
-    if (err) return next(err)
-    if (res.rowCount === 0) return next(Boom.notFound())
+    if (err) return next(Boom.badImplementation(err))
+    if (res.rowCount === 0) return next(Boom.notFound(`Policy ${id} not found`))
 
     next()
   })
@@ -180,7 +181,7 @@ const policyOps = {
       org_id: organizationId,
       statements: statements
     }], (err, result) => {
-      if (err) return cb(Boom.badImplementation(err))
+      if (err) return cb(err)
 
       policyOps.readPolicy({ id: result.rows[0].id, organizationId }, cb)
     })
@@ -234,7 +235,7 @@ const policyOps = {
     ]
 
     db.withTransaction(tasks, (err, res) => {
-      if (err) return cb(Boom.badImplementation(err))
+      if (err) return cb(err)
       cb()
     })
   },
@@ -260,8 +261,8 @@ const policyOps = {
         AND name = ${name}
       `
       client.query(sqlQuery, function (err, result) {
-        if (err) return cb(err)
-        if (result.rowCount === 0) return cb(new Error(`No policy found for org ${organizationId} with name ${name}`))
+        if (err) return cb(Boom.badImplementation(err))
+        if (result.rowCount === 0) return cb(Boom.notFound(`No policy found for org ${organizationId} with name ${name}`))
 
         cb(null, result.rows[0].id)
       })
@@ -276,7 +277,7 @@ const policyOps = {
   readTeamDefaultPolicies: function readTeamDefaultPolicies (client, organizationId, teamId, cb) {
     const defaultPolicies = config.get('authorization.teams.defaultPolicies', {organizationId, teamId})
     const names = getNames(defaultPolicies)
-    client.query(SQL`SELECT id FROM policies WHERE name = ANY(${names})`, cb)
+    client.query(SQL`SELECT id FROM policies WHERE name = ANY(${names})`, utils.boomErrorWrapper(cb))
   }
 }
 

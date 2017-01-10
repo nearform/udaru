@@ -1,6 +1,5 @@
 const Reconfig = require('reconfig')
 const AuthConfig = require('./config.auth')
-
 const Action = AuthConfig.Action
 const resources = AuthConfig.resources
 
