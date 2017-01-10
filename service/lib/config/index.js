@@ -104,7 +104,10 @@ module.exports = new Reconfig({
                 Effect: 'Allow',
                 Action: [
                   Action.ReadTeam,
-                  Action.UpdateTeam
+                  Action.UpdateTeam,
+                  Action.AddTeamMemeber,
+                  Action.ReplaceTeamMemeber,
+                  Action.RemoveTeamMemeber
                 ],
                 Resource: [
                   resources.teams({ organizationId: ':organizationId', teamId: ':teamId' })
