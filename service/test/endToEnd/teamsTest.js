@@ -6,6 +6,7 @@ const lab = exports.lab = Lab.script()
 const utils = require('./../utils')
 const server = require('./../../wiring-hapi')
 const teamOps = require('./../../lib/ops/teamOps')
+const userOps = require('./../../lib/ops/userOps')
 
 lab.experiment('Teams', () => {
   lab.test('get team list', (done) => {
@@ -343,6 +344,54 @@ lab.experiment('Teams', () => {
       expect(result).to.not.exist()
 
       teamOps.replaceUsersInTeam({ id: 2, users: ['CharlieId', 'VerucaId'], organizationId: 'WONKA' }, done)
+    })
+  })
+
+  lab.test('default team admin should be able to assign users to own team', (done) => {
+    teamOps.createTeam({
+      name: 'Team 5',
+      description: 'This is a test team',
+      parentId: null,
+      organizationId: 'WONKA',
+      user: { id: 'test-admin', name: 'Test Admin' }
+    }, (err, team) => {
+      if (err) return done(err)
+
+      const options = utils.requestOptions({
+        method: 'PUT',
+        url: `/authorization/teams/${team.id}/users`,
+        headers: {
+          authorization: 'test-admin'
+        },
+        payload: {
+          users: ['CharlieId', 'MikeId']
+        }
+      })
+
+      server.inject(options, (response) => {
+        const result = response.result
+
+        expect(response.statusCode).to.equal(200)
+        expect(result).to.equal({
+          id: team.id,
+          name: 'Team 5',
+          description: 'This is a test team',
+          path: team.path,
+          organizationId: 'WONKA',
+          users: [
+            { id: 'CharlieId', name: 'Charlie Bucket' },
+            { id: 'MikeId', name: 'Mike Teavee' },
+            { id: 'test-admin', name: 'Test Admin' }
+          ],
+          policies: []
+        })
+
+        teamOps.deleteTeam({ id: team.id, organizationId: 'WONKA' }, (err) => {
+          if (err) return done(err)
+          userOps.deleteUser({ id: 'test-admin', organizationId: 'WONKA' }, done)
+        })
+      })
+
     })
   })
 

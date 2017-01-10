@@ -466,7 +466,7 @@ exports.register = function (server, options, next) {
       tags: ['api', 'service', 'put', 'team', 'users'],
       plugins: {
         auth: {
-          action: Action.AddTeamMemeber,
+          action: Action.AddTeamMember,
           getParams: (request) => ({ teamId: request.params.id })
         }
       },
@@ -507,7 +507,7 @@ exports.register = function (server, options, next) {
       tags: ['api', 'service', 'post', 'team', 'users'],
       plugins: {
         auth: {
-          action: Action.ReplaceTeamMemeber,
+          action: Action.ReplaceTeamMember,
           getParams: (request) => ({ teamId: request.params.id })
         }
       },
@@ -544,7 +544,7 @@ exports.register = function (server, options, next) {
       tags: ['api', 'service', 'delete', 'team', 'users'],
       plugins: {
         auth: {
-          action: Action.RemoveTeamMemeber,
+          action: Action.RemoveTeamMember,
           getParams: (request) => ({ teamId: request.params.id })
         }
       }
@@ -581,7 +581,7 @@ exports.register = function (server, options, next) {
       tags: ['api', 'service', 'delete', 'team', 'users'],
       plugins: {
         auth: {
-          action: Action.RemoveTeamMemeber,
+          action: Action.RemoveTeamMember,
           getParams: (request) => ({ teamId: request.params.id })
         }
       }
