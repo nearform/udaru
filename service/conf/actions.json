@@ -20,7 +20,13 @@
       "read": "read",
       "delete": "delete",
       "list": "list",
-      "manage": "manage"
+      "manage": "manage",
+      "addPolicy": "policy:add",
+      "removePolicy": "policy:remove",
+      "replacePolicy": "policy:replace",
+      "addMember": "user:add",
+      "removeMember": "user:remove",
+      "replaceMember": "user:replace"
     }
   },
   "user": {
@@ -30,7 +36,10 @@
       "update": "update",
       "read": "read",
       "delete": "delete",
-      "list": "list"
+      "list": "list",
+      "addPolicy": "policy:add",
+      "removePolicy": "policy:remove",
+      "replacePolicy": "policy:replace"
     }
   },
   "policy": {

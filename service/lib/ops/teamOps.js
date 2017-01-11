@@ -5,6 +5,7 @@ const db = require('./../db')
 const async = require('async')
 const policyOps = require('./policyOps')
 const userOps = require('./userOps')
+const utils = require('./utils')
 const SQL = require('./../db/SQL')
 const mapping = require('./../mapping')
 
@@ -18,8 +19,8 @@ function loadTeamDescendants (job, next) {
     org_id = ${job.organizationId}
     AND path @ ${job.teamId.toString()}`
   job.client.query(sql, (err, res) => {
-    if (err) return next(err)
-    if (res.rowCount === 0) return next(Boom.notFound())
+    if (err) return next(Boom.badImplementation(err))
+    if (res.rowCount === 0) return next(Boom.notFound(`No team with ${job.teamId} has been found`))
 
     job.teamIds = res.rows.map(getId)
     next()
@@ -48,7 +49,7 @@ function insertTeam (job, next) {
   sql.append(SQL`)RETURNING id`)
 
   job.client.query(sql, (err, res) => {
-    if (err) return next(err)
+    if (err) return next(Boom.badImplementation(err))
     job.team = res.rows[0]
     next()
   })
@@ -56,7 +57,7 @@ function insertTeam (job, next) {
 
 function createDefaultPolicies (job, next) {
   policyOps.createTeamDefaultPolicies(job.client, job.params.organizationId, job.team.id, (err, res) => {
-    if (err) return next(err)
+    if (err) return next(Boom.badImplementation(err))
     job.policyIds = res.rows.map(getId)
     next()
   })
@@ -68,7 +69,7 @@ function createDefaultUser (job, next) {
   const { organizationId } = job.params
 
   userOps.insertUser(job.client, { id, name, organizationId }, (err, user) => {
-    if (err) return next(err)
+    if (err) return next(Boom.badImplementation(err))
 
     job.user = user.rows[0]
     next()
@@ -78,7 +79,7 @@ function createDefaultUser (job, next) {
 function assignDefaultUserToTeam (job, next) {
   if (!job.user) return next()
 
-  job.client.query(SQL`INSERT INTO team_members (team_id, user_id) VALUES (${job.team.id}, ${job.user.id})`, next)
+  job.client.query(SQL`INSERT INTO team_members (team_id, user_id) VALUES (${job.team.id}, ${job.user.id})`, utils.boomErrorWrapper(next))
 }
 
 function makeDefaultUserAdmin (job, next) {
@@ -91,31 +92,37 @@ function makeDefaultUserAdmin (job, next) {
     sql.append(SQL`, (${userId},${policyId})`)
   })
 
-  job.client.query(sql, next)
+  job.client.query(sql, utils.boomErrorWrapper(next))
 }
 
 function removeTeams (job, next) {
-  job.client.query(SQL`DELETE FROM teams WHERE id = ANY (${job.teamIds})`, (err, result) => {
-    if (err) return next(err)
-    if (result.rowCount === 0) return next(Boom.notFound())
+  const { teamIds, organizationId } = job
+
+  job.client.query(SQL`DELETE FROM teams WHERE id = ANY (${teamIds}) AND org_id = ${organizationId}`, (err, result) => {
+    if (err) return next(Boom.badImplementation(err))
+    if (result.rowCount !== teamIds.length) return next(Boom.notFound('Could not find all teams to be deleted'))
     next()
   })
 }
 
 function deleteTeamsPolicies (job, next) {
-  job.client.query(SQL`DELETE FROM team_policies WHERE team_id = ANY(${job.teamIds})`, next)
+  job.client.query(SQL`DELETE FROM team_policies WHERE team_id = ANY(${job.teamIds})`, utils.boomErrorWrapper(next))
 }
 
 function deleteTeamsMembers (job, next) {
-  job.client.query(SQL`DELETE FROM team_members WHERE team_id = ANY(${job.teamIds})`, next)
+  job.client.query(SQL`DELETE FROM team_members WHERE team_id = ANY(${job.teamIds})`, utils.boomErrorWrapper(next))
 }
 
 function clearTeamPolicies (job, next) {
-  job.client.query(SQL`DELETE FROM team_policies WHERE team_id = ${job.teamId}`, next)
+  job.client.query(SQL`DELETE FROM team_policies WHERE team_id = ${job.teamId}`, utils.boomErrorWrapper(next))
 }
 
-function deleteTeamMembers (job, next) {
-  job.client.query(SQL`DELETE FROM team_members WHERE team_id = ${job.teamId}`, next)
+function deleteTeamUsers (job, next) {
+  job.client.query(SQL`DELETE FROM team_members WHERE team_id = ${job.teamId}`, utils.boomErrorWrapper(next))
+}
+
+function deleteTeamUser (job, next) {
+  job.client.query(SQL`DELETE FROM team_members WHERE team_id = ${job.teamId} AND user_id = ${job.userId}`, utils.boomErrorWrapper(next))
 }
 
 function insertTeamMembers (job, next) {
@@ -130,7 +137,7 @@ function insertTeamMembers (job, next) {
     sql.append(SQL`, (${userId},${teamId})`)
   })
   sql.append(SQL` ON CONFLICT ON CONSTRAINT team_member_link DO NOTHING`)
-  job.client.query(sql, next)
+  job.client.query(sql, utils.boomErrorWrapper(next))
 }
 
 function insertTeamPolicies (job, next) {
@@ -145,7 +152,7 @@ function insertTeamPolicies (job, next) {
     sql.append(SQL`, (${policyId},${teamId})`)
   })
   sql.append(SQL` ON CONFLICT ON CONSTRAINT team_policy_link DO NOTHING`)
-  job.client.query(sql, next)
+  job.client.query(sql, utils.boomErrorWrapper(next))
 }
 
 
@@ -154,7 +161,7 @@ function readDefaultPoliciesIds (job, next) {
 
   async.each(job.teamIds, (teamId, done) => {
     policyOps.readTeamDefaultPolicies(job.client, job.organizationId, teamId, function (err, res) {
-      if (err) return done(err)
+      if (err) return done(Boom.badImplementation(err))
       job.policies.push(...res.rows.map(getId))
       done()
     })
@@ -162,36 +169,7 @@ function readDefaultPoliciesIds (job, next) {
 }
 
 function deleteDefaultPolicies (job, next) {
-  policyOps.deleteAllPolicyByIds(job.client, job.policies, next)
-}
-
-function updateTeamSql (job, next) {
-  const teamId = job.teamId
-  const {name, description, organizationId} = job.params
-  const updates = []
-
-  if (!name && !description) {
-    return next()
-  }
-
-  const sql = SQL` UPDATE teams SET `
-
-  if (name) { updates.push(SQL`name = ${name}`) }
-  if (description) { updates.push(SQL`description = ${description}`) }
-
-  sql.append(sql.glue(updates, ' , '))
-
-  sql.append(SQL`
-    WHERE id = ${teamId}
-    AND org_id = ${organizationId}
-  `)
-
-  job.client.query(sql, (err, res) => {
-    if (err) return next(err)
-    if (res.rowCount === 0) return next(Boom.notFound())
-
-    next()
-  })
+  policyOps.deleteAllPolicyByIds(job.client, job.policies, utils.boomErrorWrapper(next))
 }
 
 function moveTeamSql (job, next) {
@@ -209,7 +187,7 @@ function moveTeamSql (job, next) {
   sql.append(SQL`
     WHERE id = ${teamId}
   `)
-  job.client.query(sql, next)
+  job.client.query(sql, utils.boomErrorWrapper(next))
 }
 
 function moveTeamDescendants (job, next) {
@@ -221,7 +199,7 @@ function moveTeamDescendants (job, next) {
     AND id != ${teamId}
   `
 
-  job.client.query(sql, next)
+  job.client.query(sql, utils.boomErrorWrapper(next))
 }
 
 function removeTeamPolicy (job, next) {
@@ -232,9 +210,57 @@ function removeTeamPolicy (job, next) {
     WHERE team_id = ${teamId}
     AND policy_id = ${policyId}
   `
-  job.client.query(sqlQuery, next)
+  job.client.query(sqlQuery, utils.boomErrorWrapper(next))
 }
 
+function checkUsersOrg (job, cb) {
+  const { users } = job.params
+  const { organizationId } = job
+
+  job.client.query(SQL`SELECT id FROM users WHERE id = ANY (${users}) AND org_id = ${organizationId}`, (err, result) => {
+    if (err) {
+      return cb(Boom.badImplementation(err))
+    }
+
+    if (result.rowCount !== users.length) {
+      return cb(Boom.badRequest(`Some users [${users.join(',')}] were not found`))
+    }
+
+    cb()
+  })
+}
+
+function checkBothTeamsFromSameOrg (job, cb) {
+  const { id, parentId, organizationId } = job.params
+  const ids = [id]
+
+  if (parentId) ids.push(parentId)
+  const sql = SQL`SELECT id FROM teams WHERE id = ANY(${ids}) AND org_id = ${organizationId}`
+
+  job.client.query(sql, (err, result) => {
+    if (err) return cb(Boom.badImplementation(err))
+    if (result.rowCount !== ids.length) return cb(Boom.badRequest('Team or parent team was not found'))
+
+    cb()
+  })
+}
+
+function checkTeamExists (job, next) {
+  const { teamId, organizationId } = job
+
+  const sqlQuery = SQL`
+    SELECT id
+    FROM teams
+    WHERE id = ${teamId}
+    AND org_id = ${organizationId}
+  `
+  job.client.query(sqlQuery, (err, result) => {
+    if (err) return next(Boom.badImplementation(err))
+    if (result.rowCount === 0) return next(Boom.notFound(`Team with id ${teamId} could not be found`))
+
+    next()
+  })
+}
 
 var teamOps = {
 
@@ -254,7 +280,7 @@ var teamOps = {
       ORDER BY UPPER(name)
     `
     db.query(sqlQuery, function (err, result) {
-      if (err) return cb(Boom.badImplementation(err))
+      if (err) return cb(err)
 
       return cb(null, result.rows.map(mapping.team))
     })
@@ -291,7 +317,7 @@ var teamOps = {
     }
 
     db.withTransaction(tasks, (err, res) => {
-      if (err) return cb(Boom.badImplementation(err))
+      if (err) return cb(err)
 
       teamOps.readTeam({ id: res.team.id, organizationId: params.organizationId }, cb)
     })
@@ -316,8 +342,8 @@ var teamOps = {
       `
 
       db.query(sql, (err, result) => {
-        if (err) return next(err)
-        if (result.rowCount === 0) return next(Boom.notFound())
+        if (err) return next(Boom.badImplementation(err))
+        if (result.rowCount === 0) return next(Boom.notFound(`Team with id ${id} could not be found`))
 
         team = mapping.team(result.rows[0])
 
@@ -336,7 +362,7 @@ var teamOps = {
         ORDER BY UPPER(users.name)
       `
       db.query(sql, function (err, result) {
-        if (err) return next(err)
+        if (err) return next(Boom.badImplementation(err))
 
         team.users = result.rows.map(mapping.user.simple)
         next()
@@ -352,7 +378,7 @@ var teamOps = {
         ORDER BY UPPER(pol.name)
       `
       db.query(sql, function (err, result) {
-        if (err) return next(err)
+        if (err) return next(Boom.badImplementation(err))
 
         team.policies = result.rows.map(mapping.policy.simple)
         next()
@@ -360,34 +386,33 @@ var teamOps = {
     })
 
     async.series(tasks, (err) => {
-      if (err) return cb(err.isBoom ? err : Boom.badImplementation(err))
+      if (err) return cb(err)
 
       return cb(null, team)
     })
   },
 
    /**
-   * @param {Object}    params {id, name, description, user, policies, organizationId }
+   * @param {Object}    params {id, name, description, organizationId }
    * @param {Function}  cb
    */
   updateTeam: function updateTeam (params, cb) {
-    const { id, organizationId, users } = params
-    const tasks = [
-      (job, next) => {
-        job.params = params
-        job.teamId = id
-        next()
-      },
-      updateTeamSql
-    ]
+    const { id, name, description, organizationId } = params
+    const updates = []
 
-    if (users) {
-      tasks.push(deleteTeamMembers)
-      tasks.push(insertTeamMembers)
-    }
+    const sql = SQL` UPDATE teams SET `
+    if (name) { updates.push(SQL`name = ${name}`) }
+    if (description) { updates.push(SQL`description = ${description}`) }
+    sql.append(sql.glue(updates, ' , '))
+    sql.append(SQL`
+      WHERE id = ${id}
+      AND org_id = ${organizationId}
+    `)
 
-    db.withTransaction(tasks, (err) => {
-      if (err) return cb(err.isBoom ? err : Boom.badImplementation(err))
+
+    db.query(sql, (err, res) => {
+      if (err) return cb(Boom.badImplementation(err))
+      if (res.rowCount === 0) return cb(Boom.notFound(`Team with id ${id} could not be found`))
 
       teamOps.readTeam({ id, organizationId }, cb)
     })
@@ -413,11 +438,17 @@ var teamOps = {
       deleteDefaultPolicies,
       removeTeams
     ], (err) => {
-      if (err) return cb(err.isBoom ? err : Boom.badImplementation(err))
+      if (err) return cb(err)
       cb()
     })
   },
 
+  /**
+   * Nest/Un-nest a team
+   *
+   * @param  {Object}   params { id, parentId = null, organizationId }
+   * @param  {Function} cb
+   */
   moveTeam: function moveTeam (params, cb) {
     const { id, organizationId } = params
 
@@ -426,10 +457,11 @@ var teamOps = {
         job.params = params
         next()
       },
+      checkBothTeamsFromSameOrg,
       moveTeamSql,
       moveTeamDescendants
     ], (err) => {
-      if (err) return cb(err.isBoom ? err : Boom.badImplementation(err))
+      if (err) return cb(err)
 
       teamOps.readTeam({id, organizationId}, cb)
     })
@@ -456,9 +488,7 @@ var teamOps = {
     ]
 
     db.withTransaction(tasks, (err, res) => {
-      if (err) {
-        return cb(Boom.badImplementation(err))
-      }
+      if (err) return cb(err)
 
       teamOps.readTeam({ id, organizationId }, cb)
     })
@@ -474,9 +504,7 @@ var teamOps = {
     const { id, organizationId, policies } = params
 
     insertTeamPolicies({ client: db, teamId: id, policies }, (err, res) => {
-      if (err) {
-        return cb(Boom.badImplementation(err))
-      }
+      if (err) return cb(err)
 
       teamOps.readTeam({ id, organizationId }, cb)
     })
@@ -492,9 +520,7 @@ var teamOps = {
     const { id, organizationId } = params
 
     clearTeamPolicies({ teamId: id, client: db }, (err, res) => {
-      if (err) {
-        return cb(Boom.badImplementation(err))
-      }
+      if (err) return cb(err)
 
       teamOps.readTeam({ id, organizationId }, cb)
     })
@@ -510,11 +536,120 @@ var teamOps = {
     const { teamId, organizationId, policyId } = params
 
     removeTeamPolicy({ client: db, teamId, policyId }, (err, res) => {
-      if (err) {
-        return cb(Boom.badImplementation(err))
-      }
+      if (err) return cb(err)
 
       teamOps.readTeam({ id: teamId, organizationId }, cb)
+    })
+  },
+
+  /**
+   * Add one or more users to a team
+   *
+   * @param  {Object}   params { id, users, organizationId }
+   * @param  {Function} cb
+   */
+  addUsersToTeam: function addUsersToTeam (params, cb) {
+    const { id, organizationId } = params
+    const tasks = [
+      (job, next) => {
+        job.teamId = id
+        job.organizationId = organizationId
+        job.params = params
+
+        next()
+      },
+      checkUsersOrg,
+      checkTeamExists,
+      insertTeamMembers
+    ]
+
+    db.withTransaction(tasks, (err, res) => {
+      if (err) return cb(err)
+
+      teamOps.readTeam({ id, organizationId }, cb)
+    })
+  },
+
+  /**
+   * Replace team members
+   *
+   * @param  {Object}   params { id, users, organizationId }
+   * @param  {Function} cb
+   */
+  replaceUsersInTeam: function replaceUsersInTeam (params, cb) {
+    const { id, organizationId } = params
+    const tasks = [
+      (job, next) => {
+        job.teamId = params.id
+        job.organizationId = params.organizationId
+        job.params = params
+
+        next()
+      },
+      checkUsersOrg,
+      checkTeamExists,
+      deleteTeamUsers,
+      insertTeamMembers
+    ]
+
+    db.withTransaction(tasks, (err, res) => {
+      if (err) return cb(err)
+
+      teamOps.readTeam({ id, organizationId }, cb)
+    })
+  },
+
+  /**
+   * Delete team members
+   *
+   * @param  {Object}   params { id, organizationId }
+   * @param  {Function} cb
+   */
+  deleteTeamMembers: function deleteTeamMembers (params, cb) {
+    const { id, organizationId } = params
+
+    const tasks = [
+      (job, next) => {
+        job.teamId = id
+        job.organizationId = organizationId
+
+        next()
+      },
+      checkTeamExists,
+      deleteTeamUsers
+    ]
+
+    db.withTransaction(tasks, (err, res) => {
+      if (err) return cb(err)
+
+      cb()
+    })
+  },
+
+  /**
+   * Delete one team member
+   *
+   * @param  {Object}   params { id, userId, organizationId }
+   * @param  {Function} cb
+   */
+  deleteTeamMember: function deleteTeamMember (params, cb) {
+    const { id, userId, organizationId } = params
+    const tasks = [
+      (job, next) => {
+        job.teamId = id
+        job.organizationId = organizationId
+        job.userId = userId
+
+        next()
+      },
+      checkTeamExists,
+      deleteTeamUser
+    ]
+
+    db.withTransaction(tasks, (err, res) => {
+      if (err) return cb(err)
+
+      cb()
     })
   }
 }

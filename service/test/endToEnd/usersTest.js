@@ -5,9 +5,11 @@ const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 const utils = require('./../utils')
 const userOps = require('../../lib/ops/userOps')
+const organizationOps = require('../../lib/ops/organizationOps')
+const policyOps = require('../../lib/ops/policyOps')
 const server = require('./../../wiring-hapi')
 
-lab.experiment('Users', () => {
+lab.experiment('Users: read - delete - update', () => {
 
   lab.test('get user list', (done) => {
     const options = utils.requestOptions({
@@ -106,105 +108,9 @@ lab.experiment('Users', () => {
     })
   })
 
-  lab.test('add policies to a user', (done) => {
-    const options = utils.requestOptions({
-      method: 'PUT',
-      url: '/authorization/users/ModifyId/policies',
-      payload: {
-        policies: [1]
-      }
-    })
+})
 
-    server.inject(options, (response) => {
-      const result = response.result
-
-      expect(response.statusCode).to.equal(200)
-      expect(result.policies).to.equal([{
-        id: 1,
-        name: 'Director',
-        version: '0.1'
-      }])
-
-      userOps.deleteUserPolicies({ id: 'ModifyId', organizationId: 'WONKA' }, done)
-    })
-  })
-
-  lab.test('clear and replace policies for a user', (done) => {
-    const options = utils.requestOptions({
-      method: 'POST',
-      url: '/authorization/users/ModifyId/policies',
-      payload: {
-        policies: [1]
-      }
-    })
-
-    server.inject(options, (response) => {
-      const result = response.result
-
-      expect(response.statusCode).to.equal(200)
-      expect(result.policies).to.equal([{
-        id: 1,
-        name: 'Director',
-        version: '0.1'
-      }])
-
-      options.payload.policies = [2, 3]
-      server.inject(options, (response) => {
-        const result = response.result
-
-        expect(response.statusCode).to.equal(200)
-        expect(result.policies).to.equal([
-          {
-            id: 2,
-            name: 'Accountant',
-            version: '0.1'
-          },
-          {
-            id: 3,
-            name: 'Sys admin',
-            version: '0.1'
-          }
-        ])
-
-        userOps.deleteUserPolicies({ id: 'ModifyId', organizationId: 'WONKA' }, done)
-      })
-    })
-  })
-
-  lab.test('remove all user\'s policies', (done) => {
-    const options = utils.requestOptions({
-      method: 'DELETE',
-      url: '/authorization/users/ManyPoliciesId/policies'
-    })
-
-    server.inject(options, (response) => {
-      expect(response.statusCode).to.equal(204)
-      userOps.readUser({ id: 'ManyPoliciesId', organizationId: 'WONKA' }, (err, user) => {
-        expect(err).not.to.exist()
-        expect(user.policies).to.equal([])
-
-        userOps.replaceUserPolicies({ id: 'ManyPoliciesId', organizationId: 'WONKA', policies: [10, 11, 12, 13, 14] }, done)
-      })
-    })
-  })
-
-  lab.test('remove one user\'s policies', (done) => {
-    const options = utils.requestOptions({
-      method: 'DELETE',
-      url: '/authorization/users/ManyPoliciesId/policies/10'
-    })
-
-    server.inject(options, (response) => {
-      expect(response.statusCode).to.equal(204)
-      userOps.readUser({ id: 'ManyPoliciesId', organizationId: 'WONKA' }, (err, user) => {
-        expect(err).not.to.exist()
-        expect(user.policies.map(p => p.id)).to.equal([14, 13, 12, 11])
-
-        userOps.replaceUserPolicies({ id: 'ManyPoliciesId', organizationId: 'WONKA', policies: [10, 11, 12, 13, 14] }, done)
-      })
-    })
-  })
-
+lab.experiment('Users - create', () => {
   lab.test('create user for a non existent organization', (done) => {
     const options = utils.requestOptions({
       method: 'POST',
@@ -326,6 +232,165 @@ lab.experiment('Users', () => {
         error: 'Bad Request'
       })
 
+      done()
+    })
+  })
+})
+
+lab.experiment('Users - manage policies', () => {
+  lab.test('add policies to a user', (done) => {
+    const options = utils.requestOptions({
+      method: 'PUT',
+      url: '/authorization/users/ModifyId/policies',
+      payload: {
+        policies: [1]
+      }
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(200)
+      expect(result.policies).to.equal([{
+        id: 1,
+        name: 'Director',
+        version: '0.1'
+      }])
+
+      userOps.deleteUserPolicies({ id: 'ModifyId', organizationId: 'WONKA' }, done)
+    })
+  })
+
+  lab.test('clear and replace policies for a user', (done) => {
+    const options = utils.requestOptions({
+      method: 'POST',
+      url: '/authorization/users/ModifyId/policies',
+      payload: {
+        policies: [1]
+      }
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(200)
+      expect(result.policies).to.equal([{
+        id: 1,
+        name: 'Director',
+        version: '0.1'
+      }])
+
+      options.payload.policies = [2, 3]
+      server.inject(options, (response) => {
+        const result = response.result
+
+        expect(response.statusCode).to.equal(200)
+        expect(result.policies).to.equal([
+          {
+            id: 2,
+            name: 'Accountant',
+            version: '0.1'
+          },
+          {
+            id: 3,
+            name: 'Sys admin',
+            version: '0.1'
+          }
+        ])
+
+        userOps.deleteUserPolicies({ id: 'ModifyId', organizationId: 'WONKA' }, done)
+      })
+    })
+  })
+
+  lab.test('remove all user\'s policies', (done) => {
+    const options = utils.requestOptions({
+      method: 'DELETE',
+      url: '/authorization/users/ManyPoliciesId/policies'
+    })
+
+    server.inject(options, (response) => {
+      expect(response.statusCode).to.equal(204)
+      userOps.readUser({ id: 'ManyPoliciesId', organizationId: 'WONKA' }, (err, user) => {
+        expect(err).not.to.exist()
+        expect(user.policies).to.equal([])
+
+        userOps.replaceUserPolicies({ id: 'ManyPoliciesId', organizationId: 'WONKA', policies: [10, 11, 12, 13, 14] }, done)
+      })
+    })
+  })
+
+  lab.test('remove one user\'s policies', (done) => {
+    const options = utils.requestOptions({
+      method: 'DELETE',
+      url: '/authorization/users/ManyPoliciesId/policies/10'
+    })
+
+    server.inject(options, (response) => {
+      expect(response.statusCode).to.equal(204)
+      userOps.readUser({ id: 'ManyPoliciesId', organizationId: 'WONKA' }, (err, user) => {
+        expect(err).not.to.exist()
+        expect(user.policies.map(p => p.id)).to.equal([14, 13, 12, 11])
+
+        userOps.replaceUserPolicies({ id: 'ManyPoliciesId', organizationId: 'WONKA', policies: [10, 11, 12, 13, 14] }, done)
+      })
+    })
+  })
+})
+
+lab.experiment('Users - checking org_id scoping', () => {
+  let policyId
+
+  lab.before((done) => {
+    organizationOps.create({ id: 'NEWORG', name: 'new org', description: 'new org' }, (err, org) => {
+      if (err) return done(err)
+
+      const policyData = {
+        version: 1,
+        name: 'Documents Admin',
+        organizationId: 'NEWORG',
+        statements: '{"Statement":[{"Effect":"Allow","Action":["documents:Read"],"Resource":["wonka:documents:/public/*"]}]}'
+      }
+
+      policyOps.createPolicy(policyData, (err, policy) => {
+        if (err) return done(err)
+
+        policyId = policy.id
+        done()
+      })
+    })
+  })
+
+  lab.after((done) => {
+    organizationOps.deleteById('NEWORG', done)
+  })
+
+  lab.test('add policies from a different organization should not be allowed', (done) => {
+    const options = utils.requestOptions({
+      method: 'PUT',
+      url: '/authorization/users/ModifyId/policies',
+      payload: {
+        policies: [policyId]
+      }
+    })
+
+    server.inject(options, (response) => {
+      expect(response.statusCode).to.equal(400)
+      done()
+    })
+  })
+
+  lab.test('replace policies from a different organization should not be allowed', (done) => {
+    const options = utils.requestOptions({
+      method: 'POST',
+      url: '/authorization/users/ModifyId/policies',
+      payload: {
+        policies: [policyId]
+      }
+    })
+
+    server.inject(options, (response) => {
+      expect(response.statusCode).to.equal(400)
       done()
     })
   })

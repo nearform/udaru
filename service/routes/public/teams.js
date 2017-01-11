@@ -118,13 +118,12 @@ exports.register = function (server, options, next) {
     handler: function (request, reply) {
       const { id } = request.params
       const { organizationId } = request.udaru
-      const { name, description, users } = request.payload
+      const { name, description } = request.payload
 
       const params = {
         id,
         name,
         description,
-        users,
         organizationId
       }
 
@@ -137,9 +136,8 @@ exports.register = function (server, options, next) {
         },
         payload: Joi.object().keys({
           name: Joi.string().description('Updated team name'),
-          description: Joi.string().description('Updated team description'),
-          users: Joi.array().items(Joi.string()).description('User ids')
-        }).or('name', 'description', 'users'),
+          description: Joi.string().description('Updated team description')
+        }).or('name', 'description'),
         headers: Joi.object({
           'authorization': Joi.any().required()
         }).unknown()
@@ -393,8 +391,7 @@ exports.register = function (server, options, next) {
           action: Action.RemoveTeamPolicy,
           getParams: (request) => ({ teamId: request.params.id })
         }
-      },
-      response: {schema: swagger.Team}
+      }
     }
   })
 
@@ -431,8 +428,162 @@ exports.register = function (server, options, next) {
           action: Action.RemoveTeamPolicy,
           getParams: (request) => ({ teamId: request.params.id })
         }
+      }
+    }
+  })
+
+  server.route({
+    method: 'PUT',
+    path: '/authorization/teams/{id}/users',
+    handler: function (request, reply) {
+      const { id } = request.params
+      const { organizationId } = request.udaru
+      const { users } = request.payload
+
+      const params = {
+        id,
+        users,
+        organizationId
+      }
+
+      teamOps.addUsersToTeam(params, reply)
+    },
+    config: {
+      validate: {
+        params: {
+          id: Joi.number().required().description('The team ID')
+        },
+        payload: Joi.object().keys({
+          users: Joi.array().items(Joi.string()).description('User ids')
+        }),
+        headers: Joi.object({
+          'authorization': Joi.any().required()
+        }).unknown()
+      },
+      description: 'Add team members',
+      notes: 'The PUT /authorization/teams/{id}/users endpoint add one or more team members',
+      tags: ['api', 'service', 'put', 'team', 'users'],
+      plugins: {
+        auth: {
+          action: Action.AddTeamMember,
+          getParams: (request) => ({ teamId: request.params.id })
+        }
       },
       response: {schema: swagger.Team}
+    }
+  })
+
+  server.route({
+    method: 'POST',
+    path: '/authorization/teams/{id}/users',
+    handler: function (request, reply) {
+      const { id } = request.params
+      const { organizationId } = request.udaru
+      const { users } = request.payload
+
+      const params = {
+        id,
+        users,
+        organizationId
+      }
+
+      teamOps.replaceUsersInTeam(params, reply)
+    },
+    config: {
+      validate: {
+        params: {
+          id: Joi.number().required().description('The team ID')
+        },
+        payload: Joi.object().keys({
+          users: Joi.array().items(Joi.string()).description('User ids')
+        }),
+        headers: Joi.object({
+          'authorization': Joi.any().required()
+        }).unknown()
+      },
+      description: 'Replace team members with the given ones',
+      notes: 'The POST /authorization/teams/{id}/users endpoint replace all team members',
+      tags: ['api', 'service', 'post', 'team', 'users'],
+      plugins: {
+        auth: {
+          action: Action.ReplaceTeamMember,
+          getParams: (request) => ({ teamId: request.params.id })
+        }
+      },
+      response: {schema: swagger.Team}
+    }
+  })
+
+  server.route({
+    method: 'DELETE',
+    path: '/authorization/teams/{id}/users',
+    handler: function (request, reply) {
+      const { id } = request.params
+      const { organizationId } = request.udaru
+
+      teamOps.deleteTeamMembers({ id, organizationId }, function (err, res) {
+        if (err) {
+          return reply(err)
+        }
+
+        return reply().code(204)
+      })
+    },
+    config: {
+      validate: {
+        params: {
+          id: Joi.number().required().description('The team ID')
+        },
+        headers: Joi.object({
+          'authorization': Joi.any().required()
+        }).unknown()
+      },
+      description: 'Delete all team members with the given ones',
+      notes: 'The DELETE /authorization/teams/{id}/users endpoint removes all members of a team',
+      tags: ['api', 'service', 'delete', 'team', 'users'],
+      plugins: {
+        auth: {
+          action: Action.RemoveTeamMember,
+          getParams: (request) => ({ teamId: request.params.id })
+        }
+      }
+    }
+  })
+
+  server.route({
+    method: 'DELETE',
+    path: '/authorization/teams/{id}/users/{userId}',
+    handler: function (request, reply) {
+      const { id, userId } = request.params
+      const { organizationId } = request.udaru
+
+      teamOps.deleteTeamMember({ id, userId, organizationId }, function (err, res) {
+        if (err) {
+          return reply(err)
+        }
+
+        return reply().code(204)
+      })
+    },
+    config: {
+      validate: {
+        params: {
+          id: Joi.number().required().description('The team ID'),
+          userId: Joi.string().required().description('The user ID')
+        },
+        headers: Joi.object({
+          'authorization': Joi.any().required()
+        }).unknown()
+      },
+      description: 'Delete one team member',
+      notes: 'The DELETE /authorization/teams/{id}/users/{userId} endpoint removes one member of a team',
+      tags: ['api', 'service', 'delete', 'team', 'users'],
+      plugins: {
+        auth: {
+          action: Action.RemoveTeamMember,
+          getParams: (request) => ({ teamId: request.params.id })
+        }
+      }
     }
   })
 

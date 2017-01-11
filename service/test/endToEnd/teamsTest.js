@@ -6,8 +6,10 @@ const lab = exports.lab = Lab.script()
 const utils = require('./../utils')
 const server = require('./../../wiring-hapi')
 const teamOps = require('./../../lib/ops/teamOps')
+const organizationOps = require('./../../lib/ops/organizationOps')
+const userOps = require('./../../lib/ops/userOps')
 
-lab.experiment('Teams', () => {
+lab.experiment('Teams - get/list', () => {
   lab.test('get team list', (done) => {
     const options = utils.requestOptions({
       method: 'GET',
@@ -90,7 +92,9 @@ lab.experiment('Teams', () => {
       done()
     })
   })
+})
 
+lab.experiment('Teams - create', () => {
   lab.test('create new team', (done) => {
     const options = utils.requestOptions({
       method: 'POST',
@@ -132,7 +136,9 @@ lab.experiment('Teams', () => {
       done()
     })
   })
+})
 
+lab.experiment('Teams - update', () => {
   lab.test('update team validation nothing in payload', (done) => {
     const options = utils.requestOptions({
       method: 'PUT',
@@ -145,33 +151,6 @@ lab.experiment('Teams', () => {
       expect(response.statusCode).to.equal(400)
 
       done()
-    })
-  })
-
-  lab.test('update only team users', (done) => {
-    const options = utils.requestOptions({
-      method: 'PUT',
-      url: '/authorization/teams/1',
-      payload: {
-        users: []
-      }
-    })
-
-    server.inject(options, (response) => {
-      const result = response.result
-
-      expect(response.statusCode).to.equal(200)
-      expect(result).to.equal({
-        id: 1,
-        name: 'Admins',
-        description: 'Administrators of the Authorization System',
-        path: '1',
-        organizationId: 'WONKA',
-        users: [],
-        policies: [{ id: 1, name: 'Director', version: '0.1' }]
-      })
-
-      teamOps.updateTeam({ id: 1, users: ['AugustusId'], organizationId: result.organizationId }, done)
     })
   })
 
@@ -234,16 +213,14 @@ lab.experiment('Teams', () => {
       id: 1,
       name: 'Admins',
       organizationId: 'WONKA',
-      description: 'Administrators of the Authorization System',
-      users: ['AugustusId']
+      description: 'Administrators of the Authorization System'
     }
     const options = utils.requestOptions({
       method: 'PUT',
       url: '/authorization/teams/1',
       payload: {
         name: 'Team C',
-        description: 'Team B is now Team C',
-        users: []
+        description: 'Team B is now Team C'
       }
     })
 
@@ -257,14 +234,16 @@ lab.experiment('Teams', () => {
         organizationId: 'WONKA',
         description: 'Team B is now Team C',
         path: '1',
-        users: [],
+        users: [{ id: 'AugustusId', name: 'Augustus Gloop' }],
         policies: [{ id: 1, name: 'Director', version: '0.1' }]
       })
 
       teamOps.updateTeam(teamOriginalData, done)
     })
   })
+})
 
+lab.experiment('Teams - delete', () => {
   lab.test('delete team should return 204 for success', (done) => {
     teamOps.createTeam({ name: 'Team 4', description: 'This is a test team', parentId: null, organizationId: 'WONKA' }, (err, result) => {
       if (err) return done(err)
@@ -284,5 +263,405 @@ lab.experiment('Teams', () => {
       })
     })
   })
+})
 
+lab.experiment('Teams - manage users', () => {
+  lab.test('add users to a team', (done) => {
+    const options = utils.requestOptions({
+      method: 'PUT',
+      url: '/authorization/teams/2/users',
+      payload: {
+        users: ['CharlieId', 'MikeId']
+      }
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(200)
+      expect(result).to.equal({
+        id: 2,
+        name: 'Readers',
+        description: 'General read-only access',
+        path: '2',
+        organizationId: 'WONKA',
+        users: [
+          { id: 'CharlieId', name: 'Charlie Bucket' },
+          { id: 'MikeId', name: 'Mike Teavee' },
+          { id: 'VerucaId', name: 'Veruca Salt' }
+        ],
+        policies: []
+      })
+
+      teamOps.replaceUsersInTeam({ id: 2, users: ['CharlieId', 'VerucaId'], organizationId: 'WONKA' }, done)
+    })
+  })
+
+  lab.test('relace users in a team', (done) => {
+    const options = utils.requestOptions({
+      method: 'POST',
+      url: '/authorization/teams/2/users',
+      payload: {
+        users: ['MikeId']
+      }
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(200)
+      expect(result).to.equal({
+        id: 2,
+        name: 'Readers',
+        description: 'General read-only access',
+        path: '2',
+        organizationId: 'WONKA',
+        users: [{ id: 'MikeId', name: 'Mike Teavee' }],
+        policies: []
+      })
+
+      teamOps.replaceUsersInTeam({ id: 2, users: ['CharlieId', 'VerucaId'], organizationId: 'WONKA' }, done)
+    })
+  })
+
+  lab.test('delete all team members', (done) => {
+    const options = utils.requestOptions({
+      method: 'DELETE',
+      url: '/authorization/teams/2/users'
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(204)
+      expect(result).to.not.exist()
+
+      teamOps.replaceUsersInTeam({ id: 2, users: ['CharlieId', 'VerucaId'], organizationId: 'WONKA' }, done)
+    })
+  })
+
+  lab.test('delete one team member', (done) => {
+    const options = utils.requestOptions({
+      method: 'DELETE',
+      url: '/authorization/teams/2/users/CharlieId'
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(204)
+      expect(result).to.not.exist()
+
+      teamOps.replaceUsersInTeam({ id: 2, users: ['CharlieId', 'VerucaId'], organizationId: 'WONKA' }, done)
+    })
+  })
+})
+
+lab.experiment('Teams - nest/un-nest', () => {
+  lab.test('Nest team should update the team path', (done) => {
+    const options = utils.requestOptions({
+      method: 'PUT',
+      url: '/authorization/teams/2/nest',
+      payload: {
+        parentId: 3
+      }
+    })
+
+    server.inject(options, (response) => {
+      const { result } = response
+
+      expect(response.statusCode).to.equal(201)
+      expect(result).to.equal({
+        id: 2,
+        name: 'Readers',
+        description: 'General read-only access',
+        path: '3.2',
+        organizationId: 'WONKA',
+        users: [
+          { id: 'CharlieId', name: 'Charlie Bucket' },
+          { id: 'VerucaId', name: 'Veruca Salt' }
+        ],
+        policies: []
+      })
+
+      teamOps.moveTeam({ id: result.id, parentId: null, organizationId: result.organizationId }, done)
+    })
+  })
+
+  lab.test('Un-nest team should update the team path', (done) => {
+    teamOps.moveTeam({ id: 2, parentId: 3, organizationId: 'WONKA' }, (err, res) => {
+      expect(err).to.not.exist()
+
+      const options = utils.requestOptions({
+        method: 'PUT',
+        url: `/authorization/teams/${res.id}/unnest`
+      })
+
+      server.inject(options, (response) => {
+        const { result } = response
+
+        expect(response.statusCode).to.equal(201)
+        expect(result).to.equal({
+          id: 2,
+          name: 'Readers',
+          description: 'General read-only access',
+          path: '2',
+          organizationId: 'WONKA',
+          users: [
+            { id: 'CharlieId', name: 'Charlie Bucket' },
+            { id: 'VerucaId', name: 'Veruca Salt' }
+          ],
+          policies: []
+        })
+
+        done()
+      })
+    })
+  })
+})
+
+lab.experiment('Teams - manage policies', () => {
+  lab.test('Add one policy to a team', (done) => {
+    const options = utils.requestOptions({
+      method: 'PUT',
+      url: '/authorization/teams/1/policies',
+      payload: {
+        policies: [2]
+      }
+    })
+
+    server.inject(options, (response) => {
+      const { result } = response
+
+      expect(response.statusCode).to.equal(200)
+      expect(result).to.equal({
+        id: 1,
+        name: 'Admins',
+        description: 'Administrators of the Authorization System',
+        path: '1',
+        organizationId: 'WONKA',
+        users: [{ id: 'AugustusId', name: 'Augustus Gloop' }],
+        policies: [
+          { id: 2, name: 'Accountant', version: '0.1' },
+          { id: 1, name: 'Director', version: '0.1' }
+        ]
+      })
+
+      teamOps.replaceTeamPolicies({ id: result.id, policies: [1], organizationId: result.organizationId }, done)
+    })
+  })
+
+  lab.test('Add multiple policies to a team', (done) => {
+    const options = utils.requestOptions({
+      method: 'PUT',
+      url: '/authorization/teams/1/policies',
+      payload: {
+        policies: [4, 5, 6]
+      }
+    })
+
+    server.inject(options, (response) => {
+      const { result } = response
+
+      expect(response.statusCode).to.equal(200)
+      expect(result).to.equal({
+        id: 1,
+        name: 'Admins',
+        description: 'Administrators of the Authorization System',
+        path: '1',
+        organizationId: 'WONKA',
+        users: [{ id: 'AugustusId', name: 'Augustus Gloop' }],
+        policies: [
+          { id: 5, name: 'DB Admin', version: '0.1' },
+          { id: 6, name: 'DB Only Read', version: '0.1' },
+          { id: 1, name: 'Director', version: '0.1' },
+          { id: 4, name: 'Finance Director', version: '0.1' }
+        ]
+      })
+
+      teamOps.replaceTeamPolicies({ id: result.id, policies: [1], organizationId: result.organizationId }, done)
+    })
+  })
+
+  lab.test('Replace team policies', (done) => {
+    const options = utils.requestOptions({
+      method: 'POST',
+      url: '/authorization/teams/1/policies',
+      payload: {
+        policies: [6]
+      }
+    })
+
+    server.inject(options, (response) => {
+      const { result } = response
+
+      expect(response.statusCode).to.equal(200)
+      expect(result).to.equal({
+        id: 1,
+        name: 'Admins',
+        description: 'Administrators of the Authorization System',
+        path: '1',
+        organizationId: 'WONKA',
+        users: [{ id: 'AugustusId', name: 'Augustus Gloop' }],
+        policies: [{ id: 6, name: 'DB Only Read', version: '0.1' }]
+      })
+
+      teamOps.replaceTeamPolicies({ id: result.id, policies: [1], organizationId: result.organizationId }, done)
+    })
+  })
+
+  lab.test('Delete team policies', (done) => {
+    const options = utils.requestOptions({
+      method: 'DELETE',
+      url: '/authorization/teams/1/policies'
+    })
+
+    server.inject(options, (response) => {
+      expect(response.statusCode).to.equal(204)
+
+      teamOps.replaceTeamPolicies({ id: 1, policies: [1], organizationId: 'WONKA' }, done)
+    })
+  })
+
+  lab.test('default team admin should be able to assign users to own team', (done) => {
+    teamOps.createTeam({
+      name: 'Team 5',
+      description: 'This is a test team',
+      parentId: null,
+      organizationId: 'WONKA',
+      user: { id: 'test-admin', name: 'Test Admin' }
+    }, (err, team) => {
+      if (err) return done(err)
+
+      const options = utils.requestOptions({
+        method: 'PUT',
+        url: `/authorization/teams/${team.id}/users`,
+        headers: {
+          authorization: 'test-admin'
+        },
+        payload: {
+          users: ['CharlieId', 'MikeId']
+        }
+      })
+
+      server.inject(options, (response) => {
+        const result = response.result
+
+        expect(response.statusCode).to.equal(200)
+        expect(result).to.equal({
+          id: team.id,
+          name: 'Team 5',
+          description: 'This is a test team',
+          path: team.path,
+          organizationId: 'WONKA',
+          users: [
+            { id: 'CharlieId', name: 'Charlie Bucket' },
+            { id: 'MikeId', name: 'Mike Teavee' },
+            { id: 'test-admin', name: 'Test Admin' }
+          ],
+          policies: []
+        })
+
+        teamOps.deleteTeam({ id: team.id, organizationId: 'WONKA' }, (err) => {
+          if (err) return done(err)
+          userOps.deleteUser({ id: 'test-admin', organizationId: 'WONKA' }, done)
+        })
+      })
+
+    })
+  })
+
+  lab.test('Delete specific team policy', (done) => {
+    const options = utils.requestOptions({
+      method: 'DELETE',
+      url: '/authorization/teams/1/policies/1'
+    })
+
+    server.inject(options, (response) => {
+      expect(response.statusCode).to.equal(204)
+
+      teamOps.replaceTeamPolicies({ id: 1, policies: [1], organizationId: 'WONKA' }, done)
+    })
+  })
+})
+
+lab.experiment('Teams - checking org_id scoping', () => {
+  let teamId
+
+  lab.before((done) => {
+    organizationOps.create({ id: 'NEWORG', name: 'new org', description: 'new org' }, (err, org) => {
+      if (err) return done(err)
+
+      teamOps.createTeam({ name: 'otherTeam', description: 'd', parentId: null, organizationId: 'NEWORG' }, (err, team) => {
+        if (err) return done(err)
+
+        teamId = team.id
+        userOps.createUser({ id: 'testUserId', name: 'testUser', organizationId: 'NEWORG' }, done)
+      })
+    })
+  })
+
+  lab.after((done) => {
+    organizationOps.deleteById('NEWORG', done)
+  })
+
+  lab.test('Adding a user from another organization should not be permitted', (done) => {
+    const options = utils.requestOptions({
+      method: 'PUT',
+      url: '/authorization/teams/2/users',
+      payload: {
+        users: ['testUserId']
+      }
+    })
+
+    server.inject(options, (response) => {
+      expect(response.statusCode).to.equal(400)
+      done()
+    })
+  })
+
+  lab.test('Adding multiple users from different organizations should not be permitted', (done) => {
+    const options = utils.requestOptions({
+      method: 'PUT',
+      url: '/authorization/teams/2/users',
+      payload: {
+        users: ['testUserId', 'MikeId']
+      }
+    })
+
+    server.inject(options, (response) => {
+      expect(response.statusCode).to.equal(400)
+      done()
+    })
+  })
+
+  lab.test('Replacing users from another organization should not be permitted', (done) => {
+    const options = utils.requestOptions({
+      method: 'POST',
+      url: '/authorization/teams/2/users',
+      payload: {
+        users: ['testUserId', 'MikeId']
+      }
+    })
+
+    server.inject(options, (response) => {
+      expect(response.statusCode).to.equal(400)
+      done()
+    })
+  })
+
+  lab.test('moving a team to another organization should not be permitted', (done) => {
+    const options = utils.requestOptions({
+      method: 'PUT',
+      url: `/authorization/teams/${teamId}/nest`,
+      payload: {
+        parentId: 1
+      }
+    })
+
+    server.inject(options, (response) => {
+      expect(response.statusCode).to.equal(400)
+      done()
+    })
+  })
 })

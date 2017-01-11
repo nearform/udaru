@@ -1,6 +1,5 @@
 const Reconfig = require('reconfig')
 const AuthConfig = require('./config.auth')
-
 const Action = AuthConfig.Action
 const resources = AuthConfig.resources
 
@@ -104,7 +103,10 @@ module.exports = new Reconfig({
                 Effect: 'Allow',
                 Action: [
                   Action.ReadTeam,
-                  Action.UpdateTeam
+                  Action.UpdateTeam,
+                  Action.AddTeamMember,
+                  Action.ReplaceTeamMember,
+                  Action.RemoveTeamMember
                 ],
                 Resource: [
                   resources.teams({ organizationId: ':organizationId', teamId: ':teamId' })
