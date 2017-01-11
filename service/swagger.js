@@ -65,9 +65,7 @@ const Organization = Joi.object({
   description: Joi.string()
 })
 const OrganizationAndUser = Joi.object({
-  id: Joi.string(),
-  name: Joi.string(),
-  description: Joi.string(),
+  organization: Organization,
   user: UserRef
 })
 
