@@ -13,7 +13,7 @@ const PolicyStatements = Joi.object({
 })
 
 const Policy = Joi.object({
-  id: Joi.number(),
+  id: Joi.string(),
   version: Joi.string(),
   name: Joi.string(),
   statements: PolicyStatements
@@ -22,7 +22,7 @@ const Policy = Joi.object({
 const PolicyList = Joi.array().items(Policy)
 
 const PolicyRef = Joi.object({
-  id: Joi.number(),
+  id: Joi.string(),
   version: Joi.string(),
   name: Joi.string()
 })

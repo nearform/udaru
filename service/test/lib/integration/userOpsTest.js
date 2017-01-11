@@ -85,7 +85,7 @@ lab.experiment('UserOps', () => {
   })
 
   lab.test('read a specific user', (done) => {
-    const expected = { id: 'VerucaId', name: 'Veruca Salt', organizationId: 'WONKA', teams: [{ id: '3', name: 'Authors' }, { id: '2', name: 'Readers' }], policies: [{ id: 2, version: '0.1', name: 'Accountant' }] }
+    const expected = { id: 'VerucaId', name: 'Veruca Salt', organizationId: 'WONKA', teams: [{ id: '3', name: 'Authors' }, { id: '2', name: 'Readers' }], policies: [{ id: 'policyId2', version: '0.1', name: 'Accountant' }] }
     userOps.readUser({ id: 'VerucaId', organizationId: 'WONKA' }, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
@@ -120,14 +120,14 @@ lab.experiment('UserOps', () => {
     userOps.readUser({ id: 'VerucaId', organizationId: 'WONKA' }, (err, user) => {
       expect(err).to.not.exist()
       expect(user).to.exist()
-      expect(user.policies).to.equal([{ id: 2, name: 'Accountant', version: '0.1' }])
+      expect(user.policies).to.equal([{ id: 'policyId2', name: 'Accountant', version: '0.1' }])
 
-      userOps.replaceUserPolicies({ id: 'VerucaId', policies: [1, 3], organizationId: 'WONKA' }, (err, user) => {
+      userOps.replaceUserPolicies({ id: 'VerucaId', policies: ['policyId1', 'policyId3'], organizationId: 'WONKA' }, (err, user) => {
         expect(err).to.not.exist()
         expect(user).to.exist()
-        expect(user.policies).to.equal([{ id: 1, name: 'Director', version: '0.1' }, { id: 3, name: 'Sys admin', version: '0.1' }])
+        expect(user.policies).to.equal([{ id: 'policyId1', name: 'Director', version: '0.1' }, { id: 'policyId3', name: 'Sys admin', version: '0.1' }])
 
-        userOps.replaceUserPolicies({ id: 'VerucaId', policies: [2], organizationId: 'WONKA' }, (err, user) => {
+        userOps.replaceUserPolicies({ id: 'VerucaId', policies: ['policyId2'], organizationId: 'WONKA' }, (err, user) => {
           expect(err).to.not.exist()
           done()
         })
@@ -139,14 +139,14 @@ lab.experiment('UserOps', () => {
     userOps.readUser({ id: 'VerucaId', organizationId: 'WONKA' }, (err, user) => {
       expect(err).to.not.exist()
       expect(user).to.exist()
-      expect(user.policies).to.equal([{ id: 2, name: 'Accountant', version: '0.1' }])
+      expect(user.policies).to.equal([{ id: 'policyId2', name: 'Accountant', version: '0.1' }])
 
-      userOps.addUserPolicies({ id: 'VerucaId', policies: [1, 3], organizationId: 'WONKA' }, (err, user) => {
+      userOps.addUserPolicies({ id: 'VerucaId', policies: ['policyId1', 'policyId3'], organizationId: 'WONKA' }, (err, user) => {
         expect(err).to.not.exist()
         expect(user).to.exist()
-        expect(user.policies).to.equal([{ id: 2, name: 'Accountant', version: '0.1' }, { id: 1, name: 'Director', version: '0.1' }, { id: 3, name: 'Sys admin', version: '0.1' }])
+        expect(user.policies).to.equal([{ id: 'policyId2', name: 'Accountant', version: '0.1' }, { id: 'policyId1', name: 'Director', version: '0.1' }, { id: 'policyId3', name: 'Sys admin', version: '0.1' }])
 
-        userOps.replaceUserPolicies({ id: 'VerucaId', policies: [2], organizationId: 'WONKA' }, (err, user) => {
+        userOps.replaceUserPolicies({ id: 'VerucaId', policies: ['policyId2'], organizationId: 'WONKA' }, (err, user) => {
           expect(err).to.not.exist()
           done()
         })
@@ -158,14 +158,14 @@ lab.experiment('UserOps', () => {
     userOps.readUser({ id: 'VerucaId', organizationId: 'WONKA' }, (err, user) => {
       expect(err).to.not.exist()
       expect(user).to.exist()
-      expect(user.policies).to.equal([{ id: 2, name: 'Accountant', version: '0.1' }])
+      expect(user.policies).to.equal([{ id: 'policyId2', name: 'Accountant', version: '0.1' }])
 
-      userOps.addUserPolicies({ id: 'VerucaId', policies: [1, 2, 3], organizationId: 'WONKA' }, (err, user) => {
+      userOps.addUserPolicies({ id: 'VerucaId', policies: ['policyId1', 'policyId2', 'policyId3'], organizationId: 'WONKA' }, (err, user) => {
         expect(err).to.not.exist()
         expect(user).to.exist()
-        expect(user.policies).to.equal([{ id: 2, name: 'Accountant', version: '0.1' }, { id: 1, name: 'Director', version: '0.1' }, { id: 3, name: 'Sys admin', version: '0.1' }])
+        expect(user.policies).to.equal([{ id: 'policyId2', name: 'Accountant', version: '0.1' }, { id: 'policyId1', name: 'Director', version: '0.1' }, { id: 'policyId3', name: 'Sys admin', version: '0.1' }])
 
-        userOps.replaceUserPolicies({ id: 'VerucaId', policies: [2], organizationId: 'WONKA' }, (err, user) => {
+        userOps.replaceUserPolicies({ id: 'VerucaId', policies: ['policyId2'], organizationId: 'WONKA' }, (err, user) => {
           expect(err).to.not.exist()
           done()
         })
@@ -177,14 +177,14 @@ lab.experiment('UserOps', () => {
     userOps.readUser({ id: 'VerucaId', organizationId: 'WONKA' }, (err, user) => {
       expect(err).to.not.exist()
       expect(user).to.exist()
-      expect(user.policies).to.equal([{ id: 2, name: 'Accountant', version: '0.1' }])
+      expect(user.policies).to.equal([{ id: 'policyId2', name: 'Accountant', version: '0.1' }])
 
       userOps.deleteUserPolicies({ id: 'VerucaId', organizationId: 'WONKA' }, (err, user) => {
         expect(err).to.not.exist()
         expect(user).to.exist()
         expect(user.policies).to.equal([])
 
-        userOps.replaceUserPolicies({ id: 'VerucaId', policies: [2], organizationId: 'WONKA' }, (err, user) => {
+        userOps.replaceUserPolicies({ id: 'VerucaId', policies: ['policyId2'], organizationId: 'WONKA' }, (err, user) => {
           expect(err).to.not.exist()
           done()
         })
@@ -196,14 +196,14 @@ lab.experiment('UserOps', () => {
     userOps.readUser({ id: 'VerucaId', organizationId: 'WONKA' }, (err, user) => {
       expect(err).to.not.exist()
       expect(user).to.exist()
-      expect(user.policies).to.equal([{ id: 2, name: 'Accountant', version: '0.1' }])
+      expect(user.policies).to.equal([{ id: 'policyId2', name: 'Accountant', version: '0.1' }])
 
-      userOps.deleteUserPolicy({ userId: 'VerucaId', policyId: 2, organizationId: 'WONKA' }, (err, user) => {
+      userOps.deleteUserPolicy({ userId: 'VerucaId', policyId: 'policyId2', organizationId: 'WONKA' }, (err, user) => {
         expect(err).to.not.exist()
         expect(user).to.exist()
         expect(user.policies).to.equal([])
 
-        userOps.replaceUserPolicies({ id: 'VerucaId', policies: [2], organizationId: 'WONKA' }, (err, user) => {
+        userOps.replaceUserPolicies({ id: 'VerucaId', policies: ['policyId2'], organizationId: 'WONKA' }, (err, user) => {
           expect(err).to.not.exist()
           done()
         })

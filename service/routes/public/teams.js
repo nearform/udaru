@@ -301,7 +301,7 @@ exports.register = function (server, options, next) {
           id: Joi.string().required().description('Team id')
         },
         payload: {
-          policies: Joi.array().items(Joi.number()).required().description('Policy ids')
+          policies: Joi.array().items(Joi.string()).required().description('Policy ids')
         },
         headers: Joi.object({
           'authorization': Joi.any().required()
@@ -342,7 +342,7 @@ exports.register = function (server, options, next) {
           id: Joi.string().required().description('Team id')
         },
         payload: {
-          policies: Joi.array().items(Joi.number()).required().description('Policy ids')
+          policies: Joi.array().items(Joi.string()).required().description('Policy ids')
         },
         headers: Joi.object({
           'authorization': Joi.any().required()
@@ -416,7 +416,7 @@ exports.register = function (server, options, next) {
       validate: {
         params: {
           teamId: Joi.string().required().description('Team id'),
-          policyId: Joi.number().required().description('Policy id')
+          policyId: Joi.string().required().description('Policy id')
         },
         headers: Joi.object({
           'authorization': Joi.any().required()

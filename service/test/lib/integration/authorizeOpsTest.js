@@ -54,7 +54,7 @@ lab.experiment('AuthorizeOps', () => {
           userOps.updateUser(updateUserData, (err, result) => {
             if (err) return done(err)
 
-            userOps.replaceUserPolicies({ id: testUserId, policies: [1], organizationId }, done)
+            userOps.replaceUserPolicies({ id: testUserId, policies: [_.find(wonkaPolicies, {name: 'Director'}).id], organizationId }, done)
           })
         })
       })
@@ -83,7 +83,7 @@ lab.experiment('AuthorizeOps', () => {
 
   lab.test('authorize isUserAuthorized - check on a resource and action with wildcards both in action and resource', (done) => {
 
-    userOps.replaceUserPolicies({ id: testUserId, policies: [5], organizationId }, (err, result) => {
+    userOps.replaceUserPolicies({ id: testUserId, policies: ['policyId5'], organizationId }, (err, result) => {
       if (err) return done(err)
 
       authorize.isUserAuthorized({ userId: testUserId, resource: 'database:pg01:balancesheet', action: 'database:dropTable' }, (err, result) => {
@@ -100,7 +100,7 @@ lab.experiment('AuthorizeOps', () => {
 
   lab.test('authorize isUserAuthorized - check on a resource and action with wildcards only for resource', (done) => {
 
-    userOps.replaceUserPolicies({ id: testUserId, policies: [6], organizationId }, (err, result) => {
+    userOps.replaceUserPolicies({ id: testUserId, policies: ['policyId6'], organizationId }, (err, result) => {
       if (err) return done(err)
 
       authorize.isUserAuthorized({ userId: testUserId, resource: 'database:pg01:balancesheet', action: 'database:Read' }, (err, result) => {
@@ -116,7 +116,7 @@ lab.experiment('AuthorizeOps', () => {
   })
 
   lab.test('authorize isUserAuthorized - check on a resource and action with wildcards only for action', (done) => {
-    userOps.replaceUserPolicies({ id: testUserId, policies: [7], organizationId }, (err, result) => {
+    userOps.replaceUserPolicies({ id: testUserId, policies: ['policyId7'], organizationId }, (err, result) => {
       if (err) return done(err)
 
       authorize.isUserAuthorized({ userId: testUserId, resource: 'database:pg01:balancesheet', action: 'database:Delete' }, (err, result) => {
@@ -132,7 +132,7 @@ lab.experiment('AuthorizeOps', () => {
   })
 
   lab.test('authorize isUserAuthorized - check on a resource and action with wildcards for URL resource', (done) => {
-    userOps.replaceUserPolicies({ id: testUserId, policies: [8], organizationId }, (err, result) => {
+    userOps.replaceUserPolicies({ id: testUserId, policies: ['policyId8'], organizationId }, (err, result) => {
       if (err) return done(err)
 
       authorize.isUserAuthorized({ userId: testUserId, resource: '/my/site/i/should/read/this', action: 'Read' }, (err, result) => {
@@ -148,7 +148,7 @@ lab.experiment('AuthorizeOps', () => {
   })
 
   lab.test('authorize isUserAuthorized - should return false if the policies has a wildcard on the resource but we are asking for the wrong action', (done) => {
-    userOps.replaceUserPolicies({ id: testUserId, policies: [6], organizationId }, (err, result) => {
+    userOps.replaceUserPolicies({ id: testUserId, policies: ['policyId6'], organizationId }, (err, result) => {
       if (err) return done(err)
 
       authorize.isUserAuthorized({ userId: testUserId, resource: 'database:pg01:balancesheet', action: 'database:Write' }, (err, result) => {
@@ -164,7 +164,7 @@ lab.experiment('AuthorizeOps', () => {
   })
 
   lab.test('authorize isUserAuthorized - should return false if the policies has a wildcard on the action but we are asking for the wrong resource', (done) => {
-    userOps.replaceUserPolicies({ id: testUserId, policies: [6], organizationId }, (err, result) => {
+    userOps.replaceUserPolicies({ id: testUserId, policies: ['policyId6'], organizationId }, (err, result) => {
       if (err) return done(err)
 
       authorize.isUserAuthorized({ userId: testUserId, resource: 'database:pg01:notMyTable', action: 'database:Write' }, (err, result) => {
@@ -395,13 +395,13 @@ lab.experiment('AuthorizeOps - list and access with multiple policies', () => {
         organizationId
       }, (err, res) => {
         expect(err).to.not.exist()
-        expect(res).to.equal({ actions: [
+        expect(res.actions).to.contain([
           'FOO:scenario:granular-read',
           'FOO:scenario:clone',
           'FOO:scenario:download',
           'FOO:scenario:delete',
           'FOO:scenario:publish'
-        ]})
+        ])
 
         done()
       })

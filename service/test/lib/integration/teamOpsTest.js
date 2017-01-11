@@ -152,7 +152,7 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('read a specific team', (done) => {
-    teamOps.readTeam({ id: 1, organizationId: 'WONKA' }, (err, result) => {
+    teamOps.readTeam({ id: '1', organizationId: 'WONKA' }, (err, result) => {
 
       expect(err).to.not.exist()
       expect(result).to.exist()
@@ -260,7 +260,7 @@ lab.experiment('TeamOps', () => {
     const teamData = {
       name: 'Team Child',
       description: 'This is a test team for paths',
-      parentId: 1,
+      parentId: '1',
       organizationId: 'WONKA'
     }
 
@@ -341,7 +341,7 @@ lab.experiment('TeamOps', () => {
 
         const childId = result.id
 
-        teamOps.moveTeam({ id: parentId, parentId: 3, organizationId: 'WONKA' }, (err, result) => {
+        teamOps.moveTeam({ id: parentId, parentId: '3', organizationId: 'WONKA' }, (err, result) => {
           expect(err).to.not.exist()
           expect(result).to.exist()
           expect(result.path).to.equal('3.' + parentId)
@@ -362,7 +362,7 @@ lab.experiment('TeamOps', () => {
     const teamData = {
       name: 'Team Parent',
       description: 'This is a test team for paths',
-      parentId: 1,
+      parentId: '1',
       organizationId: 'WONKA'
     }
 
@@ -384,18 +384,18 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('replace team policies', (done) => {
-    teamOps.readTeam({ id: 1, organizationId: 'WONKA' }, (err, team) => {
+    teamOps.readTeam({ id: '1', organizationId: 'WONKA' }, (err, team) => {
       expect(err).to.not.exist()
       expect(team).to.exist()
-      expect(team.policies).to.equal([{ id: 1, name: 'Director', version: '0.1' }])
+      expect(team.policies).to.equal([{ id: 'policyId1', name: 'Director', version: '0.1' }])
 
-      teamOps.replaceTeamPolicies({ id: 1, policies: [2, 3], organizationId: 'WONKA' }, (err, team) => {
+      teamOps.replaceTeamPolicies({ id: '1', policies: ['policyId2', 'policyId3'], organizationId: 'WONKA' }, (err, team) => {
         expect(err).to.not.exist()
         expect(team).to.exist()
         expect(team.policies).to.have.length(2)
-        expect(team.policies).to.only.include([{ id: 2, name: 'Accountant', version: '0.1' }, { id: 3, name: 'Sys admin', version: '0.1' }])
+        expect(team.policies).to.only.include([{ id: 'policyId2', name: 'Accountant', version: '0.1' }, { id: 'policyId3', name: 'Sys admin', version: '0.1' }])
 
-        teamOps.replaceTeamPolicies({ id: 1, policies: [1], organizationId: 'WONKA' }, (err, team) => {
+        teamOps.replaceTeamPolicies({ id: '1', policies: ['policyId1'], organizationId: 'WONKA' }, (err, team) => {
           expect(err).to.not.exist()
           done()
         })
@@ -404,18 +404,22 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('add policies to team', (done) => {
-    teamOps.readTeam({ id: 1, organizationId: 'WONKA' }, (err, team) => {
+    teamOps.readTeam({ id: '1', organizationId: 'WONKA' }, (err, team) => {
       expect(err).to.not.exist()
       expect(team).to.exist()
-      expect(team.policies).to.equal([{ id: 1, name: 'Director', version: '0.1' }])
+      expect(team.policies).to.equal([{ id: 'policyId1', name: 'Director', version: '0.1' }])
 
-      teamOps.addTeamPolicies({ id: 1, policies: [2, 3], organizationId: 'WONKA' }, (err, team) => {
+      teamOps.addTeamPolicies({ id: '1', policies: ['policyId2', 'policyId3'], organizationId: 'WONKA' }, (err, team) => {
         expect(err).to.not.exist()
         expect(team).to.exist()
         expect(team.policies).to.have.length(3)
-        expect(team.policies).to.only.include([{ id: 1, name: 'Director', version: '0.1' }, { id: 2, name: 'Accountant', version: '0.1' }, { id: 3, name: 'Sys admin', version: '0.1' }])
+        expect(team.policies).to.only.include([
+          { id: 'policyId1', name: 'Director', version: '0.1' },
+          { id: 'policyId2', name: 'Accountant', version: '0.1' },
+          { id: 'policyId3', name: 'Sys admin', version: '0.1' }
+        ])
 
-        teamOps.replaceTeamPolicies({ id: 1, policies: [1], organizationId: 'WONKA' }, (err, team) => {
+        teamOps.replaceTeamPolicies({ id: '1', policies: ['policyId1'], organizationId: 'WONKA' }, (err, team) => {
           expect(err).to.not.exist()
           done()
         })
@@ -424,18 +428,22 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('add the same policy twice to a team', (done) => {
-    teamOps.readTeam({ id: 1, organizationId: 'WONKA' }, (err, team) => {
+    teamOps.readTeam({ id: '1', organizationId: 'WONKA' }, (err, team) => {
       expect(err).to.not.exist()
       expect(team).to.exist()
-      expect(team.policies).to.equal([{ id: 1, name: 'Director', version: '0.1' }])
+      expect(team.policies).to.equal([{ id: 'policyId1', name: 'Director', version: '0.1' }])
 
-      teamOps.addTeamPolicies({ id: 1, policies: [1, 2, 3], organizationId: 'WONKA' }, (err, team) => {
+      teamOps.addTeamPolicies({ id: '1', policies: ['policyId1', 'policyId2', 'policyId3'], organizationId: 'WONKA' }, (err, team) => {
         expect(err).to.not.exist()
         expect(team).to.exist()
         expect(team.policies).to.have.length(3)
-        expect(team.policies).to.only.include([{ id: 1, name: 'Director', version: '0.1' }, { id: 2, name: 'Accountant', version: '0.1' }, { id: 3, name: 'Sys admin', version: '0.1' }])
+        expect(team.policies).to.only.include([
+          { id: 'policyId1', name: 'Director', version: '0.1' },
+          { id: 'policyId2', name: 'Accountant', version: '0.1' },
+          { id: 'policyId3', name: 'Sys admin', version: '0.1' }
+        ])
 
-        teamOps.replaceTeamPolicies({ id: 1, policies: [1], organizationId: 'WONKA' }, (err, team) => {
+        teamOps.replaceTeamPolicies({ id: '1', policies: ['policyId1'], organizationId: 'WONKA' }, (err, team) => {
           expect(err).to.not.exist()
           done()
         })
@@ -444,17 +452,17 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('delete team policies', (done) => {
-    teamOps.readTeam({ id: 1, organizationId: 'WONKA' }, (err, team) => {
+    teamOps.readTeam({ id: '1', organizationId: 'WONKA' }, (err, team) => {
       expect(err).to.not.exist()
       expect(team).to.exist()
-      expect(team.policies).to.equal([{ id: 1, name: 'Director', version: '0.1' }])
+      expect(team.policies).to.equal([{ id: 'policyId1', name: 'Director', version: '0.1' }])
 
-      teamOps.deleteTeamPolicies({ id: 1, organizationId: 'WONKA' }, (err, team) => {
+      teamOps.deleteTeamPolicies({ id: '1', organizationId: 'WONKA' }, (err, team) => {
         expect(err).to.not.exist()
         expect(team).to.exist()
         expect(team.policies).to.equal([])
 
-        teamOps.replaceTeamPolicies({ id: 1, policies: [1], organizationId: 'WONKA' }, (err, team) => {
+        teamOps.replaceTeamPolicies({ id: '1', policies: ['policyId1'], organizationId: 'WONKA' }, (err, team) => {
           expect(err).to.not.exist()
           done()
         })
@@ -463,17 +471,17 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('delete specific team policy', (done) => {
-    teamOps.readTeam({ id: 1, organizationId: 'WONKA' }, (err, team) => {
+    teamOps.readTeam({ id: '1', organizationId: 'WONKA' }, (err, team) => {
       expect(err).to.not.exist()
       expect(team).to.exist()
-      expect(team.policies).to.equal([{ id: 1, name: 'Director', version: '0.1' }])
+      expect(team.policies).to.equal([{ id: 'policyId1', name: 'Director', version: '0.1' }])
 
-      teamOps.deleteTeamPolicy({ teamId: 1, policyId: 1, organizationId: 'WONKA' }, (err, team) => {
+      teamOps.deleteTeamPolicy({ teamId: '1', policyId: 'policyId1', organizationId: 'WONKA' }, (err, team) => {
         expect(err).to.not.exist()
         expect(team).to.exist()
         expect(team.policies).to.equal([])
 
-        teamOps.replaceTeamPolicies({ id: 1, policies: [1], organizationId: 'WONKA' }, (err, team) => {
+        teamOps.replaceTeamPolicies({ id: '1', policies: ['policyId1'], organizationId: 'WONKA' }, (err, team) => {
           expect(err).to.not.exist()
           done()
         })
