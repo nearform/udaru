@@ -6,12 +6,13 @@ const policyOps = require('./policyOps')
 const userOps = require('./userOps')
 const SQL = require('./../db/SQL')
 const mapping = require('./../mapping')
+const utils = require('./utils')
 
 function fetchOrganizationUsers (job, next) {
   const { id } = job
 
   job.client.query(SQL`SELECT id FROM users WHERE org_id = ${id}`, function (err, result) {
-    if (err) return next(err)
+    if (err) return next(Boom.badImplementation(err))
     if (result.rowCount === 0) return next(null, [])
 
     job.usersParams = result.rows.map(r => r.id)
@@ -22,20 +23,20 @@ function fetchOrganizationUsers (job, next) {
 function removeUsersFromTeams (job, next) {
   if (!job.usersParams || job.usersParams.length === 0) return next()
 
-  job.client.query(SQL`DELETE FROM team_members WHERE user_id = ANY (${job.usersParams})`, next)
+  job.client.query(SQL`DELETE FROM team_members WHERE user_id = ANY (${job.usersParams})`, utils.boomErrorWrapper(next))
 }
 
 function removeUsersPolicies (job, next) {
   if (!job.usersParams || job.usersParams.length === 0) return next()
 
-  job.client.query(SQL`DELETE FROM user_policies WHERE user_id = ANY (${job.usersParams})`, next)
+  job.client.query(SQL`DELETE FROM user_policies WHERE user_id = ANY (${job.usersParams})`, utils.boomErrorWrapper(next))
 }
 
 function fetchOrganizationTeams (job, next) {
   const { id } = job
 
   job.client.query(SQL`SELECT id FROM teams WHERE org_id = ${id}`, function (err, result) {
-    if (err) return next(err)
+    if (err) return next(Boom.badImplementation(err))
     if (result.rowCount === 0) return next(null, [])
 
     job.teamsIds = result.rows.map(r => r.id)
@@ -46,25 +47,25 @@ function fetchOrganizationTeams (job, next) {
 function removeTeamsPolicies (job, next) {
   if (!job.teamsIds || job.teamsIds.length === 0) return next()
 
-  job.client.query(SQL`DELETE FROM team_policies WHERE team_id  = ANY (${job.teamsIds})`, next)
+  job.client.query(SQL`DELETE FROM team_policies WHERE team_id  = ANY (${job.teamsIds})`, utils.boomErrorWrapper(next))
 }
 
 function deleteOrganizationPolicies (job, next) {
-  job.client.query(SQL`DELETE FROM policies WHERE org_id = ${job.id}`, next)
+  job.client.query(SQL`DELETE FROM policies WHERE org_id = ${job.id}`, utils.boomErrorWrapper(next))
 }
 
 function deleteOrganizationTeams (job, next) {
-  job.client.query(SQL`DELETE FROM teams WHERE org_id = ${job.id}`, next)
+  job.client.query(SQL`DELETE FROM teams WHERE org_id = ${job.id}`, utils.boomErrorWrapper(next))
 }
 
 function deleteOrganizationUsers (job, next) {
-  job.client.query(SQL`DELETE FROM users WHERE org_id = ${job.id}`, next)
+  job.client.query(SQL`DELETE FROM users WHERE org_id = ${job.id}`, utils.boomErrorWrapper(next))
 }
 
 function deleteOrganization (job, next) {
   job.client.query(SQL`DELETE FROM organizations WHERE id = ${job.id}`, function (err, result) {
-    if (err) return next(err)
-    if (result.rowCount === 0) return next(Boom.notFound())
+    if (err) return next(Boom.badImplementation(err))
+    if (result.rowCount === 0) return next(Boom.notFound(`Organization ${job.id} not found`))
 
     next()
   })
@@ -82,7 +83,7 @@ function insertOrganization (job, next) {
     RETURNING id
   `
   job.client.query(sqlQuery, function (err, res) {
-    if (err) return next(err)
+    if (err) return next(Boom.badImplementation(err))
     job.organization = res.rows[0]
     next()
   })
@@ -90,7 +91,7 @@ function insertOrganization (job, next) {
 
 function createDefaultPolicies (job, next) {
   policyOps.createOrgDefaultPolicies(job.client, job.organization.id, function (err, id) {
-    if (err) return next(err)
+    if (err) return next(Boom.badImplementation(err))
     job.adminPolicyId = id
     next()
   })
@@ -108,10 +109,10 @@ function insertOrgAdminUser (job, next) {
     const { id: organizationId } = job.organization
 
     userOps.insertUser(job.client, { id, name, organizationId }, (err, res) => {
-      if (err) return next(err)
+      if (err) return next(Boom.badImplementation(err))
       job.user.id = res.rows[0].id
 
-      userOps.insertPolicies(job.client, job.user.id, [job.adminPolicyId], next)
+      userOps.insertPolicies(job.client, job.user.id, [job.adminPolicyId], utils.boomErrorWrapper(next))
     })
 
     return
@@ -172,7 +173,7 @@ var organizationOps = {
     }
 
     db.withTransaction(tasks, (err, res) => {
-      if (err) return cb(Boom.badImplementation(err))
+      if (err) return cb(err)
 
       organizationOps.readById(res.organization.id, (err, organization) => {
         if (err) return cb(Boom.badImplementation(err))
@@ -196,7 +197,7 @@ var organizationOps = {
     `
     db.query(sqlQuery, function (err, result) {
       if (err) return cb(Boom.badImplementation(err))
-      if (result.rowCount === 0) return cb(Boom.notFound())
+      if (result.rowCount === 0) return cb(Boom.notFound(`Organization ${id} not found`))
 
       return cb(null, mapping.organization(result.rows[0]))
     })
@@ -225,10 +226,7 @@ var organizationOps = {
       deleteOrganization
     ]
 
-    db.withTransaction(tasks, (err, res) => {
-      if (err) return cb(Boom.badImplementation(err))
-      cb()
-    })
+    db.withTransaction(tasks, cb)
   },
 
   /**

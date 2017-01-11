@@ -2,10 +2,11 @@
 
 const Boom = require('boom')
 const async = require('async')
+const uuidV4 = require('uuid/v4')
 const db = require('./../db')
 const SQL = require('./../db/SQL')
 const mapping = require('./../mapping')
-const uuidV4 = require('uuid/v4')
+const utils = require('./utils')
 
 const updateUserInfo = (job, next) => {
   const { id, name, organizationId } = job
@@ -17,12 +18,8 @@ const updateUserInfo = (job, next) => {
     AND org_id = ${organizationId}
   `
   job.client.query(sqlQuery, (err, result) => {
-    if (err) {
-      return next(err)
-    }
-    if (result.rowCount === 0) {
-      return next(Boom.notFound())
-    }
+    if (err) return next(Boom.badImplementation(err))
+    if (result.rowCount === 0) return next(Boom.notFound(`User ${id} not found`))
 
     next()
   })
@@ -35,7 +32,7 @@ const clearUserTeams = (job, next) => {
     DELETE FROM team_members
     WHERE user_id = ${id}
   `
-  job.client.query(sqlQuery, next)
+  job.client.query(sqlQuery, utils.boomErrorWrapper(next))
 }
 
 const addUserTeams = (job, next) => {
@@ -51,7 +48,7 @@ const addUserTeams = (job, next) => {
     sqlQuery.append(SQL`, (${teamId}, ${userId})`)
   })
 
-  job.client.query(sqlQuery, next)
+  job.client.query(sqlQuery, utils.boomErrorWrapper(next))
 }
 
 const clearUserPolicies = (job, next) => {
@@ -61,7 +58,7 @@ const clearUserPolicies = (job, next) => {
     DELETE FROM user_policies
     WHERE user_id = ${id}
   `
-  job.client.query(sqlQuery, next)
+  job.client.query(sqlQuery, utils.boomErrorWrapper(next))
 }
 
 const removeUserPolicy = (job, next) => {
@@ -72,13 +69,41 @@ const removeUserPolicy = (job, next) => {
     WHERE user_id = ${id}
     AND policy_id = ${policyId}
   `
-  job.client.query(sqlQuery, next)
+  job.client.query(sqlQuery, utils.boomErrorWrapper(next))
 }
 
 const insertUserPolicies = (job, next) => {
   const { id: userId, policies } = job
 
-  userOps.insertPolicies(job.client, userId, policies, next)
+  userOps.insertPolicies(job.client, userId, policies, utils.boomErrorWrapper(next))
+}
+
+function checkTeamsOrg (job, next) {
+  const { teams, organizationId } = job
+
+  job.client.query(SQL`SELECT id FROM teams WHERE id = ANY (${teams}) AND org_id = ${organizationId}`, (err, result) => {
+    if (err) return next(Boom.badImplementation(err))
+    if (result.rowCount !== teams.length) return next(Boom.badRequest(`Some of the teams [${teams.join(',')}] were not found`))
+
+    next()
+  })
+}
+
+function checkUserOrg (job, next) {
+  const { id, organizationId } = job
+
+  userOps.readUser({ id, organizationId }, utils.boomErrorWrapper(next))
+}
+
+function checkPoliciesOrg (job, next) {
+  const { client, policies, organizationId } = job
+
+  client.query(SQL`SELECT id FROM policies WHERE id = ANY (${policies}) AND org_id = ${organizationId}`, (err, result) => {
+    if (err) return next(Boom.badImplementation(err))
+    if (result.rowCount !== policies.length) return next(Boom.badRequest(`Some of the policies [${policies.join(',')}] were not found`))
+
+    next()
+  })
 }
 
 const userOps = {
@@ -98,7 +123,7 @@ const userOps = {
       ORDER BY UPPER(name)
     `
     db.query(sqlQuery, function (err, result) {
-      if (err) return cb(Boom.badImplementation(err))
+      if (err) return cb(err)
 
       return cb(null, result.rows.map(mapping.user))
     })
@@ -127,7 +152,7 @@ const userOps = {
       RETURNING id
     `
 
-    client.query(sqlQuery, cb)
+    client.query(sqlQuery, utils.boomErrorWrapper(cb))
   },
 
   insertPolicies: function insertPolicies (client, id, policies, cb) {
@@ -142,7 +167,7 @@ const userOps = {
     })
     sqlQuery.append(SQL` ON CONFLICT ON CONSTRAINT user_policy_link DO NOTHING`)
 
-    client.query(sqlQuery, cb)
+    client.query(sqlQuery, utils.boomErrorWrapper(cb))
   },
 
   organizationExists: function organizationExists (id, cb) {
@@ -152,7 +177,7 @@ const userOps = {
       WHERE id = ${id}
     `
     db.query(sqlQuery, function (err, result) {
-      if (err) return cb(Boom.badImplementation(err))
+      if (err) return cb(err)
 
       return cb(null, result.rowCount !== 0)
     })
@@ -174,7 +199,7 @@ const userOps = {
       userOps.insertUser(db, { id, name, organizationId }, (err, result) => {
         if (err) return cb(Boom.badImplementation(err))
 
-        userOps.readUser({ id: result.rows[0].id, organizationId }, cb)
+        userOps.readUser({ id: result.rows[0].id, organizationId }, utils.boomErrorWrapper(cb))
       })
     })
   },
@@ -219,16 +244,10 @@ const userOps = {
         AND org_id = ${organizationId}
       `
       db.query(sqlQuery, (err, result) => {
-        if (err) {
-          return next(err)
-        }
-
-        if (result.rowCount === 0) {
-          return next(Boom.notFound())
-        }
+        if (err) return next(Boom.badImplementation(err))
+        if (result.rowCount === 0) return next(Boom.notFound(`User ${id} not found`))
 
         user = mapping.user(result.rows[0])
-
         next()
       })
     })
@@ -241,12 +260,9 @@ const userOps = {
         ORDER BY UPPER(teams.name)
       `
       db.query(sqlQuery, (err, result) => {
-        if (err) {
-          return next(err)
-        }
+        if (err) return next(Boom.badImplementation(err))
 
         user.teams = result.rows.map(mapping.team.simple)
-
         next()
       })
     })
@@ -259,20 +275,15 @@ const userOps = {
         ORDER BY UPPER(pol.name)
       `
       db.query(sqlQuery, (err, result) => {
-        if (err) {
-          return next(err)
-        }
+        if (err) return next(Boom.badImplementation(err))
 
         user.policies = result.rows.map(mapping.policy.simple)
-
         next()
       })
     })
 
     async.series(tasks, (err) => {
-      if (err) {
-        return cb(err.isBoom ? err : Boom.badImplementation(err))
-      }
+      if (err) return cb(err)
 
       return cb(null, user)
     })
@@ -296,17 +307,18 @@ const userOps = {
 
         next()
       },
-      updateUserInfo
+      updateUserInfo,
+      clearUserTeams
     ]
 
-    tasks.push(clearUserTeams)
     if (teams.length > 0) {
+      tasks.push(checkTeamsOrg)
       tasks.push(addUserTeams)
     }
 
     db.withTransaction(tasks, (err, res) => {
       if (err) {
-        return cb(Boom.badImplementation(err))
+        return cb(err)
       }
 
       userOps.readUser({ id, organizationId }, cb)
@@ -329,16 +341,18 @@ const userOps = {
 
         next()
       },
+      checkUserOrg,
       clearUserPolicies
     ]
 
     if (policies.length > 0) {
+      tasks.push(checkPoliciesOrg)
       tasks.push(insertUserPolicies)
     }
 
     db.withTransaction(tasks, (err, res) => {
       if (err) {
-        return cb(Boom.badImplementation(err))
+        return cb(err)
       }
 
       userOps.readUser({ id, organizationId }, cb)
@@ -361,16 +375,17 @@ const userOps = {
       (job, next) => {
         job.id = id
         job.policies = policies
+        job.organizationId = organizationId
 
         next()
       },
+      checkUserOrg,
+      checkPoliciesOrg,
       insertUserPolicies
     ]
 
     db.withTransaction(tasks, (err, res) => {
-      if (err) {
-        return cb(Boom.badImplementation(err))
-      }
+      if (err) return cb(err)
 
       userOps.readUser({ id, organizationId }, cb)
     })
@@ -387,15 +402,17 @@ const userOps = {
     const tasks = [
       (job, next) => {
         job.id = id
+        job.organizationId = organizationId
 
         next()
       },
+      checkUserOrg,
       clearUserPolicies
     ]
 
     db.withTransaction(tasks, (err, res) => {
       if (err) {
-        return cb(Boom.badImplementation(err))
+        return cb(err)
       }
 
       userOps.readUser({ id, organizationId }, cb)
@@ -414,15 +431,17 @@ const userOps = {
       (job, next) => {
         job.id = userId
         job.policyId = policyId
+        job.organizationId = organizationId
 
         next()
       },
+      checkUserOrg,
       removeUserPolicy
     ]
 
     db.withTransaction(tasks, (err, res) => {
       if (err) {
-        return cb(Boom.badImplementation(err))
+        return cb(err)
       }
 
       userOps.readUser({ id: userId, organizationId }, cb)
@@ -445,23 +464,19 @@ const userOps = {
       (job, next) => {
         const sqlQuery = SQL`DELETE FROM user_policies WHERE user_id = ${id}`
 
-        job.client.query(sqlQuery, next)
+        job.client.query(sqlQuery, utils.boomErrorWrapper(next))
       },
       (job, next) => {
         const sqlQuery = SQL`DELETE FROM team_members WHERE user_id = ${id}`
 
-        job.client.query(sqlQuery, next)
+        job.client.query(sqlQuery, utils.boomErrorWrapper(next))
       },
       (job, next) => {
         const sqlQuery = SQL`DELETE FROM users WHERE id = ${id} AND org_id = ${organizationId}`
 
         job.client.query(sqlQuery, (err, result) => {
-          if (err) {
-            return next(err)
-          }
-          if (result.rowCount === 0) {
-            return next(Boom.notFound())
-          }
+          if (err) return next(Boom.badImplementation(err))
+          if (result.rowCount === 0) return next(Boom.notFound(`User ${id} not found`))
 
           next()
         })
@@ -469,9 +484,7 @@ const userOps = {
     ]
 
     db.withTransaction(tasks, (err, res) => {
-      if (err) {
-        return cb(Boom.badImplementation(err))
-      }
+      if (err) return cb(err)
 
       cb()
     })

@@ -391,8 +391,7 @@ exports.register = function (server, options, next) {
           action: Action.RemoveTeamPolicy,
           getParams: (request) => ({ teamId: request.params.id })
         }
-      },
-      response: {schema: swagger.Team}
+      }
     }
   })
 

@@ -23,7 +23,7 @@ const updateData = {
   organizationId: 'WONKA'
 }
 const updateTeamMembersData = {
-  users: ['ROOTid', 'CharlieId'],
+  users: ['MikeId', 'CharlieId'],
   organizationId: 'WONKA'
 }
 
@@ -106,7 +106,7 @@ lab.experiment('TeamOps', () => {
 
   lab.test('Add twice the same user to a team', (done) => {
     updateData.id = testTeamId
-    updateData.users = ['ROOTid', 'ROOTid', 'CharlieId']
+    updateData.users = ['MikeId', 'MikeId', 'CharlieId']
 
     teamOps.updateTeam(updateData, (err, result) => {
       expect(err).to.not.exist()
@@ -307,7 +307,7 @@ lab.experiment('TeamOps', () => {
           teamOps.readTeam({ id: childId, organizationId: 'WONKA' }, (err) => {
             expect(err).to.exist()
             expect(err.isBoom).to.be.true()
-            expect(err.message).to.equal('Not Found')
+            expect(err.message).to.match(/Team with id [\d]+ could not be found/)
             done()
           })
         })
