@@ -2,6 +2,7 @@
 
 const Boom = require('boom')
 const Hoek = require('hoek')
+const config = require('./../lib/config')
 
 const internals = {}
 
@@ -51,7 +52,7 @@ internals.implementation = function (server, options) {
 
         // only allow the SuperAdmin to impersonate an org
         let organizationId = user.organizationId
-        if (organizationId === 'ROOT' && request.headers.org) {
+        if (organizationId === config.get('authorization.superUser.organization.id') && request.headers.org) {
           organizationId = request.headers.org
         }
 
