@@ -159,7 +159,7 @@ exports.register = function (server, options, next) {
         },
         payload: {
           name: Joi.string().required().description('user name'),
-          teams: Joi.array().required().items(Joi.number())
+          teams: Joi.array().required().items(Joi.string())
         },
         headers: Joi.object({
           'authorization': Joi.any().required()

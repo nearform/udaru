@@ -66,7 +66,7 @@ lab.experiment('UserOps', () => {
   })
 
   lab.test('update a user', (done) => {
-    const expected = { id: 'AugustusId', name: 'Augustus Gloop', organizationId: 'WONKA', teams: [{ id: 4, name: 'Managers' }], policies: [] }
+    const expected = { id: 'AugustusId', name: 'Augustus Gloop', organizationId: 'WONKA', teams: [{ id: '4', name: 'Managers' }], policies: [] }
     const data = {
       id: 'AugustusId',
       organizationId: 'WONKA',
@@ -85,7 +85,7 @@ lab.experiment('UserOps', () => {
   })
 
   lab.test('read a specific user', (done) => {
-    const expected = { id: 'VerucaId', name: 'Veruca Salt', organizationId: 'WONKA', teams: [{ id: 3, name: 'Authors' }, { id: 2, name: 'Readers' }], policies: [{ id: 2, version: '0.1', name: 'Accountant' }] }
+    const expected = { id: 'VerucaId', name: 'Veruca Salt', organizationId: 'WONKA', teams: [{ id: '3', name: 'Authors' }, { id: '2', name: 'Readers' }], policies: [{ id: 2, version: '0.1', name: 'Accountant' }] }
     userOps.readUser({ id: 'VerucaId', organizationId: 'WONKA' }, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()

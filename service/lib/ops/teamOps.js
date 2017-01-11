@@ -1,6 +1,7 @@
 'use strict'
 
 const Boom = require('boom')
+const uuid = require('uuid/v4')
 const db = require('./../db')
 const async = require('async')
 const policyOps = require('./policyOps')
@@ -8,6 +9,10 @@ const userOps = require('./userOps')
 const utils = require('./utils')
 const SQL = require('./../db/SQL')
 const mapping = require('./../mapping')
+
+function generateId () {
+  return uuid().replace(/-/g, '_')
+}
 
 function getId (obj) {
   return obj.id
@@ -28,10 +33,11 @@ function loadTeamDescendants (job, next) {
 }
 
 function insertTeam (job, next) {
+  const teamId = job.params.id || generateId()
 
   const sql = SQL`
     INSERT INTO teams (id, name, description, team_parent_id, org_id, path) VALUES (
-      DEFAULT,
+      ${teamId.toString()},
       ${job.params.name},
       ${job.params.description},
       ${job.params.parentId},
@@ -40,10 +46,10 @@ function insertTeam (job, next) {
 
   if (job.params.parentId) {
     sql.append(SQL`
-      (SELECT path FROM teams WHERE id = ${job.params.parentId}) || currval('teams_id_seq')::varchar
+      (SELECT path FROM teams WHERE id = ${job.params.parentId}) || ${teamId.toString()}
     `)
   } else {
-    sql.append(SQL`text2ltree(currval('teams_id_seq')::varchar)`)
+    sql.append(SQL`${teamId.toString()}`)
   }
 
   sql.append(SQL`)RETURNING id`)

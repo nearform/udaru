@@ -33,7 +33,7 @@ const UserRef = Joi.object({
 })
 
 const Team = Joi.object({
-  id: Joi.number(),
+  id: Joi.string(),
   name: Joi.string(),
   description: Joi.string(),
   path: Joi.string(),
@@ -45,7 +45,7 @@ const Team = Joi.object({
 const TeamList = Joi.array().items(Team)
 
 const TeamRef = Joi.object({
-  id: Joi.number(),
+  id: Joi.string(),
   name: Joi.string()
 })
 

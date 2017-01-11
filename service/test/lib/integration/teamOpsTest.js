@@ -307,7 +307,7 @@ lab.experiment('TeamOps', () => {
           teamOps.readTeam({ id: childId, organizationId: 'WONKA' }, (err) => {
             expect(err).to.exist()
             expect(err.isBoom).to.be.true()
-            expect(err.message).to.match(/Team with id [\d]+ could not be found/)
+            expect(err.message).to.match(/Team with id [a-zA-Z0-9_]+ could not be found/)
             done()
           })
         })
