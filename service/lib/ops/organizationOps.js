@@ -239,6 +239,7 @@ var organizationOps = {
    */
   update: function update (params, cb) {
     const { id, name, description } = params
+
     const sqlQuery = SQL`
       UPDATE organizations
       SET

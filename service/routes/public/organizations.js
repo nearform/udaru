@@ -107,11 +107,7 @@ exports.register = function (server, options, next) {
     method: 'DELETE',
     path: '/authorization/organizations/{id}',
     handler: function (request, reply) {
-      const params = [
-        request.params.id
-      ]
-
-      organizationOps.deleteById(params, function (err, res) {
+      organizationOps.deleteById(request.params.id, function (err, res) {
         if (err) {
           return reply(err)
         }
@@ -144,13 +140,10 @@ exports.register = function (server, options, next) {
     method: 'PUT',
     path: '/authorization/organizations/{id}',
     handler: function (request, reply) {
-      const params = [
-        request.params.id,
-        request.payload.name,
-        request.payload.description
-      ]
+      const { id } = request.params
+      const { name, description } = request.payload
 
-      organizationOps.update(params, reply)
+      organizationOps.update({id, name, description}, reply)
     },
     config: {
       validate: {
