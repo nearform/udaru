@@ -461,7 +461,7 @@ exports.register = function (server, options, next) {
           'authorization': Joi.any().required()
         }).unknown()
       },
-      description: 'Add team memebers',
+      description: 'Add team members',
       notes: 'The PUT /authorization/teams/{id}/users endpoint add one or more team members',
       tags: ['api', 'service', 'put', 'team', 'users'],
       plugins: {
@@ -502,7 +502,7 @@ exports.register = function (server, options, next) {
           'authorization': Joi.any().required()
         }).unknown()
       },
-      description: 'Replace team memebers with the given ones',
+      description: 'Replace team members with the given ones',
       notes: 'The POST /authorization/teams/{id}/users endpoint replace all team members',
       tags: ['api', 'service', 'post', 'team', 'users'],
       plugins: {
@@ -539,7 +539,7 @@ exports.register = function (server, options, next) {
           'authorization': Joi.any().required()
         }).unknown()
       },
-      description: 'Delete all team memebers with the given ones',
+      description: 'Delete all team members with the given ones',
       notes: 'The DELETE /authorization/teams/{id}/users endpoint removes all members of a team',
       tags: ['api', 'service', 'delete', 'team', 'users'],
       plugins: {
@@ -576,7 +576,7 @@ exports.register = function (server, options, next) {
           'authorization': Joi.any().required()
         }).unknown()
       },
-      description: 'Delete one team memeber',
+      description: 'Delete one team member',
       notes: 'The DELETE /authorization/teams/{id}/users/{userId} endpoint removes one member of a team',
       tags: ['api', 'service', 'delete', 'team', 'users'],
       plugins: {
