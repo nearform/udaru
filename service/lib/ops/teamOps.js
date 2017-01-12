@@ -55,7 +55,11 @@ function insertTeam (job, next) {
   sql.append(SQL`)RETURNING id`)
 
   job.client.query(sql, (err, res) => {
+    if (utils.isUniqueViolationError(err)) {
+      return next(Boom.badRequest(`Team with id ${teamId} already present`))
+    }
     if (err) return next(Boom.badImplementation(err))
+
     job.team = res.rows[0]
     next()
   })
