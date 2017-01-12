@@ -22,42 +22,42 @@ lab.experiment('Teams - get/list', () => {
       expect(response.statusCode).to.equal(200)
       expect(result).to.equal([
         {
-          id: 1,
+          id: '1',
           name: 'Admins',
           organizationId: 'WONKA',
           description: 'Administrators of the Authorization System',
           path: '1'
         },
         {
-          id: 3,
+          id: '3',
           name: 'Authors',
           organizationId: 'WONKA',
           description: 'Content contributors',
           path: '3'
         },
         {
-          id: 6,
+          id: '6',
           name: 'Company Lawyer',
           organizationId: 'WONKA',
           description: 'Author of legal documents',
           path: '6'
         },
         {
-          id: 4,
+          id: '4',
           name: 'Managers',
           organizationId: 'WONKA',
           description: 'General Line Managers with confidential info',
           path: '4'
         },
         {
-          id: 5,
+          id: '5',
           name: 'Personnel Managers',
           organizationId: 'WONKA',
           description: 'Personnel Line Managers with confidential info',
           path: '5'
         },
         {
-          id: 2,
+          id: '2',
           name: 'Readers',
           organizationId: 'WONKA',
           description: 'General read-only access',
@@ -80,7 +80,7 @@ lab.experiment('Teams - get/list', () => {
 
       expect(response.statusCode).to.equal(200)
       expect(result).to.equal({
-        id: 1,
+        id: '1',
         name: 'Admins',
         organizationId: 'WONKA',
         description: 'Administrators of the Authorization System',
@@ -95,7 +95,7 @@ lab.experiment('Teams - get/list', () => {
 })
 
 lab.experiment('Teams - create', () => {
-  lab.test('create new team', (done) => {
+  lab.test('default', (done) => {
     const options = utils.requestOptions({
       method: 'POST',
       url: '/authorization/teams',
@@ -109,21 +109,63 @@ lab.experiment('Teams - create', () => {
       const result = response.result
 
       expect(response.statusCode).to.equal(201)
-      expect(result).to.equal({
-        id: 7,
+      expect(result).to.contain({
         name: 'Team B',
         organizationId: 'WONKA',
         description: 'This is Team B',
-        path: '7',
         users: [],
         policies: []
+      })
+
+      expect(result.path).to.equal(result.id)
+
+      teamOps.deleteTeam({ id: result.id, organizationId: result.organizationId }, done)
+    })
+  })
+
+  lab.test('support specific id', (done) => {
+    const options = utils.requestOptions({
+      method: 'POST',
+      url: '/authorization/teams',
+      payload: {
+        id: 'test_fixed_id',
+        name: 'Team B',
+        description: 'This is Team B'
+      }
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(201)
+      expect(result).to.contain({
+        id: 'test_fixed_id',
+        path: 'test_fixed_id'
       })
 
       teamOps.deleteTeam({ id: result.id, organizationId: result.organizationId }, done)
     })
   })
 
-  lab.test('create new team should return a 400 Bad Request when not providing name or description', (done) => {
+  lab.test('validates specific id format', (done) => {
+    const options = utils.requestOptions({
+      method: 'POST',
+      url: '/authorization/teams',
+      payload: {
+        id: 'invalid-id',
+        name: 'Team B',
+        description: 'This is Team B'
+      }
+    })
+
+    server.inject(options, (response) => {
+      expect(response.statusCode).to.equal(400)
+      expect(response.result.validation.keys).to.include('id')
+      done()
+    })
+  })
+
+  lab.test('should return a 400 Bad Request when not providing name or description', (done) => {
     const options = utils.requestOptions({
       method: 'POST',
       url: '/authorization/teams',
@@ -168,7 +210,7 @@ lab.experiment('Teams - update', () => {
 
       expect(response.statusCode).to.equal(200)
       expect(result).to.equal({
-        id: 1,
+        id: '1',
         name: 'Team C',
         description: 'Administrators of the Authorization System',
         path: '1',
@@ -177,7 +219,7 @@ lab.experiment('Teams - update', () => {
         policies: [{ id: 1, name: 'Director', version: '0.1' }]
       })
 
-      teamOps.updateTeam({ id: 1, name: 'Admins', organizationId: result.organizationId }, done)
+      teamOps.updateTeam({ id: '1', name: 'Admins', organizationId: result.organizationId }, done)
     })
   })
 
@@ -195,7 +237,7 @@ lab.experiment('Teams - update', () => {
 
       expect(response.statusCode).to.equal(200)
       expect(result).to.equal({
-        id: 1,
+        id: '1',
         name: 'Admins',
         description: 'Team B is now Team C',
         path: '1',
@@ -204,13 +246,13 @@ lab.experiment('Teams - update', () => {
         policies: [{ id: 1, name: 'Director', version: '0.1' }]
       })
 
-      teamOps.updateTeam({ id: 1, description: 'Administrators of the Authorization System', organizationId: result.organizationId }, done)
+      teamOps.updateTeam({ id: '1', description: 'Administrators of the Authorization System', organizationId: result.organizationId }, done)
     })
   })
 
   lab.test('update team', (done) => {
     const teamOriginalData = {
-      id: 1,
+      id: '1',
       name: 'Admins',
       organizationId: 'WONKA',
       description: 'Administrators of the Authorization System'
@@ -229,7 +271,7 @@ lab.experiment('Teams - update', () => {
 
       expect(response.statusCode).to.equal(200)
       expect(result).to.equal({
-        id: 1,
+        id: '1',
         name: 'Team C',
         organizationId: 'WONKA',
         description: 'Team B is now Team C',
@@ -280,7 +322,7 @@ lab.experiment('Teams - manage users', () => {
 
       expect(response.statusCode).to.equal(200)
       expect(result).to.equal({
-        id: 2,
+        id: '2',
         name: 'Readers',
         description: 'General read-only access',
         path: '2',
@@ -293,7 +335,7 @@ lab.experiment('Teams - manage users', () => {
         policies: []
       })
 
-      teamOps.replaceUsersInTeam({ id: 2, users: ['CharlieId', 'VerucaId'], organizationId: 'WONKA' }, done)
+      teamOps.replaceUsersInTeam({ id: '2', users: ['CharlieId', 'VerucaId'], organizationId: 'WONKA' }, done)
     })
   })
 
@@ -311,7 +353,7 @@ lab.experiment('Teams - manage users', () => {
 
       expect(response.statusCode).to.equal(200)
       expect(result).to.equal({
-        id: 2,
+        id: '2',
         name: 'Readers',
         description: 'General read-only access',
         path: '2',
@@ -320,7 +362,7 @@ lab.experiment('Teams - manage users', () => {
         policies: []
       })
 
-      teamOps.replaceUsersInTeam({ id: 2, users: ['CharlieId', 'VerucaId'], organizationId: 'WONKA' }, done)
+      teamOps.replaceUsersInTeam({ id: '2', users: ['CharlieId', 'VerucaId'], organizationId: 'WONKA' }, done)
     })
   })
 
@@ -336,7 +378,7 @@ lab.experiment('Teams - manage users', () => {
       expect(response.statusCode).to.equal(204)
       expect(result).to.not.exist()
 
-      teamOps.replaceUsersInTeam({ id: 2, users: ['CharlieId', 'VerucaId'], organizationId: 'WONKA' }, done)
+      teamOps.replaceUsersInTeam({ id: '2', users: ['CharlieId', 'VerucaId'], organizationId: 'WONKA' }, done)
     })
   })
 
@@ -352,7 +394,7 @@ lab.experiment('Teams - manage users', () => {
       expect(response.statusCode).to.equal(204)
       expect(result).to.not.exist()
 
-      teamOps.replaceUsersInTeam({ id: 2, users: ['CharlieId', 'VerucaId'], organizationId: 'WONKA' }, done)
+      teamOps.replaceUsersInTeam({ id: '2', users: ['CharlieId', 'VerucaId'], organizationId: 'WONKA' }, done)
     })
   })
 })
@@ -363,7 +405,7 @@ lab.experiment('Teams - nest/un-nest', () => {
       method: 'PUT',
       url: '/authorization/teams/2/nest',
       payload: {
-        parentId: 3
+        parentId: '3'
       }
     })
 
@@ -372,7 +414,7 @@ lab.experiment('Teams - nest/un-nest', () => {
 
       expect(response.statusCode).to.equal(201)
       expect(result).to.equal({
-        id: 2,
+        id: '2',
         name: 'Readers',
         description: 'General read-only access',
         path: '3.2',
@@ -389,7 +431,7 @@ lab.experiment('Teams - nest/un-nest', () => {
   })
 
   lab.test('Un-nest team should update the team path', (done) => {
-    teamOps.moveTeam({ id: 2, parentId: 3, organizationId: 'WONKA' }, (err, res) => {
+    teamOps.moveTeam({ id: '2', parentId: '3', organizationId: 'WONKA' }, (err, res) => {
       expect(err).to.not.exist()
 
       const options = utils.requestOptions({
@@ -402,7 +444,7 @@ lab.experiment('Teams - nest/un-nest', () => {
 
         expect(response.statusCode).to.equal(201)
         expect(result).to.equal({
-          id: 2,
+          id: '2',
           name: 'Readers',
           description: 'General read-only access',
           path: '2',
@@ -435,7 +477,7 @@ lab.experiment('Teams - manage policies', () => {
 
       expect(response.statusCode).to.equal(200)
       expect(result).to.equal({
-        id: 1,
+        id: '1',
         name: 'Admins',
         description: 'Administrators of the Authorization System',
         path: '1',
@@ -465,7 +507,7 @@ lab.experiment('Teams - manage policies', () => {
 
       expect(response.statusCode).to.equal(200)
       expect(result).to.equal({
-        id: 1,
+        id: '1',
         name: 'Admins',
         description: 'Administrators of the Authorization System',
         path: '1',
@@ -497,7 +539,7 @@ lab.experiment('Teams - manage policies', () => {
 
       expect(response.statusCode).to.equal(200)
       expect(result).to.equal({
-        id: 1,
+        id: '1',
         name: 'Admins',
         description: 'Administrators of the Authorization System',
         path: '1',
@@ -519,7 +561,7 @@ lab.experiment('Teams - manage policies', () => {
     server.inject(options, (response) => {
       expect(response.statusCode).to.equal(204)
 
-      teamOps.replaceTeamPolicies({ id: 1, policies: [1], organizationId: 'WONKA' }, done)
+      teamOps.replaceTeamPolicies({ id: '1', policies: [1], organizationId: 'WONKA' }, done)
     })
   })
 
@@ -580,7 +622,7 @@ lab.experiment('Teams - manage policies', () => {
     server.inject(options, (response) => {
       expect(response.statusCode).to.equal(204)
 
-      teamOps.replaceTeamPolicies({ id: 1, policies: [1], organizationId: 'WONKA' }, done)
+      teamOps.replaceTeamPolicies({ id: '1', policies: [1], organizationId: 'WONKA' }, done)
     })
   })
 })
@@ -655,7 +697,7 @@ lab.experiment('Teams - checking org_id scoping', () => {
       method: 'PUT',
       url: `/authorization/teams/${teamId}/nest`,
       payload: {
-        parentId: 1
+        parentId: '1'
       }
     })
 

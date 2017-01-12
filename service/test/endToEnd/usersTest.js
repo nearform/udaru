@@ -49,7 +49,7 @@ lab.experiment('Users: read - delete - update', () => {
         policies: [],
         teams: [
           {
-            id: 1,
+            id: '1',
             name: 'Admins'
           }
         ]
@@ -88,7 +88,7 @@ lab.experiment('Users: read - delete - update', () => {
       url: '/authorization/users/ModifyId',
       payload: {
         name: 'Modify you',
-        teams: [3, 4]
+        teams: ['3', '4']
       }
     })
 
@@ -101,8 +101,8 @@ lab.experiment('Users: read - delete - update', () => {
         name: 'Modify you',
         organizationId: 'WONKA',
         teams: [
-          { id: 3, name: 'Authors' },
-          { id: 4, name: 'Managers' }
+          { id: '3', name: 'Authors' },
+          { id: '4', name: 'Managers' }
         ],
         policies: []
       })
