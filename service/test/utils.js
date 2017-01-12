@@ -1,5 +1,7 @@
 'use strict'
 
+let _ = require('lodash')
+
 /**
  * Merge the authorization default header with the provided options
  *
@@ -17,6 +19,11 @@ function requestOptions (customOptions) {
   return Object.assign(defaultOptions, customOptions)
 }
 
+function findPick (arr, search, fields) {
+  return _.pick(_.find(arr, search), fields)
+}
+
 module.exports = {
-  requestOptions: requestOptions
+  requestOptions,
+  findPick
 }

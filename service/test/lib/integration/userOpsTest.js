@@ -1,18 +1,52 @@
 'use strict'
 
+const _ = require('lodash')
 const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 
+const u = require('../../utils')
+const teamOps = require('../../../lib/ops/teamOps')
 const userOps = require('../../../lib/ops/userOps')
+const policyOps = require('../../../lib/ops/policyOps')
 
 lab.experiment('UserOps', () => {
+
+  let wonkaTeams
+  let wonkaPolicies
+
+  lab.before(done => {
+    teamOps.listOrgTeams({organizationId: 'WONKA'}, (err, teams) => {
+
+      if (err) return done(err)
+      wonkaTeams = teams
+
+      policyOps.listByOrganization({organizationId: 'WONKA'}, (err, policies) => {
+
+        if (err) return done(err)
+        wonkaPolicies = policies
+
+        done()
+      })
+    })
+  })
 
   lab.test('list of org users', (done) => {
     userOps.listOrgUsers({ organizationId: 'WONKA' }, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
-      expect(result.length).to.equal(7)
+      let expectedUserIds = [
+        'AugustusId',
+        'CharlieId',
+        'ManyPoliciesId',
+        'MikeId',
+        'ModifyId',
+        'VerucaId',
+        'WillyId'
+      ]
+      expectedUserIds.forEach(userId => {
+        expect(_.find(result, {id: userId}), userId).to.exist()
+      })
 
       done()
     })
@@ -66,12 +100,19 @@ lab.experiment('UserOps', () => {
   })
 
   lab.test('update a user', (done) => {
-    const expected = { id: 'AugustusId', name: 'Augustus Gloop', organizationId: 'WONKA', teams: [{ id: 4, name: 'Managers' }], policies: [] }
+    let managersTeam = u.findPick(wonkaTeams, {name: 'Managers'}, ['id', 'name'])
+    const expected = {
+      id: 'AugustusId',
+      name: 'Augustus Gloop',
+      organizationId: 'WONKA',
+      teams: [managersTeam],
+      policies: []
+    }
     const data = {
       id: 'AugustusId',
       organizationId: 'WONKA',
       name: 'Augustus Gloop',
-      teams: [4]
+      teams: [managersTeam.id]
     }
 
     userOps.updateUser(data, (err, result) => {
@@ -79,13 +120,28 @@ lab.experiment('UserOps', () => {
       expect(result).to.exist()
       expect(result).to.equal(expected)
 
-      data.teams = [4, 5]
+      let pManagersTeam = _.find(wonkaTeams, {name: 'Personnel Managers'})
+      data.teams = [managersTeam.id, pManagersTeam.id]
       userOps.updateUser(data, done)
     })
   })
 
   lab.test('read a specific user', (done) => {
-    const expected = { id: 'VerucaId', name: 'Veruca Salt', organizationId: 'WONKA', teams: [{ id: 3, name: 'Authors' }, { id: 2, name: 'Readers' }], policies: [{ id: 2, version: '0.1', name: 'Accountant' }] }
+    let authorsTeam = u.findPick(wonkaTeams, {name: 'Authors'}, ['id', 'name'])
+    let readersTeam = u.findPick(wonkaTeams, {name: 'Readers'}, ['id', 'name'])
+    let accountantPolicy = u.findPick(wonkaPolicies, {name: 'Accountant'}, ['id', 'name', 'version'])
+    const expected = {
+      id: 'VerucaId',
+      name: 'Veruca Salt',
+      organizationId: 'WONKA',
+      teams: [
+        authorsTeam,
+        readersTeam
+      ],
+      policies: [
+        accountantPolicy
+      ]
+    }
     userOps.readUser({ id: 'VerucaId', organizationId: 'WONKA' }, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
@@ -117,17 +173,25 @@ lab.experiment('UserOps', () => {
   })
 
   lab.test('replace user\'s policies', (done) => {
+    let accountantPolicy = u.findPick(wonkaPolicies, {name: 'Accountant'}, ['id', 'name', 'version'])
+    let directorPolicy = u.findPick(wonkaPolicies, {name: 'Director'}, ['id', 'name', 'version'])
+    let sysadminPolicy = u.findPick(wonkaPolicies, {name: 'Sys admin'}, ['id', 'name', 'version'])
+
     userOps.readUser({ id: 'VerucaId', organizationId: 'WONKA' }, (err, user) => {
       expect(err).to.not.exist()
       expect(user).to.exist()
-      expect(user.policies).to.equal([{ id: 2, name: 'Accountant', version: '0.1' }])
+      expect(user.policies).to.equal([accountantPolicy])
 
-      userOps.replaceUserPolicies({ id: 'VerucaId', policies: [1, 3], organizationId: 'WONKA' }, (err, user) => {
+      userOps.replaceUserPolicies({
+        id: 'VerucaId',
+        policies: [directorPolicy.id, sysadminPolicy.id],
+        organizationId: 'WONKA'
+      }, (err, user) => {
         expect(err).to.not.exist()
         expect(user).to.exist()
-        expect(user.policies).to.equal([{ id: 1, name: 'Director', version: '0.1' }, { id: 3, name: 'Sys admin', version: '0.1' }])
+        expect(user.policies).to.equal([directorPolicy, sysadminPolicy])
 
-        userOps.replaceUserPolicies({ id: 'VerucaId', policies: [2], organizationId: 'WONKA' }, (err, user) => {
+        userOps.replaceUserPolicies({ id: 'VerucaId', policies: [accountantPolicy.id], organizationId: 'WONKA' }, (err, user) => {
           expect(err).to.not.exist()
           done()
         })
@@ -136,17 +200,25 @@ lab.experiment('UserOps', () => {
   })
 
   lab.test('add policies to user', (done) => {
+    let accountantPolicy = u.findPick(wonkaPolicies, {name: 'Accountant'}, ['id', 'name', 'version'])
+    let directorPolicy = u.findPick(wonkaPolicies, {name: 'Director'}, ['id', 'name', 'version'])
+    let sysadminPolicy = u.findPick(wonkaPolicies, {name: 'Sys admin'}, ['id', 'name', 'version'])
+
     userOps.readUser({ id: 'VerucaId', organizationId: 'WONKA' }, (err, user) => {
       expect(err).to.not.exist()
       expect(user).to.exist()
-      expect(user.policies).to.equal([{ id: 2, name: 'Accountant', version: '0.1' }])
+      expect(user.policies).to.equal([accountantPolicy])
 
-      userOps.addUserPolicies({ id: 'VerucaId', policies: [1, 3], organizationId: 'WONKA' }, (err, user) => {
+      userOps.addUserPolicies({ id: 'VerucaId', policies: [directorPolicy.id, sysadminPolicy.id], organizationId: 'WONKA' }, (err, user) => {
         expect(err).to.not.exist()
         expect(user).to.exist()
-        expect(user.policies).to.equal([{ id: 2, name: 'Accountant', version: '0.1' }, { id: 1, name: 'Director', version: '0.1' }, { id: 3, name: 'Sys admin', version: '0.1' }])
+        expect(user.policies).to.equal([
+          accountantPolicy,
+          directorPolicy,
+          sysadminPolicy
+        ])
 
-        userOps.replaceUserPolicies({ id: 'VerucaId', policies: [2], organizationId: 'WONKA' }, (err, user) => {
+        userOps.replaceUserPolicies({ id: 'VerucaId', policies: [accountantPolicy.id], organizationId: 'WONKA' }, (err, user) => {
           expect(err).to.not.exist()
           done()
         })
@@ -155,17 +227,33 @@ lab.experiment('UserOps', () => {
   })
 
   lab.test('add twice the same policy to a user', (done) => {
+    let accountantPolicy = u.findPick(wonkaPolicies, {name: 'Accountant'}, ['id', 'name', 'version'])
+    let directorPolicy = u.findPick(wonkaPolicies, {name: 'Director'}, ['id', 'name', 'version'])
+    let sysadminPolicy = u.findPick(wonkaPolicies, {name: 'Sys admin'}, ['id', 'name', 'version'])
+
     userOps.readUser({ id: 'VerucaId', organizationId: 'WONKA' }, (err, user) => {
       expect(err).to.not.exist()
       expect(user).to.exist()
-      expect(user.policies).to.equal([{ id: 2, name: 'Accountant', version: '0.1' }])
+      expect(user.policies).to.equal([accountantPolicy])
 
-      userOps.addUserPolicies({ id: 'VerucaId', policies: [1, 2, 3], organizationId: 'WONKA' }, (err, user) => {
+      userOps.addUserPolicies({
+        id: 'VerucaId',
+        policies: [
+          accountantPolicy.id,
+          directorPolicy.id,
+          sysadminPolicy.id
+        ],
+        organizationId: 'WONKA'
+      }, (err, user) => {
         expect(err).to.not.exist()
         expect(user).to.exist()
-        expect(user.policies).to.equal([{ id: 2, name: 'Accountant', version: '0.1' }, { id: 1, name: 'Director', version: '0.1' }, { id: 3, name: 'Sys admin', version: '0.1' }])
+        expect(user.policies).to.equal([
+          accountantPolicy,
+          directorPolicy,
+          sysadminPolicy
+        ])
 
-        userOps.replaceUserPolicies({ id: 'VerucaId', policies: [2], organizationId: 'WONKA' }, (err, user) => {
+        userOps.replaceUserPolicies({ id: 'VerucaId', policies: [accountantPolicy.id], organizationId: 'WONKA' }, (err, user) => {
           expect(err).to.not.exist()
           done()
         })
@@ -174,17 +262,19 @@ lab.experiment('UserOps', () => {
   })
 
   lab.test('delete user\'s policies', (done) => {
+    let accountantPolicy = u.findPick(wonkaPolicies, {name: 'Accountant'}, ['id', 'name', 'version'])
+
     userOps.readUser({ id: 'VerucaId', organizationId: 'WONKA' }, (err, user) => {
       expect(err).to.not.exist()
       expect(user).to.exist()
-      expect(user.policies).to.equal([{ id: 2, name: 'Accountant', version: '0.1' }])
+      expect(user.policies).to.equal([accountantPolicy])
 
       userOps.deleteUserPolicies({ id: 'VerucaId', organizationId: 'WONKA' }, (err, user) => {
         expect(err).to.not.exist()
         expect(user).to.exist()
         expect(user.policies).to.equal([])
 
-        userOps.replaceUserPolicies({ id: 'VerucaId', policies: [2], organizationId: 'WONKA' }, (err, user) => {
+        userOps.replaceUserPolicies({ id: 'VerucaId', policies: [accountantPolicy.id], organizationId: 'WONKA' }, (err, user) => {
           expect(err).to.not.exist()
           done()
         })
@@ -193,17 +283,19 @@ lab.experiment('UserOps', () => {
   })
 
   lab.test('delete specific user\'s policy', (done) => {
+    let accountantPolicy = u.findPick(wonkaPolicies, {name: 'Accountant'}, ['id', 'name', 'version'])
+
     userOps.readUser({ id: 'VerucaId', organizationId: 'WONKA' }, (err, user) => {
       expect(err).to.not.exist()
       expect(user).to.exist()
-      expect(user.policies).to.equal([{ id: 2, name: 'Accountant', version: '0.1' }])
+      expect(user.policies).to.equal([accountantPolicy])
 
-      userOps.deleteUserPolicy({ userId: 'VerucaId', policyId: 2, organizationId: 'WONKA' }, (err, user) => {
+      userOps.deleteUserPolicy({ userId: 'VerucaId', policyId: accountantPolicy.id, organizationId: 'WONKA' }, (err, user) => {
         expect(err).to.not.exist()
         expect(user).to.exist()
         expect(user.policies).to.equal([])
 
-        userOps.replaceUserPolicies({ id: 'VerucaId', policies: [2], organizationId: 'WONKA' }, (err, user) => {
+        userOps.replaceUserPolicies({ id: 'VerucaId', policies: [accountantPolicy.id], organizationId: 'WONKA' }, (err, user) => {
           expect(err).to.not.exist()
           done()
         })
