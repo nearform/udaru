@@ -16,8 +16,8 @@ const config = {
 const client = new pg.Client(config)
 
 const insertData = (data, done) => {
-  client.query('INSERT INTO policies (version, name, org_id, statements) VALUES ($1, $2, $3, $4)', data, (err, result) => {
-    console.log('Inserting %s', data[1])
+  client.query('INSERT INTO policies (id, version, name, org_id, statements) VALUES ($1, $2, $3, $4, $5)', data, (err, result) => {
+    console.log('Inserting %s', data[0])
     if (err) {
       console.error(err)
       return done(err)
