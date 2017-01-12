@@ -15,8 +15,6 @@ const policyOps = require('../../../lib/ops/policyOps')
 const fs = require('fs')
 const path = require('path')
 
-let testUserId
-let testTeamId
 const organizationId = 'WONKA'
 const testUserData = {
   name: 'Salman',
@@ -31,6 +29,8 @@ const updateUserData = {
 
 lab.experiment('AuthorizeOps', () => {
 
+  let testUserId
+  let testTeamId
   let wonkaPolicies
 
   lab.before((done) => {
