@@ -280,15 +280,17 @@ var teamOps = {
     const { organizationId } = params
 
     const sqlQuery = SQL`
-      SELECT  *
+      SELECT teams.id, teams.name, teams.description, teams.path, teams.org_id, COUNT(team_members.team_id) AS members
       FROM teams
+      LEFT JOIN team_members ON team_members.team_id = teams.id
       WHERE org_id = ${organizationId}
+      GROUP BY teams.id, teams.name, teams.description, teams.path, teams.org_id
       ORDER BY UPPER(name)
     `
     db.query(sqlQuery, function (err, result) {
       if (err) return cb(err)
 
-      return cb(null, result.rows.map(mapping.team))
+      return cb(null, result.rows.map(mapping.team.list))
     })
   },
 
