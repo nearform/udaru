@@ -33,42 +33,48 @@ lab.experiment('Teams - get/list', () => {
           name: 'Admins',
           organizationId: 'WONKA',
           description: 'Administrators of the Authorization System',
-          path: '1'
+          path: '1',
+          membersCount: '1'
         },
         {
           id: '3',
           name: 'Authors',
           organizationId: 'WONKA',
           description: 'Content contributors',
-          path: '3'
+          path: '3',
+          membersCount: '1'
         },
         {
           id: '6',
           name: 'Company Lawyer',
           organizationId: 'WONKA',
           description: 'Author of legal documents',
-          path: '6'
+          path: '6',
+          membersCount: '0'
         },
         {
           id: '4',
           name: 'Managers',
           organizationId: 'WONKA',
           description: 'General Line Managers with confidential info',
-          path: '4'
+          path: '4',
+          membersCount: '1'
         },
         {
           id: '5',
           name: 'Personnel Managers',
           organizationId: 'WONKA',
           description: 'Personnel Line Managers with confidential info',
-          path: '5'
+          path: '5',
+          membersCount: '1'
         },
         {
           id: '2',
           name: 'Readers',
           organizationId: 'WONKA',
           description: 'General read-only access',
-          path: '2'
+          path: '2',
+          membersCount: '2'
         }
       ])
 

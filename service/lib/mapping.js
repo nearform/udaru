@@ -63,6 +63,19 @@ function mapTeam (row) {
   }
 }
 
+function mapTeamList (row) {
+  return {
+    id: row.id,
+    name: row.name,
+    description: row.description,
+    path: row.path,
+    organizationId: row.org_id,
+    membersCount: row.members
+  }
+}
+
+mapTeam.list = mapTeamList
+
 function mapTeamSimple (row) {
   return {
     id: row.id,
