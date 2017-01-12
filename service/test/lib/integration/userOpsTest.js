@@ -44,9 +44,7 @@ lab.experiment('UserOps', () => {
         'VerucaId',
         'WillyId'
       ]
-      expectedUserIds.forEach(userId => {
-        expect(_.find(result, {id: userId}), userId).to.exist()
-      })
+      expect(_.map(result, 'id')).contains(expectedUserIds)
 
       done()
     })
