@@ -66,7 +66,7 @@ lab.experiment('Teams', () => {
   lab.test('update team should return error for error case', (done) => {
     teamOps.updateTeam = (params, cb) => {
       expect(params).to.equal({
-        id: 2,
+        id: '2',
         name: 'Team D',
         description: 'Can Team C become Team D?',
         organizationId: 'WONKA'
@@ -97,7 +97,7 @@ lab.experiment('Teams', () => {
 
   lab.test('delete team should return error for error case', (done) => {
     teamOps.deleteTeam = (params, cb) => {
-      expect(params).to.equal({ id: 1, organizationId: 'WONKA' })
+      expect(params).to.equal({ id: '1', organizationId: 'WONKA' })
       process.nextTick(() => {
         cb(Boom.badImplementation())
       })
