@@ -95,6 +95,8 @@ lab.experiment('Teams - get/list', () => {
         const result = response.result
 
         expect(response.statusCode).to.equal(200)
+        expect(result.usersCount).to.exist()
+        expect(result.usersCount).to.equal(0)
         expect(result.id).to.equal(team.id)
         expect(result.name).to.equal(team.name)
 
@@ -454,6 +456,7 @@ lab.experiment('Teams - manage users', () => {
           description: 'This is a test team',
           path: team.path,
           organizationId: 'WONKA',
+          usersCount: 3,
           users: [
             { id: 'CharlieId', name: 'Charlie Bucket' },
             { id: 'MikeId', name: 'Mike Teavee' },

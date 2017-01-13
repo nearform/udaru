@@ -162,6 +162,10 @@ lab.experiment('TeamOps', () => {
       expect(result).to.exist()
       expect(result.name).to.equal(testTeam.name)
       expect(result.description).to.equal(testTeam.description)
+      expect(result.usersCount).to.equal(1)
+      expect(result.usersCount).to.equal(result.users.length)
+      expect(result.users.length).to.equal(1)
+      expect(result.policies.length).to.equal(1)
 
       done()
     })

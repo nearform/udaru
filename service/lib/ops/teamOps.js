@@ -376,6 +376,7 @@ var teamOps = {
       db.query(sql, function (err, result) {
         if (err) return next(Boom.badImplementation(err))
 
+        team.usersCount = result.rowCount
         team.users = result.rows.map(mapping.user.simple)
         next()
       })
