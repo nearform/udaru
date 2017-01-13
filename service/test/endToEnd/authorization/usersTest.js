@@ -751,5 +751,226 @@ lab.experiment('Routes Authorizations', () => {
       })
     })
 
+    lab.experiment('PUT', () => {
+
+      const organizationId = 'WONKA'
+      const calledId = 'called-id'
+      const userData = {
+        name: 'called user',
+        teams: []
+      }
+      let callerId
+      let calledTeamId
+      let policyId
+
+      function Policy (Statement) {
+        return {
+          id: policyId || null,
+          version: '2016-07-01',
+          name: 'Test Policy',
+          statements: JSON.stringify({
+            Statement: Statement || [{
+              Effect: 'Allow',
+              Action: ['dummy'],
+              Resource: ['dummy']
+            }]
+          }),
+          organizationId
+        }
+      }
+
+      lab.before((done) => {
+        userOps.createUser({ name: 'caller', organizationId }, (err, caller) => {
+          if (err) return done(err)
+          callerId = caller.id
+
+          userOps.createUser({ id: calledId, name: 'called', organizationId }, (err, called) => {
+            if (err) return done(err)
+
+            teamOps.createTeam({ name: 'called team', organizationId }, (err, team) => {
+              if (err) return done(err)
+              calledTeamId = team.id
+
+              teamOps.addUsersToTeam({ id: calledTeamId, users: [calledId], organizationId }, (err) => {
+                if (err) return done(err)
+
+                const policyCreateData = Policy()
+
+                policyOps.createPolicy(policyCreateData, (err, policy) => {
+                  if (err) return done(err)
+                  policyId = policy.id
+
+                  userOps.addUserPolicies({ id: callerId, organizationId, policies: [policyId] }, done)
+                })
+              })
+            })
+          })
+        })
+      })
+
+      lab.after((done) => {
+        userOps.deleteUser({ id: callerId, organizationId }, (err) => {
+          if (err) return done(err)
+          userOps.deleteUser({ id: calledId, organizationId }, (err) => {
+            if (err) return done(err)
+            teamOps.deleteTeam({ id: calledTeamId, organizationId }, (err) => {
+              if (err) return done(err)
+              policyOps.deletePolicy({ id: policyId, organizationId }, done)
+            })
+          })
+        })
+      })
+
+      lab.test('should authorize caller with policy for specific users', (done) => {
+
+        const policyData = Policy([{
+          Effect: 'Allow',
+          Action: ['authorization:users:update'],
+          Resource: [`/authorization/user/WONKA/*/${calledId}`]
+        }])
+
+        policyOps.updatePolicy(policyData, (err, policy) => {
+          if (err) return done(err)
+
+          const options = utils.requestOptions({
+            method: 'PUT',
+            url: `/authorization/users/${calledId}`,
+            payload: userData,
+            headers: { authorization: callerId }
+          })
+
+          server.inject(options, (response) => {
+            expect(response.statusCode).to.equal(200)
+            done()
+          })
+        })
+      })
+
+      lab.test.skip('should authorize caller with policy for all users in specific team', (done) => {
+
+        const policyData = Policy([{
+          Effect: 'Allow',
+          Action: ['authorization:users:update'],
+          Resource: [`/authorization/user/WONKA/${calledTeamId}/*`]
+        }])
+
+        policyOps.updatePolicy(policyData, (err, policy) => {
+          if (err) return done(err)
+
+          const options = utils.requestOptions({
+            method: 'PUT',
+            url: `/authorization/users/${calledId}`,
+            payload: userData,
+            headers: { authorization: callerId }
+          })
+
+          server.inject(options, (response) => {
+            expect(response.statusCode).to.equal(200)
+            done()
+          })
+        })
+      })
+
+      lab.test('should authorize caller with policy for all users', (done) => {
+
+        const policyData = Policy([{
+          Effect: 'Allow',
+          Action: ['authorization:users:update'],
+          Resource: ['/authorization/user/WONKA/*']
+        }])
+
+        policyOps.updatePolicy(policyData, (err, policy) => {
+          if (err) return done(err)
+
+          const options = utils.requestOptions({
+            method: 'PUT',
+            url: `/authorization/users/${calledId}`,
+            payload: userData,
+            headers: { authorization: callerId }
+          })
+
+          server.inject(options, (response) => {
+            expect(response.statusCode).to.equal(200)
+            done()
+          })
+        })
+      })
+
+      lab.test('should authorize caller with policy for all user actions', (done) => {
+
+        const policyData = Policy([{
+          Effect: 'Allow',
+          Action: ['authorization:users:*'],
+          Resource: ['/authorization/user/WONKA/*']
+        }])
+
+        policyOps.updatePolicy(policyData, (err, policy) => {
+          if (err) return done(err)
+
+          const options = utils.requestOptions({
+            method: 'PUT',
+            url: `/authorization/users/${calledId}`,
+            payload: userData,
+            headers: { authorization: callerId }
+          })
+
+          server.inject(options, (response) => {
+            expect(response.statusCode).to.equal(200)
+            done()
+          })
+        })
+      })
+
+      lab.test('should not authorize caller without a correct policy (action)', (done) => {
+
+        const policyData = Policy([{
+          Effect: 'Allow',
+          Action: ['authorization:users:dummy'],
+          Resource: ['/authorization/user/WONKA/*']
+        }])
+
+        policyOps.updatePolicy(policyData, (err, policy) => {
+          if (err) return done(err)
+
+          const options = utils.requestOptions({
+            method: 'PUT',
+            url: `/authorization/users/${calledId}`,
+            payload: userData,
+            headers: { authorization: callerId }
+          })
+
+          server.inject(options, (response) => {
+            expect(response.statusCode).to.equal(403)
+            done()
+          })
+        })
+      })
+
+      lab.test('should not authorize caller without a correct policy (resource)', (done) => {
+
+        const policyData = Policy([{
+          Effect: 'Allow',
+          Action: ['authorization:users:update'],
+          Resource: ['/authorization/user/WONKA/*/dummy']
+        }])
+
+        policyOps.updatePolicy(policyData, (err, policy) => {
+          if (err) return done(err)
+
+          const options = utils.requestOptions({
+            method: 'PUT',
+            url: `/authorization/users/${calledId}`,
+            payload: userData,
+            headers: { authorization: callerId }
+          })
+
+          server.inject(options, (response) => {
+            expect(response.statusCode).to.equal(403)
+            done()
+          })
+        })
+      })
+    })
+
   })
 })
