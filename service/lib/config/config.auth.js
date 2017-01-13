@@ -1,15 +1,5 @@
 const Reconfig = require('reconfig')
 
-const actionsDefinition = require('./../../conf/actions.json')
-
-const actionsConfig = new Reconfig({
-  template: '{{ definition.namespace }}:[context]:[operation]',
-  definition: actionsDefinition
-}, {
-  paramsInterpolation: ['[', ']'],
-  envPrefix: 'LABS_AUTH_ACTIONS'
-})
-
 const resourcesConfig = new Reconfig({
   namespace: 'authorization',
   templates: {
@@ -25,50 +15,50 @@ const resourcesConfig = new Reconfig({
 
 const Actions = {
   // organization
-  CreateOrganization: generateAction('organization', 'create'),
-  UpdateOrganization: generateAction('organization', 'update'),
-  ReadOrganization: generateAction('organization', 'read'),
-  DeleteOrganization: generateAction('organization', 'delete'),
-  ListOrganizations: generateAction('organization', 'list'),
-  AllOrganization: generateAction('organization'),
+  CreateOrganization: 'authorization:organizations:create',
+  UpdateOrganization: 'authorization:organizations:update',
+  ReadOrganization: 'authorization:organizations:read',
+  DeleteOrganization: 'authorization:organizations:delete',
+  ListOrganizations: 'authorization:organizations:list',
+  AllOrganization: 'authorization:organizations:*',
 
   // team
-  CreateTeam: generateAction('team', 'create'),
-  UpdateTeam: generateAction('team', 'update'),
-  ReadTeam: generateAction('team', 'read'),
-  DeleteTeam: generateAction('team', 'delete'),
-  ListTeams: generateAction('team', 'list'),
-  ManageTeams: generateAction('team', 'manage'),
-  AddTeamPolicy: generateAction('team', 'addPolicy'),
-  ReplaceTeamPolicy: generateAction('team', 'replacePolicy'),
-  RemoveTeamPolicy: generateAction('team', 'removePolicy'),
-  AddTeamMember: generateAction('team', 'addMember'),
-  ReplaceTeamMember: generateAction('team', 'replaceMember'),
-  RemoveTeamMember: generateAction('team', 'removeMember'),
-  AllTeam: generateAction('team'),
+  CreateTeam: 'authorization:teams:create',
+  UpdateTeam: 'authorization:teams:update',
+  ReadTeam: 'authorization:teams:read',
+  DeleteTeam: 'authorization:teams:delete',
+  ListTeams: 'authorization:teams:list',
+  ManageTeams: 'authorization:teams:manage',
+  AddTeamPolicy: 'authorization:teams:policy:add',
+  ReplaceTeamPolicy: 'authorization:teams:policy:replace',
+  RemoveTeamPolicy: 'authorization:teams:policy:remove',
+  AddTeamMember: 'authorization:teams:user:add',
+  ReplaceTeamMember: 'authorization:teams:user:replace',
+  RemoveTeamMember: 'authorization:teams:user:remove',
+  AllTeam: 'authorization:teams:*',
 
   // user
-  CreateUser: generateAction('user', 'create'),
-  UpdateUser: generateAction('user', 'update'),
-  ReadUser: generateAction('user', 'read'),
-  DeleteUser: generateAction('user', 'delete'),
-  ListUsers: generateAction('user', 'list'),
-  AddUserPolicy: generateAction('user', 'addPolicy'),
-  ReplaceUserPolicy: generateAction('user', 'replacePolicy'),
-  RemoveUserPolicy: generateAction('user', 'removePolicy'),
-  AllUser: generateAction('user'),
+  CreateUser: 'authorization:users:create',
+  UpdateUser: 'authorization:users:update',
+  ReadUser: 'authorization:users:read',
+  DeleteUser: 'authorization:users:delete',
+  ListUsers: 'authorization:users:list',
+  AddUserPolicy: 'authorization:users:policy:add',
+  ReplaceUserPolicy: 'authorization:users:policy:replace',
+  RemoveUserPolicy: 'authorization:users:policy:remove',
+  AllUser: 'authorization:users:*',
 
   // policy
-  CreatePolicy: generateAction('policy', 'create'),
-  UpdatePolicy: generateAction('policy', 'update'),
-  ReadPolicy: generateAction('policy', 'read'),
-  DeletePolicy: generateAction('policy', 'delete'),
-  ListPolicies: generateAction('policy', 'list'),
-  AllPolicy: generateAction('policy'),
+  CreatePolicy: 'authorization:policies:create',
+  UpdatePolicy: 'authorization:policies:update',
+  ReadPolicy: 'authorization:policies:read',
+  DeletePolicy: 'authorization:policies:delete',
+  ListPolicies: 'authorization:policies:list',
+  AllPolicy: 'authorization:policies:*',
 
   // authorization
-  CheckAccess: generateAction('authorization', 'access'),
-  ListActions: generateAction('authorization', 'actions')
+  CheckAccess: 'authorization:authn:access',
+  ListActions: 'authorization:authn:actions'
 }
 
 module.exports = {
@@ -79,16 +69,6 @@ module.exports = {
     users: getResource.bind(null, 'users'),
     policies: getResource.bind(null, 'policies')
   }
-}
-
-function generateAction (context, operation) {
-  const ctx = actionsConfig.get(`definition.${context}.text`)
-  const op = operation ? actionsConfig.get(`definition.${context}.operations.${operation}`) : '*'
-
-  return actionsConfig.get('template', {
-    context: ctx,
-    operation: op
-  })
 }
 
 function getResource (type, data = {}) {
