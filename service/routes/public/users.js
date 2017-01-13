@@ -142,13 +142,12 @@ exports.register = function (server, options, next) {
     handler: function (request, reply) {
       const { organizationId } = request.udaru
       const id = request.params.id
-      const { name, teams } = request.payload
+      const { name } = request.payload
 
       const params = {
         id,
         organizationId,
-        name,
-        teams
+        name
       }
       userOps.updateUser(params, reply)
     },
@@ -158,8 +157,7 @@ exports.register = function (server, options, next) {
           id: Joi.string().required().description('user id')
         },
         payload: {
-          name: Joi.string().required().description('user name'),
-          teams: Joi.array().required().items(Joi.string())
+          name: Joi.string().required().description('user name')
         },
         headers: Joi.object({
           'authorization': Joi.any().required()

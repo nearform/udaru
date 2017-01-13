@@ -94,8 +94,7 @@ lab.experiment('Users: read - delete - update', () => {
       method: 'PUT',
       url: '/authorization/users/ModifyId',
       payload: {
-        name: 'Modify you',
-        teams: ['3', '4']
+        name: 'Modify you'
       }
     })
 
@@ -107,14 +106,11 @@ lab.experiment('Users: read - delete - update', () => {
         id: 'ModifyId',
         name: 'Modify you',
         organizationId: 'WONKA',
-        teams: [
-          { id: '3', name: 'Authors' },
-          { id: '4', name: 'Managers' }
-        ],
+        teams: [],
         policies: []
       })
 
-      userOps.updateUser({ name: 'Modify Me', id: 'ModifyId', organizationId: 'WONKA', teams: [] }, done)
+      userOps.updateUser({ name: 'Modify Me', id: 'ModifyId', organizationId: 'WONKA' }, done)
     })
   })
 })
