@@ -139,9 +139,7 @@ const userOps = {
    * @param  {Function}    cb
    */
   insertUser: function insertUser (client, { id, name, organizationId }, cb) {
-    if (!id) {
-      id = uuidV4()
-    }
+    id = id || uuidV4()
 
     const sqlQuery = SQL`
       INSERT INTO users (

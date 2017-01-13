@@ -15,15 +15,17 @@ exports.register = function (server, options, next) {
     handler: function (request, reply) {
       if (!serviceKey.hasValidServiceKey(request)) return reply(Boom.forbidden())
 
-      const { version, name, statements } = request.payload
+      const { id, version, name, statements } = request.payload
       const { organizationId } = request.udaru
 
       const params = {
+        id,
         version,
         name,
         organizationId,
         statements
       }
+
       policyOps.createPolicy(params, function (err, res) {
         if (err) {
           return reply(err)
@@ -35,6 +37,7 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         payload: {
+          id: Joi.string().description('policy id'),
           version: Joi.string().required().description('policy version'),
           name: Joi.string().required().description('policy name'),
           statements: Joi.string().required().description('policy statements')
@@ -81,7 +84,7 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.number().required().description('policy id')
+          id: Joi.string().required().description('policy id')
         },
         payload: {
           version: Joi.string().required().description('policy version'),
@@ -128,7 +131,7 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.number().required().description('policy id')
+          id: Joi.string().required().description('policy id')
         },
         query: {
           sig: Joi.string().required()

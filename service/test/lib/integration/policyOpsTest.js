@@ -25,7 +25,7 @@ lab.experiment('PolicyOps', () => {
   })
 
   lab.test('read a specific policy', (done) => {
-    policyOps.readPolicy({ id: 1, organizationId: 'WONKA' }, (err, policy) => {
+    policyOps.readPolicy({ id: 'policyId1', organizationId: 'WONKA' }, (err, policy) => {
       expect(err).to.not.exist()
       expect(policy).to.exist()
 
@@ -74,6 +74,28 @@ lab.experiment('PolicyOps', () => {
 
         policyOps.deletePolicy({ id: policyId, organizationId: 'WONKA' }, done)
       })
+    })
+  })
+
+  lab.test('create policy with specific id', (done) => {
+    const policyData = {
+      id: 'MySpecialId',
+      version: 1,
+      name: 'Documents Admin',
+      organizationId: 'WONKA',
+      statements: '{"Statement":[{"Effect":"Allow","Action":["documents:Read"],"Resource":["wonka:documents:/public/*"]}]}'
+    }
+
+    policyOps.createPolicy(policyData, (err, policy) => {
+      expect(err).to.not.exist()
+      expect(policy).to.exist()
+
+      expect(policy.id).to.equal('MySpecialId')
+      expect(policy.name).to.equal('Documents Admin')
+      expect(policy.version).to.equal('1')
+      expect(policy.statements).to.equal({ Statement: [{ Effect: 'Allow', Action: ['documents:Read'], Resource: ['wonka:documents:/public/*'] }] })
+
+      policyOps.deletePolicy({ id: policy.id, organizationId: 'WONKA' }, done)
     })
   })
 })

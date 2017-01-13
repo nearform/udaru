@@ -9,6 +9,13 @@ const organizationOps = require('../../lib/ops/organizationOps')
 const policyOps = require('../../lib/ops/policyOps')
 const server = require('./../../wiring-hapi')
 
+const policyCreateData = {
+  version: '2016-07-01',
+  name: 'Documents Admin',
+  statements: '{"Statement":[{"Effect":"Allow","Action":["documents:Read"],"Resource":["wonka:documents:/public/*"]}]}',
+  organizationId: 'WONKA'
+}
+
 lab.experiment('Users: read - delete - update', () => {
 
   lab.test('get user list', (done) => {
@@ -49,7 +56,7 @@ lab.experiment('Users: read - delete - update', () => {
         policies: [],
         teams: [
           {
-            id: 1,
+            id: '1',
             name: 'Admins'
           }
         ]
@@ -88,7 +95,7 @@ lab.experiment('Users: read - delete - update', () => {
       url: '/authorization/users/ModifyId',
       payload: {
         name: 'Modify you',
-        teams: [3, 4]
+        teams: ['3', '4']
       }
     })
 
@@ -101,8 +108,8 @@ lab.experiment('Users: read - delete - update', () => {
         name: 'Modify you',
         organizationId: 'WONKA',
         teams: [
-          { id: 3, name: 'Authors' },
-          { id: 4, name: 'Managers' }
+          { id: '3', name: 'Authors' },
+          { id: '4', name: 'Managers' }
         ],
         policies: []
       })
@@ -241,66 +248,74 @@ lab.experiment('Users - create', () => {
 
 lab.experiment('Users - manage policies', () => {
   lab.test('add policies to a user', (done) => {
-    const options = utils.requestOptions({
-      method: 'PUT',
-      url: '/authorization/users/ModifyId/policies',
-      payload: {
-        policies: [1]
-      }
-    })
+    policyOps.createPolicy(policyCreateData, (err, p) => {
+      expect(err).to.not.exist()
 
-    server.inject(options, (response) => {
-      const result = response.result
+      const options = utils.requestOptions({
+        method: 'PUT',
+        url: '/authorization/users/ModifyId/policies',
+        payload: {
+          policies: [p.id]
+        }
+      })
 
-      expect(response.statusCode).to.equal(200)
-      expect(result.policies).to.equal([{
-        id: 1,
-        name: 'Director',
-        version: '0.1'
-      }])
-
-      userOps.deleteUserPolicies({ id: 'ModifyId', organizationId: 'WONKA' }, done)
-    })
-  })
-
-  lab.test('clear and replace policies for a user', (done) => {
-    const options = utils.requestOptions({
-      method: 'POST',
-      url: '/authorization/users/ModifyId/policies',
-      payload: {
-        policies: [1]
-      }
-    })
-
-    server.inject(options, (response) => {
-      const result = response.result
-
-      expect(response.statusCode).to.equal(200)
-      expect(result.policies).to.equal([{
-        id: 1,
-        name: 'Director',
-        version: '0.1'
-      }])
-
-      options.payload.policies = [2, 3]
       server.inject(options, (response) => {
         const result = response.result
 
         expect(response.statusCode).to.equal(200)
-        expect(result.policies).to.equal([
-          {
-            id: 2,
-            name: 'Accountant',
-            version: '0.1'
-          },
-          {
-            id: 3,
-            name: 'Sys admin',
-            version: '0.1'
-          }
-        ])
+        expect(result.policies[0].id).to.equal(p.id)
 
-        userOps.deleteUserPolicies({ id: 'ModifyId', organizationId: 'WONKA' }, done)
+        userOps.deleteUserPolicies({ id: 'ModifyId', organizationId: 'WONKA' }, (err, res) => {
+          expect(err).to.not.exist()
+
+          policyOps.deletePolicy({ id: p.id, organizationId: 'WONKA' }, done)
+        })
+      })
+    })
+  })
+
+  lab.test('clear and replace policies for a user', (done) => {
+    policyOps.createPolicy(policyCreateData, (err, p) => {
+      expect(err).to.not.exist()
+
+      const options = utils.requestOptions({
+        method: 'POST',
+        url: '/authorization/users/ModifyId/policies',
+        payload: {
+          policies: [p.id]
+        }
+      })
+
+      server.inject(options, (response) => {
+        const result = response.result
+
+        expect(response.statusCode).to.equal(200)
+        expect(result.policies.length).to.equal(1)
+        expect(result.policies[0].id).to.equal(p.id)
+
+        policyOps.createPolicy(policyCreateData, (err, newP) => {
+          expect(err).to.not.exist()
+
+          options.payload.policies = [newP.id]
+
+          server.inject(options, (response) => {
+            const result = response.result
+
+            expect(response.statusCode).to.equal(200)
+            expect(result.policies.length).to.equal(1)
+            expect(result.policies[0].id).to.equal(newP.id)
+
+            userOps.deleteUserPolicies({ id: 'ModifyId', organizationId: 'WONKA' }, (err, res) => {
+              expect(err).to.not.exist()
+
+              policyOps.deletePolicy({ id: p.id, organizationId: 'WONKA' }, (err, res) => {
+                expect(err).to.not.exist()
+
+                policyOps.deletePolicy({ id: newP.id, organizationId: 'WONKA' }, done)
+              })
+            })
+          })
+        })
       })
     })
   })
@@ -308,33 +323,51 @@ lab.experiment('Users - manage policies', () => {
   lab.test('remove all user\'s policies', (done) => {
     const options = utils.requestOptions({
       method: 'DELETE',
-      url: '/authorization/users/ManyPoliciesId/policies'
+      url: '/authorization/users/ModifyId/policies'
     })
 
-    server.inject(options, (response) => {
-      expect(response.statusCode).to.equal(204)
-      userOps.readUser({ id: 'ManyPoliciesId', organizationId: 'WONKA' }, (err, user) => {
-        expect(err).not.to.exist()
-        expect(user.policies).to.equal([])
+    policyOps.createPolicy(policyCreateData, (err, p) => {
+      expect(err).to.not.exist()
 
-        userOps.replaceUserPolicies({ id: 'ManyPoliciesId', organizationId: 'WONKA', policies: [10, 11, 12, 13, 14] }, done)
+      userOps.addUserPolicies({ id: 'ModifyId', organizationId: 'WONKA', policies: [p.id] }, (err) => {
+        expect(err).to.not.exist()
+
+        server.inject(options, (response) => {
+          expect(response.statusCode).to.equal(204)
+
+          userOps.readUser({ id: 'ModifyId', organizationId: 'WONKA' }, (err, user) => {
+            expect(err).not.to.exist()
+            expect(user.policies).to.equal([])
+
+            policyOps.deletePolicy({ id: p.id, organizationId: 'WONKA' }, done)
+          })
+        })
       })
     })
   })
 
   lab.test('remove one user\'s policies', (done) => {
-    const options = utils.requestOptions({
-      method: 'DELETE',
-      url: '/authorization/users/ManyPoliciesId/policies/10'
-    })
+    policyOps.createPolicy(policyCreateData, (err, p) => {
+      expect(err).to.not.exist()
 
-    server.inject(options, (response) => {
-      expect(response.statusCode).to.equal(204)
-      userOps.readUser({ id: 'ManyPoliciesId', organizationId: 'WONKA' }, (err, user) => {
-        expect(err).not.to.exist()
-        expect(user.policies.map(p => p.id)).to.equal([14, 13, 12, 11])
+      userOps.addUserPolicies({ id: 'ModifyId', organizationId: 'WONKA', policies: [p.id] }, (err) => {
+        expect(err).to.not.exist()
 
-        userOps.replaceUserPolicies({ id: 'ManyPoliciesId', organizationId: 'WONKA', policies: [10, 11, 12, 13, 14] }, done)
+        const options = utils.requestOptions({
+          method: 'DELETE',
+          url: `/authorization/users/ModifyId/policies/${p.id}`
+        })
+
+        server.inject(options, (response) => {
+          expect(response.statusCode).to.equal(204)
+
+          userOps.readUser({ id: 'ModifyId', organizationId: 'WONKA' }, (err, user) => {
+            expect(err).not.to.exist()
+            expect(user.policies).to.equal([])
+
+            policyOps.deletePolicy({ id: p.id, organizationId: 'WONKA' }, done)
+          })
+        })
       })
     })
   })

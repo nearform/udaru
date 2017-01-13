@@ -13,7 +13,7 @@ CREATE TABLE organizations (
 
 /* TODO: need policies unique constraint on org_id, name */
 CREATE TABLE policies (
-  id          SERIAL UNIQUE,
+  id          VARCHAR(128) UNIQUE,
   version     VARCHAR(20),
   name        VARCHAR(64) NOT NULL,
   org_id      VARCHAR REFERENCES organizations(id) NOT NULL,
@@ -32,36 +32,36 @@ CREATE TABLE users (
 );
 
 CREATE TABLE teams (
-  id              SERIAL UNIQUE,
+  id              VARCHAR(128) UNIQUE,
   name            VARCHAR(30) NOT NULL,
   description     VARCHAR(90),
-  team_parent_id  INT REFERENCES teams(id),
+  team_parent_id  VARCHAR(128) REFERENCES teams(id),
   org_id          VARCHAR REFERENCES organizations(id) NOT NULL,
-  path            LTREE DEFAULT (text2ltree(currval('teams_id_seq')::varchar))
+  path            LTREE NOT NULL
 );
 
 CREATE INDEX teams_path_gist_idx ON teams USING GIST (path);
 
 CREATE TABLE team_members (
-  team_id  INT REFERENCES teams(id) NOT NULL,
-  user_id  VARCHAR(128) REFERENCES users(id) NOT NULL,
+  team_id VARCHAR(128) REFERENCES teams(id) NOT NULL,
+  user_id VARCHAR(128) REFERENCES users(id) NOT NULL,
   CONSTRAINT team_member_link PRIMARY KEY(team_id, user_id)
 );
 
 CREATE TABLE user_policies (
   user_id   VARCHAR(128) REFERENCES users(id) NOT NULL,
-  policy_id INT REFERENCES policies(id) NOT NULL,
+  policy_id VARCHAR(128) REFERENCES policies(id) NOT NULL,
   CONSTRAINT user_policy_link PRIMARY KEY(policy_id, user_id)
 );
 
 CREATE TABLE team_policies (
-  team_id   INT REFERENCES teams(id) NOT NULL,
-  policy_id INT REFERENCES policies(id) NOT NULL,
+  team_id VARCHAR(128) REFERENCES teams(id) NOT NULL,
+  policy_id VARCHAR(128) REFERENCES policies(id) NOT NULL,
   CONSTRAINT team_policy_link PRIMARY KEY(team_id, policy_id)
 );
 
 CREATE TABLE organization_policies (
   org_id   VARCHAR(20) REFERENCES organizations(id) NOT NULL,
-  policy_id INT REFERENCES policies(id) NOT NULL,
+  policy_id VARCHAR(128) REFERENCES policies(id) NOT NULL,
   CONSTRAINT org_policy_link PRIMARY KEY(org_id, policy_id)
 );

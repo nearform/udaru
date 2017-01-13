@@ -7,27 +7,32 @@ const config = require('./../config')
 const SQL = require('./../db/SQL')
 const mapping = require('./../mapping')
 const utils = require('./utils')
+const uuidV4 = require('uuid/v4')
 
-function toArray (policies) {
+function toArrayWithId (policies) {
   if (Array.isArray(policies)) {
-    return policies
+    return policies.map((p) => {
+      p.id = p.id || uuidV4()
+
+      return p
+    })
   }
 
-  const result = []
-  Object.keys(policies).map((pName) => {
-    result.push(policies[pName])
-  })
+  return Object.keys(policies).map((pName) => {
+    let p = policies[pName]
+    p.id = p.id || uuidV4()
 
-  return result
+    return p
+  })
 }
 
 function insertPolicies (client, policies, cb) {
-  policies = toArray(policies)
+  policies = toArrayWithId(policies)
 
-  const sql = SQL`INSERT INTO policies (version, name, org_id, statements) VALUES `
-  sql.append(SQL`(${policies[0].version}, ${policies[0].name}, ${policies[0].org_id}, ${policies[0].statements})`)
+  const sql = SQL`INSERT INTO policies (id, version, name, org_id, statements) VALUES `
+  sql.append(SQL`(${policies[0].id}, ${policies[0].version}, ${policies[0].name}, ${policies[0].org_id}, ${policies[0].statements})`)
   policies.slice(1).forEach((policy) => {
-    sql.append(SQL`, (${policy.version}, ${policy.name}, ${policy.org_id}, ${policy.statements})`)
+    sql.append(SQL`, (${policy.id}, ${policy.version}, ${policy.name}, ${policy.org_id}, ${policy.statements})`)
   })
   sql.append(SQL` RETURNING id`)
 
@@ -169,13 +174,14 @@ const policyOps = {
   /**
    * Creates a new policy
    *
-   * @param  {Object}   params { version, name, organizationId, statements }
+   * @param  {Object}   params { id, version, name, organizationId, statements }
    * @param  {Function} cb
    */
   createPolicy: function createPolicy (params, cb) {
-    const { version, name, organizationId, statements } = params
+    const { id, version, name, organizationId, statements } = params
 
     insertPolicies(db, [{
+      id: id,
       version: version,
       name: name,
       org_id: organizationId,

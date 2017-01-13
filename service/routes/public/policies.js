@@ -44,7 +44,7 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.number().required().description('policy id')
+          id: Joi.string().required().description('policy id')
         },
         headers: Joi.object({
           'authorization': Joi.any().required()

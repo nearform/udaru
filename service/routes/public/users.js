@@ -159,7 +159,7 @@ exports.register = function (server, options, next) {
         },
         payload: {
           name: Joi.string().required().description('user name'),
-          teams: Joi.array().required().items(Joi.number())
+          teams: Joi.array().required().items(Joi.string())
         },
         headers: Joi.object({
           'authorization': Joi.any().required()
@@ -199,7 +199,7 @@ exports.register = function (server, options, next) {
           id: Joi.string().required().description('user id')
         },
         payload: {
-          policies: Joi.array().required().items(Joi.number().required())
+          policies: Joi.array().required().items(Joi.string().required())
         },
         headers: Joi.object({
           'authorization': Joi.any().required()
@@ -240,7 +240,7 @@ exports.register = function (server, options, next) {
           id: Joi.string().required().description('user id')
         },
         payload: {
-          policies: Joi.array().required().items(Joi.number().required())
+          policies: Joi.array().required().items(Joi.string().required())
         },
         headers: Joi.object({
           'authorization': Joi.any().required()
@@ -314,7 +314,7 @@ exports.register = function (server, options, next) {
       validate: {
         params: {
           userId: Joi.string().required().description('user id'),
-          policyId: Joi.number().required().description('policy id')
+          policyId: Joi.string().required().description('policy id')
         },
         headers: Joi.object({
           'authorization': Joi.any().required()

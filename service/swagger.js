@@ -13,7 +13,7 @@ const PolicyStatements = Joi.object({
 })
 
 const Policy = Joi.object({
-  id: Joi.number(),
+  id: Joi.string(),
   version: Joi.string(),
   name: Joi.string(),
   statements: PolicyStatements
@@ -22,7 +22,7 @@ const Policy = Joi.object({
 const PolicyList = Joi.array().items(Policy)
 
 const PolicyRef = Joi.object({
-  id: Joi.number(),
+  id: Joi.string(),
   version: Joi.string(),
   name: Joi.string()
 })
@@ -33,19 +33,20 @@ const UserRef = Joi.object({
 })
 
 const Team = Joi.object({
-  id: Joi.number(),
+  id: Joi.string(),
   name: Joi.string(),
   description: Joi.string(),
   path: Joi.string(),
   users: Joi.array().items(UserRef),
   policies: Joi.array().items(PolicyRef),
-  organizationId: Joi.string()
+  organizationId: Joi.string(),
+  membersCount: Joi.number()
 })
 
 const TeamList = Joi.array().items(Team)
 
 const TeamRef = Joi.object({
-  id: Joi.number(),
+  id: Joi.string(),
   name: Joi.string()
 })
 

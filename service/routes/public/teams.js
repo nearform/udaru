@@ -36,10 +36,11 @@ exports.register = function (server, options, next) {
     method: 'POST',
     path: '/authorization/teams',
     handler: function (request, reply) {
-      const { name, description, user } = request.payload
+      const { id, name, description, user } = request.payload
       const { organizationId } = request.udaru
 
       const params = {
+        id,
         name,
         description,
         parentId: null,
@@ -58,6 +59,7 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         payload: {
+          id: Joi.string().regex(/^[0-9a-zA-Z_]+$/).optional().description('The id to be used for the new team. Only alphanumeric characters and underscore are supported'),
           name: Joi.string().required().description('Name of the new team'),
           description: Joi.string().required().description('Description of new team'),
           user: Joi.object().optional().description('Default admin user to be added to the team').keys({
@@ -69,7 +71,7 @@ exports.register = function (server, options, next) {
           'authorization': Joi.any().required()
         }).unknown()
       },
-      description: 'Create a teams',
+      description: 'Create a team',
       notes: 'The POST /authorization/teams endpoint creates a new team given its data\n',
       tags: ['api', 'service', 'post', 'team'],
       plugins: {
@@ -93,7 +95,7 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.number().required().description('The team ID')
+          id: Joi.string().required().description('The team ID')
         },
         headers: Joi.object({
           'authorization': Joi.any().required()
@@ -132,7 +134,7 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.number().required().description('The team ID')
+          id: Joi.string().required().description('The team ID')
         },
         payload: Joi.object().keys({
           name: Joi.string().description('Updated team name'),
@@ -173,7 +175,7 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.number().required().description('The team ID')
+          id: Joi.string().required().description('The team ID')
         },
         headers: Joi.object({
           'authorization': Joi.any().required()
@@ -214,10 +216,10 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.number().required().description('The team ID')
+          id: Joi.string().required().description('The team ID')
         },
         payload: {
-          parentId: Joi.number().required().description('The new parent ID')
+          parentId: Joi.string().required().description('The new parent ID')
         },
         headers: Joi.object({
           'authorization': Joi.any().required()
@@ -259,7 +261,7 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.number().required().description('The team ID')
+          id: Joi.string().required().description('The team ID')
         },
         headers: Joi.object({
           'authorization': Joi.any().required()
@@ -296,10 +298,10 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.number().required().description('Team id')
+          id: Joi.string().required().description('Team id')
         },
         payload: {
-          policies: Joi.array().items(Joi.number()).required().description('Policy ids')
+          policies: Joi.array().items(Joi.string()).required().description('Policy ids')
         },
         headers: Joi.object({
           'authorization': Joi.any().required()
@@ -337,10 +339,10 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.number().required().description('Team id')
+          id: Joi.string().required().description('Team id')
         },
         payload: {
-          policies: Joi.array().items(Joi.number()).required().description('Policy ids')
+          policies: Joi.array().items(Joi.string()).required().description('Policy ids')
         },
         headers: Joi.object({
           'authorization': Joi.any().required()
@@ -377,7 +379,7 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.number().required().description('Team id')
+          id: Joi.string().required().description('Team id')
         },
         headers: Joi.object({
           'authorization': Joi.any().required()
@@ -413,8 +415,8 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          teamId: Joi.number().required().description('Team id'),
-          policyId: Joi.number().required().description('Policy id')
+          teamId: Joi.string().required().description('Team id'),
+          policyId: Joi.string().required().description('Policy id')
         },
         headers: Joi.object({
           'authorization': Joi.any().required()
@@ -451,7 +453,7 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.number().required().description('The team ID')
+          id: Joi.string().required().description('The team ID')
         },
         payload: Joi.object().keys({
           users: Joi.array().items(Joi.string()).description('User ids')
@@ -492,7 +494,7 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.number().required().description('The team ID')
+          id: Joi.string().required().description('The team ID')
         },
         payload: Joi.object().keys({
           users: Joi.array().items(Joi.string()).description('User ids')
@@ -532,7 +534,7 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.number().required().description('The team ID')
+          id: Joi.string().required().description('The team ID')
         },
         headers: Joi.object({
           'authorization': Joi.any().required()
@@ -568,7 +570,7 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.number().required().description('The team ID'),
+          id: Joi.string().required().description('The team ID'),
           userId: Joi.string().required().description('The user ID')
         },
         headers: Joi.object({

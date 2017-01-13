@@ -20,6 +20,6 @@ exports.register = function (server, options, next) {
 }
 
 exports.register.attributes = {
-  name: 'mointor',
+  name: 'monitor',
   version: '0.0.1'
 }
