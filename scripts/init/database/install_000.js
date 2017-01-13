@@ -1,14 +1,15 @@
 var postgrator = require('postgrator')
+var config = require('./../../../service/lib/config')
 
 postgrator.setConfig({
   migrationDirectory: __dirname + '/migrations',
   schemaTable: 'schemaversion', // optional. default is 'schemaversion'
   driver: 'pg', // or mysql, mssql
-  host: '127.0.0.1',
-  port: 5432, // optionally provide port
-  database: 'authorization',
-  username: 'postgres',
-  password: 'postgres'
+  host: config.get('pgdb.host', '127.0.0.1'),
+  port: config.get('pgdb.port', 5432), // optionally provide port
+  database: config.get('pgdb.database', 'authorization'),
+  username: config.get('pgdb.user', 'postgres'),
+  password: config.get('pgdb.password', 'postgres')
 })
 
 postgrator.migrate('000', function (err, migrations) {
