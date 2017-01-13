@@ -40,7 +40,7 @@ const Team = Joi.object({
   users: Joi.array().items(UserRef),
   policies: Joi.array().items(PolicyRef),
   organizationId: Joi.string(),
-  membersCount: Joi.number()
+  usersCount: Joi.number()
 })
 
 const TeamList = Joi.array().items(Team)

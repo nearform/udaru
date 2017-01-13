@@ -34,7 +34,7 @@ lab.experiment('Teams - get/list', () => {
           organizationId: 'WONKA',
           description: 'Administrators of the Authorization System',
           path: '1',
-          membersCount: '1'
+          usersCount: 1
         },
         {
           id: '3',
@@ -42,7 +42,7 @@ lab.experiment('Teams - get/list', () => {
           organizationId: 'WONKA',
           description: 'Content contributors',
           path: '3',
-          membersCount: '1'
+          usersCount: 1
         },
         {
           id: '6',
@@ -50,7 +50,7 @@ lab.experiment('Teams - get/list', () => {
           organizationId: 'WONKA',
           description: 'Author of legal documents',
           path: '6',
-          membersCount: '0'
+          usersCount: 0
         },
         {
           id: '4',
@@ -58,7 +58,7 @@ lab.experiment('Teams - get/list', () => {
           organizationId: 'WONKA',
           description: 'General Line Managers with confidential info',
           path: '4',
-          membersCount: '1'
+          usersCount: 1
         },
         {
           id: '5',
@@ -66,7 +66,7 @@ lab.experiment('Teams - get/list', () => {
           organizationId: 'WONKA',
           description: 'Personnel Line Managers with confidential info',
           path: '5',
-          membersCount: '1'
+          usersCount: 1
         },
         {
           id: '2',
@@ -74,7 +74,7 @@ lab.experiment('Teams - get/list', () => {
           organizationId: 'WONKA',
           description: 'General read-only access',
           path: '2',
-          membersCount: '2'
+          usersCount: 2
         }
       ])
 

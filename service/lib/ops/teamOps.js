@@ -284,7 +284,7 @@ var teamOps = {
     const { organizationId } = params
 
     const sqlQuery = SQL`
-      SELECT teams.id, teams.name, teams.description, teams.path, teams.org_id, COUNT(team_members.team_id) AS members
+      SELECT teams.id, teams.name, teams.description, teams.path, teams.org_id, COUNT(team_members.team_id) AS users_count
       FROM teams
       LEFT JOIN team_members ON team_members.team_id = teams.id
       WHERE org_id = ${organizationId}
