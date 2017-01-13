@@ -150,7 +150,13 @@ const userOps = {
       RETURNING id
     `
 
-    client.query(sqlQuery, utils.boomErrorWrapper(cb))
+    client.query(sqlQuery, (err, result) => {
+      if (utils.isUniqueViolationError(err)) {
+        return cb(Boom.badRequest(`User with id ${id} already present`))
+      }
+
+      cb(err, result)
+    })
   },
 
   insertPolicies: function insertPolicies (client, id, policies, cb) {
@@ -195,7 +201,7 @@ const userOps = {
       if (!res) return cb(Boom.badRequest(`Organization '${organizationId}' does not exists`))
 
       userOps.insertUser(db, { id, name, organizationId }, (err, result) => {
-        if (err) return cb(Boom.badImplementation(err))
+        if (err) return cb(err)
 
         userOps.readUser({ id: result.rows[0].id, organizationId }, utils.boomErrorWrapper(cb))
       })

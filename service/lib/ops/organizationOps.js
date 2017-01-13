@@ -91,7 +91,7 @@ function insertOrganization (job, next) {
 
 function createDefaultPolicies (job, next) {
   policyOps.createOrgDefaultPolicies(job.client, job.organization.id, function (err, id) {
-    if (err) return next(Boom.badImplementation(err))
+    if (err) return next(err)
     job.adminPolicyId = id
     next()
   })

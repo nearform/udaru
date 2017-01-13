@@ -122,6 +122,26 @@ lab.experiment('Policies - create/update/delete (need service key)', () => {
     })
   })
 
+  lab.test('create new policy with already present id should return 400 Bad Request', (done) => {
+    const options = utils.requestOptions({
+      method: 'POST',
+      url: '/authorization/policies?sig=123456789',
+      payload: {
+        id: 'policyId1',
+        version: '2016-07-01',
+        name: 'Documents Admin',
+        statements: '{"Statement":[{"Effect":"Allow","Action":["documents:Read"],"Resource":["wonka:documents:/public/*"]}]}'
+      }
+    })
+
+    server.inject(options, (response) => {
+      expect(response.statusCode).to.equal(400)
+      expect(response.result.message).to.equal('Policy with id policyId1 already present')
+
+      done()
+    })
+  })
+
   lab.test('create new policy should return 201 and the created policy data', (done) => {
     const options = utils.requestOptions({
       method: 'POST',

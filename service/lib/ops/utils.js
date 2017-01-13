@@ -8,6 +8,11 @@ function boomErrorWrapper (next) {
   }
 }
 
+function isUniqueViolationError (err) {
+  return err && err.code === '23505'
+}
+
 module.exports = {
-  boomErrorWrapper: boomErrorWrapper
+  boomErrorWrapper: boomErrorWrapper,
+  isUniqueViolationError: isUniqueViolationError
 }
