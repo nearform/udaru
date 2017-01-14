@@ -104,6 +104,62 @@ lab.experiment('Teams - get/list', () => {
       })
     })
   })
+
+  lab.test('get users for a single team', (done) => {
+    teamOps.createTeam(teamData, (err, team) => {
+      if (err) return done(err)
+
+      const options = utils.requestOptions({
+        method: 'PUT',
+        url: `/authorization/teams/${team.id}/users`,
+        payload: {
+          users: ['CharlieId', 'MikeId']
+        }
+      })
+
+      server.inject(options, (response) => {
+        const result = response.result
+
+        expect(response.statusCode).to.equal(200)
+        expect(result.id).to.equal(team.id)
+        expect(result.users).to.equal([
+          { id: 'CharlieId', name: 'Charlie Bucket' },
+          { id: 'MikeId', name: 'Mike Teavee' }
+        ])
+
+        const options = utils.requestOptions({
+          method: 'GET',
+          url: `/authorization/teams/${team.id}/users?page=1&limit=10`
+        })
+
+        server.inject(options, (response) => {
+          const result = response.result
+
+          expect(response.statusCode).to.equal(200)
+          expect(result).to.equal([
+            { id: 'CharlieId', name: 'Charlie Bucket' },
+            { id: 'MikeId', name: 'Mike Teavee' }
+          ])
+
+          const options = utils.requestOptions({
+            method: 'GET',
+            url: `/authorization/teams/${team.id}/users?page=2&limit=1`
+          })
+
+          server.inject(options, (response) => {
+            const result = response.result
+
+            expect(response.statusCode).to.equal(200)
+            expect(result).to.equal([
+              { id: 'MikeId', name: 'Mike Teavee' }
+            ])
+
+            teamOps.deleteTeam({ id: team.id, organizationId: team.organizationId }, done)
+          })
+        })
+      })
+    })
+  })
 })
 
 lab.experiment('Teams - create', () => {
@@ -353,7 +409,7 @@ lab.experiment('Teams - manage users', () => {
     })
   })
 
-  lab.test('relace users in a team', (done) => {
+  lab.test('replace users in a team', (done) => {
     teamOps.createTeam(teamData, (err, team) => {
       if (err) return done(err)
 

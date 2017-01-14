@@ -155,9 +155,7 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('read a specific team', (done) => {
-
     teamOps.readTeam({ id: testTeam.id, organizationId: 'WONKA' }, (err, result) => {
-
       expect(err).to.not.exist()
       expect(result).to.exist()
       expect(result.name).to.equal(testTeam.name)
@@ -166,6 +164,43 @@ lab.experiment('TeamOps', () => {
       expect(result.usersCount).to.equal(result.users.length)
       expect(result.users.length).to.equal(1)
       expect(result.policies.length).to.equal(1)
+
+      done()
+    })
+  })
+
+  lab.test('read users from a specific team', (done) => {
+    teamOps.readTeamUsers({ id: '2' }, (err, result) => {
+      expect(err).to.not.exist()
+      expect(result).to.exist()
+      expect(result.length).to.equal(2)
+      expect(result).to.equal([
+        { id: 'CharlieId', name: 'Charlie Bucket' },
+        { id: 'VerucaId', name: 'Veruca Salt' }
+      ])
+
+      done()
+    })
+  })
+
+  lab.test('paginated read users from a specific team', (done) => {
+    teamOps.readTeamUsers({ id: '2', page: 2, limit: 1 }, (err, result) => {
+      expect(err).to.not.exist()
+      expect(result).to.exist()
+      expect(result.length).to.equal(1)
+      expect(result).to.equal([
+        { id: 'VerucaId', name: 'Veruca Salt' }
+      ])
+
+      done()
+    })
+  })
+
+  lab.test('read users from a specific team, show from the 2nd user', (done) => {
+    teamOps.readTeamUsers({ id: '1' }, (err, result) => {
+      expect(err).to.not.exist()
+      expect(result).to.exist()
+      expect(result.length).to.equal(1)
 
       done()
     })
