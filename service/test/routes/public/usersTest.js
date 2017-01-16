@@ -120,8 +120,7 @@ lab.experiment('Users', () => {
       method: 'PUT',
       url: '/authorization/users/MyId',
       payload: {
-        name: 'Joe',
-        teams: []
+        name: 'Joe'
       }
     })
 

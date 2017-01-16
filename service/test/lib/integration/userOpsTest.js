@@ -98,29 +98,24 @@ lab.experiment('UserOps', () => {
   })
 
   lab.test('update a user', (done) => {
-    let managersTeam = u.findPick(wonkaTeams, {name: 'Managers'}, ['id', 'name'])
-    const expected = {
-      id: 'AugustusId',
-      name: 'Augustus Gloop',
-      organizationId: 'WONKA',
-      teams: [managersTeam],
-      policies: []
-    }
     const data = {
       id: 'AugustusId',
       organizationId: 'WONKA',
-      name: 'Augustus Gloop',
-      teams: [managersTeam.id]
+      name: 'Augustus Gloop new'
     }
 
     userOps.updateUser(data, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
-      expect(result).to.equal(expected)
+      expect(result).to.equal({
+        id: 'AugustusId',
+        name: 'Augustus Gloop new',
+        organizationId: 'WONKA',
+        teams: [{ id: '1', name: 'Admins' }],
+        policies: []
+      })
 
-      let pManagersTeam = _.find(wonkaTeams, {name: 'Personnel Managers'})
-      data.teams = [managersTeam.id, pManagersTeam.id]
-      userOps.updateUser(data, done)
+      userOps.updateUser({ id: 'AugustusId', organizationId: 'WONKA', name: 'Augustus Gloop new' }, done)
     })
   })
 
