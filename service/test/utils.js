@@ -1,6 +1,6 @@
 'use strict'
 
-let _ = require('lodash')
+const _ = require('lodash')
 
 /**
  * Merge the authorization default header with the provided options
