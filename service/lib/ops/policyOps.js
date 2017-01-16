@@ -36,7 +36,7 @@ function insertPolicies (client, policies, cb) {
   })
   sql.append(SQL` RETURNING id`)
 
-  client.query(sql, utils.boomErrorWrapper(cb))
+  client.query(sql, cb)
 }
 
 function deletePolicies (client, ids, cb) {
@@ -187,7 +187,10 @@ const policyOps = {
       org_id: organizationId,
       statements: statements
     }], (err, result) => {
-      if (err) return cb(err)
+      if (utils.isUniqueViolationError(err)) {
+        return cb(Boom.badRequest(`Policy with id ${id} already present`))
+      }
+      if (err) return cb(Boom.badImplementation(err))
 
       policyOps.readPolicy({ id: result.rows[0].id, organizationId }, cb)
     })
@@ -257,7 +260,7 @@ const policyOps = {
   createOrgDefaultPolicies: function createOrgDefaultPolicies (client, organizationId, cb) {
     const defaultPolicies = config.get('authorization.organizations.defaultPolicies', {'organizationId': organizationId})
     insertPolicies(client, defaultPolicies, function (err, result) {
-      if (err) return cb(err)
+      if (err) return cb(Boom.badImplementation(err))
 
       const name = config.get('authorization.organizations.defaultPolicies.orgAdmin.name', {'organizationId': organizationId})
       const sqlQuery = SQL`

@@ -200,6 +200,30 @@ lab.experiment('Users - create', () => {
     })
   })
 
+  lab.test('create user for a specific organization being a SuperUser with an already used id', (done) => {
+    const options = utils.requestOptions({
+      method: 'POST',
+      url: '/authorization/users',
+      payload: {
+        id: 'ROOTid',
+        name: 'Salman'
+      },
+      headers: {
+        authorization: 'ROOTid',
+        org: 'OILCOUSA'
+      }
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(400)
+      expect(result.message).to.equal('User with id ROOTid already present')
+
+      done()
+    })
+  })
+
   lab.test('create user for the admin organization', (done) => {
     const options = utils.requestOptions({
       method: 'POST',

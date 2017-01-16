@@ -156,6 +156,27 @@ lab.experiment('Teams - create', () => {
     })
   })
 
+  lab.test('support handling of already present id', (done) => {
+    const options = utils.requestOptions({
+      method: 'POST',
+      url: '/authorization/teams',
+      payload: {
+        id: '1',
+        name: 'Team already present',
+        description: 'This is already present'
+      }
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(400)
+      expect(result.message).to.equal('Team with id 1 already present')
+
+      done()
+    })
+  })
+
   lab.test('validates specific id format', (done) => {
     const options = utils.requestOptions({
       method: 'POST',
