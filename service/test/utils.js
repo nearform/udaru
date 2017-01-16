@@ -1,8 +1,8 @@
 'use strict'
 
-let _ = require('lodash')
-let db = require('./../lib/db')
-let SQL = require('./../lib/db/SQL')
+const _ = require('lodash')
+const db = require('./../lib/db')
+const SQL = require('./../lib/db/SQL')
 
 /**
  * Merge the authorization default header with the provided options
