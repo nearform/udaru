@@ -449,8 +449,8 @@ exports.register = function (server, options, next) {
           id: Joi.string().required().description('The team ID')
         },
         query: {
-          page: Joi.string().required().description('Page number, starts from 1'),
-          limit: Joi.string().required().description('Users per page')
+          page: Joi.number().integer().positive().required().description('Page number, starts from 1'),
+          limit: Joi.number().integer().positive().required().description('Users per page')
         },
         headers: Joi.object({
           'authorization': Joi.any().required()

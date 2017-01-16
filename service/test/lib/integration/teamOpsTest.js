@@ -196,16 +196,6 @@ lab.experiment('TeamOps', () => {
     })
   })
 
-  lab.test('read users from a specific team, show from the 2nd user', (done) => {
-    teamOps.readTeamUsers({ id: '1' }, (err, result) => {
-      expect(err).to.not.exist()
-      expect(result).to.exist()
-      expect(result.length).to.equal(1)
-
-      done()
-    })
-  })
-
   lab.test('creating a team should create a default admin policy', (done) => {
 
     policyOps.listByOrganization({organizationId: 'WONKA'}, (err, policies) => {

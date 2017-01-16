@@ -109,20 +109,10 @@ lab.experiment('Teams - get/list', () => {
     teamOps.createTeam(teamData, (err, team) => {
       if (err) return done(err)
 
-      const options = utils.requestOptions({
-        method: 'PUT',
-        url: `/authorization/teams/${team.id}/users`,
-        payload: {
-          users: ['CharlieId', 'MikeId']
-        }
-      })
+      teamOps.addUsersToTeam({id: team.id, organizationId: team.organizationId, users: ['CharlieId', 'MikeId']}, (err, team) => {
+        if (err) return done(err)
 
-      server.inject(options, (response) => {
-        const result = response.result
-
-        expect(response.statusCode).to.equal(200)
-        expect(result.id).to.equal(team.id)
-        expect(result.users).to.equal([
+        expect(team.users).to.equal([
           { id: 'CharlieId', name: 'Charlie Bucket' },
           { id: 'MikeId', name: 'Mike Teavee' }
         ])
