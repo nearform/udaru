@@ -53,6 +53,21 @@ lab.experiment('TeamOps', () => {
     })
   })
 
+  lab.beforeEach(done => {
+    testTeam = {
+      name: 'test::teamOps:bfrEach:' + randomId(),
+      description: 'description',
+      organizationId: 'WONKA'
+    }
+    teamOps.createTeam(testTeam, (err, result) => {
+      expect(err).to.not.exist()
+      expect(result).to.exist()
+      expect(result.id).to.exist()
+      testTeam.id = result.id // afterEach will cleanup based on the ID
+      done()
+    })
+  })
+
   lab.afterEach(done => {
     // always cleanup test data
     if (testTeam && testTeam.id) {
@@ -82,188 +97,110 @@ lab.experiment('TeamOps', () => {
     })
   })
 
-
-  lab.test('create a team', (done) => {
-    testTeam = {
-      name: 'test::teamOps:createTeam:' + randomId(),
-      description: 'description',
-      organizationId: 'WONKA'
-    }
-    teamOps.createTeam(testTeam, (err, result) => {
-      expect(err).to.not.exist()
-      expect(result).to.exist()
-      expect(result.id).to.exist()
-      testTeam.id = result.id // afterEach will delete this team
-      expect(result.name).to.equal(testTeam.name)
-
-      done()
-    })
-  })
-
   lab.test('Add twice the same user to a team', (done) => {
-    testTeam = {
-      name: 'test::teamOps:multiUsers:' + randomId(),
-      description: 'description',
-      organizationId: 'WONKA'
-    }
 
-    teamOps.createTeam(testTeam, (err, createdTeam) => {
-      expect(err).to.not.exist()
-      expect(createdTeam).to.exist()
-
-      testTeam.id = createdTeam.id // afterEach will delete this team
-
-      let userIds = [users[0].id]
-      teamOps.addUsersToTeam({id: createdTeam.id, organizationId: 'WONKA', users: userIds}, (err, result) => {
-        expect(err).to.not.exist()
-        expect(result).to.exist()
-
-        userIds = [users[0].id, users[1].id]
-        teamOps.addUsersToTeam({id: createdTeam.id, organizationId: 'WONKA', users: userIds}, (err, result) => {
-          expect(err).to.not.exist()
-          expect(result).to.exist()
-          expect(result.users.length).to.equal(2)
-
-          teamOps.readTeam({ id: createdTeam.id, organizationId: 'WONKA' }, (err, readTeam) => {
-
-            expect(err).to.not.exist()
-            expect(readTeam).to.exist()
-            expect(readTeam.users.length).to.equal(2)
-            expect(readTeam.users).to.equal([
-              _.pick(users[0], 'id', 'name'),
-              _.pick(users[1], 'id', 'name')
-            ])
-
-            done()
-          })
-        })
-      })
-    })
-  })
-
-  lab.test('create, update only the team name', (done) => {
-    testTeam = {
-      name: 'test::teamOps:update:' + randomId(),
-      description: 'description',
-      organizationId: 'WONKA'
-    }
-
-    teamOps.createTeam(testTeam, (err, createdTeam) => {
-      expect(err).to.not.exist()
-      expect(createdTeam).to.exist()
-
-      testTeam.id = createdTeam.id // afterEach will delete this team
-
-      createdTeam.name = testTeam.name = testTeam.name + randomId()
-
-      teamOps.updateTeam(createdTeam, (err, result) => {
-        expect(err).to.not.exist()
-        expect(result).to.exist()
-        expect(result.name).to.equal(testTeam.name)
-        expect(result.description).to.equal(testTeam.description)
-
-        done()
-      })
-    })
-  })
-
-  lab.test('create, update only the team description', (done) => {
-    testTeam = {
-      name: 'test::teamOps:update:' + randomId(),
-      description: 'description',
-      organizationId: 'WONKA'
-    }
-
-    teamOps.createTeam(testTeam, (err, createdTeam) => {
-      expect(err).to.not.exist()
-      expect(createdTeam).to.exist()
-
-      testTeam.id = createdTeam.id // afterEach will delete this team
-
-      createdTeam.description = testTeam.description = randomId()
-
-      teamOps.updateTeam(createdTeam, (err, result) => {
-        expect(err).to.not.exist()
-        expect(result).to.exist()
-        expect(result.name).to.equal(testTeam.name)
-        expect(result.description).to.equal(testTeam.description)
-
-        done()
-      })
-    })
-  })
-
-  lab.test('read a specific team', (done) => {
-    testTeam = {
-      name: 'test::teamOps:read:' + randomId(),
-      description: 'description',
-      organizationId: 'WONKA'
-    }
-    teamOps.createTeam(testTeam, (err, result) => {
+    let userIds = [users[0].id]
+    teamOps.addUsersToTeam({id: testTeam.id, organizationId: 'WONKA', users: userIds}, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
-      expect(result.id).to.exist()
 
-      testTeam.id = result.id // afterEach will delete this team
-
-      expect(result.name).to.equal(testTeam.name)
-      teamOps.readTeam({ id: testTeam.id, organizationId: 'WONKA' }, (err, result) => {
-
+      userIds = [users[0].id, users[1].id]
+      teamOps.addUsersToTeam({id: testTeam.id, organizationId: 'WONKA', users: userIds}, (err, result) => {
         expect(err).to.not.exist()
         expect(result).to.exist()
-        expect(result.name).to.equal(testTeam.name)
-        expect(result.description).to.equal(testTeam.description)
+        expect(result.users.length).to.equal(2)
 
-        done()
-      })
-    })
-  })
+        teamOps.readTeam({ id: testTeam.id, organizationId: 'WONKA' }, (err, readTeam) => {
 
-  lab.test('creating a team should create a default admin policy', (done) => {
-    testTeam = {
-      name: 'test::teamOps:dfltPol:' + randomId(),
-      description: 'description',
-      organizationId: 'WONKA'
-    }
-    teamOps.createTeam(testTeam, (err, result) => {
-      expect(err).to.not.exist()
-      expect(result).to.exist()
-      expect(result.id).to.exist()
-
-      testTeam.id = result.id // afterEach will delete this team
-
-      policyOps.listByOrganization({organizationId: 'WONKA'}, (err, policies) => {
-        expect(err).to.not.exist()
-
-        const defaultPolicy = policies.find((p) => { return p.name === 'Default Team Admin for ' + testTeam.id })
-        expect(defaultPolicy).to.exist()
-
-        policyOps.deletePolicy({ id: defaultPolicy.id, organizationId: 'WONKA' }, (err) => {
           expect(err).to.not.exist()
+          expect(readTeam).to.exist()
+          expect(readTeam.users.length).to.equal(2)
+          expect(readTeam.users).to.equal([
+            _.pick(users[0], 'id', 'name'),
+            _.pick(users[1], 'id', 'name')
+          ])
+
           done()
         })
       })
     })
   })
 
+  lab.test('create, update only the team name', (done) => {
+
+    testTeam.name += '_n'
+
+    teamOps.updateTeam(testTeam, (err, result) => {
+      expect(err).to.not.exist()
+      expect(result).to.exist()
+      expect(result.name).to.equal(testTeam.name)
+      expect(result.description).to.equal(testTeam.description)
+
+      done()
+    })
+  })
+
+  lab.test('create, update only the team description', (done) => {
+
+    testTeam.description = '_d'
+
+    teamOps.updateTeam(testTeam, (err, result) => {
+      expect(err).to.not.exist()
+      expect(result).to.exist()
+      expect(result.name).to.equal(testTeam.name)
+      expect(result.description).to.equal(testTeam.description)
+
+      done()
+    })
+  })
+
+  lab.test('read a specific team', (done) => {
+
+    teamOps.readTeam({ id: testTeam.id, organizationId: 'WONKA' }, (err, result) => {
+
+      expect(err).to.not.exist()
+      expect(result).to.exist()
+      expect(result.name).to.equal(testTeam.name)
+      expect(result.description).to.equal(testTeam.description)
+
+      done()
+    })
+  })
+
+  lab.test('creating a team should create a default admin policy', (done) => {
+
+    policyOps.listByOrganization({organizationId: 'WONKA'}, (err, policies) => {
+      expect(err).to.not.exist()
+
+      const defaultPolicy = policies.find((p) => { return p.name === 'Default Team Admin for ' + testTeam.id })
+      expect(defaultPolicy).to.exist()
+
+      policyOps.deletePolicy({ id: defaultPolicy.id, organizationId: 'WONKA' }, (err) => {
+        expect(err).to.not.exist()
+        done()
+      })
+    })
+  })
+
   lab.test('creating a team with createOnly option should not create a default admin policy', (done) => {
-    testTeam = {
-      name: 'test::teamOps:+Only:' + randomId(),
+    let testTeam = {
+      name: 'test::teamOps:+only:' + randomId(),
       description: 'description',
       organizationId: 'WONKA'
     }
-    teamOps.createTeam(testTeam, { createOnly: true }, (err, result) => {
+
+    teamOps.createTeam(testTeam, {createOnly: true}, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
       expect(result.id).to.exist()
-
-      testTeam.id = result.id // afterEach will delete this team
+      testTeam.id = result.id // afterEach will cleanup based on the ID
 
       policyOps.listByOrganization({organizationId: 'WONKA'}, (err, policies) => {
+        teamOps.deleteTeam(testTeam, (err) => { if (err) throw err })
         expect(err).to.not.exist()
 
         const defaultPolicy = policies.find((p) => {
-          return p.name === 'Default Team Admin for ' + result.id
+          return p.name === 'Default Team Admin for ' + testTeam.id
         })
         expect(defaultPolicy).to.not.exist()
         done()
@@ -273,12 +210,16 @@ lab.experiment('TeamOps', () => {
 
   lab.test('create team support creation of default team admin user', (done) => {
     let teamId = randomId()
-    testTeam = {
+    let testTeam = {
       name: 'test::teamOps:dfltAdmin:' + teamId,
       description: 'description',
       organizationId: 'WONKA',
       user: { name: 'test:' + teamId }
     }
+    setTimeout(() => {
+      // TODO: delete team
+      teamOps.deleteTeam(testTeam, () => {})
+    }, 5000)
 
     teamOps.createTeam(testTeam, function (err, team) {
       expect(err).to.not.exist()
@@ -307,12 +248,16 @@ lab.experiment('TeamOps', () => {
 
   lab.test('create team support creation of default team admin user and specific user id', (done) => {
     let teamId = randomId()
-    testTeam = {
+    let testTeam = {
       name: 'test::teamOps:dfltAdmin:' + teamId,
       description: 'description',
       organizationId: 'WONKA',
       user: { name: 'test:' + teamId, id: 'test:' + teamId }
     }
+    setTimeout(() => {
+      // TODO: delete team
+      teamOps.deleteTeam(testTeam, () => {})
+    }, 5000)
 
     teamOps.createTeam(testTeam, function (err, team) {
       expect(err).to.not.exist()
@@ -340,114 +285,81 @@ lab.experiment('TeamOps', () => {
 
   lab.test('createTeam should build path', (done) => {
 
-    testTeam = {
-      name: 'test:team:path:' + randomId(),
-      description: 'parent',
+    let childTeam = {
+      name: 'test:team:child:' + randomId(),
+      description: 'child',
+      parentId: testTeam.id,
       organizationId: 'WONKA'
     }
 
-    teamOps.createTeam(testTeam, function (err, parentTeam) {
+    teamOps.createTeam(childTeam, function (err, result) {
       expect(err).to.not.exist()
-      expect(parentTeam).to.exist()
-      testTeam.id = parentTeam.id
+      expect(result).to.exist()
+      expect(result.path).to.equal(testTeam.id + '.' + result.id)
 
-
-      const teamData = {
-        name: 'test:team:path:' + randomId(),
-        description: 'child',
-        parentId: parentTeam.id,
-        organizationId: 'WONKA'
-      }
-
-      teamOps.createTeam(teamData, function (err, result) {
-        expect(err).to.not.exist()
-        expect(result).to.exist()
-        expect(result.path).to.equal(parentTeam.id + '.' + result.id)
-
-        teamOps.deleteTeam({ id: result.id, organizationId: 'WONKA' }, done)
-      })
+      teamOps.deleteTeam({ id: result.id, organizationId: 'WONKA' }, done)
     })
   })
 
   lab.test('deleteTeam should also delete descendants', (done) => {
-    const parentData = {
+    const childTeam = {
       name: 'Team Parent',
       description: 'This is a test team for paths',
       parentId: null,
       organizationId: 'WONKA'
     }
-    const childData = {
-      name: 'Team Parent',
-      description: 'This is a test team for paths',
-      parentId: null,
-      organizationId: 'WONKA'
-    }
+    childTeam.parentId = testTeam.id
 
-    teamOps.createTeam(parentData, (err, result) => {
+    teamOps.createTeam(childTeam, (err, childTeam) => {
       expect(err).to.not.exist()
+      expect(childTeam).to.exist()
 
-      const parentId = result.id
-      childData.parentId = parentId
+      expect(childTeam.path).to.equal(testTeam.id + '.' + childTeam.id)
 
-      teamOps.createTeam(childData, (err, result) => {
+      teamOps.deleteTeam({ organizationId: 'WONKA', id: testTeam.id }, (err) => {
         expect(err).to.not.exist()
-        expect(result).to.exist()
-
-        const childId = result.id
-
-        expect(result.path).to.equal(parentId + '.' + childId)
-
-        teamOps.deleteTeam({ organizationId: 'WONKA', id: parentId }, (err) => {
-          expect(err).to.not.exist()
-
-          teamOps.readTeam({ id: childId, organizationId: 'WONKA' }, (err) => {
-            expect(err).to.exist()
-            expect(err.isBoom).to.be.true()
-            expect(err.message).to.match(/Team with id [a-zA-Z0-9_]+ could not be found/)
-            done()
-          })
+        testTeam = null // so that afterEach don't try to delete a team that was already deleted
+        teamOps.readTeam({ id: childTeam.id, organizationId: 'WONKA' }, (err) => {
+          expect(err).to.exist()
+          expect(err.isBoom).to.be.true()
+          expect(err.message).to.match(/Team with id [a-zA-Z0-9_]+ could not be found/)
+          done()
         })
       })
     })
   })
 
   lab.test('moveTeam should update path', (done) => {
-    const parentData = {
-      name: 'Team Parent',
-      description: 'This is a test team for paths',
-      parentId: null,
-      organizationId: 'WONKA'
-    }
-    const childData = {
+    let childTeam = {
       name: 'Team Child',
       description: 'This is a test team for paths',
-      parentId: null,
+      parentId: testTeam.id,
       organizationId: 'WONKA'
     }
 
-    teamOps.createTeam(parentData, (err, result) => {
+    teamOps.createTeam(childTeam, (err, childTeam) => {
       expect(err).to.not.exist()
+      expect(childTeam).to.exist()
 
-      const parentId = result.id
-      childData.parentId = parentId
-
-      teamOps.createTeam(childData, (err, result) => {
+      let testTeam2 = {
+        name: 'Team Parent',
+        description: 'This is a test team for paths',
+        organizationId: 'WONKA'
+      }
+      teamOps.createTeam(testTeam2, (err, testTeam2) => {
         expect(err).to.not.exist()
-        expect(result).to.exist()
-
-        const childId = result.id
-
-        teamOps.moveTeam({ id: parentId, parentId: '3', organizationId: 'WONKA' }, (err, result) => {
+        expect(testTeam2).to.exist()
+        teamOps.moveTeam({ id: childTeam.id, parentId: testTeam2.id, organizationId: 'WONKA' }, (err, result) => {
           expect(err).to.not.exist()
           expect(result).to.exist()
-          expect(result.path).to.equal('3.' + parentId)
+          expect(result.path).to.equal(testTeam2.id + '.' + childTeam.id)
 
-          teamOps.readTeam({id: childId, organizationId: 'WONKA'}, (err, result) => {
+          teamOps.readTeam({id: childTeam.id, organizationId: 'WONKA'}, (err, result) => {
             expect(err).to.not.exist()
             expect(result).to.exist()
-            expect(result.path).to.equal('3.' + parentId + '.' + childId)
+            expect(result.path).to.equal(testTeam2.id + '.' + childTeam.id)
 
-            teamOps.deleteTeam({id: parentId, organizationId: 'WONKA'}, done)
+            teamOps.deleteTeam({id: testTeam2.id, organizationId: 'WONKA'}, done)
           })
         })
       })
@@ -456,115 +368,77 @@ lab.experiment('TeamOps', () => {
 
   lab.test('un-nest team', (done) => {
 
-    testTeam = {
-      name: 'test:team:unnest:' + randomId(),
-      description: 'parent',
+    const teamData = {
+      name: 'Team Parent',
+      description: 'This is a test team for paths',
+      parentId: testTeam.id,
       organizationId: 'WONKA'
     }
 
-    teamOps.createTeam(testTeam, function (err, parentTeam) {
+    teamOps.createTeam(teamData, (err, result) => {
       expect(err).to.not.exist()
-      expect(parentTeam).to.exist()
-      testTeam.id = parentTeam.id
 
-      const teamData = {
-        name: 'Team Parent',
-        description: 'This is a test team for paths',
-        parentId: parentTeam.id,
-        organizationId: 'WONKA'
-      }
+      const teamId = result.id
 
-      teamOps.createTeam(teamData, (err, result) => {
+      expect(result.path).to.equal(testTeam.id + '.' + teamId)
+
+      teamOps.moveTeam({ id: teamId, parentId: null, organizationId: 'WONKA' }, (err, result) => {
         expect(err).to.not.exist()
+        expect(result).to.exist()
+        expect(result.path).to.equal(teamId.toString())
 
-        const teamId = result.id
-
-        expect(result.path).to.equal(parentTeam.id + '.' + teamId)
-
-        teamOps.moveTeam({ id: teamId, parentId: null, organizationId: 'WONKA' }, (err, result) => {
-          expect(err).to.not.exist()
-          expect(result).to.exist()
-          expect(result.path).to.equal(teamId.toString())
-
-          teamOps.deleteTeam({id: teamId, organizationId: 'WONKA'}, done)
-        })
+        teamOps.deleteTeam({id: teamId, organizationId: 'WONKA'}, done)
       })
     })
   })
 
   lab.test('add policies to team', (done) => {
 
-    testTeam = {
-      name: 'test:team:-+policies:' + randomId(),
-      description: 'parent',
-      organizationId: 'WONKA'
-    }
-
-    teamOps.createTeam(testTeam, function (err, team) {
+    teamOps.addTeamPolicies({ id: testTeam.id, policies: [policies[0].id, policies[1].id], organizationId: 'WONKA' }, (err, team) => {
       expect(err).to.not.exist()
       expect(team).to.exist()
-      testTeam.id = team.id
+      expect(team.policies).to.have.length(2)
+      expect(team.policies).to.only.include([
+        _.pick(policies[0], 'id', 'name', 'version'),
+        _.pick(policies[1], 'id', 'name', 'version')
+      ])
 
-      teamOps.addTeamPolicies({ id: team.id, policies: [policies[0].id, policies[1].id], organizationId: 'WONKA' }, (err, team) => {
-        expect(err).to.not.exist()
-        expect(team).to.exist()
-        expect(team.policies).to.have.length(2)
-        expect(team.policies).to.only.include([
-          _.pick(policies[0], 'id', 'name', 'version'),
-          _.pick(policies[1], 'id', 'name', 'version')
-        ])
-
-        done()
-      })
+      done()
     })
   })
 
   lab.test('replace team policies', (done) => {
 
-    testTeam = {
-      name: 'test:team:-+policies:' + randomId(),
-      description: 'parent',
-      organizationId: 'WONKA'
-    }
-
-    teamOps.createTeam(testTeam, function (err, team) {
+    teamOps.addTeamPolicies({
+      id: testTeam.id,
+      organizationId: 'WONKA',
+      policies: [policies[0].id]
+    }, (err, team) => {
       expect(err).to.not.exist()
       expect(team).to.exist()
-      testTeam.id = team.id
 
-      teamOps.addTeamPolicies({
-        id: team.id,
-        organizationId: 'WONKA',
-        policies: [policies[0].id]
-      }, (err, team) => {
+      teamOps.replaceTeamPolicies({ id: team.id, policies: [policies[1].id], organizationId: 'WONKA' }, (err, team) => {
         expect(err).to.not.exist()
         expect(team).to.exist()
-
-        teamOps.replaceTeamPolicies({ id: team.id, policies: [policies[1].id], organizationId: 'WONKA' }, (err, team) => {
-          expect(err).to.not.exist()
-          expect(team).to.exist()
-          expect(team.policies).to.have.length(1)
-          expect(team.policies).to.only.include([_.pick(policies[1], 'id', 'name', 'version')])
-          done()
-        })
+        expect(team.policies).to.have.length(1)
+        expect(team.policies).to.only.include([_.pick(policies[1], 'id', 'name', 'version')])
+        done()
       })
     })
   })
 
   lab.test('add the same policy twice to a team', (done) => {
 
-    testTeam = {
-      name: 'test:team:-+policies:' + randomId(),
-      description: 'parent',
-      organizationId: 'WONKA'
-    }
-
-    teamOps.createTeam(testTeam, function (err, team) {
+    teamOps.addTeamPolicies({ id: testTeam.id, policies: [policies[0].id, policies[1].id], organizationId: 'WONKA' }, (err, team) => {
       expect(err).to.not.exist()
       expect(team).to.exist()
-      testTeam.id = team.id
+      expect(team.policies).to.have.length(2)
+      expect(team.policies).to.only.include([
+        _.pick(policies[0], 'id', 'name', 'version'),
+        _.pick(policies[1], 'id', 'name', 'version')
+      ])
 
-      teamOps.addTeamPolicies({ id: team.id, policies: [policies[0].id, policies[1].id], organizationId: 'WONKA' }, (err, team) => {
+      teamOps.addTeamPolicies({ id: team.id, policies: [policies[1].id], organizationId: 'WONKA' }, (err, team) => {
         expect(err).to.not.exist()
         expect(team).to.exist()
         expect(team.policies).to.have.length(2)
@@ -572,232 +446,151 @@ lab.experiment('TeamOps', () => {
           _.pick(policies[0], 'id', 'name', 'version'),
           _.pick(policies[1], 'id', 'name', 'version')
         ])
-
-        teamOps.addTeamPolicies({ id: team.id, policies: [policies[0].id, policies[1].id], organizationId: 'WONKA' }, (err, team) => {
-          expect(err).to.not.exist()
-          expect(team).to.exist()
-          expect(team.policies).to.have.length(2)
-          expect(team.policies).to.only.include([
-            _.pick(policies[0], 'id', 'name', 'version'),
-            _.pick(policies[1], 'id', 'name', 'version')
-          ])
-          done()
-        })
+        done()
       })
     })
   })
 
   lab.test('delete team policies', (done) => {
-
-    testTeam = {
-      name: 'test:team:-policies:' + randomId(),
-      description: 'parent',
-      organizationId: 'WONKA'
-    }
-
-    teamOps.createTeam(testTeam, function (err, team) {
+    teamOps.addTeamPolicies({ id: testTeam.id, policies: [policies[0].id, policies[1].id], organizationId: 'WONKA' }, (err, team) => {
       expect(err).to.not.exist()
       expect(team).to.exist()
-      testTeam.id = team.id
+      expect(team.policies).to.have.length(2)
 
-      teamOps.addTeamPolicies({ id: team.id, policies: [policies[0].id, policies[1].id], organizationId: 'WONKA' }, (err, team) => {
+      teamOps.deleteTeamPolicies({ id: team.id, organizationId: 'WONKA' }, (err, team) => {
         expect(err).to.not.exist()
         expect(team).to.exist()
-        expect(team.policies).to.have.length(2)
-
-        teamOps.deleteTeamPolicies({ id: team.id, organizationId: 'WONKA' }, (err, team) => {
-          expect(err).to.not.exist()
-          expect(team).to.exist()
-          expect(team.policies).to.equal([])
-          done()
-        })
+        expect(team.policies).to.equal([])
+        done()
       })
     })
   })
 
   lab.test('delete specific team policy', (done) => {
 
-    testTeam = {
-      name: 'test:team:-+policies:' + randomId(),
-      description: 'parent',
-      organizationId: 'WONKA'
-    }
-
-    teamOps.createTeam(testTeam, function (err, team) {
+    teamOps.addTeamPolicies({ id: testTeam.id, policies: [policies[0].id, policies[1].id], organizationId: 'WONKA' }, (err, team) => {
       expect(err).to.not.exist()
       expect(team).to.exist()
-      testTeam.id = team.id
+      expect(team.policies).to.have.length(2)
 
-      teamOps.addTeamPolicies({ id: team.id, policies: [policies[0].id, policies[1].id], organizationId: 'WONKA' }, (err, team) => {
+      teamOps.deleteTeamPolicy({ teamId: team.id, policyId: policies[0].id, organizationId: 'WONKA' }, (err, team) => {
         expect(err).to.not.exist()
         expect(team).to.exist()
-        expect(team.policies).to.have.length(2)
-
-        teamOps.deleteTeamPolicy({ teamId: team.id, policyId: policies[0].id, organizationId: 'WONKA' }, (err, team) => {
-          expect(err).to.not.exist()
-          expect(team).to.exist()
-          expect(team.policies).to.equal([_.pick(policies[1], 'id', 'name', 'version')])
-
-          done()
-        })
-      })
-    })
-  })
-
-  lab.test('add users to a team', (done) => {
-
-    testTeam = {
-      name: 'test:team:+users:' + randomId(),
-      description: '',
-      organizationId: 'WONKA'
-    }
-
-    teamOps.createTeam(testTeam, function (err, team) {
-      expect(err).to.not.exist()
-      expect(team).to.exist()
-      testTeam.id = team.id
-
-      let userIds = [users[0].id]
-
-      teamOps.addUsersToTeam({ id: team.id, users: userIds, organizationId: 'WONKA' }, (err, team) => {
-        expect(err).to.not.exist()
-        expect(team).to.exist()
-        expect(team.users).to.equal([
-          {
-            id: users[0].id,
-            name: users[0].name
-          }
-        ])
+        expect(team.policies).to.equal([_.pick(policies[1], 'id', 'name', 'version')])
 
         done()
       })
     })
   })
 
-  lab.test('replace users of a team', (done) => {
-    testTeam = {
-      name: 'test:team:-+users:' + randomId(),
-      description: '',
-      organizationId: 'WONKA'
-    }
+  lab.test('add users to a team', (done) => {
 
-    teamOps.createTeam(testTeam, function (err, team) {
+    let userIds = [users[0].id]
+
+    teamOps.addUsersToTeam({ id: testTeam.id, users: userIds, organizationId: 'WONKA' }, (err, team) => {
       expect(err).to.not.exist()
       expect(team).to.exist()
-      testTeam.id = team.id
+      expect(team.users).to.equal([
+        {
+          id: users[0].id,
+          name: users[0].name
+        }
+      ])
 
-      let userIds = [users[0].id]
+      done()
+    })
+  })
 
-      teamOps.addUsersToTeam({ id: team.id, users: userIds, organizationId: 'WONKA' }, (err, team) => {
+  lab.test('replace users of a team', (done) => {
+
+    let userIds = [users[0].id]
+
+    teamOps.addUsersToTeam({ id: testTeam.id, users: userIds, organizationId: 'WONKA' }, (err, team) => {
+      expect(err).to.not.exist()
+      expect(team).to.exist()
+      expect(team.users).to.equal([
+        {
+          id: users[0].id,
+          name: users[0].name
+        }
+      ])
+
+      userIds = [users[1].id]
+
+      teamOps.replaceUsersInTeam({ id: team.id, users: userIds, organizationId: 'WONKA' }, (err, team) => {
         expect(err).to.not.exist()
         expect(team).to.exist()
         expect(team.users).to.equal([
           {
-            id: users[0].id,
-            name: users[0].name
+            id: users[1].id,
+            name: users[1].name
           }
         ])
+        done()
+      })
+    })
+  })
 
-        userIds = [users[1].id]
+  lab.test('delete users of a team', (done) => {
 
-        teamOps.replaceUsersInTeam({ id: team.id, users: userIds, organizationId: 'WONKA' }, (err, team) => {
+    let userIds = [users[0].id, users[1].id]
+
+    teamOps.addUsersToTeam({ id: testTeam.id, users: userIds, organizationId: 'WONKA' }, (err, team) => {
+      expect(err).to.not.exist()
+      expect(team).to.exist()
+      expect(team.users).to.equal([
+        {
+          id: users[0].id,
+          name: users[0].name
+        },
+        {
+          id: users[1].id,
+          name: users[1].name
+        }
+      ])
+
+      teamOps.deleteTeamMembers({ id: team.id, organizationId: 'WONKA' }, (err, result) => {
+        expect(err).to.not.exist()
+        expect(result).to.not.exist()
+        teamOps.readTeam({ id: team.id, organizationId: 'WONKA' }, (err, team) => {
           expect(err).to.not.exist()
           expect(team).to.exist()
-          expect(team.users).to.equal([
-            {
-              id: users[1].id,
-              name: users[1].name
-            }
-          ])
+          expect(team.users).to.equal([])
           done()
         })
       })
     })
   })
 
-  lab.test('delete users of a team', (done) => {
-    testTeam = {
-      name: 'test:team:-users:' + randomId(),
-      description: '',
-      organizationId: 'WONKA'
-    }
-
-    teamOps.createTeam(testTeam, function (err, team) {
-      expect(err).to.not.exist()
-      expect(team).to.exist()
-      testTeam.id = team.id
-
-      let userIds = [users[0].id, users[1].id]
-
-      teamOps.addUsersToTeam({ id: team.id, users: userIds, organizationId: 'WONKA' }, (err, team) => {
-        expect(err).to.not.exist()
-        expect(team).to.exist()
-        expect(team.users).to.equal([
-          {
-            id: users[0].id,
-            name: users[0].name
-          },
-          {
-            id: users[1].id,
-            name: users[1].name
-          }
-        ])
-
-        teamOps.deleteTeamMembers({ id: team.id, organizationId: 'WONKA' }, (err, result) => {
-          expect(err).to.not.exist()
-          expect(result).to.not.exist()
-          teamOps.readTeam({ id: team.id, organizationId: 'WONKA' }, (err, team) => {
-            expect(err).to.not.exist()
-            expect(team).to.exist()
-            expect(team.users).to.equal([])
-            done()
-          })
-        })
-      })
-    })
-  })
-
   lab.test('delete a specific user of a team', (done) => {
-    testTeam = {
-      name: 'test:team:-user:' + randomId(),
-      description: '',
-      organizationId: 'WONKA'
-    }
+    let userIds = [users[0].id, users[1].id]
 
-    teamOps.createTeam(testTeam, function (err, team) {
+    teamOps.addUsersToTeam({ id: testTeam.id, users: userIds, organizationId: 'WONKA' }, (err, team) => {
       expect(err).to.not.exist()
       expect(team).to.exist()
-      testTeam.id = team.id
+      expect(team.users).to.equal([
+        {
+          id: users[0].id,
+          name: users[0].name
+        },
+        {
+          id: users[1].id,
+          name: users[1].name
+        }
+      ])
 
-      let userIds = [users[0].id, users[1].id]
-
-      teamOps.addUsersToTeam({ id: team.id, users: userIds, organizationId: 'WONKA' }, (err, team) => {
+      teamOps.deleteTeamMember({ id: team.id, userId: users[1].id, organizationId: 'WONKA' }, (err, result) => {
         expect(err).to.not.exist()
-        expect(team).to.exist()
-        expect(team.users).to.equal([
-          {
+        expect(result).to.not.exist()
+
+        teamOps.readTeam({ id: team.id, organizationId: 'WONKA' }, (err, team) => {
+          expect(err).to.not.exist()
+          expect(team).to.exist()
+          expect(team.users).to.equal([{
             id: users[0].id,
             name: users[0].name
-          },
-          {
-            id: users[1].id,
-            name: users[1].name
-          }
-        ])
-
-        teamOps.deleteTeamMember({ id: team.id, userId: users[1].id, organizationId: 'WONKA' }, (err, result) => {
-          expect(err).to.not.exist()
-          expect(result).to.not.exist()
-
-          teamOps.readTeam({ id: team.id, organizationId: 'WONKA' }, (err, team) => {
-            expect(err).to.not.exist()
-            expect(team).to.exist()
-            expect(team.users).to.equal([{
-              id: users[0].id,
-              name: users[0].name
-            }])
-            done()
-          })
+          }])
+          done()
         })
       })
     })
