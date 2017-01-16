@@ -8,49 +8,6 @@ const SQL = require('./../db/SQL')
 const mapping = require('./../mapping')
 const utils = require('./utils')
 
-const updateUserInfo = (job, next) => {
-  const { id, name, organizationId } = job
-
-  const sqlQuery = SQL`
-    UPDATE users
-    SET name = ${name}
-    WHERE id = ${id}
-    AND org_id = ${organizationId}
-  `
-  job.client.query(sqlQuery, (err, result) => {
-    if (err) return next(Boom.badImplementation(err))
-    if (result.rowCount === 0) return next(Boom.notFound(`User ${id} not found`))
-
-    next()
-  })
-}
-
-const clearUserTeams = (job, next) => {
-  const { id } = job
-
-  const sqlQuery = SQL`
-    DELETE FROM team_members
-    WHERE user_id = ${id}
-  `
-  job.client.query(sqlQuery, utils.boomErrorWrapper(next))
-}
-
-const addUserTeams = (job, next) => {
-  const { id: userId, teams } = job
-
-  const sqlQuery = SQL`
-    INSERT INTO team_members (
-      team_id, user_id
-    ) VALUES
-  `
-  sqlQuery.append(SQL`(${teams[0]}, ${userId})`)
-  teams.slice(1).forEach((teamId) => {
-    sqlQuery.append(SQL`, (${teamId}, ${userId})`)
-  })
-
-  job.client.query(sqlQuery, utils.boomErrorWrapper(next))
-}
-
 const clearUserPolicies = (job, next) => {
   const { id } = job
 
@@ -76,17 +33,6 @@ const insertUserPolicies = (job, next) => {
   const { id: userId, policies } = job
 
   userOps.insertPolicies(job.client, userId, policies, utils.boomErrorWrapper(next))
-}
-
-function checkTeamsOrg (job, next) {
-  const { teams, organizationId } = job
-
-  job.client.query(SQL`SELECT id FROM teams WHERE id = ANY (${teams}) AND org_id = ${organizationId}`, (err, result) => {
-    if (err) return next(Boom.badImplementation(err))
-    if (result.rowCount !== teams.length) return next(Boom.badRequest(`Some of the teams [${teams.join(',')}] were not found`))
-
-    next()
-  })
 }
 
 function checkUserOrg (job, next) {
@@ -296,34 +242,21 @@ const userOps = {
   /**
    * Update user details
    *
-   * @param  {Object}   params { id, organizationId, name, teams }
+   * @param  {Object}   params { id, organizationId, name }
    * @param  {Function} cb
    */
   updateUser: function updateUser (params, cb) {
-    const { id, organizationId, name, teams } = params
+    const { id, organizationId, name } = params
 
-    const tasks = [
-      (job, next) => {
-        job.id = id
-        job.name = name
-        job.teams = teams
-        job.organizationId = organizationId
-
-        next()
-      },
-      updateUserInfo,
-      clearUserTeams
-    ]
-
-    if (teams.length > 0) {
-      tasks.push(checkTeamsOrg)
-      tasks.push(addUserTeams)
-    }
-
-    db.withTransaction(tasks, (err, res) => {
-      if (err) {
-        return cb(err)
-      }
+    const sqlQuery = SQL`
+      UPDATE users
+      SET name = ${name}
+      WHERE id = ${id}
+      AND org_id = ${organizationId}
+    `
+    db.query(sqlQuery, (err, result) => {
+      if (err) return cb(Boom.badImplementation(err))
+      if (result.rowCount === 0) return cb(Boom.notFound(`User ${id} not found`))
 
       userOps.readUser({ id, organizationId }, cb)
     })
@@ -455,7 +388,7 @@ const userOps = {
   /**
    * Delete user
    *
-   * @param  {params}   { id, organizationId }
+   * @param  {Object}   { id, organizationId }
    * @param  {Function} cb
    */
   deleteUser: function deleteUser (params, cb) {

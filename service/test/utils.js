@@ -1,6 +1,8 @@
 'use strict'
 
 const _ = require('lodash')
+const db = require('./../lib/db')
+const SQL = require('./../lib/db/SQL')
 
 /**
  * Merge the authorization default header with the provided options
@@ -23,7 +25,14 @@ function findPick (arr, search, fields) {
   return _.pick(_.find(arr, search), fields)
 }
 
+function deleteUserFromAllTeams (id, cb) {
+  const sqlQuery = SQL`DELETE FROM team_members WHERE user_id = ${id}`
+
+  db.query(sqlQuery, cb)
+}
+
 module.exports = {
   requestOptions,
-  findPick
+  findPick,
+  deleteUserFromAllTeams
 }

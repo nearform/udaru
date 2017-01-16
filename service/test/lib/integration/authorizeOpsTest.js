@@ -11,6 +11,7 @@ const organizationOps = require('../../../lib/ops/organizationOps')
 const userOps = require('../../../lib/ops/userOps')
 const teamOps = require('../../../lib/ops/teamOps')
 const policyOps = require('../../../lib/ops/policyOps')
+const testUtils = require('../../utils')
 
 const fs = require('fs')
 const path = require('path')
@@ -32,6 +33,7 @@ lab.experiment('AuthorizeOps', () => {
   let testUserId
   let testTeamId
   let wonkaPolicies
+  let managersTeamId
 
   lab.before((done) => {
 
@@ -39,7 +41,7 @@ lab.experiment('AuthorizeOps', () => {
       if (err) return done(err)
 
       let managersTeam = _.find(teams, {name: 'Managers'})
-      updateUserData.teams = [managersTeam.id]
+      managersTeamId = managersTeam.id
 
       policyOps.listByOrganization({organizationId}, (err, policies) => {
         if (err) return done(err)
@@ -49,9 +51,9 @@ lab.experiment('AuthorizeOps', () => {
         userOps.createUser(testUserData, (err, result) => {
           if (err) return done(err)
           testUserId = result.id
-
           updateUserData.id = testUserId
-          userOps.updateUser(updateUserData, (err, result) => {
+
+          teamOps.addUsersToTeam({ id: managersTeamId, users: [testUserId], organizationId }, (err, result) => {
             if (err) return done(err)
 
             userOps.replaceUserPolicies({ id: testUserId, policies: [_.find(wonkaPolicies, {name: 'Director'}).id], organizationId }, done)
@@ -187,9 +189,7 @@ lab.experiment('AuthorizeOps', () => {
 
     // set-up
     tasks.push((cb) => {
-      updateUserData.id = testUserId
-      updateUserData.teams = []
-      userOps.updateUser(updateUserData, cb)
+      testUtils.deleteUserFromAllTeams(testUserId, cb)
     })
     tasks.push((result, cb) => {
       userOps.replaceUserPolicies({ id: testUserId, policies: [], organizationId }, cb)
@@ -255,8 +255,7 @@ lab.experiment('AuthorizeOps', () => {
 
     // test for user permissions on the resource
     tasks.push((result, cb) => {
-      updateUserData.teams = []
-      userOps.updateUser(updateUserData, cb)
+      testUtils.deleteUserFromAllTeams(testUserId, cb)
     })
     tasks.push((result, cb) => {
       userOps.replaceUserPolicies({
@@ -281,8 +280,7 @@ lab.experiment('AuthorizeOps', () => {
 
     // test for team and user permissions on the resource
     tasks.push((result, cb) => {
-      updateUserData.teams = [1]
-      userOps.updateUser(updateUserData, cb)
+      teamOps.addUsersToTeam({ id: '1', users: [testUserId], organizationId }, cb)
     })
     tasks.push((result, cb) => {
       userOps.replaceUserPolicies({
