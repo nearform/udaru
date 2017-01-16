@@ -108,14 +108,19 @@ lab.experiment('Teams - get/list', () => {
   lab.test('get users for a single team', (done) => {
     teamOps.createTeam(teamData, (err, team) => {
       if (err) return done(err)
+      const teamUsers = [
+          { id: 'AugustusId', name: 'Augustus Gloop' },
+          { id: 'CharlieId', name: 'Charlie Bucket' },
+          { id: 'MikeId', name: 'Mike Teavee' },
+          { id: 'VerucaId', name: 'Veruca Salt' },
+          { id: 'WillyId', name: 'Willy Wonka' }
+      ]
+      const teamUsersIds = teamUsers.map((user) => { return user.id })
 
-      teamOps.addUsersToTeam({id: team.id, organizationId: team.organizationId, users: ['CharlieId', 'MikeId']}, (err, team) => {
+      teamOps.addUsersToTeam({id: team.id, organizationId: team.organizationId, users: teamUsersIds}, (err, team) => {
         if (err) return done(err)
 
-        expect(team.users).to.equal([
-          { id: 'CharlieId', name: 'Charlie Bucket' },
-          { id: 'MikeId', name: 'Mike Teavee' }
-        ])
+        expect(team.users).to.equal(teamUsers)
 
         const options = utils.requestOptions({
           method: 'GET',
@@ -126,22 +131,28 @@ lab.experiment('Teams - get/list', () => {
           const result = response.result
 
           expect(response.statusCode).to.equal(200)
-          expect(result).to.equal([
-            { id: 'CharlieId', name: 'Charlie Bucket' },
-            { id: 'MikeId', name: 'Mike Teavee' }
-          ])
+          expect(result.currentPage).to.equal(1)
+          expect(result.pageSize).to.equal(10)
+          expect(result.totalPages).to.equal(1)
+          expect(result.totalUsersCount).to.equal(5)
+          expect(result.users).to.equal(teamUsers)
 
           const options = utils.requestOptions({
             method: 'GET',
-            url: `/authorization/teams/${team.id}/users?page=2&limit=1`
+            url: `/authorization/teams/${team.id}/users?page=2&limit=3`
           })
 
           server.inject(options, (response) => {
             const result = response.result
 
             expect(response.statusCode).to.equal(200)
-            expect(result).to.equal([
-              { id: 'MikeId', name: 'Mike Teavee' }
+            expect(result.currentPage).to.equal(2)
+            expect(result.pageSize).to.equal(3)
+            expect(result.totalPages).to.equal(2)
+            expect(result.totalUsersCount).to.equal(5)
+            expect(result.users).to.equal([
+              { id: 'VerucaId', name: 'Veruca Salt' },
+              { id: 'WillyId', name: 'Willy Wonka' }
             ])
 
             teamOps.deleteTeam({ id: team.id, organizationId: team.organizationId }, done)

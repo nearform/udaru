@@ -457,7 +457,7 @@ exports.register = function (server, options, next) {
         }).unknown()
       },
       description: 'Fetch team users given its identifier',
-      notes: 'The GET /authorization/teams/{id}/users endpoint returns the users from a team. The results are paginated. Page numbers start from 1. \n',
+      notes: 'The GET /authorization/teams/{id}/users endpoint returns the users from a team and metadata related to pagination. The results are paginated. Page numbers start from 1. \n',
       tags: ['api', 'service', 'get', 'team', 'users'],
       plugins: {
         auth: {
@@ -465,7 +465,7 @@ exports.register = function (server, options, next) {
           getParams: (request) => ({ teamId: request.params.id })
         }
       },
-      response: {schema: swagger.UserList}
+      response: {schema: swagger.MetadataUserList}
     }
   })
 

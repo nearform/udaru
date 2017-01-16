@@ -154,16 +154,17 @@ lab.experiment('TeamOps', () => {
     })
   })
 
+  // TODO: Needs review
   lab.test('read a specific team', (done) => {
-    teamOps.readTeam({ id: testTeam.id, organizationId: 'WONKA' }, (err, result) => {
+    teamOps.readTeam({ id: '2', organizationId: 'WONKA' }, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
-      expect(result.name).to.equal(testTeam.name)
-      expect(result.description).to.equal(testTeam.description)
-      expect(result.usersCount).to.equal(1)
+      expect(result.name).to.equal('Readers')
+      expect(result.description).to.equal('General read-only access')
+      expect(result.usersCount).to.equal(2)
       expect(result.usersCount).to.equal(result.users.length)
-      expect(result.users.length).to.equal(1)
-      expect(result.policies.length).to.equal(1)
+      expect(result.users.length).to.equal(2)
+      expect(result.policies.length).to.equal(0)
 
       done()
     })
@@ -173,8 +174,12 @@ lab.experiment('TeamOps', () => {
     teamOps.readTeamUsers({ id: '2' }, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
-      expect(result.length).to.equal(2)
-      expect(result).to.equal([
+      expect(result.currentPage).to.equal(1)
+      expect(result.pageSize).to.equal(2)
+      expect(result.totalPages).to.equal(1)
+      expect(result.totalUsersCount).to.equal(2)
+      expect(result.users.length).to.equal(2)
+      expect(result.users).to.equal([
         { id: 'CharlieId', name: 'Charlie Bucket' },
         { id: 'VerucaId', name: 'Veruca Salt' }
       ])
@@ -187,8 +192,12 @@ lab.experiment('TeamOps', () => {
     teamOps.readTeamUsers({ id: '2', page: 2, limit: 1 }, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
-      expect(result.length).to.equal(1)
-      expect(result).to.equal([
+      expect(result.currentPage).to.equal(2)
+      expect(result.pageSize).to.equal(1)
+      expect(result.totalPages).to.equal(2)
+      expect(result.totalUsersCount).to.equal(2)
+      expect(result.users.length).to.equal(1)
+      expect(result.users).to.equal([
         { id: 'VerucaId', name: 'Veruca Salt' }
       ])
 

@@ -295,7 +295,7 @@ function loadTeams (job, next) {
 function loadTeamUsers (job, next) {
   const { id, offset, limit } = job
   const sql = SQL`
-    SELECT users.id, users.name
+    SELECT users.id, users.name, COUNT(*) OVER() AS total_users_count
     FROM team_members mem, users
     WHERE mem.team_id = ${id}
     AND mem.user_id = users.id
@@ -310,6 +310,7 @@ function loadTeamUsers (job, next) {
   db.query(sql, function (err, result) {
     if (err) return next(Boom.badImplementation(err))
 
+    job.totalUsersCount = result.rowCount > 0 ? parseInt(result.rows[0].total_users_count) : 0
     job.team.usersCount = result.rowCount
     job.team.users = result.rows.map(mapping.user.simple)
     next()
@@ -402,19 +403,29 @@ var teamOps = {
    * @param  {params}   params { id, page, limit }
    * @param  {Function} cb
    */
-  readTeamUsers: function readTeamUsers ({ id, page, limit }, cb) {
-    const offset = (page < 1 ? 1 : page) * limit - limit
+  readTeamUsers: function readTeamUsers ({ id, page = 1, limit = 0 }, cb) {
+    const resultLimit = limit < 0 ? 0 : limit
+    const pageNumber = page < 1 ? 1 : page
+    const offset = pageNumber * limit - limit
+
     const job = {
       id: id,
       offset: offset,
-      limit: limit < 0 ? 0 : limit,
+      limit: resultLimit,
       team: {}
     }
 
     loadTeamUsers(job, (err) => {
       if (err) return cb(err)
-
-      return cb(null, job.team.users)
+      const pageSize = resultLimit || job.totalUsersCount
+      const result = {
+        currentPage: pageNumber,
+        pageSize: pageSize,
+        totalPages: Math.ceil(job.totalUsersCount / pageSize),
+        totalUsersCount: job.totalUsersCount,
+        users: job.team.users.map(user => Object.assign({}, user))
+      }
+      return cb(null, result)
     })
   },
 
