@@ -274,7 +274,7 @@ lab.experiment('TeamOps', () => {
   lab.test('create team support creation of default team admin user', (done) => {
     let teamId = randomId()
     testTeam = {
-      name: 'test::teamOps:+Only:' + teamId,
+      name: 'test::teamOps:dfltAdmin:' + teamId,
       description: 'description',
       organizationId: 'WONKA',
       user: { name: 'test:' + teamId }
@@ -308,7 +308,7 @@ lab.experiment('TeamOps', () => {
   lab.test('create team support creation of default team admin user and specific user id', (done) => {
     let teamId = randomId()
     testTeam = {
-      name: 'test::teamOps:+Only:' + teamId,
+      name: 'test::teamOps:dfltAdmin:' + teamId,
       description: 'description',
       organizationId: 'WONKA',
       user: { name: 'test:' + teamId, id: 'test:' + teamId }
@@ -341,7 +341,7 @@ lab.experiment('TeamOps', () => {
   lab.test('createTeam should build path', (done) => {
 
     testTeam = {
-      name: 'test:team:parent:' + randomId(),
+      name: 'test:team:path:' + randomId(),
       description: 'parent',
       organizationId: 'WONKA'
     }
@@ -353,7 +353,7 @@ lab.experiment('TeamOps', () => {
 
 
       const teamData = {
-        name: 'test:team:parent:' + randomId(),
+        name: 'test:team:path:' + randomId(),
         description: 'child',
         parentId: parentTeam.id,
         organizationId: 'WONKA'
@@ -647,8 +647,8 @@ lab.experiment('TeamOps', () => {
   lab.test('add users to a team', (done) => {
 
     testTeam = {
-      name: 'test:team:-+policies:' + randomId(),
-      description: 'parent',
+      name: 'test:team:+users:' + randomId(),
+      description: '',
       organizationId: 'WONKA'
     }
 
@@ -676,8 +676,8 @@ lab.experiment('TeamOps', () => {
 
   lab.test('replace users of a team', (done) => {
     testTeam = {
-      name: 'test:team:-+policies:' + randomId(),
-      description: 'parent',
+      name: 'test:team:-+users:' + randomId(),
+      description: '',
       organizationId: 'WONKA'
     }
 
@@ -717,8 +717,8 @@ lab.experiment('TeamOps', () => {
 
   lab.test('delete users of a team', (done) => {
     testTeam = {
-      name: 'test:team:-+policies:' + randomId(),
-      description: 'parent',
+      name: 'test:team:-users:' + randomId(),
+      description: '',
       organizationId: 'WONKA'
     }
 
