@@ -40,12 +40,10 @@ function insertPolicies (client, policies, cb) {
 }
 
 function deletePolicies (client, ids, orgId, cb) {
-  console.log('deletePolicies')
   client.query(SQL`DELETE FROM policies WHERE id = ANY (${ids}) AND org_id=${orgId}`, utils.boomErrorWrapper(cb))
 }
 
 function deleteTeamsAssociations (client, ids, orgId, cb) {
-  console.log('deleteTeamsAssociations')
   client.query(SQL`
                DELETE FROM team_policies AS p
                USING teams AS t
@@ -55,7 +53,6 @@ function deleteTeamsAssociations (client, ids, orgId, cb) {
 }
 
 function deleteUsersAssociations (client, ids, orgId, cb) {
-  console.log('deleteUsersAssociations')
   client.query(SQL`
                DELETE FROM user_policies AS p
                USING users AS u
@@ -72,13 +69,11 @@ function getNames (policies) {
 
 function removePolicyFromUsers (job, next) {
   const { id, organizationId } = job
-
   deleteUsersAssociations(job.client, [id], organizationId, next)
 }
 
 function removePolicyFromTeams (job, next) {
   const { id, organizationId } = job
-
   deleteTeamsAssociations(job.client, [id], organizationId, next)
 }
 
@@ -297,7 +292,6 @@ const policyOps = {
   },
 
   readTeamDefaultPolicies: function readTeamDefaultPolicies (client, organizationId, teamId, cb) {
-    console.log('readTeamDefaultPolicies')
     const defaultPolicies = config.get('authorization.teams.defaultPolicies', {organizationId, teamId})
     const names = getNames(defaultPolicies)
     client.query(SQL`SELECT id FROM policies WHERE name = ANY(${names}) AND org_id = ${organizationId}`, utils.boomErrorWrapper(cb))

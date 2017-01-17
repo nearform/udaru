@@ -179,7 +179,7 @@ function readDefaultPoliciesIds (job, next) {
 }
 
 function deleteDefaultPolicies (job, next) {
-  policyOps.deleteAllPolicyByIds(job.client, job.policies, utils.boomErrorWrapper(next))
+  policyOps.deleteAllPolicyByIds(job.client, job.policies, job.organizationId, utils.boomErrorWrapper(next))
 }
 
 function moveTeamSql (job, next) {
