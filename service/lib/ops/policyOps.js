@@ -49,7 +49,8 @@ function deleteTeamsAssociations (client, ids, orgId, cb) {
                USING teams AS t
                WHERE t.id = p.team_id
                  AND p.policy_id = ANY (${ids})
-                 AND t.org_id = ${orgId}`, utils.boomErrorWrapper(cb))
+                 AND t.org_id = ${orgId}`,
+               utils.boomErrorWrapper(cb))
 }
 
 function deleteUsersAssociations (client, ids, orgId, cb) {
@@ -58,7 +59,8 @@ function deleteUsersAssociations (client, ids, orgId, cb) {
                USING users AS u
                WHERE u.id = p.user_id
                  AND p.policy_id = ANY (${ids})
-                 AND u.org_id = ${orgId}`, utils.boomErrorWrapper(cb))
+                 AND u.org_id = ${orgId}`,
+               utils.boomErrorWrapper(cb))
 }
 
 function getNames (policies) {
@@ -275,7 +277,7 @@ const policyOps = {
         SELECT id
         FROM policies
         WHERE org_id = ${organizationId}
-        AND name = ${name}
+          AND name = ${name}
       `
       client.query(sqlQuery, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
