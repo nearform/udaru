@@ -17,13 +17,14 @@ postgrator.setConfig({
 })
 
 const argv = minimist(process.argv.slice(2))
+const version = argv.version || argv._[0]
 
-if (!argv.version) {
+if (!version) {
   console.log('Please provide the version to migrate to')
   process.exit(1)
 }
 
-postgrator.migrate(argv.version, function (err, migrations) {
+postgrator.migrate(version, function (err, migrations) {
   if (err) {
     console.log(err)
     process.exit(1)
@@ -35,6 +36,6 @@ postgrator.migrate(argv.version, function (err, migrations) {
       process.exit(1)
     }
 
-    console.log(`Migrations to ${argv.version} done`, migrations)
+    console.log(`Migrations to ${version} done`, migrations)
   })
 })

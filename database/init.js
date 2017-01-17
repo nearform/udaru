@@ -1,25 +1,30 @@
 'use strict'
 
-var async = require('async')
-var pg = require('pg')
-var config = require('./../../../src/lib/config')
+const _ = require('lodash')
+const async = require('async')
+const pg = require('pg')
+const config = require('./../src/lib/config')
 
-var pgConf = config.get('pgdb')
-/** @see https://github.com/olalonde/pgtools/blob/master/index.js#L43 */
+if (!config.get('local')) {
+  console.log('ERROR: You are trying to init the database while not in local environment.')
+  process.exit(1)
+}
+
+const pgConf = _.clone(config.get('pgdb'))
+/**
+ * This is a hack to connect to PostgreSQL if you do not have a specific db.
+ * @see https://github.com/olalonde/pgtools/blob/master/index.js#L43
+ */
 pgConf.database = 'postgres'
 
-var client = new pg.Client(pgConf)
+const client = new pg.Client(pgConf)
 
 function connect (next) {
-  client.connect(function (err) {
-    if (err) throw next(err)
-
-    next()
-  })
+  client.connect(next)
 }
 
 function dropDb (next) {
-  client.query('DROP DATABASE IF EXISTS "authorization"', function (err, result) {
+  client.query(`DROP DATABASE IF EXISTS "${config.get('pgdb.database')}"`, function (err, result) {
     if (err) throw next(err)
 
     next()
@@ -27,7 +32,7 @@ function dropDb (next) {
 }
 
 function createDb (next) {
-  client.query('CREATE DATABASE "authorization"', function (err, result) {
+  client.query(`CREATE DATABASE "${config.get('pgdb.database')}"`, function (err, result) {
     if (err) throw next(err)
 
     next()

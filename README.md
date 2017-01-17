@@ -57,6 +57,18 @@ As the Postgresql docker container has its 5432 port forwarded on the local mach
 
 To access the database using the pgAdmin you have to fill in also the container IP beside the database names and access credentials. The container IP can be seen with `docker ps`.
 
+### Migrations
+
+For testing and documentation purposes we have db migrations.
+
+We use [`postgrator`](https://github.com/rickbergfalk/postgrator) and you can find the sql files in the [`database/migrations`](/database/migrations) folder.
+
+To run the migrations you just need to execute
+
+`node database/migrate.js --version=<version>`
+
+Running the tests (`npm test`) or setting up the app with the test db (`npm run app:init-test-db`) will automaticcaly bring the db to the latest version.
+
 ## Service
 
 The service will respond http calls such as
@@ -98,12 +110,14 @@ Usage: `node service/script/loadPolicies --org=FOO policies.json`
 
 JSON structure:
 
-```json
+```
 {
   "policies": [
     {
+      "id": "unique-string", // <== optional
       "version": "",
       "name": "policy name",
+      "organizationId": "your_organization" // <== optional, if present will override the "--org=FOO" parameter
       "statements": [
         {
           "Effect": "Allow/Deny",
