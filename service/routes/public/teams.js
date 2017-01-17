@@ -435,6 +435,41 @@ exports.register = function (server, options, next) {
   })
 
   server.route({
+    method: 'GET',
+    path: '/authorization/teams/{id}/users',
+    handler: function (request, reply) {
+      const { id } = request.params
+      const { page, limit } = request.query
+
+      teamOps.readTeamUsers({ id, page, limit }, reply)
+    },
+    config: {
+      validate: {
+        params: {
+          id: Joi.string().required().description('The team ID')
+        },
+        query: {
+          page: Joi.number().integer().positive().required().description('Page number, starts from 1'),
+          limit: Joi.number().integer().positive().required().description('Users per page')
+        },
+        headers: Joi.object({
+          'authorization': Joi.any().required()
+        }).unknown()
+      },
+      description: 'Fetch team users given its identifier',
+      notes: 'The GET /authorization/teams/{id}/users endpoint returns the users from a team and metadata related to pagination. The results are paginated. Page numbers start from 1. \n',
+      tags: ['api', 'service', 'get', 'team', 'users'],
+      plugins: {
+        auth: {
+          action: Action.ReadTeam,
+          getParams: (request) => ({ teamId: request.params.id })
+        }
+      },
+      response: {schema: swagger.MetadataUserList}
+    }
+  })
+
+  server.route({
     method: 'PUT',
     path: '/authorization/teams/{id}/users',
     handler: function (request, reply) {
@@ -463,7 +498,7 @@ exports.register = function (server, options, next) {
         }).unknown()
       },
       description: 'Add team members',
-      notes: 'The PUT /authorization/teams/{id}/users endpoint add one or more team members',
+      notes: 'The PUT /authorization/teams/{id}/users endpoint adds one or more team members',
       tags: ['api', 'service', 'put', 'team', 'users'],
       plugins: {
         auth: {
@@ -504,7 +539,7 @@ exports.register = function (server, options, next) {
         }).unknown()
       },
       description: 'Replace team members with the given ones',
-      notes: 'The POST /authorization/teams/{id}/users endpoint replace all team members',
+      notes: 'The POST /authorization/teams/{id}/users endpoint replaces all team members',
       tags: ['api', 'service', 'post', 'team', 'users'],
       plugins: {
         auth: {

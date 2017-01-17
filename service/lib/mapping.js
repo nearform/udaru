@@ -70,7 +70,7 @@ function mapTeamList (row) {
     description: row.description,
     path: row.path,
     organizationId: row.org_id,
-    membersCount: row.members
+    usersCount: parseInt(row.users_count)
   }
 }
 

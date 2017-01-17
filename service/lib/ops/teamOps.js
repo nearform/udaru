@@ -272,6 +272,68 @@ function checkTeamExists (job, next) {
   })
 }
 
+function loadTeams (job, next) {
+  const { id, organizationId } = job
+  const sql = SQL`
+    SELECT *
+    FROM teams
+    WHERE id = ${id}
+    AND org_id = ${organizationId}
+  `
+  db.query(sql, (err, result) => {
+    if (err) return next(Boom.badImplementation(err))
+    if (result.rowCount === 0) return next(Boom.notFound(`Team with id ${id} could not be found`))
+
+    job.team = mapping.team(result.rows[0])
+
+    job.team.users = []
+    job.team.policies = []
+    next()
+  })
+}
+
+function loadTeamUsers (job, next) {
+  const { id, offset, limit } = job
+  const sql = SQL`
+    SELECT users.id, users.name, COUNT(*) OVER() AS total_users_count
+    FROM team_members mem, users
+    WHERE mem.team_id = ${id}
+    AND mem.user_id = users.id
+    ORDER BY UPPER(users.name)
+  `
+  if (limit) {
+    sql.append(SQL` LIMIT ${limit}`)
+  }
+  if (offset) {
+    sql.append(SQL` OFFSET ${offset}`)
+  }
+  db.query(sql, function (err, result) {
+    if (err) return next(Boom.badImplementation(err))
+
+    job.totalUsersCount = result.rowCount > 0 ? parseInt(result.rows[0].total_users_count) : 0
+    job.team.usersCount = result.rowCount
+    job.team.users = result.rows.map(mapping.user.simple)
+    next()
+  })
+}
+
+function loadTeamPolicies (job, next) {
+  const { id } = job
+  const sql = SQL`
+    SELECT pol.id, pol.name, pol.version
+    FROM team_policies tpol, policies pol
+    WHERE tpol.team_id = ${id}
+    AND tpol.policy_id = pol.id
+    ORDER BY UPPER(pol.name)
+  `
+  db.query(sql, function (err, result) {
+    if (err) return next(Boom.badImplementation(err))
+
+    job.team.policies = result.rows.map(mapping.policy.simple)
+    next()
+  })
+}
+
 var teamOps = {
 
   /**
@@ -284,7 +346,7 @@ var teamOps = {
     const { organizationId } = params
 
     const sqlQuery = SQL`
-      SELECT teams.id, teams.name, teams.description, teams.path, teams.org_id, COUNT(team_members.team_id) AS members
+      SELECT teams.id, teams.name, teams.description, teams.path, teams.org_id, COUNT(team_members.team_id) AS users_count
       FROM teams
       LEFT JOIN team_members ON team_members.team_id = teams.id
       WHERE org_id = ${organizationId}
@@ -336,71 +398,61 @@ var teamOps = {
   },
 
   /**
+   * Fetch the users data from a team
+   *
+   * @param  {params}   params { id, page, limit }
+   * @param  {Function} cb
+   */
+  readTeamUsers: function readTeamUsers ({ id, page = 1, limit = 0 }, cb) {
+    const resultLimit = limit < 0 ? 0 : limit
+    const pageNumber = page < 1 ? 1 : page
+    const offset = pageNumber * limit - limit
+
+    const job = {
+      id: id,
+      offset: offset,
+      limit: resultLimit,
+      team: {}
+    }
+
+    loadTeamUsers(job, (err) => {
+      if (err) return cb(err)
+      const pageSize = resultLimit || job.totalUsersCount
+      const result = {
+        currentPage: pageNumber,
+        pageSize: pageSize,
+        totalPages: Math.ceil(job.totalUsersCount / pageSize),
+        totalUsersCount: job.totalUsersCount,
+        users: job.team.users.map(user => Object.assign({}, user))
+      }
+      return cb(null, result)
+    })
+  },
+
+  /**
    * Fetch specific team data
    *
    * @param  {params}   params { id, organizationId }
    * @param  {Function} cb
    */
   readTeam: function readTeam ({ id, organizationId }, cb) {
-    const tasks = []
-    let team
+    const job = {
+      team: {}
+    }
 
-    tasks.push((next) => {
-      const sql = SQL`
-        SELECT *
-        FROM teams
-        WHERE id = ${id}
-        AND org_id = ${organizationId}
-      `
-
-      db.query(sql, (err, result) => {
-        if (err) return next(Boom.badImplementation(err))
-        if (result.rowCount === 0) return next(Boom.notFound(`Team with id ${id} could not be found`))
-
-        team = mapping.team(result.rows[0])
-
-        team.users = []
-        team.policies = []
+    async.applyEachSeries([
+      (job, next) => {
+        job.id = id
+        job.organizationId = organizationId
         next()
-      })
-    })
-
-    tasks.push((next) => {
-      const sql = SQL`
-        SELECT users.id, users.name
-        FROM team_members mem, users
-        WHERE mem.team_id = ${id}
-        AND mem.user_id = users.id
-        ORDER BY UPPER(users.name)
-      `
-      db.query(sql, function (err, result) {
-        if (err) return next(Boom.badImplementation(err))
-
-        team.users = result.rows.map(mapping.user.simple)
-        next()
-      })
-    })
-
-    tasks.push((next) => {
-      const sql = SQL`
-        SELECT pol.id, pol.name, pol.version
-        FROM team_policies tpol, policies pol
-        WHERE tpol.team_id = ${id}
-        AND tpol.policy_id = pol.id
-        ORDER BY UPPER(pol.name)
-      `
-      db.query(sql, function (err, result) {
-        if (err) return next(Boom.badImplementation(err))
-
-        team.policies = result.rows.map(mapping.policy.simple)
-        next()
-      })
-    })
-
-    async.series(tasks, (err) => {
+      },
+      loadTeams,
+      loadTeamUsers,
+      loadTeamPolicies
+    ], job, (err) => {
       if (err) return cb(err)
 
-      return cb(null, team)
+      return cb(null, job.team)
     })
   },
 

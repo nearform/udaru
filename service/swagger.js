@@ -40,7 +40,7 @@ const Team = Joi.object({
   users: Joi.array().items(UserRef),
   policies: Joi.array().items(PolicyRef),
   organizationId: Joi.string(),
-  membersCount: Joi.number()
+  usersCount: Joi.number()
 })
 
 const TeamList = Joi.array().items(Team)
@@ -60,6 +60,14 @@ const User = Joi.object({
 
 const UserList = Joi.array().items(User)
 
+const MetadataUserList = Joi.object({
+  currentPage: Joi.number().integer(),
+  pageSize: Joi.number().integer(),
+  totalPages: Joi.number().integer(),
+  totalUsersCount: Joi.number().integer(),
+  users: Joi.array().items(User)
+})
+
 const Organization = Joi.object({
   id: Joi.string(),
   name: Joi.string(),
@@ -74,6 +82,7 @@ const OrganizationList = Joi.array().items(Organization)
 
 module.exports = {
   UserList: UserList,
+  MetadataUserList: MetadataUserList,
   User: User,
   TeamList: TeamList,
   Team: Team,

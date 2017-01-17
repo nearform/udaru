@@ -34,7 +34,7 @@ lab.experiment('Teams - get/list', () => {
           organizationId: 'WONKA',
           description: 'Administrators of the Authorization System',
           path: '1',
-          membersCount: '1'
+          usersCount: 1
         },
         {
           id: '3',
@@ -42,7 +42,7 @@ lab.experiment('Teams - get/list', () => {
           organizationId: 'WONKA',
           description: 'Content contributors',
           path: '3',
-          membersCount: '1'
+          usersCount: 1
         },
         {
           id: '6',
@@ -50,7 +50,7 @@ lab.experiment('Teams - get/list', () => {
           organizationId: 'WONKA',
           description: 'Author of legal documents',
           path: '6',
-          membersCount: '0'
+          usersCount: 0
         },
         {
           id: '4',
@@ -58,7 +58,7 @@ lab.experiment('Teams - get/list', () => {
           organizationId: 'WONKA',
           description: 'General Line Managers with confidential info',
           path: '4',
-          membersCount: '1'
+          usersCount: 1
         },
         {
           id: '5',
@@ -66,7 +66,7 @@ lab.experiment('Teams - get/list', () => {
           organizationId: 'WONKA',
           description: 'Personnel Line Managers with confidential info',
           path: '5',
-          membersCount: '1'
+          usersCount: 1
         },
         {
           id: '2',
@@ -74,7 +74,7 @@ lab.experiment('Teams - get/list', () => {
           organizationId: 'WONKA',
           description: 'General read-only access',
           path: '2',
-          membersCount: '2'
+          usersCount: 2
         }
       ])
 
@@ -95,10 +95,69 @@ lab.experiment('Teams - get/list', () => {
         const result = response.result
 
         expect(response.statusCode).to.equal(200)
+        expect(result.usersCount).to.exist()
+        expect(result.usersCount).to.equal(0)
         expect(result.id).to.equal(team.id)
         expect(result.name).to.equal(team.name)
 
         teamOps.deleteTeam({ id: team.id, organizationId: team.organizationId }, done)
+      })
+    })
+  })
+
+  lab.test('get users for a single team', (done) => {
+    teamOps.createTeam(teamData, (err, team) => {
+      if (err) return done(err)
+      const teamUsers = [
+          { id: 'AugustusId', name: 'Augustus Gloop' },
+          { id: 'CharlieId', name: 'Charlie Bucket' },
+          { id: 'MikeId', name: 'Mike Teavee' },
+          { id: 'VerucaId', name: 'Veruca Salt' },
+          { id: 'WillyId', name: 'Willy Wonka' }
+      ]
+      const teamUsersIds = teamUsers.map((user) => { return user.id })
+
+      teamOps.addUsersToTeam({id: team.id, organizationId: team.organizationId, users: teamUsersIds}, (err, team) => {
+        if (err) return done(err)
+
+        expect(team.users).to.equal(teamUsers)
+
+        const options = utils.requestOptions({
+          method: 'GET',
+          url: `/authorization/teams/${team.id}/users?page=1&limit=10`
+        })
+
+        server.inject(options, (response) => {
+          const result = response.result
+
+          expect(response.statusCode).to.equal(200)
+          expect(result.currentPage).to.equal(1)
+          expect(result.pageSize).to.equal(10)
+          expect(result.totalPages).to.equal(1)
+          expect(result.totalUsersCount).to.equal(5)
+          expect(result.users).to.equal(teamUsers)
+
+          const options = utils.requestOptions({
+            method: 'GET',
+            url: `/authorization/teams/${team.id}/users?page=2&limit=3`
+          })
+
+          server.inject(options, (response) => {
+            const result = response.result
+
+            expect(response.statusCode).to.equal(200)
+            expect(result.currentPage).to.equal(2)
+            expect(result.pageSize).to.equal(3)
+            expect(result.totalPages).to.equal(2)
+            expect(result.totalUsersCount).to.equal(5)
+            expect(result.users).to.equal([
+              { id: 'VerucaId', name: 'Veruca Salt' },
+              { id: 'WillyId', name: 'Willy Wonka' }
+            ])
+
+            teamOps.deleteTeam({ id: team.id, organizationId: team.organizationId }, done)
+          })
+        })
       })
     })
   })
@@ -351,7 +410,7 @@ lab.experiment('Teams - manage users', () => {
     })
   })
 
-  lab.test('relace users in a team', (done) => {
+  lab.test('replace users in a team', (done) => {
     teamOps.createTeam(teamData, (err, team) => {
       if (err) return done(err)
 
@@ -454,6 +513,7 @@ lab.experiment('Teams - manage users', () => {
           description: 'This is a test team',
           path: team.path,
           organizationId: 'WONKA',
+          usersCount: 3,
           users: [
             { id: 'CharlieId', name: 'Charlie Bucket' },
             { id: 'MikeId', name: 'Mike Teavee' },
