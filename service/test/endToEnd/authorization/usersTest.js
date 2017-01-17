@@ -11,11 +11,26 @@ const policyOps = require('../../../lib/ops/policyOps')
 const teamOps = require('../../../lib/ops/teamOps')
 const server = require('./../../../wiring-hapi')
 
-function prepareTest (lab, data) {
 
-  const prepared = {
-    res: {}
+const organizationId = 'WONKA'
+function Policy (Statement) {
+  return {
+    version: '2016-07-01',
+    name: 'Test Policy',
+    statements: JSON.stringify({
+      Statement: Statement || [{
+        Effect: 'Allow',
+        Action: ['dummy'],
+        Resource: ['dummy']
+      }]
+    }),
+    organizationId
   }
+}
+
+function Factory (lab, data) {
+
+  const records = {}
 
   function createUsers (done) {
     async.mapValues(data.users, (user, key, next) => {
@@ -23,7 +38,7 @@ function prepareTest (lab, data) {
     }, (err, users) => {
       if (err) return done(err)
 
-      Object.assign(prepared.res, users)
+      Object.assign(records, users)
       done()
     })
   }
@@ -34,7 +49,7 @@ function prepareTest (lab, data) {
     }, (err, policies) => {
       if (err) return done(err)
 
-      Object.assign(prepared.res, policies)
+      Object.assign(records, policies)
       done()
     })
   }
@@ -45,7 +60,7 @@ function prepareTest (lab, data) {
     }, (err, teams) => {
       if (err) return done(err)
 
-      Object.assign(prepared.res, teams)
+      Object.assign(records, teams)
       done()
     })
   }
@@ -55,7 +70,7 @@ function prepareTest (lab, data) {
 
     _.each(data.teams, (team, teamKey) => {
       if (!team.users || !team.users.length) return
-      const teamId = prepared.res[teamKey].id
+      const teamId = records[teamKey].id
       list[teamId] = {
         id: teamId,
         organizationId: team.organizationId,
@@ -63,7 +78,7 @@ function prepareTest (lab, data) {
       }
 
       _.each(team.users, (userKey) => {
-        const userId = prepared.res[userKey].id
+        const userId = records[userKey].id
         list[teamId].users.push(userId)
       })
     })
@@ -84,7 +99,7 @@ function prepareTest (lab, data) {
 
     _.each(data.users, (user, userKey) => {
       if (!user.policies || !user.policies.length) return
-      const userId = prepared.res[userKey].id
+      const userId = records[userKey].id
       list[userId] = {
         id: userId,
         organizationId: user.organizationId,
@@ -92,7 +107,7 @@ function prepareTest (lab, data) {
       }
 
       _.each(user.policies, (policyKey) => {
-        const policyId = prepared.res[policyKey].id
+        const policyId = records[policyKey].id
         list[userId].policies.push(policyId)
       })
     })
@@ -123,7 +138,7 @@ function prepareTest (lab, data) {
     async.eachOf(data.users, (user, key, next) => {
       userOps.deleteUser({
         organizationId: user.organizationId,
-        id: prepared.res[key].id
+        id: records[key].id
       }, (err) => {
         if (err && err.output.payload.error !== 'Not Found') return next(err)
         next()
@@ -135,7 +150,7 @@ function prepareTest (lab, data) {
     async.eachOf(data.teams, (team, key, next) => {
       teamOps.deleteTeam({
         organizationId: team.organizationId,
-        id: prepared.res[key].id
+        id: records[key].id
       }, (err) => {
         if (err && err.output.payload.error !== 'Not Found') return next(err)
         next()
@@ -147,7 +162,7 @@ function prepareTest (lab, data) {
     async.eachOf(data.policies, (policy, key, next) => {
       policyOps.deletePolicy({
         organizationId: policy.organizationId,
-        id: prepared.res[key].id
+        id: records[key].id
       }, (err) => {
         if (err && err.output.payload.error !== 'Not Found') return next(err)
         next()
@@ -166,31 +181,14 @@ function prepareTest (lab, data) {
   lab.beforeEach(createData)
   lab.afterEach(deleteData)
 
-  return prepared
+  return records
 }
 
 lab.experiment('Routes Authorizations', () => {
   lab.experiment('users', () => {
     lab.experiment('GET /users/:id', () => {
 
-      const organizationId = 'WONKA'
-
-      function Policy (Statement) {
-        return {
-          version: '2016-07-01',
-          name: 'Test Policy',
-          statements: JSON.stringify({
-            Statement: Statement || [{
-              Effect: 'Allow',
-              Action: ['dummy'],
-              Resource: ['dummy']
-            }]
-          }),
-          organizationId
-        }
-      }
-
-      const test = prepareTest(lab, {
+      const records = Factory(lab, {
         teams: {
           calledTeam: { name: 'called team', organizationId, users: ['called'] }
         },
@@ -207,17 +205,17 @@ lab.experiment('Routes Authorizations', () => {
         const policyData = Policy([{
           Effect: 'Allow',
           Action: ['authorization:users:read'],
-          Resource: [`/authorization/user/WONKA/*/${test.res.called.id}`]
+          Resource: [`/authorization/user/WONKA/*/${records.called.id}`]
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
 
           const options = utils.requestOptions({
             method: 'GET',
-            url: `/authorization/users/${test.res.called.id}`,
-            headers: { authorization: test.res.caller.id }
+            url: `/authorization/users/${records.called.id}`,
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -232,17 +230,17 @@ lab.experiment('Routes Authorizations', () => {
         const policyData = Policy([{
           Effect: 'Allow',
           Action: ['authorization:users:read'],
-          Resource: [`/authorization/user/WONKA/${test.res.calledTeam.id}/*`]
+          Resource: [`/authorization/user/WONKA/${records.calledTeam.id}/*`]
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
 
           const options = utils.requestOptions({
             method: 'GET',
-            url: `/authorization/users/${test.res.called.id}`,
-            headers: { authorization: test.res.caller.id }
+            url: `/authorization/users/${records.called.id}`,
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -259,15 +257,15 @@ lab.experiment('Routes Authorizations', () => {
           Action: ['authorization:users:read'],
           Resource: ['/authorization/user/WONKA/*']
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
 
           const options = utils.requestOptions({
             method: 'GET',
-            url: `/authorization/users/${test.res.called.id}`,
-            headers: { authorization: test.res.caller.id }
+            url: `/authorization/users/${records.called.id}`,
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -284,15 +282,15 @@ lab.experiment('Routes Authorizations', () => {
           Action: ['authorization:users:*'],
           Resource: ['/authorization/user/WONKA/*']
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
 
           const options = utils.requestOptions({
             method: 'GET',
-            url: `/authorization/users/${test.res.called.id}`,
-            headers: { authorization: test.res.caller.id }
+            url: `/authorization/users/${records.called.id}`,
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -309,15 +307,15 @@ lab.experiment('Routes Authorizations', () => {
           Action: ['authorization:users:dummy'],
           Resource: ['/authorization/user/WONKA/*']
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
 
           const options = utils.requestOptions({
             method: 'GET',
-            url: `/authorization/users/${test.res.called.id}`,
-            headers: { authorization: test.res.caller.id }
+            url: `/authorization/users/${records.called.id}`,
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -334,15 +332,15 @@ lab.experiment('Routes Authorizations', () => {
           Action: ['authorization:users:read'],
           Resource: ['/authorization/user/WONKA/*/dummy']
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
 
           const options = utils.requestOptions({
             method: 'GET',
-            url: `/authorization/users/${test.res.called.id}`,
-            headers: { authorization: test.res.caller.id }
+            url: `/authorization/users/${records.called.id}`,
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -355,24 +353,7 @@ lab.experiment('Routes Authorizations', () => {
 
     lab.experiment('GET /users', () => {
 
-      const organizationId = 'WONKA'
-
-      function Policy (Statement) {
-        return {
-          version: '2016-07-01',
-          name: 'Test Policy',
-          statements: JSON.stringify({
-            Statement: Statement || [{
-              Effect: 'Allow',
-              Action: ['dummy'],
-              Resource: ['dummy']
-            }]
-          }),
-          organizationId
-        }
-      }
-
-      const test = prepareTest(lab, {
+      const records = Factory(lab, {
         teams: {
           calledTeam: { name: 'called team', organizationId, users: ['called'] }
         },
@@ -392,7 +373,7 @@ lab.experiment('Routes Authorizations', () => {
           Action: ['authorization:users:list'],
           Resource: ['/authorization/user/WONKA/*']
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
@@ -400,7 +381,7 @@ lab.experiment('Routes Authorizations', () => {
           const options = utils.requestOptions({
             method: 'GET',
             url: `/authorization/users`,
-            headers: { authorization: test.res.caller.id }
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -417,7 +398,7 @@ lab.experiment('Routes Authorizations', () => {
           Action: ['authorization:users:dummy'],
           Resource: ['/authorization/user/WONKA/*']
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
@@ -425,7 +406,7 @@ lab.experiment('Routes Authorizations', () => {
           const options = utils.requestOptions({
             method: 'GET',
             url: `/authorization/users`,
-            headers: { authorization: test.res.caller.id }
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -442,7 +423,7 @@ lab.experiment('Routes Authorizations', () => {
           Action: ['authorization:users:list'],
           Resource: ['dummy']
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
@@ -450,7 +431,7 @@ lab.experiment('Routes Authorizations', () => {
           const options = utils.requestOptions({
             method: 'GET',
             url: `/authorization/users`,
-            headers: { authorization: test.res.caller.id }
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -467,7 +448,7 @@ lab.experiment('Routes Authorizations', () => {
           Action: ['authorization:users:list'],
           Resource: ['/authorization/user/WONKA/team/*']
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
@@ -475,7 +456,7 @@ lab.experiment('Routes Authorizations', () => {
           const options = utils.requestOptions({
             method: 'GET',
             url: `/authorization/users`,
-            headers: { authorization: test.res.caller.id }
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -487,29 +468,14 @@ lab.experiment('Routes Authorizations', () => {
     })
 
     lab.experiment('POST', () => {
-      const organizationId = 'WONKA'
+
       const calledId = 'fake-user'
       const userData = {
         id: calledId,
-        name: 'fake-user'
+        name: 'Fake User'
       }
 
-      function Policy (Statement) {
-        return {
-          version: '2016-07-01',
-          name: 'Test Policy',
-          statements: JSON.stringify({
-            Statement: Statement || [{
-              Effect: 'Allow',
-              Action: ['dummy'],
-              Resource: ['dummy']
-            }]
-          }),
-          organizationId
-        }
-      }
-
-      const test = prepareTest(lab, {
+      const records = Factory(lab, {
         teams: {
           calledTeam: { name: 'called team', organizationId }
         },
@@ -535,7 +501,7 @@ lab.experiment('Routes Authorizations', () => {
           Action: ['authorization:users:create'],
           Resource: ['/authorization/user/WONKA/*']
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
@@ -544,7 +510,7 @@ lab.experiment('Routes Authorizations', () => {
             method: 'POST',
             url: `/authorization/users`,
             payload: userData,
-            headers: { authorization: test.res.caller.id }
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -561,7 +527,7 @@ lab.experiment('Routes Authorizations', () => {
           Action: ['authorization:users:dummy'],
           Resource: ['/authorization/user/WONKA/*']
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
@@ -570,7 +536,7 @@ lab.experiment('Routes Authorizations', () => {
             method: 'POST',
             url: `/authorization/users`,
             payload: userData,
-            headers: { authorization: test.res.caller.id }
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -587,7 +553,7 @@ lab.experiment('Routes Authorizations', () => {
           Action: ['authorization:users:create'],
           Resource: ['dummy']
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
@@ -596,7 +562,7 @@ lab.experiment('Routes Authorizations', () => {
             method: 'POST',
             url: `/authorization/users`,
             payload: userData,
-            headers: { authorization: test.res.caller.id }
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -613,7 +579,7 @@ lab.experiment('Routes Authorizations', () => {
           Action: ['authorization:users:create'],
           Resource: ['/authorization/user/WONKA/team/*']
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
@@ -622,7 +588,7 @@ lab.experiment('Routes Authorizations', () => {
             method: 'POST',
             url: `/authorization/users`,
             payload: userData,
-            headers: { authorization: test.res.caller.id }
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -635,24 +601,7 @@ lab.experiment('Routes Authorizations', () => {
 
     lab.experiment('DELETE', () => {
 
-      const organizationId = 'WONKA'
-
-      function Policy (Statement) {
-        return {
-          version: '2016-07-01',
-          name: 'Test Policy',
-          statements: JSON.stringify({
-            Statement: Statement || [{
-              Effect: 'Allow',
-              Action: ['dummy'],
-              Resource: ['dummy']
-            }]
-          }),
-          organizationId
-        }
-      }
-
-      const test = prepareTest(lab, {
+      const records = Factory(lab, {
         teams: {
           calledTeam: { name: 'called team', organizationId, users: ['called'] }
         },
@@ -670,17 +619,17 @@ lab.experiment('Routes Authorizations', () => {
         const policyData = Policy([{
           Effect: 'Allow',
           Action: ['authorization:users:delete'],
-          Resource: [`/authorization/user/WONKA/*/${test.res.called.id}`]
+          Resource: [`/authorization/user/WONKA/*/${records.called.id}`]
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
 
           const options = utils.requestOptions({
             method: 'DELETE',
-            url: `/authorization/users/${test.res.called.id}`,
-            headers: { authorization: test.res.caller.id }
+            url: `/authorization/users/${records.called.id}`,
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -695,17 +644,17 @@ lab.experiment('Routes Authorizations', () => {
         const policyData = Policy([{
           Effect: 'Allow',
           Action: ['authorization:users:delete'],
-          Resource: [`/authorization/user/WONKA/${test.res.calledTeam.id}/*`]
+          Resource: [`/authorization/user/WONKA/${records.calledTeam.id}/*`]
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
 
           const options = utils.requestOptions({
             method: 'DELETE',
-            url: `/authorization/users/${test.res.called.id}`,
-            headers: { authorization: test.res.caller.id }
+            url: `/authorization/users/${records.called.id}`,
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -722,15 +671,15 @@ lab.experiment('Routes Authorizations', () => {
           Action: ['authorization:users:delete'],
           Resource: ['/authorization/user/WONKA/*']
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
 
           const options = utils.requestOptions({
             method: 'DELETE',
-            url: `/authorization/users/${test.res.called.id}`,
-            headers: { authorization: test.res.caller.id }
+            url: `/authorization/users/${records.called.id}`,
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -747,15 +696,15 @@ lab.experiment('Routes Authorizations', () => {
           Action: ['authorization:users:*'],
           Resource: ['/authorization/user/WONKA/*']
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
 
           const options = utils.requestOptions({
             method: 'DELETE',
-            url: `/authorization/users/${test.res.called.id}`,
-            headers: { authorization: test.res.caller.id }
+            url: `/authorization/users/${records.called.id}`,
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -772,15 +721,15 @@ lab.experiment('Routes Authorizations', () => {
           Action: ['authorization:users:dummy'],
           Resource: ['/authorization/user/WONKA/*']
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
 
           const options = utils.requestOptions({
             method: 'DELETE',
-            url: `/authorization/users/${test.res.called.id}`,
-            headers: { authorization: test.res.caller.id }
+            url: `/authorization/users/${records.called.id}`,
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -797,15 +746,15 @@ lab.experiment('Routes Authorizations', () => {
           Action: ['authorization:users:delete'],
           Resource: ['/authorization/user/WONKA/*/dummy']
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
 
           const options = utils.requestOptions({
             method: 'DELETE',
-            url: `/authorization/users/${test.res.called.id}`,
-            headers: { authorization: test.res.caller.id }
+            url: `/authorization/users/${records.called.id}`,
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -818,28 +767,12 @@ lab.experiment('Routes Authorizations', () => {
 
     lab.experiment('PUT', () => {
 
-      const organizationId = 'WONKA'
       const userData = {
         name: 'called user',
         teams: []
       }
 
-      function Policy (Statement) {
-        return {
-          version: '2016-07-01',
-          name: 'Test Policy',
-          statements: JSON.stringify({
-            Statement: Statement || [{
-              Effect: 'Allow',
-              Action: ['dummy'],
-              Resource: ['dummy']
-            }]
-          }),
-          organizationId
-        }
-      }
-
-      const test = prepareTest(lab, {
+      const records = Factory(lab, {
         teams: {
           calledTeam: { name: 'called team', organizationId, users: ['called'] }
         },
@@ -857,18 +790,18 @@ lab.experiment('Routes Authorizations', () => {
         const policyData = Policy([{
           Effect: 'Allow',
           Action: ['authorization:users:update'],
-          Resource: [`/authorization/user/WONKA/*/${test.res.called.id}`]
+          Resource: [`/authorization/user/WONKA/*/${records.called.id}`]
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
 
           const options = utils.requestOptions({
             method: 'PUT',
-            url: `/authorization/users/${test.res.called.id}`,
+            url: `/authorization/users/${records.called.id}`,
             payload: userData,
-            headers: { authorization: test.res.caller.id }
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -883,18 +816,18 @@ lab.experiment('Routes Authorizations', () => {
         const policyData = Policy([{
           Effect: 'Allow',
           Action: ['authorization:users:update'],
-          Resource: [`/authorization/user/WONKA/${test.res.calledTeam.id}/*`]
+          Resource: [`/authorization/user/WONKA/${records.calledTeam.id}/*`]
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
 
           const options = utils.requestOptions({
             method: 'PUT',
-            url: `/authorization/users/${test.res.called.id}`,
+            url: `/authorization/users/${records.called.id}`,
             payload: userData,
-            headers: { authorization: test.res.caller.id }
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -911,16 +844,16 @@ lab.experiment('Routes Authorizations', () => {
           Action: ['authorization:users:update'],
           Resource: ['/authorization/user/WONKA/*']
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
 
           const options = utils.requestOptions({
             method: 'PUT',
-            url: `/authorization/users/${test.res.called.id}`,
+            url: `/authorization/users/${records.called.id}`,
             payload: userData,
-            headers: { authorization: test.res.caller.id }
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -937,16 +870,16 @@ lab.experiment('Routes Authorizations', () => {
           Action: ['authorization:users:*'],
           Resource: ['/authorization/user/WONKA/*']
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
 
           const options = utils.requestOptions({
             method: 'PUT',
-            url: `/authorization/users/${test.res.called.id}`,
+            url: `/authorization/users/${records.called.id}`,
             payload: userData,
-            headers: { authorization: test.res.caller.id }
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -963,16 +896,16 @@ lab.experiment('Routes Authorizations', () => {
           Action: ['authorization:users:dummy'],
           Resource: ['/authorization/user/WONKA/*']
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
 
           const options = utils.requestOptions({
             method: 'PUT',
-            url: `/authorization/users/${test.res.called.id}`,
+            url: `/authorization/users/${records.called.id}`,
             payload: userData,
-            headers: { authorization: test.res.caller.id }
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -989,16 +922,16 @@ lab.experiment('Routes Authorizations', () => {
           Action: ['authorization:users:update'],
           Resource: ['/authorization/user/WONKA/*/dummy']
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
 
           const options = utils.requestOptions({
             method: 'PUT',
-            url: `/authorization/users/${test.res.called.id}`,
+            url: `/authorization/users/${records.called.id}`,
             payload: userData,
-            headers: { authorization: test.res.caller.id }
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -1011,25 +944,7 @@ lab.experiment('Routes Authorizations', () => {
 
     lab.experiment('PUT user policies', () => {
 
-      const organizationId = 'WONKA'
-
-      function Policy (Statement) {
-        return {
-          id: null,
-          version: '2016-07-01',
-          name: 'Test Policy',
-          statements: JSON.stringify({
-            Statement: Statement || [{
-              Effect: 'Allow',
-              Action: ['dummy'],
-              Resource: ['dummy']
-            }]
-          }),
-          organizationId
-        }
-      }
-
-      const test = prepareTest(lab, {
+      const records = Factory(lab, {
         teams: {
           calledTeam: { name: 'called team', organizationId, users: ['called'] }
         },
@@ -1060,18 +975,18 @@ lab.experiment('Routes Authorizations', () => {
         const policyData = Policy([{
           Effect: 'Allow',
           Action: ['authorization:users:policy:add'],
-          Resource: [`/authorization/user/WONKA/*/${test.res.called.id}`]
+          Resource: [`/authorization/user/WONKA/*/${records.called.id}`]
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
 
           const options = utils.requestOptions({
             method: 'PUT',
-            url: `/authorization/users/${test.res.called.id}/policies`,
+            url: `/authorization/users/${records.called.id}/policies`,
             payload: { policies: ['policy-to-add'] },
-            headers: { authorization: test.res.caller.id }
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -1086,18 +1001,18 @@ lab.experiment('Routes Authorizations', () => {
         const policyData = Policy([{
           Effect: 'Allow',
           Action: ['authorization:users:policy:add'],
-          Resource: [`/authorization/user/WONKA/${test.res.calledTeam.id}/*`]
+          Resource: [`/authorization/user/WONKA/${records.calledTeam.id}/*`]
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
 
           const options = utils.requestOptions({
             method: 'PUT',
-            url: `/authorization/users/${test.res.called.id}/policies`,
+            url: `/authorization/users/${records.called.id}/policies`,
             payload: { policies: ['policy-to-add'] },
-            headers: { authorization: test.res.caller.id }
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -1114,16 +1029,16 @@ lab.experiment('Routes Authorizations', () => {
           Action: ['authorization:users:policy:add'],
           Resource: ['/authorization/user/WONKA/*']
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
 
           const options = utils.requestOptions({
             method: 'PUT',
-            url: `/authorization/users/${test.res.called.id}/policies`,
+            url: `/authorization/users/${records.called.id}/policies`,
             payload: { policies: ['policy-to-add'] },
-            headers: { authorization: test.res.caller.id }
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -1140,16 +1055,16 @@ lab.experiment('Routes Authorizations', () => {
           Action: ['authorization:users:*'],
           Resource: ['/authorization/user/WONKA/*']
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
 
           const options = utils.requestOptions({
             method: 'PUT',
-            url: `/authorization/users/${test.res.called.id}/policies`,
+            url: `/authorization/users/${records.called.id}/policies`,
             payload: { policies: ['policy-to-add'] },
-            headers: { authorization: test.res.caller.id }
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -1166,16 +1081,16 @@ lab.experiment('Routes Authorizations', () => {
           Action: ['authorization:users:dummy'],
           Resource: ['/authorization/user/WONKA/*']
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
 
           const options = utils.requestOptions({
             method: 'PUT',
-            url: `/authorization/users/${test.res.called.id}/policies`,
+            url: `/authorization/users/${records.called.id}/policies`,
             payload: { policies: ['policy-to-add'] },
-            headers: { authorization: test.res.caller.id }
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -1192,16 +1107,16 @@ lab.experiment('Routes Authorizations', () => {
           Action: ['authorization:users:policy:add'],
           Resource: ['/authorization/user/WONKA/*/dummy']
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
 
           const options = utils.requestOptions({
             method: 'PUT',
-            url: `/authorization/users/${test.res.called.id}/policies`,
+            url: `/authorization/users/${records.called.id}/policies`,
             payload: { policies: ['policy-to-add'] },
-            headers: { authorization: test.res.caller.id }
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -1214,24 +1129,7 @@ lab.experiment('Routes Authorizations', () => {
 
     lab.experiment('POST user policies', () => {
 
-      const organizationId = 'WONKA'
-
-      function Policy (Statement) {
-        return {
-          version: '2016-07-01',
-          name: 'Test Policy',
-          statements: JSON.stringify({
-            Statement: Statement || [{
-              Effect: 'Allow',
-              Action: ['dummy'],
-              Resource: ['dummy']
-            }]
-          }),
-          organizationId
-        }
-      }
-
-      const test = prepareTest(lab, {
+      const records = Factory(lab, {
         teams: {
           calledTeam: { name: 'called team', organizationId, users: ['called'] }
         },
@@ -1262,18 +1160,18 @@ lab.experiment('Routes Authorizations', () => {
         const policyData = Policy([{
           Effect: 'Allow',
           Action: ['authorization:users:policy:replace'],
-          Resource: [`/authorization/user/WONKA/*/${test.res.called.id}`]
+          Resource: [`/authorization/user/WONKA/*/${records.called.id}`]
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
 
           const options = utils.requestOptions({
             method: 'POST',
-            url: `/authorization/users/${test.res.called.id}/policies`,
+            url: `/authorization/users/${records.called.id}/policies`,
             payload: { policies: ['policy-to-add'] },
-            headers: { authorization: test.res.caller.id }
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -1288,18 +1186,18 @@ lab.experiment('Routes Authorizations', () => {
         const policyData = Policy([{
           Effect: 'Allow',
           Action: ['authorization:users:policy:replace'],
-          Resource: [`/authorization/user/WONKA/${test.res.calledTeam.id}/*`]
+          Resource: [`/authorization/user/WONKA/${records.calledTeam.id}/*`]
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
 
           const options = utils.requestOptions({
             method: 'POST',
-            url: `/authorization/users/${test.res.called.id}/policies`,
+            url: `/authorization/users/${records.called.id}/policies`,
             payload: { policies: ['policy-to-add'] },
-            headers: { authorization: test.res.caller.id }
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -1316,16 +1214,16 @@ lab.experiment('Routes Authorizations', () => {
           Action: ['authorization:users:policy:replace'],
           Resource: ['/authorization/user/WONKA/*']
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
 
           const options = utils.requestOptions({
             method: 'POST',
-            url: `/authorization/users/${test.res.called.id}/policies`,
+            url: `/authorization/users/${records.called.id}/policies`,
             payload: { policies: ['policy-to-add'] },
-            headers: { authorization: test.res.caller.id }
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -1342,16 +1240,16 @@ lab.experiment('Routes Authorizations', () => {
           Action: ['authorization:users:*'],
           Resource: ['/authorization/user/WONKA/*']
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
 
           const options = utils.requestOptions({
             method: 'POST',
-            url: `/authorization/users/${test.res.called.id}/policies`,
+            url: `/authorization/users/${records.called.id}/policies`,
             payload: { policies: ['policy-to-add'] },
-            headers: { authorization: test.res.caller.id }
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -1368,16 +1266,16 @@ lab.experiment('Routes Authorizations', () => {
           Action: ['authorization:users:dummy'],
           Resource: ['/authorization/user/WONKA/*']
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
 
           const options = utils.requestOptions({
             method: 'POST',
-            url: `/authorization/users/${test.res.called.id}/policies`,
+            url: `/authorization/users/${records.called.id}/policies`,
             payload: { policies: ['policy-to-add'] },
-            headers: { authorization: test.res.caller.id }
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -1394,16 +1292,16 @@ lab.experiment('Routes Authorizations', () => {
           Action: ['authorization:users:policy:replace'],
           Resource: ['/authorization/user/WONKA/*/dummy']
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
 
           const options = utils.requestOptions({
             method: 'POST',
-            url: `/authorization/users/${test.res.called.id}/policies`,
+            url: `/authorization/users/${records.called.id}/policies`,
             payload: { policies: ['policy-to-add'] },
-            headers: { authorization: test.res.caller.id }
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -1416,24 +1314,7 @@ lab.experiment('Routes Authorizations', () => {
 
     lab.experiment('DELETE user policies', () => {
 
-      const organizationId = 'WONKA'
-
-      function Policy (Statement) {
-        return {
-          version: '2016-07-01',
-          name: 'Test Policy',
-          statements: JSON.stringify({
-            Statement: Statement || [{
-              Effect: 'Allow',
-              Action: ['dummy'],
-              Resource: ['dummy']
-            }]
-          }),
-          organizationId
-        }
-      }
-
-      const test = prepareTest(lab, {
+      const records = Factory(lab, {
         teams: {
           calledTeam: { name: 'called team', organizationId, users: ['called'] }
         },
@@ -1464,17 +1345,17 @@ lab.experiment('Routes Authorizations', () => {
         const policyData = Policy([{
           Effect: 'Allow',
           Action: ['authorization:users:policy:remove'],
-          Resource: [`/authorization/user/WONKA/*/${test.res.called.id}`]
+          Resource: [`/authorization/user/WONKA/*/${records.called.id}`]
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
 
           const options = utils.requestOptions({
             method: 'DELETE',
-            url: `/authorization/users/${test.res.called.id}/policies`,
-            headers: { authorization: test.res.caller.id }
+            url: `/authorization/users/${records.called.id}/policies`,
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -1489,17 +1370,17 @@ lab.experiment('Routes Authorizations', () => {
         const policyData = Policy([{
           Effect: 'Allow',
           Action: ['authorization:users:policy:remove'],
-          Resource: [`/authorization/user/WONKA/${test.res.calledTeam.id}/*`]
+          Resource: [`/authorization/user/WONKA/${records.calledTeam.id}/*`]
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
 
           const options = utils.requestOptions({
             method: 'DELETE',
-            url: `/authorization/users/${test.res.called.id}/policies`,
-            headers: { authorization: test.res.caller.id }
+            url: `/authorization/users/${records.called.id}/policies`,
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -1516,15 +1397,15 @@ lab.experiment('Routes Authorizations', () => {
           Action: ['authorization:users:policy:remove'],
           Resource: ['/authorization/user/WONKA/*']
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
 
           const options = utils.requestOptions({
             method: 'DELETE',
-            url: `/authorization/users/${test.res.called.id}/policies`,
-            headers: { authorization: test.res.caller.id }
+            url: `/authorization/users/${records.called.id}/policies`,
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -1541,15 +1422,15 @@ lab.experiment('Routes Authorizations', () => {
           Action: ['authorization:users:*'],
           Resource: ['/authorization/user/WONKA/*']
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
 
           const options = utils.requestOptions({
             method: 'DELETE',
-            url: `/authorization/users/${test.res.called.id}/policies`,
-            headers: { authorization: test.res.caller.id }
+            url: `/authorization/users/${records.called.id}/policies`,
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -1566,15 +1447,15 @@ lab.experiment('Routes Authorizations', () => {
           Action: ['authorization:users:dummy'],
           Resource: ['/authorization/user/WONKA/*']
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
 
           const options = utils.requestOptions({
             method: 'DELETE',
-            url: `/authorization/users/${test.res.called.id}/policies`,
-            headers: { authorization: test.res.caller.id }
+            url: `/authorization/users/${records.called.id}/policies`,
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -1591,15 +1472,15 @@ lab.experiment('Routes Authorizations', () => {
           Action: ['authorization:users:policy:remove'],
           Resource: ['/authorization/user/WONKA/*/dummy']
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
 
           const options = utils.requestOptions({
             method: 'DELETE',
-            url: `/authorization/users/${test.res.called.id}/policies`,
-            headers: { authorization: test.res.caller.id }
+            url: `/authorization/users/${records.called.id}/policies`,
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -1612,24 +1493,7 @@ lab.experiment('Routes Authorizations', () => {
 
     lab.experiment('DELETE single user policy', () => {
 
-      const organizationId = 'WONKA'
-
-      function Policy (Statement) {
-        return {
-          version: '2016-07-01',
-          name: 'Test Policy',
-          statements: JSON.stringify({
-            Statement: Statement || [{
-              Effect: 'Allow',
-              Action: ['dummy'],
-              Resource: ['dummy']
-            }]
-          }),
-          organizationId
-        }
-      }
-
-      const test = prepareTest(lab, {
+      const records = Factory(lab, {
         teams: {
           calledTeam: { name: 'called team', organizationId, users: ['called'] }
         },
@@ -1660,17 +1524,17 @@ lab.experiment('Routes Authorizations', () => {
         const policyData = Policy([{
           Effect: 'Allow',
           Action: ['authorization:users:policy:remove'],
-          Resource: [`/authorization/user/WONKA/*/${test.res.called.id}`]
+          Resource: [`/authorization/user/WONKA/*/${records.called.id}`]
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
 
           const options = utils.requestOptions({
             method: 'DELETE',
-            url: `/authorization/users/${test.res.called.id}/policies/policy-to-add`,
-            headers: { authorization: test.res.caller.id }
+            url: `/authorization/users/${records.called.id}/policies/policy-to-add`,
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -1685,17 +1549,17 @@ lab.experiment('Routes Authorizations', () => {
         const policyData = Policy([{
           Effect: 'Allow',
           Action: ['authorization:users:policy:remove'],
-          Resource: [`/authorization/user/WONKA/${test.res.calledTeam.id}/*`]
+          Resource: [`/authorization/user/WONKA/${records.calledTeam.id}/*`]
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
 
           const options = utils.requestOptions({
             method: 'DELETE',
-            url: `/authorization/users/${test.res.called.id}/policies/policy-to-add`,
-            headers: { authorization: test.res.caller.id }
+            url: `/authorization/users/${records.called.id}/policies/policy-to-add`,
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -1712,15 +1576,15 @@ lab.experiment('Routes Authorizations', () => {
           Action: ['authorization:users:policy:remove'],
           Resource: ['/authorization/user/WONKA/*']
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
 
           const options = utils.requestOptions({
             method: 'DELETE',
-            url: `/authorization/users/${test.res.called.id}/policies/policy-to-add`,
-            headers: { authorization: test.res.caller.id }
+            url: `/authorization/users/${records.called.id}/policies/policy-to-add`,
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -1737,15 +1601,15 @@ lab.experiment('Routes Authorizations', () => {
           Action: ['authorization:users:*'],
           Resource: ['/authorization/user/WONKA/*']
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
 
           const options = utils.requestOptions({
             method: 'DELETE',
-            url: `/authorization/users/${test.res.called.id}/policies/policy-to-add`,
-            headers: { authorization: test.res.caller.id }
+            url: `/authorization/users/${records.called.id}/policies/policy-to-add`,
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -1762,15 +1626,15 @@ lab.experiment('Routes Authorizations', () => {
           Action: ['authorization:users:dummy'],
           Resource: ['/authorization/user/WONKA/*']
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
 
           const options = utils.requestOptions({
             method: 'DELETE',
-            url: `/authorization/users/${test.res.called.id}/policies/policy-to-add`,
-            headers: { authorization: test.res.caller.id }
+            url: `/authorization/users/${records.called.id}/policies/policy-to-add`,
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -1787,15 +1651,15 @@ lab.experiment('Routes Authorizations', () => {
           Action: ['authorization:users:policy:remove'],
           Resource: ['/authorization/user/WONKA/*/dummy']
         }])
-        policyData.id = test.res.testedPolicy.id
+        policyData.id = records.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
 
           const options = utils.requestOptions({
             method: 'DELETE',
-            url: `/authorization/users/${test.res.called.id}/policies/policy-to-add`,
-            headers: { authorization: test.res.caller.id }
+            url: `/authorization/users/${records.called.id}/policies/policy-to-add`,
+            headers: { authorization: records.caller.id }
           })
 
           server.inject(options, (response) => {
