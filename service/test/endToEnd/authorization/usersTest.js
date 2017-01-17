@@ -124,7 +124,10 @@ function prepareTest (lab, data) {
       userOps.deleteUser({
         organizationId: user.organizationId,
         id: prepared.res[key].id
-      }, next)
+      }, (err) => {
+        if (err && err.output.payload.error !== 'Not Found') return next(err)
+        next()
+      })
     }, done)
   }
 
@@ -133,7 +136,10 @@ function prepareTest (lab, data) {
       teamOps.deleteTeam({
         organizationId: team.organizationId,
         id: prepared.res[key].id
-      }, next)
+      }, (err) => {
+        if (err && err.output.payload.error !== 'Not Found') return next(err)
+        next()
+      })
     }, done)
   }
 
@@ -142,7 +148,10 @@ function prepareTest (lab, data) {
       policyOps.deletePolicy({
         organizationId: policy.organizationId,
         id: prepared.res[key].id
-      }, next)
+      }, (err) => {
+        if (err && err.output.payload.error !== 'Not Found') return next(err)
+        next()
+      })
     }, done)
   }
 
@@ -154,8 +163,8 @@ function prepareTest (lab, data) {
     ], done)
   }
 
-  lab.before(createData)
-  lab.after(deleteData)
+  lab.beforeEach(createData)
+  lab.afterEach(deleteData)
 
   return prepared
 }
@@ -484,13 +493,9 @@ lab.experiment('Routes Authorizations', () => {
         id: calledId,
         name: 'fake-user'
       }
-      let callerId
-      let calledTeamId
-      let policyId
 
       function Policy (Statement) {
         return {
-          id: policyId || null,
           version: '2016-07-01',
           name: 'Test Policy',
           statements: JSON.stringify({
@@ -631,14 +636,9 @@ lab.experiment('Routes Authorizations', () => {
     lab.experiment('DELETE', () => {
 
       const organizationId = 'WONKA'
-      let callerId
-      let calledId
-      let calledTeamId
-      let policyId
 
       function Policy (Statement) {
         return {
-          id: policyId || null,
           version: '2016-07-01',
           name: 'Test Policy',
           statements: JSON.stringify({
@@ -652,47 +652,17 @@ lab.experiment('Routes Authorizations', () => {
         }
       }
 
-      lab.beforeEach((done) => {
-        userOps.createUser({ name: 'caller', organizationId }, (err, caller) => {
-          if (err) return done(err)
-          callerId = caller.id
-
-          userOps.createUser({ name: 'called', organizationId }, (err, called) => {
-            if (err) return done(err)
-            calledId = called.id
-
-            teamOps.createTeam({ name: 'called team', organizationId }, (err, team) => {
-              if (err) return done(err)
-              calledTeamId = team.id
-
-              teamOps.addUsersToTeam({ id: calledTeamId, users: [calledId], organizationId }, (err) => {
-                if (err) return done(err)
-
-                const policyCreateData = Policy()
-
-                policyOps.createPolicy(policyCreateData, (err, policy) => {
-                  if (err) return done(err)
-                  policyId = policy.id
-
-                  userOps.addUserPolicies({ id: callerId, organizationId, policies: [policyId] }, done)
-                })
-              })
-            })
-          })
-        })
-      })
-
-      lab.afterEach((done) => {
-        userOps.deleteUser({ id: callerId, organizationId }, (err) => {
-          if (err) return done(err)
-          userOps.deleteUser({ id: calledId, organizationId }, (err) => {
-            if (err && err.output.payload.error !== 'Not Found') return done(err)
-            teamOps.deleteTeam({ id: calledTeamId, organizationId }, (err) => {
-              if (err) return done(err)
-              policyOps.deletePolicy({ id: policyId, organizationId }, done)
-            })
-          })
-        })
+      const test = prepareTest(lab, {
+        teams: {
+          calledTeam: { name: 'called team', organizationId, users: ['called'] }
+        },
+        users: {
+          caller: { name: 'caller', organizationId, policies: ['testedPolicy'] },
+          called: { name: 'called', organizationId }
+        },
+        policies: {
+          testedPolicy: Policy()
+        }
       })
 
       lab.test('should authorize caller with policy for specific users', (done) => {
@@ -700,16 +670,17 @@ lab.experiment('Routes Authorizations', () => {
         const policyData = Policy([{
           Effect: 'Allow',
           Action: ['authorization:users:delete'],
-          Resource: [`/authorization/user/WONKA/*/${calledId}`]
+          Resource: [`/authorization/user/WONKA/*/${test.res.called.id}`]
         }])
+        policyData.id = test.res.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
 
           const options = utils.requestOptions({
             method: 'DELETE',
-            url: `/authorization/users/${calledId}`,
-            headers: { authorization: callerId }
+            url: `/authorization/users/${test.res.called.id}`,
+            headers: { authorization: test.res.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -724,16 +695,17 @@ lab.experiment('Routes Authorizations', () => {
         const policyData = Policy([{
           Effect: 'Allow',
           Action: ['authorization:users:delete'],
-          Resource: [`/authorization/user/WONKA/${calledTeamId}/*`]
+          Resource: [`/authorization/user/WONKA/${test.res.calledTeam.id}/*`]
         }])
+        policyData.id = test.res.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
 
           const options = utils.requestOptions({
             method: 'DELETE',
-            url: `/authorization/users/${calledId}`,
-            headers: { authorization: callerId }
+            url: `/authorization/users/${test.res.called.id}`,
+            headers: { authorization: test.res.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -750,14 +722,15 @@ lab.experiment('Routes Authorizations', () => {
           Action: ['authorization:users:delete'],
           Resource: ['/authorization/user/WONKA/*']
         }])
+        policyData.id = test.res.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
 
           const options = utils.requestOptions({
             method: 'DELETE',
-            url: `/authorization/users/${calledId}`,
-            headers: { authorization: callerId }
+            url: `/authorization/users/${test.res.called.id}`,
+            headers: { authorization: test.res.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -774,14 +747,15 @@ lab.experiment('Routes Authorizations', () => {
           Action: ['authorization:users:*'],
           Resource: ['/authorization/user/WONKA/*']
         }])
+        policyData.id = test.res.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
 
           const options = utils.requestOptions({
             method: 'DELETE',
-            url: `/authorization/users/${calledId}`,
-            headers: { authorization: callerId }
+            url: `/authorization/users/${test.res.called.id}`,
+            headers: { authorization: test.res.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -798,14 +772,15 @@ lab.experiment('Routes Authorizations', () => {
           Action: ['authorization:users:dummy'],
           Resource: ['/authorization/user/WONKA/*']
         }])
+        policyData.id = test.res.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
 
           const options = utils.requestOptions({
             method: 'DELETE',
-            url: `/authorization/users/${calledId}`,
-            headers: { authorization: callerId }
+            url: `/authorization/users/${test.res.called.id}`,
+            headers: { authorization: test.res.caller.id }
           })
 
           server.inject(options, (response) => {
@@ -822,14 +797,15 @@ lab.experiment('Routes Authorizations', () => {
           Action: ['authorization:users:delete'],
           Resource: ['/authorization/user/WONKA/*/dummy']
         }])
+        policyData.id = test.res.testedPolicy.id
 
         policyOps.updatePolicy(policyData, (err, policy) => {
           if (err) return done(err)
 
           const options = utils.requestOptions({
             method: 'DELETE',
-            url: `/authorization/users/${calledId}`,
-            headers: { authorization: callerId }
+            url: `/authorization/users/${test.res.called.id}`,
+            headers: { authorization: test.res.caller.id }
           })
 
           server.inject(options, (response) => {
