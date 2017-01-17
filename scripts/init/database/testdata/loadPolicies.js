@@ -28,7 +28,7 @@ const insertData = (data, done) => {
 
 const truncateTable = (tableName) => {
   console.log('truncating %s', tableName)
-  client.query('TRUNCATE ' + tableName + ' CASCADE',  (err, result) => {
+  client.query('TRUNCATE ' + tableName + ' CASCADE', (err, result) => {
     if (err) throw (err)
   })
 }

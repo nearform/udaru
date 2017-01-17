@@ -1,8 +1,11 @@
+'use strict'
+
 var postgrator = require('postgrator')
-var config = require('./../../../service/lib/config')
+var path = require('path')
+var config = require('./../../../src/lib/config')
 
 postgrator.setConfig({
-  migrationDirectory: __dirname + '/migrations',
+  migrationDirectory: path.join(__dirname, '/migrations'),
   schemaTable: 'schemaversion', // optional. default is 'schemaversion'
   driver: 'pg', // or mysql, mssql
   host: config.get('pgdb.host', '127.0.0.1'),
