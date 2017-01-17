@@ -1,10 +1,6 @@
 # labs-authorization
 
-A full-stack component providing authorization functionality, designed for use in Labs projects.
-
-## Node installation
-
-There are 4 package.json files present in the repository (root, component, service and api), each requiring an npm install if the full stack is to be run.
+A component providing authorization functionality
 
 ## Database
 
@@ -82,7 +78,7 @@ with data in the form:
 
 To get more information see [Service Api documentation](#service-api-documentation)
 
-### Setup SuperUser
+## Setup SuperUser
 
 The init script needs to be run in order to setup the SuperUser: `node service/scripts/init`
 
@@ -94,7 +90,7 @@ LABS_AUTH_SERVICE_authorization_superUser_id=myComplexId12345 node service/scrip
 
 **Note:** if you have already ran some tests or loaded the test data, you will need to run `npm pg:init` again to reset the db.
 
-### Load policies from file
+## Load policies from file
 
 Another script is available to load policies from a file
 
@@ -122,7 +118,7 @@ JSON structure:
 }
 ```
 
-### Service API documentation
+## Service API documentation
 
 The Swagger API documentation gives explanations on the exposed API.
 
@@ -137,61 +133,19 @@ and then go to `http://localhost:8080/documentation`
 The Swagger documentation also gives the ability to execute calls to the API and see their results.
 
 
-## API
-
-An example API route for fetching all the users is: http://localhost:8000/authorization/users
-
-Curl examples for all the routes can be found in api/route.js
-
-To expose the routes start both the service and the API with the following:
-
-    npm run start:service
-
-    npm run start:api
-
-## Frontend
-
-To build the frontend
-
-    cd component && npm run build
-
-And then in the root directory
-
-    npm run start:component
-
 ## Testing
 
-Tests are supplied for the service interface and the Hapi wiring (npm test).
+Tests are supplied for the service interface and the Hapi wiring (run `npm test`).
 
-The test data in the database are going to be reloaded when running `npm test` form the project root.
+The test data in the database are going to be reloaded when running `npm test`.
 
-## Security
+## ENV variables to set configuration options
 
-Please ignore any security bad practices at the minute, as the security stories have not yet been implemented
-
-### ENV variables to set configuration options
-
-`service` and `api` have a default configuration in their `config.js` files ([`api/lib/config.js`](https://github.com/nearform/labs-authorization/blob/master/api/lib/config.js) and [`service/lib/config.js`](https://github.com/nearform/labs-authorization/blob/master/service/lib/config.js)).
+There is a default configuration file [`service/lib/config.js`](https://github.com/nearform/labs-authorization/blob/master/src/lib/config.js).
 
 This configuration is the one used in dev environment and we are quite sure the production one will be different :) To override this configuration you can use ENV variables on the server/container/machine you will run the app(s) on.
 
-Both `api` and `service` will have a different prefix ([api](https://github.com/nearform/labs-authorization/blob/master/api/lib/config.js#L20) , [service](https://github.com/nearform/labs-authorization/blob/master/service/lib/config.js#L29)) for their config ovirride ENV variables:
-
-Some example:
-
-```
-# api config
-
-{
-  server: {
-    port: 8000
-  }
-}
-
-# env variable override
-
-LABS_AUTH_API_server_port=9023
-```
+To override those configuration settings you will have to specify your ENV variables with a [prefix](https://github.com/nearform/labs-authorization/blob/master/src/lib/config.js#L29) and then the "path" to the property you want to override.
 
 ```
 # service config
@@ -217,12 +171,6 @@ To achieve this we use the [`reconfig`](https://github.com/namshi/reconfig) modu
 
 
 ## Solution Usage
-
-There are three interfaces for using Authorization:
-
-* Frontend react components: that can help build a an Administration tool for a Solution.
-* Public facing REST API: direct API usage, from admin scripts or a custom Administration tool.
-* Backend microservice API: direct internal usage of the Authorization service.
 
 This looks somewhat as follows:
 

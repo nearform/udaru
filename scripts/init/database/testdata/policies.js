@@ -3,69 +3,111 @@ module.exports = [
     'policyId1',
     '0.1',
     'Director',
-    'WONKA', {
-    'Statement':
-      [
+    'WONKA',
+    {
+      Statement: [
         {
-          'Effect': 'Allow',
-          'Action': ['finance:ReadBalanceSheet'],
-          'Resource': ['database:pg01:balancesheet']
+          Effect: 'Allow',
+          Action: [
+            'finance:ReadBalanceSheet'
+          ],
+          Resource: [
+            'database:pg01:balancesheet'
+          ]
         },
         {
-          'Effect': 'Deny',
-          'Action': ['finance:ImportBalanceSheet'],
-          'Resource': ['database:pg01:balancesheet']
+          Effect: 'Deny',
+          Action: [
+            'finance:ImportBalanceSheet'
+          ],
+          Resource: [
+            'database:pg01:balancesheet'
+          ]
         },
         {
-          'Effect': 'Allow',
-          'Action': ['finance:ReadCompanies'],
-          'Resource': ['database:pg01:companies']
+          Effect: 'Allow',
+          Action: [
+            'finance:ReadCompanies'
+          ],
+          Resource: [
+            'database:pg01:companies'
+          ]
         },
         {
-          'Effect': 'Deny',
-          'Action': ['finance:UpdateCompanies'],
-          'Resource': ['database:pg01:companies']
+          Effect: 'Deny',
+          Action: [
+            'finance:UpdateCompanies'
+          ],
+          Resource: [
+            'database:pg01:companies'
+          ]
         },
-            {
-          'Effect': 'Deny',
-          'Action': ['finance:DeleteCompanies'],
-          'Resource': ['database:pg01:companies']
+        {
+          Effect: 'Deny',
+          Action: [
+            'finance:DeleteCompanies'
+          ],
+          Resource: [
+            'database:pg01:companies'
+          ]
         }
-      ]}
+      ]
+    }
   ],
   [
     'policyId2',
     '0.1',
     'Accountant',
-    'WONKA', {
-    'Statement':
-      [
+    'WONKA',
+    {
+      Statement: [
         {
-          'Effect': 'Allow',
-          'Action': ['finance:ReadBalanceSheet'],
-          'Resource': ['database:pg01:balancesheet']
+          Effect: 'Allow',
+          Action: [
+            'finance:ReadBalanceSheet'
+          ],
+          Resource: [
+            'database:pg01:balancesheet'
+          ]
         },
         {
-          'Effect': 'Deny',
-          'Action': ['finance:ImportBalanceSheet'],
-          'Resource': ['database:pg01:balancesheet']
+          Effect: 'Deny',
+          Action: [
+            'finance:ImportBalanceSheet'
+          ],
+          Resource: [
+            'database:pg01:balancesheet'
+          ]
         },
         {
-          'Effect': 'Deny',
-          'Action': ['finance:ReadCompanies'],
-          'Resource': ['database:pg01:companies']
+          Effect: 'Deny',
+          Action: [
+            'finance:ReadCompanies'
+          ],
+          Resource: [
+            'database:pg01:companies'
+          ]
         },
         {
-          'Effect': 'Deny',
-          'Action': ['finance:UpdateCompanies'],
-          'Resource': ['database:pg01:companies']
+          Effect: 'Deny',
+          Action: [
+            'finance:UpdateCompanies'
+          ],
+          Resource: [
+            'database:pg01:companies'
+          ]
         },
-            {
-          'Effect': 'Deny',
-          'Action': ['finance:DeleteCompanies'],
-          'Resource': ['database:pg01:companies']
+        {
+          Effect: 'Deny',
+          Action: [
+            'finance:DeleteCompanies'
+          ],
+          Resource: [
+            'database:pg01:companies'
+          ]
         }
-      ]}
+      ]
+    }
   ],
   [
     'policyId3',
@@ -73,31 +115,51 @@ module.exports = [
     'Sys admin',
     'WONKA',
     {
-      'Statement': [
+      Statement: [
         {
-          'Effect': 'Allow',
-          'Action': ['finance:ReadBalanceSheet'],
-          'Resource': ['database:pg01:balancesheet']
+          Effect: 'Allow',
+          Action: [
+            'finance:ReadBalanceSheet'
+          ],
+          Resource: [
+            'database:pg01:balancesheet'
+          ]
         },
         {
-          'Effect': 'Allow',
-          'Action': ['finance:ImportBalanceSheet'],
-          'Resource': ['database:pg01:balancesheet']
+          Effect: 'Allow',
+          Action: [
+            'finance:ImportBalanceSheet'
+          ],
+          Resource: [
+            'database:pg01:balancesheet'
+          ]
         },
         {
-          'Effect': 'Allow',
-          'Action': ['finance:ReadCompanies'],
-          'Resource': ['database:pg01:companies']
+          Effect: 'Allow',
+          Action: [
+            'finance:ReadCompanies'
+          ],
+          Resource: [
+            'database:pg01:companies'
+          ]
         },
         {
-          'Effect': 'Allow',
-          'Action': ['finance:UpdateCompanies'],
-          'Resource': ['database:pg01:companies']
+          Effect: 'Allow',
+          Action: [
+            'finance:UpdateCompanies'
+          ],
+          Resource: [
+            'database:pg01:companies'
+          ]
         },
-            {
-          'Effect': 'Allow',
-          'Action': ['finance:DeleteCompanies'],
-          'Resource': ['database:pg01:companies']
+        {
+          Effect: 'Allow',
+          Action: [
+            'finance:DeleteCompanies'
+          ],
+          Resource: [
+            'database:pg01:companies'
+          ]
         }
       ]
     }
@@ -108,11 +170,15 @@ module.exports = [
     'Finance Director',
     'WONKA',
     {
-      'Statement': [
+      Statement: [
         {
-          'Effect': 'Allow',
-          'Action': ['finance:EditBalanceSheet'],
-          'Resource': ['database:pg01:balancesheet']
+          Effect: 'Allow',
+          Action: [
+            'finance:EditBalanceSheet'
+          ],
+          Resource: [
+            'database:pg01:balancesheet'
+          ]
         }
       ]
     }
@@ -123,11 +189,15 @@ module.exports = [
     'DB Admin',
     'WONKA',
     {
-      'Statement': [
+      Statement: [
         {
-          'Effect': 'Allow',
-          'Action': ['database:*'],
-          'Resource': ['database:pg01:*']
+          Effect: 'Allow',
+          Action: [
+            'database:*'
+          ],
+          Resource: [
+            'database:pg01:*'
+          ]
         }
       ]
     }
@@ -138,11 +208,15 @@ module.exports = [
     'DB Only Read',
     'WONKA',
     {
-      'Statement': [
+      Statement: [
         {
-          'Effect': 'Allow',
-          'Action': ['database:Read'],
-          'Resource': ['database:pg01:*']
+          Effect: 'Allow',
+          Action: [
+            'database:Read'
+          ],
+          Resource: [
+            'database:pg01:*'
+          ]
         }
       ]
     }
@@ -153,11 +227,15 @@ module.exports = [
     'DB only one table',
     'WONKA',
     {
-      'Statement': [
+      Statement: [
         {
-          'Effect': 'Allow',
-          'Action': ['database:*'],
-          'Resource': ['database:pg01:balancesheet']
+          Effect: 'Allow',
+          Action: [
+            'database:*'
+          ],
+          Resource: [
+            'database:pg01:balancesheet'
+          ]
         }
       ]
     }
@@ -168,26 +246,34 @@ module.exports = [
     'URI read',
     'WONKA',
     {
-      'Statement': [
+      Statement: [
         {
-          'Effect': 'Allow',
-          'Action': ['Read'],
-          'Resource': ['/my/site/*']
+          Effect: 'Allow',
+          Action: [
+            'Read'
+          ],
+          Resource: [
+            '/my/site/*'
+          ]
         }
       ]
     }
   ],
   [
     'policyId9',
-    0.1,
+    '0.1',
     'SuperAdmin',
     'ROOT',
     {
-      'Statement': [
+      Statement: [
         {
-          'Effect': 'Allow',
-          'Action': ['*'],
-          'Resource': ['*']
+          Effect: 'Allow',
+          Action: [
+            '*'
+          ],
+          Resource: [
+            '*'
+          ]
         }
       ]
     }
@@ -198,11 +284,15 @@ module.exports = [
     'Read All users',
     'WONKA',
     {
-      'Statement': [
+      Statement: [
         {
-          'Effect': 'Allow',
-          'Action': ['Read'],
-          'Resource': ['/myapp/users/*']
+          Effect: 'Allow',
+          Action: [
+            'Read'
+          ],
+          Resource: [
+            '/myapp/users/*'
+          ]
         }
       ]
     }
@@ -213,11 +303,17 @@ module.exports = [
     'Read, Delete and Modify specific user',
     'WONKA',
     {
-      'Statement': [
+      Statement: [
         {
-          'Effect': 'Allow',
-          'Action': ['Read', 'Delete', 'Edit'],
-          'Resource': ['/myapp/users/username']
+          Effect: 'Allow',
+          Action: [
+            'Read',
+            'Delete',
+            'Edit'
+          ],
+          Resource: [
+            '/myapp/users/username'
+          ]
         }
       ]
     }
@@ -228,11 +324,16 @@ module.exports = [
     'Read and Delete teams',
     'WONKA',
     {
-      'Statement': [
+      Statement: [
         {
-          'Effect': 'Allow',
-          'Action': ['Read', 'Delete'],
-          'Resource': ['/myapp/teams/*']
+          Effect: 'Allow',
+          Action: [
+            'Read',
+            'Delete'
+          ],
+          Resource: [
+            '/myapp/teams/*'
+          ]
         }
       ]
     }
@@ -243,11 +344,15 @@ module.exports = [
     'Edit teams',
     'WONKA',
     {
-      'Statement': [
+      Statement: [
         {
-          'Effect': 'Allow',
-          'Action': ['Edit'],
-          'Resource': ['/myapp/teams/*']
+          Effect: 'Allow',
+          Action: [
+            'Edit'
+          ],
+          Resource: [
+            '/myapp/teams/*'
+          ]
         }
       ]
     }
@@ -258,11 +363,15 @@ module.exports = [
     'Deny access to specif document',
     'WONKA',
     {
-      'Statement': [
+      Statement: [
         {
-          'Effect': 'Deny',
-          'Action': ['Read'],
-          'Resource': ['/myapp/documents/no_access']
+          Effect: 'Deny',
+          Action: [
+            'Read'
+          ],
+          Resource: [
+            '/myapp/documents/no_access'
+          ]
         }
       ]
     }
