@@ -7,4 +7,4 @@ docker exec -it labsauthorization_database_1 bash -c "PGPASSWORD=postgres create
 docker exec -it labsauthorization_database_1 bash -c "PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres --echo-all -c \"DROP USER IF EXISTS admin;\""
 docker exec -it labsauthorization_database_1 bash -c "PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres --echo-all -c \"CREATE USER admin WITH PASSWORD 'default';\""
 # install new database
-node scripts/init/database/install_001.js;
+node database/migrate.js --version=001
