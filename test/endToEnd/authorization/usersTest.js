@@ -6,10 +6,10 @@ const async = require('async')
 const _ = require('lodash')
 
 const utils = require('../../utils')
-const userOps = require('../../../lib/ops/userOps')
-const policyOps = require('../../../lib/ops/policyOps')
-const teamOps = require('../../../lib/ops/teamOps')
-const server = require('./../../../wiring-hapi')
+const userOps = require('../../../src/lib/ops/userOps')
+const policyOps = require('../../../src/lib/ops/policyOps')
+const teamOps = require('../../../src/lib/ops/teamOps')
+const server = require('./../../../src/wiring-hapi')
 
 
 const organizationId = 'WONKA'
@@ -768,8 +768,7 @@ lab.experiment('Routes Authorizations', () => {
     lab.experiment('PUT', () => {
 
       const userData = {
-        name: 'called user',
-        teams: []
+        name: 'called user'
       }
 
       const records = Factory(lab, {
