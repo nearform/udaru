@@ -107,15 +107,9 @@ lab.experiment('UserOps', () => {
     userOps.updateUser(data, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
-      expect(result).to.equal({
-        id: 'AugustusId',
-        name: 'Augustus Gloop new',
-        organizationId: 'WONKA',
-        teams: [{ id: '1', name: 'Admins' }],
-        policies: []
-      })
+      expect(result.name).to.equal('Augustus Gloop new')
 
-      userOps.updateUser({ id: 'AugustusId', organizationId: 'WONKA', name: 'Augustus Gloop new' }, done)
+      userOps.updateUser({ id: 'AugustusId', organizationId: 'WONKA', name: 'Augustus Gloop' }, done)
     })
   })
 

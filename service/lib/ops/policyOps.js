@@ -39,16 +39,29 @@ function insertPolicies (client, policies, cb) {
   client.query(sql, cb)
 }
 
-function deletePolicies (client, ids, cb) {
-  client.query(SQL`DELETE FROM policies WHERE id = ANY (${ids})`, utils.boomErrorWrapper(cb))
+function deletePolicies (client, ids, orgId, cb) {
+  console.log('deletePolicies')
+  client.query(SQL`DELETE FROM policies WHERE id = ANY (${ids}) AND org_id=${orgId}`, utils.boomErrorWrapper(cb))
 }
 
-function deleteTeamsAssociations (client, ids, cb) {
-  client.query(SQL`DELETE FROM team_policies WHERE policy_id = ANY (${ids})`, utils.boomErrorWrapper(cb))
+function deleteTeamsAssociations (client, ids, orgId, cb) {
+  console.log('deleteTeamsAssociations')
+  client.query(SQL`
+               DELETE FROM team_policies AS p
+               USING teams AS t
+               WHERE t.id = p.team_id
+                 AND p.policy_id = ANY (${ids})
+                 AND t.org_id = ${orgId}`, utils.boomErrorWrapper(cb))
 }
 
-function deleteUsersAssociations (client, ids, cb) {
-  client.query(SQL`DELETE FROM user_policies WHERE policy_id = ANY (${ids})`, utils.boomErrorWrapper(cb))
+function deleteUsersAssociations (client, ids, orgId, cb) {
+  console.log('deleteUsersAssociations')
+  client.query(SQL`
+               DELETE FROM user_policies AS p
+               USING users AS u
+               WHERE u.id = p.user_id
+                 AND p.policy_id = ANY (${ids})
+                 AND u.org_id = ${orgId}`, utils.boomErrorWrapper(cb))
 }
 
 function getNames (policies) {
@@ -58,15 +71,15 @@ function getNames (policies) {
 }
 
 function removePolicyFromUsers (job, next) {
-  const { id } = job
+  const { id, organizationId } = job
 
-  deleteUsersAssociations(job.client, [id], next)
+  deleteUsersAssociations(job.client, [id], organizationId, next)
 }
 
 function removePolicyFromTeams (job, next) {
-  const { id } = job
+  const { id, organizationId } = job
 
-  deleteTeamsAssociations(job.client, [id], next)
+  deleteTeamsAssociations(job.client, [id], organizationId, next)
 }
 
 function removePolicy (job, next) {
@@ -249,12 +262,12 @@ const policyOps = {
     })
   },
 
-  deleteAllPolicyByIds: function deleteAllPolicyByIds (client, ids, next) {
+  deleteAllPolicyByIds: function deleteAllPolicyByIds (client, ids, orgId, next) {
     async.applyEachSeries([
       deleteTeamsAssociations,
       deleteUsersAssociations,
       deletePolicies
-    ], client, ids, next)
+    ], client, ids, orgId, next)
   },
 
   createOrgDefaultPolicies: function createOrgDefaultPolicies (client, organizationId, cb) {
@@ -284,9 +297,10 @@ const policyOps = {
   },
 
   readTeamDefaultPolicies: function readTeamDefaultPolicies (client, organizationId, teamId, cb) {
+    console.log('readTeamDefaultPolicies')
     const defaultPolicies = config.get('authorization.teams.defaultPolicies', {organizationId, teamId})
     const names = getNames(defaultPolicies)
-    client.query(SQL`SELECT id FROM policies WHERE name = ANY(${names})`, utils.boomErrorWrapper(cb))
+    client.query(SQL`SELECT id FROM policies WHERE name = ANY(${names}) AND org_id = ${organizationId}`, utils.boomErrorWrapper(cb))
   }
 }
 
