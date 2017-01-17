@@ -11,7 +11,7 @@
     "pg:build": "docker-compose build",
     "pg:start": "docker-compose up -d",
     "pg:stop": "docker-compose down",
-    "pg:init": "[ ! -d ./logs ] && mkdir ./logs;./scripts/init/database/db_init.sh | tee ./logs/init-db.log",
+    "pg:init": "node scripts/init/database/init.js && node database/migrate.js --version=001",
     "pg:load-test-data": "./scripts/init/database/db_load.sh | tee ./logs/load-test-data.log"
   },
   "pre-commit": [
