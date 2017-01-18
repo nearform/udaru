@@ -184,6 +184,132 @@ function Factory (lab, data) {
   return records
 }
 
+function BuildFor (lab, records) {
+  return new TestBuilder(lab, records)
+}
+
+class TestBuilder {
+
+  constructor (lab, records) {
+    this.lab = lab
+    this.records = records
+  }
+
+  endpoint (endpointData) {
+    this.endpointData = endpointData
+    return this
+  }
+
+  server (serverInstance) {
+    this.serverInstance = serverInstance
+    return this
+  }
+
+  test (description) {
+    const test = new CustomTest(this)
+    test.test(description)
+    return test
+  }
+
+}
+
+function getValueFromPath (data, key) {
+  const keys = key.split('.')
+  const localKey = keys.shift()
+  const localValue = data[localKey]
+
+  if (keys.length === 0) {
+    return localValue
+  }
+
+  if (_.isUndefined(localValue) || _.isNull(localValue)) {
+    return undefined
+  }
+
+  return getValueFromPath(localValue, keys.join('.'))
+}
+
+function interpolate (value, data) {
+  function interpolator (value) {
+    return interpolate(value, data)
+  }
+
+  if (_.isArray(value)) {
+    return _.map(value, interpolator)
+  }
+
+  if (_.isObject(value)) {
+    return _.mapValues(value, interpolator)
+  }
+
+  if (!_.isString(value)) {
+    return value
+  }
+
+  return value.replace(/\{\{(.+?)\}\}/, (match, key) => {
+    return getValueFromPath(data, key) || match
+  })
+}
+
+class CustomTest {
+  constructor (builder) {
+    this.builder = builder
+  }
+
+  test (description) {
+    this.description = description
+    return this
+  }
+
+  withPolicy (statement) {
+    this.statement = statement
+    return this
+  }
+
+  endpoint (endpointData) {
+    this.endpointData = endpointData
+    return this
+  }
+
+  shouldRespond (statusCode) {
+    this.statusCode = statusCode
+    this.build()
+    return this
+  }
+
+  skip () {
+    this._skip = true
+    return this
+  }
+
+  build () {
+    let test = lab.test
+    if (this._skip) {
+      test = lab.test.skip
+    }
+
+    test(this.description, (done) => {
+      const { records, serverInstance, endpointData: parentEndpointData } = this.builder
+      const { statusCode, endpointData: childEndpointData, statement } = this
+      const endpointData = childEndpointData || parentEndpointData
+
+      const policyData = Policy(interpolate(statement, records))
+      policyData.id = records.testedPolicy.id
+
+      policyOps.updatePolicy(policyData, (err, policy) => {
+        if (err) return done(err)
+
+        const options = utils.requestOptions(interpolate(endpointData, records))
+
+        serverInstance.inject(options, (response) => {
+          expect(response.statusCode).to.equal(statusCode)
+          done()
+        })
+      })
+    })
+  }
+}
+
 lab.experiment('Routes Authorizations', () => {
   lab.experiment('users', () => {
     lab.experiment('GET /users/:id', () => {
@@ -201,154 +327,62 @@ lab.experiment('Routes Authorizations', () => {
         }
       })
 
-      lab.test('should authorize caller with policy for specific users', (done) => {
-        const policyData = Policy([{
+      const endpoint = BuildFor(lab, records)
+        .server(server)
+        .endpoint({
+          method: 'GET',
+          url: '/authorization/users/{{called.id}}',
+          headers: { authorization: '{{caller.id}}' }
+        })
+
+      endpoint.test('should authorize caller with policy for specific users')
+        .withPolicy([{
           Effect: 'Allow',
           Action: ['authorization:users:read'],
-          Resource: [`/authorization/user/WONKA/*/${records.called.id}`]
+          Resource: ['/authorization/user/WONKA/*/{{called.id}}']
         }])
-        policyData.id = records.testedPolicy.id
+        .shouldRespond(200)
 
-        policyOps.updatePolicy(policyData, (err, policy) => {
-          if (err) return done(err)
-
-          const options = utils.requestOptions({
-            method: 'GET',
-            url: `/authorization/users/${records.called.id}`,
-            headers: { authorization: records.caller.id }
-          })
-
-          server.inject(options, (response) => {
-            expect(response.statusCode).to.equal(200)
-            done()
-          })
-        })
-      })
-
-      lab.test.skip('should authorize caller with policy for all users in specific team', (done) => {
-
-        const policyData = Policy([{
+      endpoint.test('should authorize caller with policy for all users in specific team')
+        .skip()
+        .withPolicy([{
           Effect: 'Allow',
           Action: ['authorization:users:read'],
-          Resource: [`/authorization/user/WONKA/${records.calledTeam.id}/*`]
+          Resource: ['/authorization/user/WONKA/{{calledTeam.id}}/*']
         }])
-        policyData.id = records.testedPolicy.id
+        .shouldRespond(200)
 
-        policyOps.updatePolicy(policyData, (err, policy) => {
-          if (err) return done(err)
-
-          const options = utils.requestOptions({
-            method: 'GET',
-            url: `/authorization/users/${records.called.id}`,
-            headers: { authorization: records.caller.id }
-          })
-
-          server.inject(options, (response) => {
-            expect(response.statusCode).to.equal(200)
-            done()
-          })
-        })
-      })
-
-      lab.test('should authorize caller with policy for all users', (done) => {
-
-        const policyData = Policy([{
+      endpoint.test('should authorize caller with policy for all users')
+        .withPolicy([{
           Effect: 'Allow',
           Action: ['authorization:users:read'],
           Resource: ['/authorization/user/WONKA/*']
         }])
-        policyData.id = records.testedPolicy.id
+        .shouldRespond(200)
 
-        policyOps.updatePolicy(policyData, (err, policy) => {
-          if (err) return done(err)
-
-          const options = utils.requestOptions({
-            method: 'GET',
-            url: `/authorization/users/${records.called.id}`,
-            headers: { authorization: records.caller.id }
-          })
-
-          server.inject(options, (response) => {
-            expect(response.statusCode).to.equal(200)
-            done()
-          })
-        })
-      })
-
-      lab.test('should authorize caller with policy for all user actions', (done) => {
-
-        const policyData = Policy([{
+      endpoint.test('should authorize caller with policy for all user actions')
+        .withPolicy([{
           Effect: 'Allow',
           Action: ['authorization:users:*'],
           Resource: ['/authorization/user/WONKA/*']
         }])
-        policyData.id = records.testedPolicy.id
+        .shouldRespond(200)
 
-        policyOps.updatePolicy(policyData, (err, policy) => {
-          if (err) return done(err)
-
-          const options = utils.requestOptions({
-            method: 'GET',
-            url: `/authorization/users/${records.called.id}`,
-            headers: { authorization: records.caller.id }
-          })
-
-          server.inject(options, (response) => {
-            expect(response.statusCode).to.equal(200)
-            done()
-          })
-        })
-      })
-
-      lab.test('should not authorize caller without a correct policy (action)', (done) => {
-
-        const policyData = Policy([{
+      endpoint.test('should not authorize caller without a correct policy (action)')
+        .withPolicy([{
           Effect: 'Allow',
           Action: ['authorization:users:dummy'],
           Resource: ['/authorization/user/WONKA/*']
         }])
-        policyData.id = records.testedPolicy.id
+        .shouldRespond(403)
 
-        policyOps.updatePolicy(policyData, (err, policy) => {
-          if (err) return done(err)
-
-          const options = utils.requestOptions({
-            method: 'GET',
-            url: `/authorization/users/${records.called.id}`,
-            headers: { authorization: records.caller.id }
-          })
-
-          server.inject(options, (response) => {
-            expect(response.statusCode).to.equal(403)
-            done()
-          })
-        })
-      })
-
-      lab.test('should not authorize caller without a correct policy (resource)', (done) => {
-
-        const policyData = Policy([{
+      endpoint.test('should not authorize caller without a correct policy (resource)')
+        .withPolicy([{
           Effect: 'Allow',
           Action: ['authorization:users:read'],
           Resource: ['/authorization/user/WONKA/*/dummy']
         }])
-        policyData.id = records.testedPolicy.id
-
-        policyOps.updatePolicy(policyData, (err, policy) => {
-          if (err) return done(err)
-
-          const options = utils.requestOptions({
-            method: 'GET',
-            url: `/authorization/users/${records.called.id}`,
-            headers: { authorization: records.caller.id }
-          })
-
-          server.inject(options, (response) => {
-            expect(response.statusCode).to.equal(403)
-            done()
-          })
-        })
-      })
+        .shouldRespond(403)
     })
 
     lab.experiment('GET /users', () => {
