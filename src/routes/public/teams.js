@@ -59,10 +59,10 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         payload: {
-          id: Joi.string().regex(/^[0-9a-zA-Z_]+$/).optional().description('The id to be used for the new team. Only alphanumeric characters and underscore are supported'),
+          id: Joi.string().regex(/^[0-9a-zA-Z_]+$/).allow('').description('The id to be used for the new team. Only alphanumeric characters and underscore are supported'),
           name: Joi.string().required().description('Name of the new team'),
           description: Joi.string().required().description('Description of new team'),
-          user: Joi.object().optional().description('Default admin user to be added to the team').keys({
+          user: Joi.object().description('Default admin user to be added to the team').keys({
             id: Joi.string().description('user id'),
             name: Joi.string().required('Name for the user')
           })

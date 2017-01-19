@@ -163,6 +163,29 @@ lab.experiment('Policies - create/update/delete (need service key)', () => {
     })
   })
 
+  lab.test('create new policy should allow empty string as id', (done) => {
+    const options = utils.requestOptions({
+      method: 'POST',
+      url: '/authorization/policies?sig=123456789',
+      payload: {
+        id: '',
+        version: '2016-07-01',
+        name: 'Documents Admin',
+        statements: '{"Statement":[{"Effect":"Allow","Action":["documents:Read"],"Resource":["wonka:documents:/public/*"]}]}'
+      }
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(201)
+      expect(result.id).to.not.equal('')
+      expect(result.name).to.equal('Documents Admin')
+
+      policyOps.deletePolicy({ id: result.id, organizationId: 'WONKA' }, done)
+    })
+  })
+
   lab.test('create new policy specifying an id should return 201 and the created policy data', (done) => {
     const options = utils.requestOptions({
       method: 'POST',

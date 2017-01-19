@@ -215,6 +215,27 @@ lab.experiment('Teams - create', () => {
     })
   })
 
+  lab.test('will not complain for empty id string', (done) => {
+    const options = utils.requestOptions({
+      method: 'POST',
+      url: '/authorization/teams',
+      payload: {
+        id: '',
+        name: 'Team B',
+        description: 'This is Team B'
+      }
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(201)
+      expect(result.id).to.not.equal('')
+
+      teamOps.deleteTeam({ id: result.id, organizationId: result.organizationId }, done)
+    })
+  })
+
   lab.test('support handling of already present id', (done) => {
     const options = utils.requestOptions({
       method: 'POST',
