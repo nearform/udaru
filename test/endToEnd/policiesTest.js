@@ -1,5 +1,6 @@
 'use strict'
 
+const _ = require('lodash')
 const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
@@ -15,21 +16,52 @@ const policyCreateData = {
 }
 
 lab.experiment('Policies - get/list', () => {
-  lab.test('get policy list', (done) => {
+  lab.test('get policy list rerquires pagination params', (done) => {
     const options = utils.requestOptions({
       method: 'GET',
       url: '/authorization/policies'
     })
 
     server.inject(options, (response) => {
+      expect(response.statusCode).to.equal(400)
+      done()
+    })
+  })
+
+  lab.test('get policy list: limit', (done) => {
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: '/authorization/policies?limit=4&page=1'
+    })
+
+    server.inject(options, (response) => {
       const result = response.result
 
       expect(response.statusCode).to.equal(200)
-      expect(result.length).to.equal(13)
-      expect(result[0]).to.equal({
+      expect(result.length).to.equal(4)
+      expect(result[0].total).greaterThan(4)
+
+      done()
+    })
+  })
+
+  lab.test('get policy list', (done) => {
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: '/authorization/policies?limit=500&page=1'
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(200)
+      expect(result.length).lessThan(500) // matches limit above. Will fail if we need to increase said limit
+      let accountantPolicy = _.find(result, {id: 'policyId2'})
+      expect(accountantPolicy).to.equal({
         id: 'policyId2',
         version: '0.1',
         name: 'Accountant',
+        total: result.length,
         statements: {
           Statement: [
             {

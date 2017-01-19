@@ -126,18 +126,32 @@ var organizationOps = {
   /**
    * Fetch all organizations
    *
+   * @param  {Object} params must contain both `limit` and `page` for pagination. Page is 1-indexed.
    * @param  {Function} cb
    */
-  list: function list (cb) {
+  list: function list ({limit, page}, cb) {
+
     const sqlQuery = SQL`
-      SELECT *
-      FROM organizations
-      ORDER BY UPPER(name)
+      WITH total AS (
+        SELECT COUNT(*) AS cnt FROM organizations
+      )
+      SELECT o.*, t.cnt::INTEGER AS total
+      FROM organizations AS o
+      INNER JOIN total AS t ON 1=1
+      ORDER BY UPPER(o.name)
     `
+
+    if (limit) {
+      sqlQuery.append(SQL` LIMIT ${limit}`)
+    }
+    if (limit && page) {
+      let offset = (page - 1) * limit
+      sqlQuery.append(SQL` OFFSET ${offset}`)
+    }
     db.query(sqlQuery, function (err, result) {
       if (err) return cb(Boom.badImplementation(err))
 
-      return cb(null, result.rows.map(mapping.organization))
+      return cb(null, result.rows)
     })
   },
 

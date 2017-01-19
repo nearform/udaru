@@ -12,17 +12,19 @@ var policiesRoutes = proxyquire('./../../../src/routes/public/policies', { './..
 var server = proxyquire('./../../../src/wiring-hapi', { './routes/public/policies': policiesRoutes })
 
 lab.experiment('Policies', () => {
+
   lab.test('get policy list should return error for error case', (done) => {
+
     policyOps.listByOrganization = (params, cb) => {
-      expect(params).to.equal({ organizationId: 'WONKA' })
-      process.nextTick(() => {
+      expect(params).to.equal({ organizationId: 'WONKA', limit: 10, page: 1 })
+      setImmediate(() => {
         cb(Boom.badImplementation())
       })
     }
 
     const options = utils.requestOptions({
       method: 'GET',
-      url: '/authorization/policies'
+      url: '/authorization/policies?limit=10&page=1'
     })
 
     server.inject(options, (response) => {

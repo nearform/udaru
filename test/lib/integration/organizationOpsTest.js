@@ -19,7 +19,7 @@ const defaultPoliciesNames = Object.keys(defaultPolicies).map((pName) => {
 lab.experiment('OrganizationOps', () => {
 
   lab.test('list of all organizations', (done) => {
-    organizationOps.list((err, result) => {
+    organizationOps.list({page: 1, limit: 7}, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
       expect(result.length).to.equal(6)
@@ -223,7 +223,7 @@ lab.experiment('OrganizationOps', () => {
       })
     })
     tasks.push((next) => {
-      organizationOps.list((err, result) => {
+      organizationOps.list({page: 1, limit: 7}, (err, result) => {
         expect(result.length).to.equal(6)
         next(err, result)
       })
@@ -306,7 +306,7 @@ lab.experiment('OrganizationOps', () => {
       })
     })
     tasks.push((next) => {
-      organizationOps.list((err, result) => {
+      organizationOps.list({page: 1, limit: 7}, (err, result) => {
         expect(result.length).to.equal(6)
         next(err, result)
       })

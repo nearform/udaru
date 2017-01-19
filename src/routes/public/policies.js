@@ -11,8 +11,11 @@ exports.register = function (server, options, next) {
     path: '/authorization/policies',
     handler: function (request, reply) {
       const { organizationId } = request.udaru
-
-      policyOps.listByOrganization({ organizationId }, reply)
+      policyOps.listByOrganization({
+        organizationId,
+        limit: request.query.limit,
+        page: request.query.page
+      }, reply)
     },
     config: {
       description: 'Fetch all the defined policies',
@@ -26,7 +29,11 @@ exports.register = function (server, options, next) {
       validate: {
         headers: Joi.object({
           'authorization': Joi.any().required()
-        }).unknown()
+        }).unknown(),
+        query: Joi.object({
+          page: Joi.number().integer().positive().required().description('Page number, starts from 1'),
+          limit: Joi.number().integer().positive().required().description('Items per page')
+        }).required()
       },
       response: {schema: swagger.PolicyList}
     }

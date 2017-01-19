@@ -15,7 +15,7 @@ lab.experiment('Teams', () => {
 
   lab.test('get team list should return error for error case', (done) => {
     teamOps.listOrgTeams = (params, cb) => {
-      expect(params).to.equal({ organizationId: 'WONKA' })
+      expect(params).to.equal({ organizationId: 'WONKA', limit: 1, page: 1 })
       process.nextTick(() => {
         cb(Boom.badImplementation())
       })
@@ -23,7 +23,7 @@ lab.experiment('Teams', () => {
 
     const options = utils.requestOptions({
       method: 'GET',
-      url: '/authorization/teams'
+      url: '/authorization/teams?page=1&limit=1'
     })
 
     server.inject(options, (response) => {

@@ -145,18 +145,35 @@ const policyOps = {
    * @param  {Function} cb
    */
   listByOrganization: function listByOrganization (params, cb) {
-    const { organizationId } = params
+    const { organizationId, limit, page } = params
 
     const sqlQuery = SQL`
-      SELECT  *
-      FROM policies
-      WHERE org_id = ${organizationId}
-      ORDER BY UPPER(name)
+      WITH total AS (
+        SELECT COUNT(*) AS cnt FROM policies
+        WHERE org_id = ${organizationId}
+      )
+      SELECT
+        p.id,
+        p.version,
+        p.name,
+        p.statements,
+        t.cnt::INTEGER AS total
+      FROM policies AS p
+      INNER JOIN total AS t ON 1=1
+      WHERE p.org_id = ${organizationId}
+      ORDER BY UPPER(p.name)
     `
+    if (limit) {
+      sqlQuery.append(SQL` LIMIT ${limit}`)
+    }
+    if (limit && page) {
+      const offset = (page - 1) * limit
+      sqlQuery.append(SQL` OFFSET ${offset}`)
+    }
     db.query(sqlQuery, function (err, result) {
       if (err) return cb(Boom.badImplementation(err))
 
-      return cb(null, result.rows.map(mapping.policy))
+      return cb(null, result.rows)
     })
   },
 

@@ -9,10 +9,73 @@ var organizationOps = require('./../../src/lib/ops/organizationOps')
 var server = require('./../../src/wiring-hapi')
 
 lab.experiment('Organizations', () => {
-  lab.test('get organizations list', (done) => {
+  lab.test('get organizations list requires pagination params', (done) => {
     const options = utils.requestOptions({
       method: 'GET',
       url: '/authorization/organizations'
+    })
+
+    server.inject(options, (response) => {
+      expect(response.statusCode).to.equal(400)
+      done()
+    })
+  })
+
+  lab.test('get organizations list', (done) => {
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: '/authorization/organizations?limit=10&page=1'
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+      expect(response.statusCode).to.equal(200)
+      expect(result).to.equal([
+        {
+          id: 'CONCH',
+          name: 'Conch Plc',
+          description: 'Global fuel distributors',
+          total: 6
+        },
+        {
+          id: 'OILCOEMEA',
+          name: 'Oilco EMEA',
+          description: 'Oilco EMEA Division',
+          total: 6
+        },
+        {
+          id: 'OILCOUSA',
+          name: 'Oilco USA',
+          description: 'Oilco EMEA Division',
+          total: 6
+        },
+        {
+          id: 'SHIPLINE',
+          name: 'Shipline',
+          description: 'World class shipping',
+          total: 6
+        },
+        {
+          id: 'ROOT',
+          name: 'Super Admin',
+          description: 'Super Admin organization',
+          total: 6
+        },
+        {
+          id: 'WONKA',
+          name: 'Wonka Inc',
+          description: 'Scrumpalicious Chocolate',
+          total: 6
+        }
+      ])
+
+      done()
+    })
+  })
+  lab.test('get organizations list: page1', (done) => {
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: '/authorization/organizations?limit=3&page=1'
     })
 
     server.inject(options, (response) => {
@@ -23,32 +86,54 @@ lab.experiment('Organizations', () => {
         {
           id: 'CONCH',
           name: 'Conch Plc',
-          description: 'Global fuel distributors'
+          description: 'Global fuel distributors',
+          total: 6
         },
         {
           id: 'OILCOEMEA',
           name: 'Oilco EMEA',
-          description: 'Oilco EMEA Division'
+          description: 'Oilco EMEA Division',
+          total: 6
         },
         {
           id: 'OILCOUSA',
           name: 'Oilco USA',
-          description: 'Oilco EMEA Division'
-        },
+          description: 'Oilco EMEA Division',
+          total: 6
+        }
+      ])
+
+      done()
+    })
+  })
+  lab.test('get organizations list: page2', (done) => {
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: '/authorization/organizations?limit=3&page=2'
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(200)
+      expect(result).to.equal([
         {
           id: 'SHIPLINE',
           name: 'Shipline',
-          description: 'World class shipping'
+          description: 'World class shipping',
+          total: 6
         },
         {
           id: 'ROOT',
           name: 'Super Admin',
-          description: 'Super Admin organization'
+          description: 'Super Admin organization',
+          total: 6
         },
         {
           id: 'WONKA',
           name: 'Wonka Inc',
-          description: 'Scrumpalicious Chocolate'
+          description: 'Scrumpalicious Chocolate',
+          total: 6
         }
       ])
 

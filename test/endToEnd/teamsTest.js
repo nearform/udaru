@@ -17,10 +17,23 @@ const teamData = {
 }
 
 lab.experiment('Teams - get/list', () => {
-  lab.test('get team list', (done) => {
+
+  lab.test('get team list: pagination params are required', (done) => {
     const options = utils.requestOptions({
       method: 'GET',
       url: '/authorization/teams'
+    })
+
+    server.inject(options, (response) => {
+      expect(response.statusCode).to.equal(400)
+      done()
+    })
+  })
+
+  lab.test('get team list: page 1', (done) => {
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: '/authorization/teams?limit=3&page=1'
     })
 
     server.inject(options, (response) => {
@@ -34,7 +47,8 @@ lab.experiment('Teams - get/list', () => {
           organizationId: 'WONKA',
           description: 'Administrators of the Authorization System',
           path: '1',
-          usersCount: 1
+          usersCount: 1,
+          total: 6
         },
         {
           id: '3',
@@ -42,7 +56,8 @@ lab.experiment('Teams - get/list', () => {
           organizationId: 'WONKA',
           description: 'Content contributors',
           path: '3',
-          usersCount: 1
+          usersCount: 1,
+          total: 6
         },
         {
           id: '6',
@@ -50,14 +65,33 @@ lab.experiment('Teams - get/list', () => {
           organizationId: 'WONKA',
           description: 'Author of legal documents',
           path: '6',
-          usersCount: 0
-        },
+          usersCount: 0,
+          total: 6
+        }
+      ])
+
+      done()
+    })
+  })
+
+  lab.test('get team list: page 2', (done) => {
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: '/authorization/teams?limit=3&page=2'
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(200)
+      expect(result).to.equal([
         {
           id: '4',
           name: 'Managers',
           organizationId: 'WONKA',
           description: 'General Line Managers with confidential info',
           path: '4',
+          total: 6,
           usersCount: 1
         },
         {
@@ -66,6 +100,7 @@ lab.experiment('Teams - get/list', () => {
           organizationId: 'WONKA',
           description: 'Personnel Line Managers with confidential info',
           path: '5',
+          total: 6,
           usersCount: 1
         },
         {
@@ -74,6 +109,78 @@ lab.experiment('Teams - get/list', () => {
           organizationId: 'WONKA',
           description: 'General read-only access',
           path: '2',
+          total: 6,
+          usersCount: 2
+        }
+      ])
+
+      done()
+    })
+  })
+
+  lab.test('get team list', (done) => {
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: '/authorization/teams?page=1&limit=7'
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(200)
+      expect(result).to.equal([
+        {
+          id: '1',
+          name: 'Admins',
+          organizationId: 'WONKA',
+          description: 'Administrators of the Authorization System',
+          path: '1',
+          total: 6,
+          usersCount: 1
+        },
+        {
+          id: '3',
+          name: 'Authors',
+          organizationId: 'WONKA',
+          description: 'Content contributors',
+          path: '3',
+          total: 6,
+          usersCount: 1
+        },
+        {
+          id: '6',
+          name: 'Company Lawyer',
+          organizationId: 'WONKA',
+          description: 'Author of legal documents',
+          path: '6',
+          total: 6,
+          usersCount: 0
+        },
+        {
+          id: '4',
+          name: 'Managers',
+          organizationId: 'WONKA',
+          description: 'General Line Managers with confidential info',
+          path: '4',
+          total: 6,
+          usersCount: 1
+        },
+        {
+          id: '5',
+          name: 'Personnel Managers',
+          organizationId: 'WONKA',
+          description: 'Personnel Line Managers with confidential info',
+          path: '5',
+          total: 6,
+          usersCount: 1
+        },
+        {
+          id: '2',
+          name: 'Readers',
+          organizationId: 'WONKA',
+          description: 'General read-only access',
+          path: '2',
+          total: 6,
           usersCount: 2
         }
       ])

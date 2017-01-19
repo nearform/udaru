@@ -11,7 +11,7 @@ exports.register = function (server, options, next) {
     method: 'GET',
     path: '/authorization/organizations',
     handler: function (request, reply) {
-      organizationOps.list(reply)
+      organizationOps.list(request.query, reply)
     },
     config: {
       description: 'List all the organizations',
@@ -24,7 +24,11 @@ exports.register = function (server, options, next) {
       validate: {
         headers: Joi.object({
           'authorization': Joi.any().required()
-        }).unknown()
+        }).unknown(),
+        query: Joi.object({
+          page: Joi.number().integer().positive().required().description('Page number, starts from 1'),
+          limit: Joi.number().integer().positive().required().description('Users per page')
+        }).required()
       },
       response: {schema: swagger.OrganizationList}
     }
