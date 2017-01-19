@@ -6,13 +6,15 @@
   "scripts": {
     "start": "node index.js",
     "lint": "./node_modules/.bin/spacey-standard",
-    "test": "npm run pg:init && npm run pg:load-test-data && LABS_AUTH_SERVICE_logger_pino_level=silent ./node_modules/.bin/lab",
+    "test": "npm run app:init-test-db && LABS_AUTH_SERVICE_logger_pino_level=silent ./node_modules/.bin/lab",
     "coverage": "LABS_AUTH_SERVICE_logger_pino_level=silent ./node_modules/.bin/lab -r html -o coverage.html",
+    "migrate": "node database/migrate.js --version=1",
     "pg:build": "docker-compose build",
     "pg:start": "docker-compose up -d",
     "pg:stop": "docker-compose down",
-    "pg:init": "[ ! -d ./logs ] && mkdir ./logs;./scripts/init/database/db_init.sh | tee ./logs/init-db.log",
-    "pg:load-test-data": "./scripts/init/database/db_load.sh | tee ./logs/load-test-data.log"
+    "pg:init": "LABS_AUTH_SERVICE_local=true node database/init.js && npm run migrate",
+    "pg:load-test-data": "LABS_AUTH_SERVICE_local=true node database/loadTestData.js",
+    "app:init-test-db": "npm run pg:init && npm run pg:load-test-data"
   },
   "pre-commit": [
     "lint"
@@ -46,10 +48,11 @@
   "devDependencies": {
     "code": "4.0.0",
     "lab": "11.2.1",
+    "pg-copy-streams": "^1.2.0",
     "pino": "3.0.5",
-    "proxyquire": "1.7.10",
-    "spacey-standard": "4.0.0",
     "postgrator": "2.8.2",
-    "pre-commit": "1.2.2"
+    "pre-commit": "1.2.2",
+    "proxyquire": "1.7.10",
+    "spacey-standard": "4.0.0"
   }
 }
