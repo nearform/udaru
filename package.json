@@ -14,10 +14,11 @@
     "pg:stop": "docker-compose down",
     "pg:init": "LABS_AUTH_SERVICE_local=true node database/init.js && npm run migrate",
     "pg:load-test-data": "LABS_AUTH_SERVICE_local=true node database/loadTestData.js",
-    "app:init-test-db": "npm run pg:init && npm run pg:load-test-data"
+    "app:init-test-db": "npm run pg:init && npm run pg:load-test-data",
+    "lint-staged-files": "node ./linter.js"
   },
   "pre-commit": [
-    "lint"
+    "lint-staged-files"
   ],
   "repository": {
     "type": "git",
@@ -53,6 +54,8 @@
     "postgrator": "2.8.2",
     "pre-commit": "1.2.2",
     "proxyquire": "1.7.10",
-    "spacey-standard": "4.0.0"
+    "simple-git": "^1.65.0",
+    "spacey-standard": "4.0.0",
+    "staged-git-files": "0.0.4"
   }
 }
