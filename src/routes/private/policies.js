@@ -37,7 +37,7 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         payload: {
-          id: Joi.string().description('policy id'),
+          id: Joi.string().allow('').description('policy id'),
           version: Joi.string().required().description('policy version'),
           name: Joi.string().required().description('policy name'),
           statements: Joi.string().required().description('policy statements')
