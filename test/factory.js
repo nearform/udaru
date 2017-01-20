@@ -4,6 +4,7 @@ const _ = require('lodash')
 const userOps = require('../src/lib/ops/userOps')
 const policyOps = require('../src/lib/ops/policyOps')
 const teamOps = require('../src/lib/ops/teamOps')
+const orgOps = require('../src/lib/ops/organizationOps')
 
 
 function Factory (lab, data) {
@@ -11,6 +12,8 @@ function Factory (lab, data) {
   const records = {}
 
   function createUsers (done) {
+    if (!data.users) return done()
+
     async.mapValues(data.users, (user, key, next) => {
       userOps.createUser(_.pick(user, 'id', 'name', 'organizationId'), next)
     }, (err, users) => {
@@ -22,6 +25,8 @@ function Factory (lab, data) {
   }
 
   function createPolicies (done) {
+    if (!data.policies) return done()
+
     async.mapValues(data.policies, (policy, key, next) => {
       policyOps.createPolicy(_.pick(policy, 'id', 'name', 'version', 'statements', 'organizationId'), (err, res) => {
         if (err) return next(err)
@@ -37,12 +42,30 @@ function Factory (lab, data) {
   }
 
   function createTeams (done) {
+    if (!data.teams) return done()
+
     async.mapValues(data.teams, (team, key, next) => {
       teamOps.createTeam(_.pick(team, 'id', 'name', 'description', 'organizationId'), next)
     }, (err, teams) => {
       if (err) return done(err)
 
       Object.assign(records, teams)
+      done()
+    })
+  }
+
+  function createOrganizations (done) {
+    if (!data.organizations) return done()
+
+    async.mapValues(data.organizations, (org, key, next) => {
+      orgOps.create(_.pick(org, 'id', 'name', 'description'), (err, res) => {
+        if (err) return next(err)
+        next(null, res.organization)
+      })
+    }, (err, orgs) => {
+      if (err) return done(err)
+
+      Object.assign(records, orgs)
       done()
     })
   }
@@ -102,6 +125,7 @@ function Factory (lab, data) {
 
   function createData (done) {
     async.parallel([
+      createOrganizations,
       createUsers,
       createPolicies,
       createTeams
@@ -117,6 +141,8 @@ function Factory (lab, data) {
   }
 
   function deleteUsers (done) {
+    if (!data.users) return done()
+
     async.eachOf(data.users, (user, key, next) => {
       userOps.deleteUser({
         organizationId: user.organizationId,
@@ -129,6 +155,8 @@ function Factory (lab, data) {
   }
 
   function deleteTeams (done) {
+    if (!data.teams) return done()
+
     async.eachOf(data.teams, (team, key, next) => {
       teamOps.deleteTeam({
         organizationId: team.organizationId,
@@ -141,6 +169,8 @@ function Factory (lab, data) {
   }
 
   function deletePolicies (done) {
+    if (!data.policies) return done()
+
     async.eachOf(data.policies, (policy, key, next) => {
       policyOps.deletePolicy({
         organizationId: policy.organizationId,
@@ -152,11 +182,23 @@ function Factory (lab, data) {
     }, done)
   }
 
+  function deleteOrganizations (done) {
+    if (!data.organizations) return done()
+
+    async.eachOf(data.organizations, (org, key, next) => {
+      orgOps.deleteById(records[key].id, (err) => {
+        if (err && err.output.payload.error !== 'Not Found') return next(err)
+        next()
+      })
+    }, done)
+  }
+
   function deleteData (done) {
     async.parallel([
       deleteUsers,
       deleteTeams,
-      deletePolicies
+      deletePolicies,
+      deleteOrganizations
     ], done)
   }
 
