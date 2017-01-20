@@ -41,7 +41,7 @@ exports.register = function (server, options, next) {
           id: Joi.string().allow('').description('policy id'),
           version: Joi.string().required().description('policy version'),
           name: Joi.string().required().description('policy name'),
-          statements: Joi.string().required().description('policy statements')
+          statements: swagger.PolicyStatements.required().description('policy statements')
         },
         query: {
           sig: Joi.string().required()
@@ -88,7 +88,7 @@ exports.register = function (server, options, next) {
         payload: {
           version: Joi.string().required().description('policy version'),
           name: Joi.string().required().description('policy name'),
-          statements: Joi.string().required().description('policy statements')
+          statements: swagger.PolicyStatements.required().description('policy statements')
         },
         query: {
           sig: Joi.string().required()
