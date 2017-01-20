@@ -2,8 +2,8 @@
 
 const Joi = require('joi')
 const Action = require('./../../lib/config/config.auth').Action
-
 const authorize = require('./../../lib/ops/authorizeOps')
+const headers = require('./../headers')
 
 exports.register = function (server, options, next) {
 
@@ -36,9 +36,7 @@ exports.register = function (server, options, next) {
           action: Joi.string().required().description('The action to check'),
           resource: Joi.string().required().description('The resource that the user wants to perform the action on')
         },
-        headers: Joi.object({
-          'authorization': Joi.any().required()
-        }).unknown()
+        headers
       },
       description: 'Authorize user action against a resource',
       notes: 'The GET /authorization/check/{userId}/{action}/{resource} endpoint returns if a user can perform and action\non a resource\n',
@@ -75,9 +73,7 @@ exports.register = function (server, options, next) {
           userId: Joi.string().required().description('The user that wants to perform the action on a given resource'),
           resource: Joi.string().required().description('The resource that the user wants to perform the action on')
         },
-        headers: Joi.object({
-          'authorization': Joi.any().required()
-        }).unknown()
+        headers
       },
       description: 'List all the actions a user can perform on a resource',
       notes: 'The GET /authorization/list/{userId}/{resource} endpoint returns a list of all the actions a user\ncan perform on a given resource\n',
