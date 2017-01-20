@@ -616,6 +616,21 @@ lab.experiment('Teams - manage policies', () => {
     })
   })
 
+  lab.test('Add one policy from another org to a team should return an error', (done) => {
+    const options = utils.requestOptions({
+      method: 'PUT',
+      url: '/authorization/teams/1/policies',
+      payload: {
+        policies: ['policyId9']
+      }
+    })
+
+    server.inject(options, (response) => {
+      expect(response.statusCode).to.equal(400)
+      done()
+    })
+  })
+
   lab.test('Add multiple policies to a team', (done) => {
     const options = utils.requestOptions({
       method: 'PUT',
@@ -656,6 +671,21 @@ lab.experiment('Teams - manage policies', () => {
       expect(result.policies).to.equal([{ id: 'policyId6', name: 'DB Only Read', version: '0.1' }])
 
       teamOps.replaceTeamPolicies({ id: result.id, policies: ['policyId1'], organizationId: result.organizationId }, done)
+    })
+  })
+
+  lab.test('Replace team policies from another org should return an error', (done) => {
+    const options = utils.requestOptions({
+      method: 'POST',
+      url: '/authorization/teams/1/policies',
+      payload: {
+        policies: ['policyId9']
+      }
+    })
+
+    server.inject(options, (response) => {
+      expect(response.statusCode).to.equal(400)
+      done()
     })
   })
 
