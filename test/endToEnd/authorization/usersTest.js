@@ -12,13 +12,13 @@ function Policy (Statement) {
   return {
     version: '2016-07-01',
     name: 'Test Policy',
-    statements: JSON.stringify({
+    statements: {
       Statement: Statement || [{
         Effect: 'Allow',
         Action: ['dummy'],
         Resource: ['dummy']
       }]
-    }),
+    },
     organizationId
   }
 }
@@ -395,13 +395,13 @@ lab.experiment('Routes Authorizations', () => {
             id: 'policy-to-add',
             version: '2016-07-01',
             name: 'Policy To Add',
-            statements: JSON.stringify({
+            statements: {
               Statement: [{
                 Effect: 'Allow',
                 Action: ['an-action'],
                 Resource: ['a-resource']
               }]
-            }),
+            },
             organizationId
           }
         }
@@ -482,13 +482,13 @@ lab.experiment('Routes Authorizations', () => {
             id: 'policy-to-add',
             version: '2016-07-01',
             name: 'Policy To Add',
-            statements: JSON.stringify({
+            statements: {
               Statement: [{
                 Effect: 'Allow',
                 Action: ['an-action'],
                 Resource: ['a-resource']
               }]
-            }),
+            },
             organizationId
           }
         }
@@ -569,13 +569,13 @@ lab.experiment('Routes Authorizations', () => {
             id: 'policy-to-delete',
             version: '2016-07-01',
             name: 'Policy To Delete',
-            statements: JSON.stringify({
+            statements: {
               Statement: [{
                 Effect: 'Allow',
                 Action: ['an-action'],
                 Resource: ['a-resource']
               }]
-            }),
+            },
             organizationId
           }
         }
@@ -655,13 +655,13 @@ lab.experiment('Routes Authorizations', () => {
             id: 'policy-to-delete',
             version: '2016-07-01',
             name: 'Policy To Delete',
-            statements: JSON.stringify({
+            statements: {
               Statement: [{
                 Effect: 'Allow',
                 Action: ['an-action'],
                 Resource: ['a-resource']
               }]
-            }),
+            },
             organizationId
           }
         }

@@ -9,10 +9,12 @@ const organizationOps = require('../../src/lib/ops/organizationOps')
 const policyOps = require('../../src/lib/ops/policyOps')
 const server = require('./../../src/wiring-hapi')
 
+const statements = { Statement: [{ Effect: 'Allow', Action: ['documents:Read'], Resource: ['wonka:documents:/public/*'] }] }
+
 const policyCreateData = {
   version: '2016-07-01',
   name: 'Documents Admin',
-  statements: '{"Statement":[{"Effect":"Allow","Action":["documents:Read"],"Resource":["wonka:documents:/public/*"]}]}',
+  statements,
   organizationId: 'WONKA'
 }
 
@@ -404,7 +406,7 @@ lab.experiment('Users - checking org_id scoping', () => {
         version: 1,
         name: 'Documents Admin',
         organizationId: 'NEWORG',
-        statements: '{"Statement":[{"Effect":"Allow","Action":["documents:Read"],"Resource":["wonka:documents:/public/*"]}]}'
+        statements
       }
 
       policyOps.createPolicy(policyData, (err, policy) => {

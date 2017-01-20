@@ -7,15 +7,7 @@ var utils = require('./../utils')
 var policyOps = require('./../../src/lib/ops/policyOps')
 var server = require('./../../src/wiring-hapi')
 
-const statements = {
-  Statement: [
-    {
-      Effect: 'Allow',
-      Action: ['documents:Read'],
-      Resource: ['wonka:documents:/public/*']
-    }
-  ]
-}
+const statements = { Statement: [{ Effect: 'Allow', Action: ['documents:Read'], Resource: ['wonka:documents:/public/*'] }] }
 const policyCreateData = {
   version: '2016-07-01',
   name: 'Documents Admin',
