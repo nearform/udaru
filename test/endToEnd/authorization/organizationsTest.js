@@ -47,7 +47,7 @@ lab.experiment('Routes Authorizations', () => {
         .withPolicy([{
           Effect: 'Allow',
           Action: ['authorization:organizations:list'],
-          Resource: ['*']
+          Resource: ['/authorization/organization/*']
         }])
         .shouldRespond(200)
 
@@ -149,7 +149,7 @@ lab.experiment('Routes Authorizations', () => {
         .withPolicy([{
           Effect: 'Allow',
           Action: ['authorization:organizations:create'],
-          Resource: ['*']
+          Resource: ['/authorization/organization/*']
         }])
         .shouldRespond(201)
 
