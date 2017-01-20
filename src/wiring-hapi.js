@@ -23,8 +23,6 @@ const swaggerOptions = {
     title: 'Authorization API Documentation',
     version: packageJson.version
   },
-  basePath: '/authorization',
-  pathPrefixSize: 2,
   tags: [
     {
       name: 'organizations',
