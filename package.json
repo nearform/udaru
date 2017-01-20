@@ -6,15 +6,10 @@
   "scripts": {
     "start": "node index.js",
     "lint": "./node_modules/.bin/spacey-standard",
-<<<<<<< HEAD
+    "bench": "node ./bench/util/runner.js",
     "test": "npm run app:init-test-db && LABS_AUTH_SERVICE_logger_pino_level=silent ./node_modules/.bin/lab",
     "coverage": "LABS_AUTH_SERVICE_logger_pino_level=silent ./node_modules/.bin/lab -r html -o coverage.html",
     "migrate": "node database/migrate.js --version=1",
-=======
-    "test": "npm run pg:init && npm run pg:load-test-data && LABS_AUTH_SERVICE_logger_pino_level=silent lab test",
-    "bench": "node ./bench/util/runner.js",
-    "coverage": "LABS_AUTH_SERVICE_logger_pino_level=silent lab test -r html > coverage.html",
->>>>>>> Added bench runner and tests
     "pg:build": "docker-compose build",
     "pg:start": "docker-compose up -d",
     "pg:stop": "docker-compose down",
