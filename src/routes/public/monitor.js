@@ -4,7 +4,7 @@ exports.register = function (server, options, next) {
 
   server.route({
     method: 'GET',
-    path: '/ping',
+    path: '/authorization/ping',
     handler: function (request, reply) {
       reply()
     },
