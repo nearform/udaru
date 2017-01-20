@@ -4,6 +4,7 @@ const Joi = require('joi')
 const policyOps = require('./../../lib/ops/policyOps')
 const Action = require('./../../lib/config/config.auth').Action
 const swagger = require('./../../swagger')
+const headers = require('./../headers')
 
 exports.register = function (server, options, next) {
   server.route({
@@ -24,9 +25,7 @@ exports.register = function (server, options, next) {
         }
       },
       validate: {
-        headers: Joi.object({
-          'authorization': Joi.any().required()
-        }).unknown()
+        headers
       },
       response: {schema: swagger.PolicyList}
     }
@@ -46,9 +45,7 @@ exports.register = function (server, options, next) {
         params: {
           id: Joi.string().required().description('policy id')
         },
-        headers: Joi.object({
-          'authorization': Joi.any().required()
-        }).unknown()
+        headers
       },
       description: 'Fetch all the defined policies',
       notes: 'The GET /authorization/policies/{id} endpoint returns a single policy based on it\'s id.\n',

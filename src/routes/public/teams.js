@@ -4,6 +4,7 @@ const Joi = require('joi')
 const teamOps = require('./../../lib/ops/teamOps')
 const Action = require('./../../lib/config/config.auth').Action
 const swagger = require('./../../swagger')
+const headers = require('./../headers')
 
 exports.register = function (server, options, next) {
 
@@ -24,9 +25,7 @@ exports.register = function (server, options, next) {
         }
       },
       validate: {
-        headers: Joi.object({
-          'authorization': Joi.any().required()
-        }).unknown()
+        headers
       },
       response: {schema: swagger.TeamList}
     }
@@ -67,9 +66,7 @@ exports.register = function (server, options, next) {
             name: Joi.string().required('Name for the user')
           })
         },
-        headers: Joi.object({
-          'authorization': Joi.any().required()
-        }).unknown()
+        headers
       },
       description: 'Create a team',
       notes: 'The POST /authorization/teams endpoint creates a new team given its data\n',
@@ -97,9 +94,7 @@ exports.register = function (server, options, next) {
         params: {
           id: Joi.string().required().description('The team ID')
         },
-        headers: Joi.object({
-          'authorization': Joi.any().required()
-        }).unknown()
+        headers
       },
       description: 'Fetch a team given its identifier',
       notes: 'The GET /authorization/teams/{id} endpoint returns a single team data\n',
@@ -140,9 +135,7 @@ exports.register = function (server, options, next) {
           name: Joi.string().description('Updated team name'),
           description: Joi.string().description('Updated team description')
         }).or('name', 'description'),
-        headers: Joi.object({
-          'authorization': Joi.any().required()
-        }).unknown()
+        headers
       },
       description: 'Update a team',
       notes: 'The PUT /authorization/teams endpoint updates a team data\n',
@@ -177,9 +170,7 @@ exports.register = function (server, options, next) {
         params: {
           id: Joi.string().required().description('The team ID')
         },
-        headers: Joi.object({
-          'authorization': Joi.any().required()
-        }).unknown()
+        headers
       },
       description: 'Delete a team',
       notes: 'The DELETE /authorization/teams endpoint deletes a team\n',
@@ -221,9 +212,7 @@ exports.register = function (server, options, next) {
         payload: {
           parentId: Joi.string().required().description('The new parent ID')
         },
-        headers: Joi.object({
-          'authorization': Joi.any().required()
-        }).unknown()
+        headers
       },
       description: 'Nest a team',
       notes: 'The PUT /authorization/teams/{id}/nest endpoint nests a team\n',
@@ -263,9 +252,7 @@ exports.register = function (server, options, next) {
         params: {
           id: Joi.string().required().description('The team ID')
         },
-        headers: Joi.object({
-          'authorization': Joi.any().required()
-        }).unknown()
+        headers
       },
       description: 'Unnest a team',
       notes: 'The PUT /authorization/teams/{id}/unnest endpoint unnests a team\n',
@@ -303,9 +290,7 @@ exports.register = function (server, options, next) {
         payload: {
           policies: Joi.array().items(Joi.string()).required().description('Policy ids')
         },
-        headers: Joi.object({
-          'authorization': Joi.any().required()
-        }).unknown()
+        headers
       },
       description: 'Add one or more policies to a team',
       notes: 'The PUT /authorization/teams/{id}/policies endpoint add one or more new policies to a team\n',
@@ -344,9 +329,7 @@ exports.register = function (server, options, next) {
         payload: {
           policies: Joi.array().items(Joi.string()).required().description('Policy ids')
         },
-        headers: Joi.object({
-          'authorization': Joi.any().required()
-        }).unknown()
+        headers
       },
       description: 'Clear and replace policies for a team',
       notes: 'The POST /authorization/teams/{id}/policies endpoint removes all the team policies and replace them\n',
@@ -381,9 +364,7 @@ exports.register = function (server, options, next) {
         params: {
           id: Joi.string().required().description('Team id')
         },
-        headers: Joi.object({
-          'authorization': Joi.any().required()
-        }).unknown()
+        headers
       },
       description: 'Clear all team policies',
       notes: 'The DELETE /authorization/teams/{id}/policies endpoint removes all the team policies\n',
@@ -418,9 +399,7 @@ exports.register = function (server, options, next) {
           teamId: Joi.string().required().description('Team id'),
           policyId: Joi.string().required().description('Policy id')
         },
-        headers: Joi.object({
-          'authorization': Joi.any().required()
-        }).unknown()
+        headers
       },
       description: 'Remove a team policy',
       notes: 'The DELETE /authorization/teams/{teamId}/policies/{policyId} endpoint removes a specific team policy\n',
@@ -452,9 +431,7 @@ exports.register = function (server, options, next) {
           page: Joi.number().integer().positive().required().description('Page number, starts from 1'),
           limit: Joi.number().integer().positive().required().description('Users per page')
         },
-        headers: Joi.object({
-          'authorization': Joi.any().required()
-        }).unknown()
+        headers
       },
       description: 'Fetch team users given its identifier',
       notes: 'The GET /authorization/teams/{id}/users endpoint returns the users from a team and metadata related to pagination. The results are paginated. Page numbers start from 1. \n',
@@ -493,9 +470,7 @@ exports.register = function (server, options, next) {
         payload: Joi.object().keys({
           users: Joi.array().items(Joi.string()).description('User ids')
         }),
-        headers: Joi.object({
-          'authorization': Joi.any().required()
-        }).unknown()
+        headers
       },
       description: 'Add team members',
       notes: 'The PUT /authorization/teams/{id}/users endpoint adds one or more team members',
@@ -534,9 +509,7 @@ exports.register = function (server, options, next) {
         payload: Joi.object().keys({
           users: Joi.array().items(Joi.string()).description('User ids')
         }),
-        headers: Joi.object({
-          'authorization': Joi.any().required()
-        }).unknown()
+        headers
       },
       description: 'Replace team members with the given ones',
       notes: 'The POST /authorization/teams/{id}/users endpoint replaces all team members',
@@ -571,9 +544,7 @@ exports.register = function (server, options, next) {
         params: {
           id: Joi.string().required().description('The team ID')
         },
-        headers: Joi.object({
-          'authorization': Joi.any().required()
-        }).unknown()
+        headers
       },
       description: 'Delete all team members with the given ones',
       notes: 'The DELETE /authorization/teams/{id}/users endpoint removes all members of a team',
@@ -608,9 +579,7 @@ exports.register = function (server, options, next) {
           id: Joi.string().required().description('The team ID'),
           userId: Joi.string().required().description('The user ID')
         },
-        headers: Joi.object({
-          'authorization': Joi.any().required()
-        }).unknown()
+        headers
       },
       description: 'Delete one team member',
       notes: 'The DELETE /authorization/teams/{id}/users/{userId} endpoint removes one member of a team',

@@ -38,18 +38,7 @@ const insertUserPolicies = (job, next) => {
 function checkUserOrg (job, next) {
   const { id, organizationId } = job
 
-  userOps.readUser({ id, organizationId }, utils.boomErrorWrapper(next))
-}
-
-function checkPoliciesOrg (job, next) {
-  const { client, policies, organizationId } = job
-
-  client.query(SQL`SELECT id FROM policies WHERE id = ANY (${policies}) AND org_id = ${organizationId}`, (err, result) => {
-    if (err) return next(Boom.badImplementation(err))
-    if (result.rowCount !== policies.length) return next(Boom.badRequest(`Some of the policies [${policies.join(',')}] were not found`))
-
-    next()
-  })
+  utils.checkUserOrg(job.client, id, organizationId, next)
 }
 
 const userOps = {
@@ -283,7 +272,9 @@ const userOps = {
     ]
 
     if (policies.length > 0) {
-      tasks.push(checkPoliciesOrg)
+      tasks.push((job, next) => {
+        utils.checkPoliciesOrg(job.client, job.policies, job.organizationId, next)
+      })
       tasks.push(insertUserPolicies)
     }
 
@@ -317,7 +308,9 @@ const userOps = {
         next()
       },
       checkUserOrg,
-      checkPoliciesOrg,
+      (job, next) => {
+        utils.checkPoliciesOrg(job.client, job.policies, job.organizationId, next)
+      },
       insertUserPolicies
     ]
 

@@ -4,6 +4,7 @@ const Joi = require('joi')
 const userOps = require('./../../lib/ops/userOps')
 const Action = require('./../../lib/config/config.auth').Action
 const swagger = require('./../../swagger')
+const headers = require('./../headers')
 
 exports.register = function (server, options, next) {
 
@@ -24,9 +25,7 @@ exports.register = function (server, options, next) {
         }
       },
       validate: {
-        headers: Joi.object({
-          'authorization': Joi.any().required()
-        }).unknown()
+        headers
       },
       response: {schema: swagger.UserList}
     }
@@ -46,9 +45,7 @@ exports.register = function (server, options, next) {
         params: {
           id: Joi.string().required().description('user id')
         },
-        headers: Joi.object({
-          'authorization': Joi.any().required()
-        }).unknown()
+        headers
       },
       description: 'Fetch a user given its identifier',
       notes: 'The GET /authorization/users/{id} endpoint returns a single user data\n',
@@ -84,9 +81,7 @@ exports.register = function (server, options, next) {
           id: Joi.string().description('user id'),
           name: Joi.string().required().description('User name')
         },
-        headers: Joi.object({
-          'authorization': Joi.any().required()
-        }).unknown()
+        headers
       },
       description: 'Create a new user',
       notes: 'The POST /authorization/users endpoint creates a new user given its data\n',
@@ -120,9 +115,7 @@ exports.register = function (server, options, next) {
         params: {
           id: Joi.string().required().description('user id')
         },
-        headers: Joi.object({
-          'authorization': Joi.any().required()
-        }).unknown()
+        headers
       },
       description: 'Delete a user',
       notes: 'The DELETE /authorization/users endpoint delete a user\n',
@@ -159,9 +152,7 @@ exports.register = function (server, options, next) {
         payload: {
           name: Joi.string().required().description('user name')
         },
-        headers: Joi.object({
-          'authorization': Joi.any().required()
-        }).unknown()
+        headers
       },
       description: 'Update a user',
       notes: 'The PUT /authorization/users endpoint updates a user data\n',
@@ -199,9 +190,7 @@ exports.register = function (server, options, next) {
         payload: {
           policies: Joi.array().required().items(Joi.string().required())
         },
-        headers: Joi.object({
-          'authorization': Joi.any().required()
-        }).unknown()
+        headers
       },
       description: 'Add one or more policies to a user',
       notes: 'The PUT /authorization/users/{id}/policies endpoint add one or more new policies to a user\n',
@@ -240,9 +229,7 @@ exports.register = function (server, options, next) {
         payload: {
           policies: Joi.array().required().items(Joi.string().required())
         },
-        headers: Joi.object({
-          'authorization': Joi.any().required()
-        }).unknown()
+        headers
       },
       description: 'Clear and replace policies for a user',
       notes: 'The POST /authorization/users/{id}/policies endpoint removes all the user policies and replace them\n',
@@ -277,9 +264,7 @@ exports.register = function (server, options, next) {
         params: {
           id: Joi.string().required().description('user id')
         },
-        headers: Joi.object({
-          'authorization': Joi.any().required()
-        }).unknown()
+        headers
       },
       description: 'Clear all user\'s policies',
       notes: 'The DELETE /authorization/users/{id}/policies endpoint removes all the user policies\n',
@@ -314,9 +299,7 @@ exports.register = function (server, options, next) {
           userId: Joi.string().required().description('user id'),
           policyId: Joi.string().required().description('policy id')
         },
-        headers: Joi.object({
-          'authorization': Joi.any().required()
-        }).unknown()
+        headers
       },
       description: 'Remove a user\'s policy',
       notes: 'The DELETE /authorization/users/{userId}/policies/{policyId} endpoint removes a specific user\'s policy\n',
