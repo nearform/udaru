@@ -46,7 +46,8 @@ exports.register = function (server, options, next) {
           page: Joi.number().integer().positive().description('Page number, starts from 1'),
           limit: Joi.number().integer().positive().description('Users per page')
         }).required()
-      }
+      },
+      response: {schema: swagger.List(swagger.Team)}
     }
   })
 
