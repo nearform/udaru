@@ -8,7 +8,7 @@ const authConfig = require('./../lib/config/config.auth')
 const userOps = require('./../lib/ops/userOps')
 const authorizeOps = require('./../lib/ops/authorizeOps')
 
-function isSuperUser (user) {
+function canImpersonate (user) {
   return user.organizationId === config.get('authorization.superUser.organization.id')
 }
 
@@ -31,7 +31,7 @@ function impersonate (job, next) {
   const { currentUser } = job
   job.organizationId = currentUser.organizationId
 
-  if (isSuperUser(currentUser) && job.requestedOrganizationId) {
+  if (canImpersonate(currentUser) && job.requestedOrganizationId) {
     job.organizationId = job.requestedOrganizationId
   }
 
@@ -69,8 +69,8 @@ function buildResourcesForUser (builder, userId, organizationId, done) {
   })
 }
 
-function buildResources (plugin, request, organizationId, done) {
-  let resource = plugin.resource
+function buildResources (authParams, request, organizationId, done) {
+  let resource = authParams.resource
 
   if (resource) {
     return done(null, [resource])
@@ -80,10 +80,10 @@ function buildResources (plugin, request, organizationId, done) {
   const resourceBuilder = authConfig.resources[resourceType]
 
   if (!resourceBuilder) {
-    return done({ error: 'Resource builder not found' })
+    return done(new Error('Resource builder not found'))
   }
 
-  const requestParams = plugin.getParams ? plugin.getParams(request) : {}
+  const requestParams = authParams.getParams ? authParams.getParams(request) : {}
   const buildParams = Object.assign({}, { organizationId }, requestParams)
 
   if (resourceType === 'users' && buildParams.userId) {
@@ -94,12 +94,10 @@ function buildResources (plugin, request, organizationId, done) {
 }
 
 function authorize (job, next) {
-  if (!job.plugin) return next(Boom.forbidden('Invalid credentials', 'udaru'))
-
-  buildResources(job.plugin, job.request, job.organizationId, (err, resources) => {
+  buildResources(job.authParams, job.request, job.organizationId, (err, resources) => {
     if (err) return Boom.unauthorized('Bad credentials')
 
-    const action = job.plugin.action
+    const action = job.authParams.action
     const userId = job.currentUser.id
 
     async.any(resources, async.apply(checkAuthorization, userId, action), (err, valid) => {
@@ -112,12 +110,17 @@ function authorize (job, next) {
 }
 
 module.exports = (options, server, request, userId, callback) => {
+  const authParams = request.route.settings.plugins && request.route.settings.plugins.auth
+
+  if (!authParams) {
+    return callback(Boom.forbidden('Invalid credentials', 'udaru'))
+  }
 
   const job = {
     userId,
     request,
-    requestedOrganizationId: request.headers.org,
-    plugin: request.route.settings.plugins && request.route.settings.plugins.auth
+    authParams,
+    requestedOrganizationId: request.headers.org
   }
 
   async.applyEachSeries([
