@@ -2,7 +2,7 @@
 
 module.exports = [
   {
-    tag: 'get/ping',
+    tag: 'GET ping',
     handler: () => {
       return {
         path: '/ping',
@@ -10,4 +10,4 @@ module.exports = [
       }
     }
   }
-] 
+]

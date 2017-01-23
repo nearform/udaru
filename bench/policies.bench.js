@@ -2,15 +2,16 @@
 
 module.exports = [
   {
-    tag: 'get/policies/{id}',
+    tag: 'GET authorization/policies',
     handler: () => {
       return {
-        path: '/policies/policy-1',
+        path: '/authorization/policies?page=1&limit=100',
         method: 'GET',
         headers: {
-          authorization: 'ROOTid'
+          authorization: 'ROOTid',
+          org: 'WONKA'
         }
       }
     }
   }
-] 
+]

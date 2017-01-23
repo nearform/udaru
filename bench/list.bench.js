@@ -2,10 +2,10 @@
 
 module.exports = [
   {
-    tag: 'get/list/{userId}/{resource}',
+    tag: 'GET authorization/list/{userId}/{resource}',
     handler: () => {
       return {
-        path: '/list/user-1/resource-1',
+        path: '/authorization/list/ROOTid/resource_a',
         method: 'GET',
         headers: {
           authorization: 'ROOTid'
@@ -13,4 +13,4 @@ module.exports = [
       }
     }
   }
-] 
+]

@@ -1,16 +1,17 @@
 'use strict'
 
 module.exports = [
-                          {
-    tag: 'get/users',
+  {
+    tag: 'GET authorization/users',
     handler: () => {
       return {
-        path: '/users',
+        path: '/authorization/users?page=1&limit=100',
         method: 'GET',
         headers: {
-          authorization: 'ROOTid'
+          authorization: 'ROOTid',
+          org: 'WONKA'
         }
       }
     }
   }
-] 
+]

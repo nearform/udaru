@@ -2,15 +2,16 @@
 
 module.exports = [
   {
-    tag: 'get/teams',
+    tag: 'GET authorization/teams',
     handler: () => {
       return {
-        path: '/teams',
+        path: '/authorization/teams?page=1&limit=100',
         method: 'GET',
         headers: {
-          authorization: 'ROOTid'
+          authorization: 'ROOTid',
+          org: 'WONKA'
         }
       }
     }
   }
-] 
+]

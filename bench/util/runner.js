@@ -1,5 +1,7 @@
 'use strict'
 
+// Note: you must run the server seperately.
+
 const Autocannon = require('autocannon')
 const Bloomrun = require('bloomrun')
 const Minimist = require('minimist')
@@ -16,10 +18,10 @@ const Access = require('../access.bench.js')
 // Apply each test handler to bloomrun with a tag
 function configureTests (tests) {
   const container = Bloomrun()
-  
+
   tests.forEach((route) => {
     route.forEach((test) => {
-      container.add({tag:test.tag}, test.handler)
+      container.add({tag: test.tag}, test.handler)
     })
   })
 
@@ -30,8 +32,8 @@ function configureTests (tests) {
 const tests = configureTests([Ping, Orgs, Policies, Teams, Users, List, Access])
 const tag = (Minimist(process.argv.slice(2))._ || '').toString()
 
-// If we don't have a matching tag we exit early 
-const getParams = tests.lookup({tag:tag})
+// If we don't have a matching tag we exit early
+const getParams = tests.lookup({tag: tag})
 if (typeof getParams !== 'function') {
   console.log(`No test found for tag: ${tag}`)
   process.exit()
@@ -56,7 +58,7 @@ const instance = Autocannon(opts, (err, result) => {
     process.exit(-1)
   }
 
-  console.log('Detailed Result:', "\n\n", result)
+  console.log('Detailed Result:', '\n\n', result)
 })
 
 // Starts the test and shows a pretty progress bar while it runs
