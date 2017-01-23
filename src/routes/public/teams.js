@@ -33,8 +33,8 @@ exports.register = function (server, options, next) {
       })
     },
     config: {
-      description: 'Fetch all teams (of the current user organization)',
-      notes: 'The GET /authorization/teams endpoint returns a list of all teams\n',
+      description: 'Fetch all teams from the current user organization',
+      notes: 'The GET /authorization/teams endpoint returns a list of all teams from the current organization.\n\nThe results are paginated. Page numbering and page limit start from 1.\n',
       tags: ['api', 'service', 'get', 'team'],
       plugins: {
         auth: {
@@ -79,18 +79,18 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         payload: {
-          id: Joi.string().regex(/^[0-9a-zA-Z_]+$/).allow('').description('The id to be used for the new team. Only alphanumeric characters and underscore are supported'),
+          id: Joi.string().regex(/^[0-9a-zA-Z_]+$/).allow('').description('The ID to be used for the new team. Only alphanumeric characters and underscore are supported'),
           name: Joi.string().required().description('Name of the new team'),
           description: Joi.string().required().description('Description of new team'),
-          user: Joi.object().description('Default admin user to be added to the team').keys({
-            id: Joi.string().description('user id'),
-            name: Joi.string().required('Name for the user')
+          user: Joi.object().description('Default admin of the team').keys({
+            id: Joi.string().description('User ID'),
+            name: Joi.string().required('User name')
           })
         },
         headers
       },
       description: 'Create a team',
-      notes: 'The POST /authorization/teams endpoint creates a new team given its data\n',
+      notes: 'The POST /authorization/teams endpoint creates a new team from its payload data.\n',
       tags: ['api', 'service', 'post', 'team'],
       plugins: {
         auth: {
@@ -113,12 +113,12 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.string().required().description('The team ID')
+          id: Joi.string().required().description('Team ID')
         },
         headers
       },
       description: 'Fetch a team given its identifier',
-      notes: 'The GET /authorization/teams/{id} endpoint returns a single team data\n',
+      notes: 'The GET /authorization/teams/{id} endpoint returns a single team data.\n',
       tags: ['api', 'service', 'get', 'team'],
       plugins: {
         auth: {
@@ -150,16 +150,16 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.string().required().description('The team ID')
+          id: Joi.string().required().description('Team ID')
         },
         payload: Joi.object().keys({
-          name: Joi.string().description('Updated team name'),
-          description: Joi.string().description('Updated team description')
+          name: Joi.string().description('Team name'),
+          description: Joi.string().description('Team description')
         }).or('name', 'description'),
         headers
       },
       description: 'Update a team',
-      notes: 'The PUT /authorization/teams endpoint updates a team data\n',
+      notes: 'The PUT /authorization/teams/{id} endpoint updates a team data.\n',
       tags: ['api', 'service', 'put', 'team'],
       plugins: {
         auth: {
@@ -194,7 +194,7 @@ exports.register = function (server, options, next) {
         headers
       },
       description: 'Delete a team',
-      notes: 'The DELETE /authorization/teams endpoint deletes a team\n',
+      notes: 'The DELETE /authorization/teams endpoint deletes a team.\n',
       tags: ['api', 'service', 'delete', 'team'],
       plugins: {
         auth: {
@@ -228,7 +228,7 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.string().required().description('The team ID')
+          id: Joi.string().required().description('Team ID')
         },
         payload: {
           parentId: Joi.string().required().description('The new parent ID')
@@ -236,7 +236,7 @@ exports.register = function (server, options, next) {
         headers
       },
       description: 'Nest a team',
-      notes: 'The PUT /authorization/teams/{id}/nest endpoint nests a team\n',
+      notes: 'The PUT /authorization/teams/{id}/nest endpoint nests a team.\n',
       tags: ['api', 'service', 'nest', 'team'],
       plugins: {
         auth: {
@@ -271,12 +271,12 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.string().required().description('The team ID')
+          id: Joi.string().required().description('Team ID')
         },
         headers
       },
       description: 'Unnest a team',
-      notes: 'The PUT /authorization/teams/{id}/unnest endpoint unnests a team\n',
+      notes: 'The PUT /authorization/teams/{id}/unnest endpoint unnests a team.\n',
       tags: ['api', 'service', 'nest', 'team'],
       plugins: {
         auth: {
@@ -306,15 +306,15 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.string().required().description('Team id')
+          id: Joi.string().required().description('Team ID')
         },
         payload: {
-          policies: Joi.array().items(Joi.string()).required().description('Policy ids')
+          policies: Joi.array().items(Joi.string()).required().description('Policy IDs')
         },
         headers
       },
       description: 'Add one or more policies to a team',
-      notes: 'The PUT /authorization/teams/{id}/policies endpoint add one or more new policies to a team\n',
+      notes: 'The PUT /authorization/teams/{id}/policies endpoint adds one or more new policies to a team.\n',
       tags: ['api', 'service', 'put', 'teams', 'policies'],
       plugins: {
         auth: {
@@ -345,15 +345,15 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.string().required().description('Team id')
+          id: Joi.string().required().description('Team ID')
         },
         payload: {
-          policies: Joi.array().items(Joi.string()).required().description('Policy ids')
+          policies: Joi.array().items(Joi.string()).required().description('Policy IDs')
         },
         headers
       },
       description: 'Clear and replace policies for a team',
-      notes: 'The POST /authorization/teams/{id}/policies endpoint removes all the team policies and replace them\n',
+      notes: 'The POST /authorization/teams/{id}/policies endpoint replaces all the team policies. Existing policies are removed.\n',
       tags: ['api', 'service', 'post', 'teams', 'policies'],
       plugins: {
         auth: {
@@ -383,12 +383,12 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.string().required().description('Team id')
+          id: Joi.string().required().description('Team ID')
         },
         headers
       },
       description: 'Clear all team policies',
-      notes: 'The DELETE /authorization/teams/{id}/policies endpoint removes all the team policies\n',
+      notes: 'The DELETE /authorization/teams/{id}/policies endpoint removes all the team policies.\n',
       tags: ['api', 'service', 'delete', 'teams', 'policies'],
       plugins: {
         auth: {
@@ -417,13 +417,13 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          teamId: Joi.string().required().description('Team id'),
-          policyId: Joi.string().required().description('Policy id')
+          teamId: Joi.string().required().description('Team ID'),
+          policyId: Joi.string().required().description('Policy ID')
         },
         headers
       },
       description: 'Remove a team policy',
-      notes: 'The DELETE /authorization/teams/{teamId}/policies/{policyId} endpoint removes a specific team policy\n',
+      notes: 'The DELETE /authorization/teams/{teamId}/policies/{policyId} endpoint removes a specific team policy.\n',
       tags: ['api', 'service', 'delete', 'teams', 'policies'],
       plugins: {
         auth: {
@@ -446,7 +446,7 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.string().required().description('The team ID')
+          id: Joi.string().required().description('Team ID')
         },
         query: {
           page: Joi.number().integer().min(1).required().description('Page number, starts from 1'),
@@ -455,7 +455,7 @@ exports.register = function (server, options, next) {
         headers
       },
       description: 'Fetch team users given its identifier',
-      notes: 'The GET /authorization/teams/{id}/users endpoint returns the users from a team and metadata related to pagination. The results are paginated. Page numbers start from 1. \n',
+      notes: 'The GET /authorization/teams/{id}/users endpoint returns the team users and pagination metadata.\n\nThe results are paginated. Page numbering and page limit start from 1.\n',
       tags: ['api', 'service', 'get', 'team', 'users'],
       plugins: {
         auth: {
@@ -489,12 +489,12 @@ exports.register = function (server, options, next) {
           id: Joi.string().required().description('The team ID')
         },
         payload: Joi.object().keys({
-          users: Joi.array().items(Joi.string()).description('User ids')
+          users: Joi.array().items(Joi.string()).description('User IDs')
         }),
         headers
       },
-      description: 'Add team members',
-      notes: 'The PUT /authorization/teams/{id}/users endpoint adds one or more team members',
+      description: 'Add team users',
+      notes: 'The PUT /authorization/teams/{id}/users endpoint adds one or more team users.',
       tags: ['api', 'service', 'put', 'team', 'users'],
       plugins: {
         auth: {
@@ -525,15 +525,15 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.string().required().description('The team ID')
+          id: Joi.string().required().description('Team ID')
         },
         payload: Joi.object().keys({
-          users: Joi.array().items(Joi.string()).description('User ids')
+          users: Joi.array().items(Joi.string()).description('User IDs')
         }),
         headers
       },
-      description: 'Replace team members with the given ones',
-      notes: 'The POST /authorization/teams/{id}/users endpoint replaces all team members',
+      description: 'Replace team users with the given ones',
+      notes: 'The POST /authorization/teams/{id}/users endpoint replaces all team users. Existing team users are removed.',
       tags: ['api', 'service', 'post', 'team', 'users'],
       plugins: {
         auth: {
@@ -563,12 +563,12 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.string().required().description('The team ID')
+          id: Joi.string().required().description('Team ID')
         },
         headers
       },
-      description: 'Delete all team members with the given ones',
-      notes: 'The DELETE /authorization/teams/{id}/users endpoint removes all members of a team',
+      description: 'Delete all team users',
+      notes: 'The DELETE /authorization/teams/{id}/users endpoint removes all team users.',
       tags: ['api', 'service', 'delete', 'team', 'users'],
       plugins: {
         auth: {
@@ -603,7 +603,7 @@ exports.register = function (server, options, next) {
         headers
       },
       description: 'Delete one team member',
-      notes: 'The DELETE /authorization/teams/{id}/users/{userId} endpoint removes one member of a team',
+      notes: 'The DELETE /authorization/teams/{id}/users/{userId} endpoint removes one user from a team.',
       tags: ['api', 'service', 'delete', 'team', 'users'],
       plugins: {
         auth: {

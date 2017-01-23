@@ -30,8 +30,8 @@ exports.register = function (server, options, next) {
       })
     },
     config: {
-      description: 'Fetch all users (of the current user organization)',
-      notes: 'The GET /authorization/users endpoint returns a list of all users\n',
+      description: 'Fetch all users from the current user organization',
+      notes: 'The GET /authorization/users endpoint returns a list of all users from the current organization.\n\nThe results are paginated. Page numbering and page limit start from 1.\n',
       tags: ['api', 'service', 'get', 'users'],
       plugins: {
         auth: {
@@ -61,12 +61,12 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.string().required().description('user id')
+          id: Joi.string().required().description('User ID')
         },
         headers
       },
       description: 'Fetch a user given its identifier',
-      notes: 'The GET /authorization/users/{id} endpoint returns a single user data\n',
+      notes: 'The GET /authorization/users/{id} endpoint returns a single user data.\n',
       tags: ['api', 'service', 'get', 'users'],
       plugins: {
         auth: {
@@ -96,13 +96,13 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         payload: {
-          id: Joi.string().description('user id'),
+          id: Joi.string().description('User ID'),
           name: Joi.string().required().description('User name')
         },
         headers
       },
       description: 'Create a new user',
-      notes: 'The POST /authorization/users endpoint creates a new user given its data\n',
+      notes: 'The POST /authorization/users endpoint creates a new user given its data.\n',
       tags: ['api', 'service', 'post', 'users'],
       plugins: {
         auth: {
@@ -131,12 +131,12 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.string().required().description('user id')
+          id: Joi.string().required().description('user ID')
         },
         headers
       },
       description: 'Delete a user',
-      notes: 'The DELETE /authorization/users endpoint delete a user\n',
+      notes: 'The DELETE /authorization/users/{id} endpoint deletes a user.\n',
       tags: ['api', 'service', 'delete', 'users'],
       plugins: {
         auth: {
@@ -165,7 +165,7 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.string().required().description('user id')
+          id: Joi.string().required().description('user ID')
         },
         payload: {
           name: Joi.string().required().description('user name')
@@ -173,7 +173,7 @@ exports.register = function (server, options, next) {
         headers
       },
       description: 'Update a user',
-      notes: 'The PUT /authorization/users endpoint updates a user data\n',
+      notes: 'The PUT /authorization/users/{id} endpoint updates the user data.\n',
       tags: ['api', 'service', 'put', 'users'],
       plugins: {
         auth: {
@@ -203,7 +203,7 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.string().required().description('user id')
+          id: Joi.string().required().description('User ID')
         },
         payload: {
           policies: Joi.array().required().items(Joi.string().required())
@@ -211,7 +211,7 @@ exports.register = function (server, options, next) {
         headers
       },
       description: 'Add one or more policies to a user',
-      notes: 'The PUT /authorization/users/{id}/policies endpoint add one or more new policies to a user\n',
+      notes: 'The PUT /authorization/users/{id}/policies endpoint adds one or more policies to a user.\n',
       tags: ['api', 'service', 'put', 'users', 'policies'],
       plugins: {
         auth: {
@@ -242,7 +242,7 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.string().required().description('user id')
+          id: Joi.string().required().description('User ID')
         },
         payload: {
           policies: Joi.array().required().items(Joi.string().required())
@@ -250,7 +250,7 @@ exports.register = function (server, options, next) {
         headers
       },
       description: 'Clear and replace policies for a user',
-      notes: 'The POST /authorization/users/{id}/policies endpoint removes all the user policies and replace them\n',
+      notes: 'The POST /authorization/users/{id}/policies endpoint replaces all the user policies. Existing user policies are removed.\n',
       tags: ['api', 'service', 'post', 'users', 'policies'],
       plugins: {
         auth: {
@@ -280,12 +280,12 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.string().required().description('user id')
+          id: Joi.string().required().description('User ID')
         },
         headers
       },
       description: 'Clear all user\'s policies',
-      notes: 'The DELETE /authorization/users/{id}/policies endpoint removes all the user policies\n',
+      notes: 'The DELETE /authorization/users/{id}/policies endpoint removes all the user policies.\n',
       tags: ['api', 'service', 'delete', 'users', 'policies'],
       plugins: {
         auth: {
@@ -314,13 +314,13 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          userId: Joi.string().required().description('user id'),
-          policyId: Joi.string().required().description('policy id')
+          userId: Joi.string().required().description('User ID'),
+          policyId: Joi.string().required().description('Policy ID')
         },
         headers
       },
       description: 'Remove a user\'s policy',
-      notes: 'The DELETE /authorization/users/{userId}/policies/{policyId} endpoint removes a specific user\'s policy\n',
+      notes: 'The DELETE /authorization/users/{userId}/policies/{policyId} endpoint removes a specific user\'s policy.\n',
       tags: ['api', 'service', 'delete', 'users', 'policies'],
       plugins: {
         auth: {

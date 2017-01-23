@@ -32,6 +32,7 @@ exports.register = function (server, options, next) {
     },
     config: {
       description: 'List all the organizations',
+      notes: 'The GET /authorization/organizations endpoint returns a list of all organizations.\n\nThe results are paginated. Page numbering and page limit start from 1.\n',
       tags: ['api', 'service', 'organizations'],
       plugins: {
         auth: {
@@ -57,6 +58,7 @@ exports.register = function (server, options, next) {
     },
     config: {
       description: 'Get organization',
+      notes: 'The GET /authorization/organizations/{id} endpoint returns a single organization data.\n',
       tags: ['api', 'service', 'organizations'],
       plugins: {
         auth: {
@@ -66,7 +68,7 @@ exports.register = function (server, options, next) {
       },
       validate: {
         params: {
-          id: Joi.string().required().description('organization id')
+          id: Joi.string().required().description('Organization ID')
         },
         headers
       },
@@ -96,18 +98,18 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         payload: {
-          id: Joi.string().regex(/^[a-zA-Z0-9]{1,64}$/).required().description('organization id'),
-          name: Joi.string().required().description('organization name'),
-          description: Joi.string().required().description('organization description'),
+          id: Joi.string().regex(/^[a-zA-Z0-9]{1,64}$/).required().description('Organization ID'),
+          name: Joi.string().required().description('Organization name'),
+          description: Joi.string().required().description('Organization description'),
           user: Joi.object().keys({
-            id: Joi.string(),
-            name: Joi.string().required()
+            id: Joi.string().description('User ID'),
+            name: Joi.string().required().description('User name')
           })
         },
         headers
       },
       description: 'Create an organization',
-      notes: 'The POST /authorization/organizations endpoint will create a new organization, the default organization admin policy and (if provided) its admin.',
+      notes: 'The POST /authorization/organizations endpoint creates a new organization, the default organization admin policy and (if provided) its admin.',
       tags: ['api', 'service', 'post', 'organization'],
       plugins: {
         auth: {
@@ -142,7 +144,7 @@ exports.register = function (server, options, next) {
       },
       validate: {
         params: {
-          id: Joi.string().required().description('organization id')
+          id: Joi.string().required().description('Organization ID')
         },
         headers
       }
@@ -161,11 +163,11 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.string().required().description('organization id')
+          id: Joi.string().required().description('organization ID')
         },
         payload: {
-          name: Joi.string().required().description('organization name'),
-          description: Joi.string().required().description('organization description')
+          name: Joi.string().required().description('Organization name'),
+          description: Joi.string().required().description('Organization description')
         },
         headers
       },

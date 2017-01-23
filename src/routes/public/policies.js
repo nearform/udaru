@@ -33,7 +33,7 @@ exports.register = function (server, options, next) {
     },
     config: {
       description: 'Fetch all the defined policies',
-      notes: 'The GET /authorization/policies endpoint returns a list of all the defined policies\nthe policies will contain only the id, version and name, no statements.\n',
+      notes: 'The GET /authorization/policies endpoint returns a list of all the defined policies\nthe policies will contain only the ID, version and name. No statements.\n\nThe results are paginated. Page numbering and page limit start from 1.\n',
       tags: ['api', 'service', 'get', 'policies'],
       plugins: {
         auth: {
@@ -63,12 +63,12 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.string().required().description('policy id')
+          id: Joi.string().required().description('Policy ID')
         },
         headers
       },
       description: 'Fetch all the defined policies',
-      notes: 'The GET /authorization/policies/{id} endpoint returns a single policy based on it\'s id.\n',
+      notes: 'The GET /authorization/policies/{id} endpoint returns a policy based on its ID.\n',
       tags: ['api', 'service', 'get', 'policies'],
       plugins: {
         auth: {

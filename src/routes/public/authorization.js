@@ -39,7 +39,7 @@ exports.register = function (server, options, next) {
         headers
       },
       description: 'Authorize user action against a resource',
-      notes: 'The GET /authorization/check/{userId}/{action}/{resource} endpoint returns if a user can perform and action\non a resource\n',
+      notes: 'The GET /authorization/access/{userId}/{action}/{resource} endpoint answers if a user can perform an action\non a resource.\n',
       tags: ['api', 'service', 'authorization'],
       response: {schema: Joi.object({
         access: Joi.boolean()
@@ -76,7 +76,7 @@ exports.register = function (server, options, next) {
         headers
       },
       description: 'List all the actions a user can perform on a resource',
-      notes: 'The GET /authorization/list/{userId}/{resource} endpoint returns a list of all the actions a user\ncan perform on a given resource\n',
+      notes: 'The GET /authorization/list/{userId}/{resource} endpoint returns a list of all the actions a user\ncan perform on a given resource.\n',
       tags: ['api', 'service', 'authorization'],
       response: {schema: Joi.object({
         actions: Joi.array().items(Joi.string())
