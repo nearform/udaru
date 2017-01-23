@@ -37,7 +37,7 @@ internals.implementation = function (server, options) {
 
       const userId = String(authorization)
 
-      settings.validateFunc(server, request, userId, (error, isValid, user) => {
+      settings.validateFunc(server, request, userId, (error, isValid, currentUser) => {
         if (error) {
           return reply(Boom.unauthorized(error.message))
         }
@@ -46,18 +46,18 @@ internals.implementation = function (server, options) {
           return reply(Boom.forbidden('Invalid credentials', 'udaru'))
         }
 
-        if (!user || typeof user !== 'object') {
+        if (!currentUser || typeof currentUser !== 'object') {
           return reply(Boom.badImplementation('Bad credentials object received'))
         }
 
         // only allow the SuperAdmin to impersonate an org
-        let organizationId = user.organizationId
+        let organizationId = currentUser.organizationId
         if (organizationId === config.get('authorization.superUser.organization.id') && request.headers.org) {
           organizationId = request.headers.org
         }
 
         request.udaru = {
-          user,
+          user: currentUser,
           organizationId
         }
 

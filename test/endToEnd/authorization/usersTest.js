@@ -57,7 +57,6 @@ lab.experiment('Routes Authorizations', () => {
         .shouldRespond(200)
 
       endpoint.test('should authorize caller with policy for all users in specific team')
-        .skip()
         .withPolicy([{
           Effect: 'Allow',
           Action: ['authorization:users:read'],
@@ -263,7 +262,6 @@ lab.experiment('Routes Authorizations', () => {
           Action: ['authorization:users:delete'],
           Resource: ['/authorization/user/WONKA/{{calledTeam.id}}/*']
         }])
-        .skip()
         .shouldRespond(204)
 
       endpoint.test('should authorize caller with policy for all users')
@@ -342,7 +340,6 @@ lab.experiment('Routes Authorizations', () => {
           Action: ['authorization:users:update'],
           Resource: ['/authorization/user/WONKA/{{calledTeam.id}}/*']
         }])
-        .skip()
         .shouldRespond(200)
 
       endpoint.test('should authorize caller with policy for all users')
@@ -430,7 +427,6 @@ lab.experiment('Routes Authorizations', () => {
           Action: ['authorization:users:policy:add'],
           Resource: ['/authorization/user/WONKA/{{calledTeam.id}}/*']
         }])
-        .skip()
         .shouldRespond(200)
 
       endpoint.test('should authorize caller with policy for all users')
@@ -517,7 +513,6 @@ lab.experiment('Routes Authorizations', () => {
           Action: ['authorization:users:policy:replace'],
           Resource: ['/authorization/user/WONKA/{{calledTeam.id}}/*']
         }])
-        .skip()
         .shouldRespond(200)
 
       endpoint.test('should authorize caller with policy for all users')
@@ -603,7 +598,6 @@ lab.experiment('Routes Authorizations', () => {
           Action: ['authorization:users:policy:remove'],
           Resource: ['/authorization/user/WONKA/{{calledTeam.id}}/*']
         }])
-        .skip()
         .shouldRespond(204)
 
       endpoint.test('should authorize caller with policy for all users')
@@ -689,7 +683,6 @@ lab.experiment('Routes Authorizations', () => {
           Action: ['authorization:users:policy:remove'],
           Resource: ['/authorization/user/WONKA/{{calledTeam.id}}/*']
         }])
-        .skip()
         .shouldRespond(204)
 
       endpoint.test('should authorize caller with policy for all users')
