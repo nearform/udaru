@@ -3,6 +3,7 @@
 const Joi = require('joi')
 const organizationOps = require('./../../lib/ops/organizationOps')
 const Action = require('./../../lib/config/config.auth').Action
+const conf = require('./../../lib/config')
 const swagger = require('./../../swagger')
 const headers = require('./../headers')
 
@@ -12,7 +13,22 @@ exports.register = function (server, options, next) {
     method: 'GET',
     path: '/authorization/organizations',
     handler: function (request, reply) {
-      organizationOps.list(reply)
+      const limit = request.query.limit || conf.get('authorization.defaultPageSize')
+      const page = request.query.page || 1
+      organizationOps.list({
+        limit: limit,
+        page: page
+      }, (err, data, total) => {
+        reply(
+          err,
+          err ? null : {
+            page: page,
+            limit: limit,
+            total: total,
+            data: data
+          }
+        )
+      })
     },
     config: {
       description: 'List all the organizations',
@@ -23,9 +39,13 @@ exports.register = function (server, options, next) {
         }
       },
       validate: {
-        headers
+        headers,
+        query: Joi.object({
+          page: Joi.number().integer().min(1).description('Page number, starts from 1'),
+          limit: Joi.number().integer().min(1).description('Items per page')
+        }).required()
       },
-      response: {schema: swagger.OrganizationList}
+      response: {schema: swagger.List(swagger.Organization)}
     }
   })
 

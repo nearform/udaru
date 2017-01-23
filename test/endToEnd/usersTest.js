@@ -20,7 +20,7 @@ const policyCreateData = {
 
 lab.experiment('Users: read - delete - update', () => {
 
-  lab.test('get user list', (done) => {
+  lab.test('user list should have default pagination', (done) => {
     const options = utils.requestOptions({
       method: 'GET',
       url: '/authorization/users'
@@ -30,8 +30,29 @@ lab.experiment('Users: read - delete - update', () => {
       const result = response.result
 
       expect(response.statusCode).to.equal(200)
-      expect(result.length).to.equal(7)
-      expect(result[0]).to.equal({
+      expect(result.page).to.equal(1)
+      expect(result.limit).greaterThan(1)
+      expect(result.total).to.be.at.least(7)
+      expect(result.data.length).to.equal(result.total)
+
+      done()
+    })
+  })
+
+  lab.test('get user list', (done) => {
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: '/authorization/users?page=1&limit=123'
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(200)
+      expect(result.total).to.equal(7)
+      expect(result.page).to.equal(1)
+      expect(result.limit).to.equal(123)
+      expect(result.data[0]).to.equal({
         id: 'AugustusId',
         name: 'Augustus Gloop',
         organizationId: 'WONKA'

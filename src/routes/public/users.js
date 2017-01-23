@@ -3,6 +3,7 @@
 const Joi = require('joi')
 const userOps = require('./../../lib/ops/userOps')
 const Action = require('./../../lib/config/config.auth').Action
+const conf = require('./../../lib/config')
 const swagger = require('./../../swagger')
 const headers = require('./../headers')
 
@@ -13,7 +14,20 @@ exports.register = function (server, options, next) {
     path: '/authorization/users',
     handler: function (request, reply) {
       const { organizationId } = request.udaru
-      userOps.listOrgUsers({ organizationId }, reply)
+      const limit = request.query.limit || conf.get('authorization.defaultPageSize')
+      const page = request.query.page || 1
+
+      userOps.listOrgUsers({organizationId, limit, page}, (err, data, total) => {
+        reply(
+          err,
+          err ? null : {
+            page: page,
+            limit: limit,
+            total: total,
+            data: data
+          }
+        )
+      })
     },
     config: {
       description: 'Fetch all users (of the current user organization)',
@@ -25,9 +39,13 @@ exports.register = function (server, options, next) {
         }
       },
       validate: {
-        headers
+        headers,
+        query: Joi.object({
+          page: Joi.number().integer().min(1).description('Page number, starts from 1'),
+          limit: Joi.number().integer().min(1).description('Users per page')
+        }).required()
       },
-      response: {schema: swagger.UserList}
+      response: {schema: swagger.List(swagger.User)}
     }
   })
 

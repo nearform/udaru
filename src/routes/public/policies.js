@@ -3,6 +3,7 @@
 const Joi = require('joi')
 const policyOps = require('./../../lib/ops/policyOps')
 const Action = require('./../../lib/config/config.auth').Action
+const conf = require('./../../lib/config')
 const swagger = require('./../../swagger')
 const headers = require('./../headers')
 
@@ -12,8 +13,23 @@ exports.register = function (server, options, next) {
     path: '/authorization/policies',
     handler: function (request, reply) {
       const { organizationId } = request.udaru
-
-      policyOps.listByOrganization({ organizationId }, reply)
+      const limit = request.query.limit || conf.get('authorization.defaultPageSize')
+      const page = request.query.page || 1
+      policyOps.listByOrganization({
+        organizationId,
+        limit: limit,
+        page: page
+      }, (err, data, total) => {
+        reply(
+          err,
+          !data ? null : {
+            page: page,
+            limit: limit,
+            total: total,
+            data: data
+          }
+        )
+      })
     },
     config: {
       description: 'Fetch all the defined policies',
@@ -25,9 +41,13 @@ exports.register = function (server, options, next) {
         }
       },
       validate: {
-        headers
+        headers,
+        query: Joi.object({
+          page: Joi.number().integer().min(1).description('Page number, starts from 1'),
+          limit: Joi.number().integer().min(1).description('Items per page')
+        }).required()
       },
-      response: {schema: swagger.PolicyList}
+      response: {schema: swagger.List(swagger.Policy)}
     }
   })
 

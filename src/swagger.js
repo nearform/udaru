@@ -19,8 +19,6 @@ const Policy = Joi.object({
   statements: PolicyStatements
 })
 
-const PolicyList = Joi.array().items(Policy)
-
 const PolicyRef = Joi.object({
   id: Joi.string(),
   version: Joi.string(),
@@ -42,8 +40,6 @@ const Team = Joi.object({
   organizationId: Joi.string(),
   usersCount: Joi.number()
 })
-
-const TeamList = Joi.array().items(Team)
 
 const TeamRef = Joi.object({
   id: Joi.string(),
@@ -78,19 +74,23 @@ const OrganizationAndUser = Joi.object({
   user: UserRef
 })
 
-const OrganizationList = Joi.array().items(Organization)
+const List = (data) => {
+  return Joi.object({
+    page: Joi.number().integer().positive().description('Page number, starts from 1'),
+    limit: Joi.number().integer().positive().description('Max number of results per page'),
+    total: Joi.number().integer().positive().description('Total number entries that match the query'),
+    data: Joi.array().items(data)
+  })
+}
 
 module.exports = {
-  UserList,
+  List,
   MetadataUserList,
   User,
-  TeamList,
   Team,
-  PolicyList,
   Policy,
   PolicyRef,
   Organization,
-  OrganizationList,
   OrganizationAndUser,
   PolicyStatements
 }

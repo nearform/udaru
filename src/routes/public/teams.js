@@ -3,6 +3,7 @@
 const Joi = require('joi')
 const teamOps = require('./../../lib/ops/teamOps')
 const Action = require('./../../lib/config/config.auth').Action
+const conf = require('./../../lib/config')
 const swagger = require('./../../swagger')
 const headers = require('./../headers')
 
@@ -13,7 +14,23 @@ exports.register = function (server, options, next) {
     path: '/authorization/teams',
     handler: function (request, reply) {
       const { organizationId } = request.udaru
-      teamOps.listOrgTeams({ organizationId }, reply)
+      const limit = request.query.limit || conf.get('authorization.defaultPageSize')
+      const page = request.query.page || 1
+      teamOps.listOrgTeams({
+        organizationId,
+        limit: limit,
+        page: page
+      }, (err, data, total) => {
+        reply(
+          err,
+          err ? null : {
+            page: page,
+            limit: limit,
+            total: total,
+            data: data
+          }
+        )
+      })
     },
     config: {
       description: 'Fetch all teams (of the current user organization)',
@@ -25,9 +42,13 @@ exports.register = function (server, options, next) {
         }
       },
       validate: {
-        headers
+        headers,
+        query: Joi.object({
+          page: Joi.number().integer().min(1).description('Page number, starts from 1'),
+          limit: Joi.number().integer().min(1).description('Items per page')
+        }).required()
       },
-      response: {schema: swagger.TeamList}
+      response: {schema: swagger.List(swagger.Team)}
     }
   })
 
@@ -428,8 +449,8 @@ exports.register = function (server, options, next) {
           id: Joi.string().required().description('The team ID')
         },
         query: {
-          page: Joi.number().integer().positive().required().description('Page number, starts from 1'),
-          limit: Joi.number().integer().positive().required().description('Users per page')
+          page: Joi.number().integer().min(1).required().description('Page number, starts from 1'),
+          limit: Joi.number().integer().min(1).required().description('Users per page')
         },
         headers
       },

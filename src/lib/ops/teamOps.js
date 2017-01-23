@@ -316,24 +316,46 @@ var teamOps = {
   /**
    * List the teams in an organization
    *
-   * @param  {Object}   params { organizationId }
+   * @param  {Object}   params { organizationId, limit, page } where page is 1-indexed
    * @param  {Function} cb
    */
   listOrgTeams: function listOrgTeams (params, cb) {
-    const { organizationId } = params
+    let { organizationId, limit, page } = params
 
-    const sqlQuery = SQL`
-      SELECT teams.id, teams.name, teams.description, teams.path, teams.org_id, COUNT(team_members.team_id) AS users_count
+    let sqlQuery = SQL`
+      WITH total AS (
+        SELECT COUNT(*) AS cnt
+        FROM teams
+        WHERE org_id = ${organizationId}
+      )
+      SELECT
+        teams.id,
+        teams.name,
+        teams.description,
+        teams.path,
+        teams.org_id,
+        t.cnt::INTEGER AS total,
+        COUNT(team_members.team_id) AS users_count
       FROM teams
       LEFT JOIN team_members ON team_members.team_id = teams.id
+      INNER JOIN total AS t ON 1=1
       WHERE org_id = ${organizationId}
-      GROUP BY teams.id, teams.name, teams.description, teams.path, teams.org_id
+      GROUP BY teams.id, teams.name, teams.description, teams.path, teams.org_id, t.cnt
       ORDER BY UPPER(name)
     `
+
+    if (limit) {
+      sqlQuery.append(SQL` LIMIT ${limit}`)
+    }
+    if (limit && page) {
+      let offset = (page - 1) * limit
+      sqlQuery.append(SQL` OFFSET ${offset}`)
+    }
+
     db.query(sqlQuery, function (err, result) {
       if (err) return cb(err)
-
-      return cb(null, result.rows.map(mapping.team.list))
+      let total = result.rows.length > 0 ? result.rows[0].total : 0
+      return cb(null, result.rows.map(mapping.team.list), total)
     })
   },
 

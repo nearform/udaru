@@ -15,7 +15,6 @@ lab.experiment('Authorization', () => {
 
     server.inject(options, (response) => {
       const result = response.result
-
       expect(response.statusCode).to.equal(200)
       expect(result).to.equal({ access: true })
 
