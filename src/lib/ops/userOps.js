@@ -52,15 +52,21 @@ const userOps = {
     const { organizationId } = params
 
     const sqlQuery = SQL`
-      SELECT  *
+      WITH total AS (
+        SELECT COUNT(*)::INTEGER AS cnt
+        FROM users
+        WHERE org_id = ${organizationId}
+      )
+      SELECT *, t.cnt AS total
       FROM users
+      INNER JOIN total AS t on 1=1
       WHERE org_id = ${organizationId}
       ORDER BY UPPER(name)
     `
     db.query(sqlQuery, function (err, result) {
       if (err) return cb(err)
-
-      return cb(null, result.rows.map(mapping.user))
+      let total = result.rows.length > 0 ? result.rows[0].total : 0
+      return cb(null, result.rows.map(mapping.user), total)
     })
   },
 

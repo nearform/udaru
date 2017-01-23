@@ -3,6 +3,7 @@
 const Joi = require('joi')
 const teamOps = require('./../../lib/ops/teamOps')
 const Action = require('./../../lib/config/config.auth').Action
+const conf = require('./../../lib/config')
 const swagger = require('./../../swagger')
 const headers = require('./../headers')
 
@@ -13,7 +14,7 @@ exports.register = function (server, options, next) {
     path: '/authorization/teams',
     handler: function (request, reply) {
       const { organizationId } = request.udaru
-      const limit = request.query.limit || 100
+      const limit = request.query.limit || conf.get('authorization.defaultPageSize')
       const page = request.query.page || 1
       teamOps.listOrgTeams({
         organizationId,

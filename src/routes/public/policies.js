@@ -3,6 +3,7 @@
 const Joi = require('joi')
 const policyOps = require('./../../lib/ops/policyOps')
 const Action = require('./../../lib/config/config.auth').Action
+const conf = require('./../../lib/config')
 const swagger = require('./../../swagger')
 const headers = require('./../headers')
 
@@ -12,7 +13,7 @@ exports.register = function (server, options, next) {
     path: '/authorization/policies',
     handler: function (request, reply) {
       const { organizationId } = request.udaru
-      const limit = request.query.limit || 100
+      const limit = request.query.limit || conf.get('authorization.defaultPageSize')
       const page = request.query.page || 1
       policyOps.listByOrganization({
         organizationId,

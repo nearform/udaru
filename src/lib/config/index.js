@@ -32,6 +32,7 @@ module.exports = new Reconfig({
     }
   },
   authorization: {
+    defaultPageSize: 100,
     superUser: {
       organization: {
         id: 'ROOT',

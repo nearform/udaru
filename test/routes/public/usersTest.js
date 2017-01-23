@@ -15,7 +15,7 @@ lab.experiment('Users', () => {
 
   lab.test('get user list should return error for error case', (done) => {
     userOps.listOrgUsers = function (params, cb) {
-      expect(params).to.equal({ organizationId: 'WONKA' })
+      expect(params).to.equal({ organizationId: 'WONKA', limit: 100, page: 1 })
       process.nextTick(() => {
         cb(Boom.badImplementation())
       })
