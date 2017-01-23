@@ -11,6 +11,8 @@ const teamOps = require('../../../src/lib/ops/teamOps')
 const policyOps = require('../../../src/lib/ops/policyOps')
 const userOps = require('../../../src/lib/ops/userOps')
 
+const statements = { Statement: [{ Effect: 'Allow', Action: ['documents:Read'], Resource: ['wonka:documents:/public/*'] }] }
+
 function randomId () {
   return crypto.randomBytes(2).toString('hex')
 }
@@ -31,7 +33,7 @@ lab.experiment('TeamOps', () => {
         version: 1,
         name: randomId(),
         organizationId: 'WONKA',
-        statements: '{"Statement":[{"Effect":"Allow","Action":["documents:Read"],"Resource":["wonka:documents:/public/*"]}]}'
+        statements
       }, (err, createdPolicy) => {
         expect(err).to.not.exist()
         expect(createdPolicy).to.exist()
@@ -41,7 +43,7 @@ lab.experiment('TeamOps', () => {
           version: 1,
           name: randomId(),
           organizationId: 'WONKA',
-          statements: '{"Statement":[{"Effect":"Allow","Action":["documents:Read"],"Resource":["wonka:documents:/public/*"]}]}'
+          statements
         }, (err, createdPolicy) => {
           expect(err).to.not.exist()
           expect(createdPolicy).to.exist()
@@ -52,7 +54,7 @@ lab.experiment('TeamOps', () => {
             version: 1,
             name: randomId(),
             organizationId: 'ROOT',
-            statements: '{"Statement":[{"Effect":"Allow","Action":["documents:Read"],"Resource":["wonka:documents:/public/*"]}]}'
+            statements
           }, (err, createdPolicy) => {
             expect(err).to.not.exist()
             expect(createdPolicy).to.exist()

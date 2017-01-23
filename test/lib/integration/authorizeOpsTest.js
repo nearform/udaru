@@ -27,7 +27,6 @@ const updateUserData = {
   teams: null
 }
 
-
 lab.experiment('AuthorizeOps', () => {
 
   let testUserId
@@ -314,11 +313,6 @@ lab.experiment('AuthorizeOps - list and access with multiple policies', () => {
 
   lab.before((done) => {
     const policies = JSON.parse(fs.readFileSync(path.join(__dirname, 'policies.json'), { encoding: 'utf8' }))
-    policies.map((policy) => {
-      policy.statements = JSON.stringify(policy.statements)
-
-      return policy
-    })
 
     organizationOps.create({ id: organizationId, name: 'nearForm', description: 'nearform description', user: { name: 'admin' } }, (err, res) => {
       if (err) return done(err)

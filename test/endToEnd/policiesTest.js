@@ -7,10 +7,11 @@ var utils = require('./../utils')
 var policyOps = require('./../../src/lib/ops/policyOps')
 var server = require('./../../src/wiring-hapi')
 
+const statements = { Statement: [{ Effect: 'Allow', Action: ['documents:Read'], Resource: ['wonka:documents:/public/*'] }] }
 const policyCreateData = {
   version: '2016-07-01',
   name: 'Documents Admin',
-  statements: '{"Statement":[{"Effect":"Allow","Action":["documents:Read"],"Resource":["wonka:documents:/public/*"]}]}',
+  statements,
   organizationId: 'WONKA'
 }
 
@@ -94,7 +95,7 @@ lab.experiment('Policies - create/update/delete (need service key)', () => {
       payload: {
         version: '2016-07-01',
         name: 'Documents Admin',
-        statements: 'fake-statements'
+        statements
       }
     })
 
@@ -130,7 +131,7 @@ lab.experiment('Policies - create/update/delete (need service key)', () => {
         id: 'policyId1',
         version: '2016-07-01',
         name: 'Documents Admin',
-        statements: '{"Statement":[{"Effect":"Allow","Action":["documents:Read"],"Resource":["wonka:documents:/public/*"]}]}'
+        statements
       }
     })
 
@@ -149,7 +150,7 @@ lab.experiment('Policies - create/update/delete (need service key)', () => {
       payload: {
         version: '2016-07-01',
         name: 'Documents Admin',
-        statements: '{"Statement":[{"Effect":"Allow","Action":["documents:Read"],"Resource":["wonka:documents:/public/*"]}]}'
+        statements
       }
     })
 
@@ -158,6 +159,7 @@ lab.experiment('Policies - create/update/delete (need service key)', () => {
 
       expect(response.statusCode).to.equal(201)
       expect(result.name).to.equal('Documents Admin')
+      expect(result.statements).to.equal(statements)
 
       policyOps.deletePolicy({ id: result.id, organizationId: 'WONKA' }, done)
     })
@@ -171,7 +173,7 @@ lab.experiment('Policies - create/update/delete (need service key)', () => {
         id: '',
         version: '2016-07-01',
         name: 'Documents Admin',
-        statements: '{"Statement":[{"Effect":"Allow","Action":["documents:Read"],"Resource":["wonka:documents:/public/*"]}]}'
+        statements
       }
     })
 
@@ -194,7 +196,7 @@ lab.experiment('Policies - create/update/delete (need service key)', () => {
         id: 'mySpecialPolicyId',
         version: '2016-07-01',
         name: 'Documents Admin',
-        statements: '{"Statement":[{"Effect":"Allow","Action":["documents:Read"],"Resource":["wonka:documents:/public/*"]}]}'
+        statements
       }
     })
 
@@ -216,7 +218,7 @@ lab.experiment('Policies - create/update/delete (need service key)', () => {
       payload: {
         version: '2016-07-01',
         name: 'Documents Admin',
-        statements: 'fake-statements'
+        statements
       }
     })
 
@@ -254,7 +256,15 @@ lab.experiment('Policies - create/update/delete (need service key)', () => {
         payload: {
           version: '1234',
           name: 'new policy name',
-          statements: '{"Statement":[{"Effect":"Deny","Action":["documents:Read"],"Resource":["wonka:documents:/public/*"]}]}'
+          statements: {
+            Statement: [
+              {
+                Effect: 'Deny',
+                Action: ['documents:Read'],
+                Resource: ['wonka:documents:/public/*']
+              }
+            ]
+          }
         }
       })
 
