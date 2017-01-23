@@ -43,7 +43,7 @@ const opts = {
   connections: 500,
   duration: 10,
   title: tag,
-  url: `http://localhost:8080/authorization${params.path}`,
+  url: `http://localhost:8080${params.path}`,
   method: params.method,
   headers: params.headers,
   body: params.body
