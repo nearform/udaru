@@ -194,3 +194,7 @@ This looks somewhat as follows:
 
 [BadgeTravis]: https://travis-ci.org/nearform/labs-authorization.svg?branch=master
 [Travis]: https://travis-ci.org/nearform/labs-authorization?branch=master
+
+# License
+
+Copyright nearForm 2017. Licensed under [MIT](/LICENSE)
