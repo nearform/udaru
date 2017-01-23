@@ -16,6 +16,8 @@ const defaultPoliciesNames = Object.keys(defaultPolicies).map((pName) => {
   return policy.name
 })
 
+const statements = { Statement: [{ Effect: 'Allow', Action: ['documents:Read'], Resource: ['wonka:documents:/public/*'] }] }
+
 lab.experiment('OrganizationOps', () => {
 
   lab.test('list of all organizations', (done) => {
@@ -200,7 +202,7 @@ lab.experiment('OrganizationOps', () => {
       version: '2016-07-01',
       name: 'Documents Admin',
       organizationId: 'nearForm222',
-      statements: '{"Statement":[{"Effect":"Allow","Action":["documents:Read"],"Resource":["wonka:documents:/public/*"]}]}'
+      statements
     }
 
     const tasks = []

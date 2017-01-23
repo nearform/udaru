@@ -8,7 +8,7 @@ const PolicyStatements = Joi.object({
     Action: Joi.array().items(Joi.string()),
     Resource: Joi.array().items(Joi.string()),
     Sid: Joi.string(),
-    Condition: Joi.object({})
+    Condition: Joi.object()
   }))
 })
 
@@ -84,13 +84,13 @@ const List = (data) => {
 }
 
 module.exports = {
-  List: List,
-  UserList: UserList,
-  MetadataUserList: MetadataUserList,
-  User: User,
-  Team: Team,
-  Policy: Policy,
-  PolicyRef: PolicyRef,
-  Organization: Organization,
-  OrganizationAndUser: OrganizationAndUser
+  List,
+  MetadataUserList,
+  User,
+  Team,
+  Policy,
+  PolicyRef,
+  Organization,
+  OrganizationAndUser,
+  PolicyStatements
 }

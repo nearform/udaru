@@ -5,6 +5,7 @@ const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 
 const policyOps = require('../../../src/lib/ops/policyOps')
+const statements = { Statement: [{ Effect: 'Allow', Action: ['documents:Read'], Resource: ['wonka:documents:/public/*'] }] }
 
 lab.experiment('PolicyOps', () => {
 
@@ -43,7 +44,7 @@ lab.experiment('PolicyOps', () => {
       version: 1,
       name: 'Documents Admin',
       organizationId: 'WONKA',
-      statements: '{"Statement":[{"Effect":"Allow","Action":["documents:Read"],"Resource":["wonka:documents:/public/*"]}]}'
+      statements
     }
 
     policyOps.createPolicy(policyData, (err, policy) => {
@@ -54,14 +55,14 @@ lab.experiment('PolicyOps', () => {
 
       expect(policy.name).to.equal('Documents Admin')
       expect(policy.version).to.equal('1')
-      expect(policy.statements).to.equal({ Statement: [{ Effect: 'Allow', Action: ['documents:Read'], Resource: ['wonka:documents:/public/*'] }] })
+      expect(policy.statements).to.equal(statements)
 
       const updateData = {
         id: policyId,
         organizationId: 'WONKA',
         version: 2,
         name: 'Documents Admin v2',
-        statements: '{"Statement":[{"Effect":"Deny","Action":["documents:Read"],"Resource":["wonka:documents:/public/*"]}]}'
+        statements: { Statement: [{ Effect: 'Deny', Action: ['documents:Read'], Resource: ['wonka:documents:/public/*'] }] }
       }
 
       policyOps.updatePolicy(updateData, (err, policy) => {
@@ -83,7 +84,7 @@ lab.experiment('PolicyOps', () => {
       version: 1,
       name: 'Documents Admin',
       organizationId: 'WONKA',
-      statements: '{"Statement":[{"Effect":"Allow","Action":["documents:Read"],"Resource":["wonka:documents:/public/*"]}]}'
+      statements
     }
 
     policyOps.createPolicy(policyData, (err, policy) => {
@@ -93,7 +94,7 @@ lab.experiment('PolicyOps', () => {
       expect(policy.id).to.equal('MySpecialId')
       expect(policy.name).to.equal('Documents Admin')
       expect(policy.version).to.equal('1')
-      expect(policy.statements).to.equal({ Statement: [{ Effect: 'Allow', Action: ['documents:Read'], Resource: ['wonka:documents:/public/*'] }] })
+      expect(policy.statements).to.equal(statements)
 
       policyOps.deletePolicy({ id: policy.id, organizationId: 'WONKA' }, done)
     })

@@ -9,13 +9,13 @@ function Policy (Statement) {
   return {
     version: '2016-07-01',
     name: 'Test Policy',
-    statements: JSON.stringify({
+    statements: {
       Statement: Statement || [{
         Effect: 'Allow',
         Action: ['dummy'],
         Resource: ['dummy']
       }]
-    })
+    }
   }
 }
 
