@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node index.js",
     "lint": "./node_modules/.bin/spacey-standard",
+    "bench": "node ./bench/util/runner.js",
     "test": "npm run app:init-test-db && LABS_AUTH_SERVICE_logger_pino_level=silent ./node_modules/.bin/lab",
     "coverage": "LABS_AUTH_SERVICE_logger_pino_level=silent ./node_modules/.bin/lab -r html -o coverage.html",
     "migrate": "node database/migrate.js --version=1",
@@ -47,6 +48,8 @@
     "vision": "4.1.1"
   },
   "devDependencies": {
+    "autocannon": "0.16.0",
+    "bloomrun": "^3.0.3",
     "code": "4.0.0",
     "lab": "11.2.1",
     "pg-copy-streams": "^1.2.0",

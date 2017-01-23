@@ -54,8 +54,6 @@ const User = Joi.object({
   policies: Joi.array().items(PolicyRef)
 })
 
-const UserList = Joi.array().items(User)
-
 const MetadataUserList = Joi.object({
   currentPage: Joi.number().integer(),
   pageSize: Joi.number().integer(),
