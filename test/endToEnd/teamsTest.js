@@ -25,7 +25,9 @@ lab.experiment('Teams - get/list', () => {
     })
 
     server.inject(options, (response) => {
-      expect(response.statusCode).to.equal(400)
+      expect(response.statusCode).to.equal(200)
+      expect(response.result.page).to.equal(1)
+      expect(response.result.limit).greaterThan(1)
       done()
     })
   })
@@ -40,15 +42,17 @@ lab.experiment('Teams - get/list', () => {
       const result = response.result
 
       expect(response.statusCode).to.equal(200)
-      expect(result).to.equal([
+      expect(result.page).to.equal(1)
+      expect(result.limit).to.equal(3)
+      expect(result.total).to.equal(6)
+      expect(result.data).to.equal([
         {
           id: '1',
           name: 'Admins',
           organizationId: 'WONKA',
           description: 'Administrators of the Authorization System',
           path: '1',
-          usersCount: 1,
-          total: 6
+          usersCount: 1
         },
         {
           id: '3',
@@ -56,8 +60,7 @@ lab.experiment('Teams - get/list', () => {
           organizationId: 'WONKA',
           description: 'Content contributors',
           path: '3',
-          usersCount: 1,
-          total: 6
+          usersCount: 1
         },
         {
           id: '6',
@@ -65,8 +68,7 @@ lab.experiment('Teams - get/list', () => {
           organizationId: 'WONKA',
           description: 'Author of legal documents',
           path: '6',
-          usersCount: 0,
-          total: 6
+          usersCount: 0
         }
       ])
 
@@ -84,14 +86,16 @@ lab.experiment('Teams - get/list', () => {
       const result = response.result
 
       expect(response.statusCode).to.equal(200)
-      expect(result).to.equal([
+      expect(result.page).to.equal(2)
+      expect(result.limit).to.equal(3)
+      expect(result.total).to.equal(6)
+      expect(result.data).to.equal([
         {
           id: '4',
           name: 'Managers',
           organizationId: 'WONKA',
           description: 'General Line Managers with confidential info',
           path: '4',
-          total: 6,
           usersCount: 1
         },
         {
@@ -100,7 +104,6 @@ lab.experiment('Teams - get/list', () => {
           organizationId: 'WONKA',
           description: 'Personnel Line Managers with confidential info',
           path: '5',
-          total: 6,
           usersCount: 1
         },
         {
@@ -109,7 +112,6 @@ lab.experiment('Teams - get/list', () => {
           organizationId: 'WONKA',
           description: 'General read-only access',
           path: '2',
-          total: 6,
           usersCount: 2
         }
       ])
@@ -128,14 +130,13 @@ lab.experiment('Teams - get/list', () => {
       const result = response.result
 
       expect(response.statusCode).to.equal(200)
-      expect(result).to.equal([
+      expect(result.data).to.equal([
         {
           id: '1',
           name: 'Admins',
           organizationId: 'WONKA',
           description: 'Administrators of the Authorization System',
           path: '1',
-          total: 6,
           usersCount: 1
         },
         {
@@ -144,7 +145,6 @@ lab.experiment('Teams - get/list', () => {
           organizationId: 'WONKA',
           description: 'Content contributors',
           path: '3',
-          total: 6,
           usersCount: 1
         },
         {
@@ -153,7 +153,6 @@ lab.experiment('Teams - get/list', () => {
           organizationId: 'WONKA',
           description: 'Author of legal documents',
           path: '6',
-          total: 6,
           usersCount: 0
         },
         {
@@ -162,7 +161,6 @@ lab.experiment('Teams - get/list', () => {
           organizationId: 'WONKA',
           description: 'General Line Managers with confidential info',
           path: '4',
-          total: 6,
           usersCount: 1
         },
         {
@@ -171,7 +169,6 @@ lab.experiment('Teams - get/list', () => {
           organizationId: 'WONKA',
           description: 'Personnel Line Managers with confidential info',
           path: '5',
-          total: 6,
           usersCount: 1
         },
         {
@@ -180,7 +177,6 @@ lab.experiment('Teams - get/list', () => {
           organizationId: 'WONKA',
           description: 'General read-only access',
           path: '2',
-          total: 6,
           usersCount: 2
         }
       ])
@@ -317,6 +313,27 @@ lab.experiment('Teams - create', () => {
         id: 'test_fixed_id',
         path: 'test_fixed_id'
       })
+
+      teamOps.deleteTeam({ id: result.id, organizationId: result.organizationId }, done)
+    })
+  })
+
+  lab.test('will not complain for empty id string', (done) => {
+    const options = utils.requestOptions({
+      method: 'POST',
+      url: '/authorization/teams',
+      payload: {
+        id: '',
+        name: 'Team B',
+        description: 'This is Team B'
+      }
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(201)
+      expect(result.id).to.not.equal('')
 
       teamOps.deleteTeam({ id: result.id, organizationId: result.organizationId }, done)
     })
@@ -702,6 +719,21 @@ lab.experiment('Teams - manage policies', () => {
     })
   })
 
+  lab.test('Add one policy from another org to a team should return an error', (done) => {
+    const options = utils.requestOptions({
+      method: 'PUT',
+      url: '/authorization/teams/1/policies',
+      payload: {
+        policies: ['policyId9']
+      }
+    })
+
+    server.inject(options, (response) => {
+      expect(response.statusCode).to.equal(400)
+      done()
+    })
+  })
+
   lab.test('Add multiple policies to a team', (done) => {
     const options = utils.requestOptions({
       method: 'PUT',
@@ -742,6 +774,21 @@ lab.experiment('Teams - manage policies', () => {
       expect(result.policies).to.equal([{ id: 'policyId6', name: 'DB Only Read', version: '0.1' }])
 
       teamOps.replaceTeamPolicies({ id: result.id, policies: ['policyId1'], organizationId: result.organizationId }, done)
+    })
+  })
+
+  lab.test('Replace team policies from another org should return an error', (done) => {
+    const options = utils.requestOptions({
+      method: 'POST',
+      url: '/authorization/teams/1/policies',
+      payload: {
+        policies: ['policyId9']
+      }
+    })
+
+    server.inject(options, (response) => {
+      expect(response.statusCode).to.equal(400)
+      done()
     })
   })
 

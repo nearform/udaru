@@ -223,36 +223,13 @@ function removeTeamPolicy (job, next) {
   job.client.query(sqlQuery, utils.boomErrorWrapper(next))
 }
 
-function checkUsersOrg (job, cb) {
-  const { users } = job.params
-  const { organizationId } = job
-
-  job.client.query(SQL`SELECT id FROM users WHERE id = ANY (${users}) AND org_id = ${organizationId}`, (err, result) => {
-    if (err) {
-      return cb(Boom.badImplementation(err))
-    }
-
-    if (result.rowCount !== users.length) {
-      return cb(Boom.badRequest(`Some users [${users.join(',')}] were not found`))
-    }
-
-    cb()
-  })
-}
-
 function checkBothTeamsFromSameOrg (job, cb) {
   const { id, parentId, organizationId } = job.params
   const ids = [id]
 
   if (parentId) ids.push(parentId)
-  const sql = SQL`SELECT id FROM teams WHERE id = ANY(${ids}) AND org_id = ${organizationId}`
 
-  job.client.query(sql, (err, result) => {
-    if (err) return cb(Boom.badImplementation(err))
-    if (result.rowCount !== ids.length) return cb(Boom.badRequest('Team or parent team was not found'))
-
-    cb()
-  })
+  utils.checkTeamsOrg(job.client, ids, organizationId, cb)
 }
 
 function checkTeamExists (job, next) {
@@ -377,8 +354,8 @@ var teamOps = {
 
     db.query(sqlQuery, function (err, result) {
       if (err) return cb(err)
-
-      return cb(null, result.rows.map(mapping.team.list))
+      let total = result.rows.length > 0 ? result.rows[0].total : 0
+      return cb(null, result.rows.map(mapping.team.list), total)
     })
   },
 
@@ -569,6 +546,9 @@ var teamOps = {
 
         next()
       },
+      (job, next) => {
+        utils.checkPoliciesOrg(job.client, job.policies, job.organizationId, next)
+      },
       clearTeamPolicies,
       insertTeamPolicies
     ]
@@ -589,10 +569,14 @@ var teamOps = {
   addTeamPolicies: function addTeamPolicies (params, cb) {
     const { id, organizationId, policies } = params
 
-    insertTeamPolicies({ client: db, teamId: id, policies }, (err, res) => {
+    utils.checkPoliciesOrg(db, policies, organizationId, (err) => {
       if (err) return cb(err)
 
-      teamOps.readTeam({ id, organizationId }, cb)
+      insertTeamPolicies({ client: db, teamId: id, policies }, (err, res) => {
+        if (err) return cb(err)
+
+        teamOps.readTeam({ id, organizationId }, cb)
+      })
     })
   },
 
@@ -644,7 +628,9 @@ var teamOps = {
 
         next()
       },
-      checkUsersOrg,
+      (job, next) => {
+        utils.checkUsersOrg(job.client, job.params.users, job.organizationId, next)
+      },
       checkTeamExists,
       insertTeamMembers
     ]
@@ -672,7 +658,9 @@ var teamOps = {
 
         next()
       },
-      checkUsersOrg,
+      (job, next) => {
+        utils.checkUsersOrg(job.client, job.params.users, job.organizationId, next)
+      },
       checkTeamExists,
       deleteTeamUsers,
       insertTeamMembers

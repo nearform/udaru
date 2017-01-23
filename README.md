@@ -1,4 +1,6 @@
 # labs-authorization
+[![Travis][BadgeTravis]][Travis]
+
 
 A component providing authorization functionality
 
@@ -189,3 +191,6 @@ To achieve this we use the [`reconfig`](https://github.com/namshi/reconfig) modu
 This looks somewhat as follows:
 
 ![Authorization Architecture](./docs/authorization.png)
+
+[BadgeTravis]: https://travis-ci.org/nearform/labs-authorization.svg?branch=master
+[Travis]: https://travis-ci.org/nearform/labs-authorization?branch=master

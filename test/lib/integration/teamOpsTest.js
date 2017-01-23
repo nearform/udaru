@@ -47,7 +47,18 @@ lab.experiment('TeamOps', () => {
           expect(createdPolicy).to.exist()
           policies.push(createdPolicy)
 
-          done()
+          policyOps.createPolicy({
+            id: 'testPolicyId-1234',
+            version: 1,
+            name: randomId(),
+            organizationId: 'ROOT',
+            statements: '{"Statement":[{"Effect":"Allow","Action":["documents:Read"],"Resource":["wonka:documents:/public/*"]}]}'
+          }, (err, createdPolicy) => {
+            expect(err).to.not.exist()
+            expect(createdPolicy).to.exist()
+            policies.push(createdPolicy)
+            done()
+          })
         })
       })
     })
@@ -367,6 +378,43 @@ lab.experiment('TeamOps', () => {
     })
   })
 
+  lab.test('moveTeam should return an erro if teams arre from different orgs', (done) => {
+    let childTeam = {
+      id: 'childTeam',
+      name: 'Team Child',
+      description: 'This is a test team for paths',
+      parentId: null,
+      organizationId: 'ROOT'
+    }
+
+    teamOps.createTeam(childTeam, (err, childTeam) => {
+      expect(err).to.not.exist()
+      expect(childTeam).to.exist()
+
+      let testTeam2 = {
+        id: 'TeamParent',
+        name: 'Team Parent',
+        description: 'This is a test team for paths',
+        organizationId: 'WONKA'
+      }
+      teamOps.createTeam(testTeam2, (err, testTeam2) => {
+        expect(err).to.not.exist()
+        expect(testTeam2).to.exist()
+
+        teamOps.moveTeam({ id: childTeam.id, parentId: testTeam2.id, organizationId: 'WONKA' }, (err, result) => {
+          expect(err).to.exist()
+          expect(err.message).to.equal('Some teams [childTeam] were not found')
+
+          teamOps.deleteTeam({ id: childTeam.id, organizationId: 'ROOT' }, (err, result) => {
+            expect(err).to.not.exist()
+
+            teamOps.deleteTeam({ id: testTeam2.id, organizationId: 'WONKA' }, done)
+          })
+        })
+      })
+    })
+  })
+
   lab.test('moveTeam should update path', (done) => {
     let childTeam = {
       name: 'Team Child',
@@ -427,6 +475,15 @@ lab.experiment('TeamOps', () => {
 
         teamOps.deleteTeam({id: teamId, organizationId: 'WONKA'}, done)
       })
+    })
+  })
+
+  lab.test('add policies from another org to team', (done) => {
+    teamOps.addTeamPolicies({ id: testTeam.id, policies: [policies[2].id], organizationId: 'WONKA' }, (err, team) => {
+      expect(err).to.exist()
+      expect(err.message).to.equal('Some policies [testPolicyId-1234] were not found')
+
+      done()
     })
   })
 
@@ -517,6 +574,22 @@ lab.experiment('TeamOps', () => {
         expect(team.policies).to.equal([_.pick(policies[1], 'id', 'name', 'version')])
 
         done()
+      })
+    })
+  })
+
+  lab.test('add users from another org to a team', (done) => {
+
+    userOps.createUser({ id: 'testUserRoot', name: 'test', organizationId: 'ROOT' }, (err, user) => {
+      expect(err).to.not.exist()
+
+      let userIds = [user.id]
+
+      teamOps.addUsersToTeam({ id: testTeam.id, users: userIds, organizationId: 'WONKA' }, (err, team) => {
+        expect(err).to.exist()
+        expect(err.message).to.equal('Some users [testUserRoot] were not found')
+
+        userOps.deleteUser(user, done)
       })
     })
   })

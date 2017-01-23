@@ -16,14 +16,16 @@ const policyCreateData = {
 }
 
 lab.experiment('Policies - get/list', () => {
-  lab.test('get policy list rerquires pagination params', (done) => {
+  lab.test('get policy list has default pagination params', (done) => {
     const options = utils.requestOptions({
       method: 'GET',
       url: '/authorization/policies'
     })
 
     server.inject(options, (response) => {
-      expect(response.statusCode).to.equal(400)
+      expect(response.statusCode).to.equal(200)
+      expect(response.result.page).to.equal(1)
+      expect(response.result.limit).greaterThan(1)
       done()
     })
   })
@@ -38,8 +40,10 @@ lab.experiment('Policies - get/list', () => {
       const result = response.result
 
       expect(response.statusCode).to.equal(200)
-      expect(result.length).to.equal(4)
-      expect(result[0].total).greaterThan(4)
+      expect(result.total).greaterThan(4)
+      expect(result.page).to.equal(1)
+      expect(result.limit).to.equal(4)
+      expect(result.data.length).to.equal(4)
 
       done()
     })
@@ -55,13 +59,12 @@ lab.experiment('Policies - get/list', () => {
       const result = response.result
 
       expect(response.statusCode).to.equal(200)
-      expect(result.length).lessThan(500) // matches limit above. Will fail if we need to increase said limit
-      let accountantPolicy = _.find(result, {id: 'policyId2'})
+      expect(result.total).lessThan(result.limit) // Will fail if we need to increase limit
+      let accountantPolicy = _.find(result.data, {id: 'policyId2'})
       expect(accountantPolicy).to.equal({
         id: 'policyId2',
         version: '0.1',
         name: 'Accountant',
-        total: result.length,
         statements: {
           Statement: [
             {
@@ -189,6 +192,29 @@ lab.experiment('Policies - create/update/delete (need service key)', () => {
       const result = response.result
 
       expect(response.statusCode).to.equal(201)
+      expect(result.name).to.equal('Documents Admin')
+
+      policyOps.deletePolicy({ id: result.id, organizationId: 'WONKA' }, done)
+    })
+  })
+
+  lab.test('create new policy should allow empty string as id', (done) => {
+    const options = utils.requestOptions({
+      method: 'POST',
+      url: '/authorization/policies?sig=123456789',
+      payload: {
+        id: '',
+        version: '2016-07-01',
+        name: 'Documents Admin',
+        statements: '{"Statement":[{"Effect":"Allow","Action":["documents:Read"],"Resource":["wonka:documents:/public/*"]}]}'
+      }
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(201)
+      expect(result.id).to.not.equal('')
       expect(result.name).to.equal('Documents Admin')
 
       policyOps.deletePolicy({ id: result.id, organizationId: 'WONKA' }, done)

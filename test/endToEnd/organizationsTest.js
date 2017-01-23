@@ -9,14 +9,18 @@ var organizationOps = require('./../../src/lib/ops/organizationOps')
 var server = require('./../../src/wiring-hapi')
 
 lab.experiment('Organizations', () => {
-  lab.test('get organizations list requires pagination params', (done) => {
+  lab.test('get organizations list has default pagination params', (done) => {
     const options = utils.requestOptions({
       method: 'GET',
       url: '/authorization/organizations'
     })
 
     server.inject(options, (response) => {
-      expect(response.statusCode).to.equal(400)
+      expect(response.statusCode).to.equal(200)
+      expect(response.result).to.exist()
+      expect(response.result.page).to.equal(1)
+      expect(response.result.total).greaterThan(1)
+      expect(response.result.limit).greaterThan(1)
       done()
     })
   })
@@ -30,42 +34,39 @@ lab.experiment('Organizations', () => {
     server.inject(options, (response) => {
       const result = response.result
       expect(response.statusCode).to.equal(200)
-      expect(result).to.equal([
+      expect(result.page).to.equal(1)
+      expect(result.limit).to.equal(10)
+      expect(result.total).to.equal(6)
+      expect(result.data).to.equal([
         {
           id: 'CONCH',
           name: 'Conch Plc',
-          description: 'Global fuel distributors',
-          total: 6
+          description: 'Global fuel distributors'
         },
         {
           id: 'OILCOEMEA',
           name: 'Oilco EMEA',
-          description: 'Oilco EMEA Division',
-          total: 6
+          description: 'Oilco EMEA Division'
         },
         {
           id: 'OILCOUSA',
           name: 'Oilco USA',
-          description: 'Oilco EMEA Division',
-          total: 6
+          description: 'Oilco EMEA Division'
         },
         {
           id: 'SHIPLINE',
           name: 'Shipline',
-          description: 'World class shipping',
-          total: 6
+          description: 'World class shipping'
         },
         {
           id: 'ROOT',
           name: 'Super Admin',
-          description: 'Super Admin organization',
-          total: 6
+          description: 'Super Admin organization'
         },
         {
           id: 'WONKA',
           name: 'Wonka Inc',
-          description: 'Scrumpalicious Chocolate',
-          total: 6
+          description: 'Scrumpalicious Chocolate'
         }
       ])
 
@@ -82,24 +83,21 @@ lab.experiment('Organizations', () => {
       const result = response.result
 
       expect(response.statusCode).to.equal(200)
-      expect(result).to.equal([
+      expect(result.data).to.equal([
         {
           id: 'CONCH',
           name: 'Conch Plc',
-          description: 'Global fuel distributors',
-          total: 6
+          description: 'Global fuel distributors'
         },
         {
           id: 'OILCOEMEA',
           name: 'Oilco EMEA',
-          description: 'Oilco EMEA Division',
-          total: 6
+          description: 'Oilco EMEA Division'
         },
         {
           id: 'OILCOUSA',
           name: 'Oilco USA',
-          description: 'Oilco EMEA Division',
-          total: 6
+          description: 'Oilco EMEA Division'
         }
       ])
 
@@ -116,24 +114,21 @@ lab.experiment('Organizations', () => {
       const result = response.result
 
       expect(response.statusCode).to.equal(200)
-      expect(result).to.equal([
+      expect(result.data).to.equal([
         {
           id: 'SHIPLINE',
           name: 'Shipline',
-          description: 'World class shipping',
-          total: 6
+          description: 'World class shipping'
         },
         {
           id: 'ROOT',
           name: 'Super Admin',
-          description: 'Super Admin organization',
-          total: 6
+          description: 'Super Admin organization'
         },
         {
           id: 'WONKA',
           name: 'Wonka Inc',
-          description: 'Scrumpalicious Chocolate',
-          total: 6
+          description: 'Scrumpalicious Chocolate'
         }
       ])
 

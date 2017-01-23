@@ -6,6 +6,7 @@ const serviceKey = require('./../../security/serviceKey')
 const Action = require('./../../lib/config/config.auth').Action
 const policyOps = require('./../../lib/ops/policyOps')
 const swagger = require('./../../swagger')
+const headers = require('./../headers')
 
 exports.register = function (server, options, next) {
 
@@ -37,7 +38,7 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         payload: {
-          id: Joi.string().description('policy id'),
+          id: Joi.string().allow('').description('policy id'),
           version: Joi.string().required().description('policy version'),
           name: Joi.string().required().description('policy name'),
           statements: Joi.string().required().description('policy statements')
@@ -45,9 +46,7 @@ exports.register = function (server, options, next) {
         query: {
           sig: Joi.string().required()
         },
-        headers: Joi.object({
-          'authorization': Joi.any().required()
-        }).unknown()
+        headers
       },
       description: 'Create a policy for the current user organization',
       notes: 'The POST /authorization/policies endpoint is a private endpoint. It can be accessed only using a service key.\nThis service key needs to be passed as a query string in the form "sig=<key>"\n',
@@ -94,9 +93,7 @@ exports.register = function (server, options, next) {
         query: {
           sig: Joi.string().required()
         },
-        headers: Joi.object({
-          'authorization': Joi.any().required()
-        }).unknown()
+        headers
       },
       description: 'Update a policy of the current user organization',
       notes: 'The PUT /authorization/policies/{id} endpoint is a private endpoint. It can be accessed only using a service key.\nThis service key needs to be passed as a query string in the form "sig=<key>"\n',
@@ -136,9 +133,7 @@ exports.register = function (server, options, next) {
         query: {
           sig: Joi.string().required()
         },
-        headers: Joi.object({
-          'authorization': Joi.any().required()
-        }).unknown()
+        headers
       },
       description: 'Delete a policy',
       notes: 'The DELETE /authorization/policies/{id} endpoint is a private endpoint. It can be accessed only using a service key.\nThis service key needs to be passed as a query string in the form "sig=<key>"\n',

@@ -172,8 +172,8 @@ const policyOps = {
     }
     db.query(sqlQuery, function (err, result) {
       if (err) return cb(Boom.badImplementation(err))
-
-      return cb(null, result.rows)
+      let total = result.rows.length > 0 ? result.rows[0].total : 0
+      return cb(null, result.rows.map(mapping.policy), total)
     })
   },
 

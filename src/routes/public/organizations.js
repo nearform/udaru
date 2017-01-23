@@ -4,6 +4,7 @@ const Joi = require('joi')
 const organizationOps = require('./../../lib/ops/organizationOps')
 const Action = require('./../../lib/config/config.auth').Action
 const swagger = require('./../../swagger')
+const headers = require('./../headers')
 
 exports.register = function (server, options, next) {
 
@@ -11,7 +12,22 @@ exports.register = function (server, options, next) {
     method: 'GET',
     path: '/authorization/organizations',
     handler: function (request, reply) {
-      organizationOps.list(request.query, reply)
+      const limit = request.query.limit || 100
+      const page = request.query.page || 1
+      organizationOps.list({
+        limit: limit,
+        page: page
+      }, (err, data, total) => {
+        reply(
+          err,
+          err ? null : {
+            page: page,
+            limit: limit,
+            total: total,
+            data: data
+          }
+        )
+      })
     },
     config: {
       description: 'List all the organizations',
@@ -22,15 +38,12 @@ exports.register = function (server, options, next) {
         }
       },
       validate: {
-        headers: Joi.object({
-          'authorization': Joi.any().required()
-        }).unknown(),
+        headers,
         query: Joi.object({
-          page: Joi.number().integer().positive().required().description('Page number, starts from 1'),
-          limit: Joi.number().integer().positive().required().description('Users per page')
+          page: Joi.number().integer().positive().description('Page number, starts from 1'),
+          limit: Joi.number().integer().positive().description('Users per page')
         }).required()
-      },
-      response: {schema: swagger.OrganizationList}
+      }
     }
   })
 
@@ -53,9 +66,7 @@ exports.register = function (server, options, next) {
         params: {
           id: Joi.string().required().description('organization id')
         },
-        headers: Joi.object({
-          'authorization': Joi.any().required()
-        }).unknown()
+        headers
       },
       response: {schema: swagger.Organization}
     }
@@ -91,9 +102,7 @@ exports.register = function (server, options, next) {
             name: Joi.string().required()
           })
         },
-        headers: Joi.object({
-          'authorization': Joi.any().required()
-        }).unknown()
+        headers
       },
       description: 'Create an organization',
       notes: 'The POST /authorization/organizations endpoint will create a new organization, the default organization admin policy and (if provided) its admin.',
@@ -133,9 +142,7 @@ exports.register = function (server, options, next) {
         params: {
           id: Joi.string().required().description('organization id')
         },
-        headers: Joi.object({
-          'authorization': Joi.any().required()
-        }).unknown()
+        headers
       }
     }
   })
@@ -158,9 +165,7 @@ exports.register = function (server, options, next) {
           name: Joi.string().required().description('organization name'),
           description: Joi.string().required().description('organization description')
         },
-        headers: Joi.object({
-          'authorization': Joi.any().required()
-        }).unknown()
+        headers
       },
       description: 'Update an organization',
       notes: 'The PUT /authorization/organizations/{id} endpoint will update an organization name and description',
