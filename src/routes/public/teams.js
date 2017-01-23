@@ -44,8 +44,8 @@ exports.register = function (server, options, next) {
       validate: {
         headers,
         query: Joi.object({
-          page: Joi.number().integer().positive().description('Page number, starts from 1'),
-          limit: Joi.number().integer().positive().description('Users per page')
+          page: Joi.number().integer().min(1).description('Page number, starts from 1'),
+          limit: Joi.number().integer().min(1).description('Items per page')
         }).required()
       },
       response: {schema: swagger.List(swagger.Team)}
@@ -449,8 +449,8 @@ exports.register = function (server, options, next) {
           id: Joi.string().required().description('The team ID')
         },
         query: {
-          page: Joi.number().integer().positive().required().description('Page number, starts from 1'),
-          limit: Joi.number().integer().positive().required().description('Users per page')
+          page: Joi.number().integer().min(1).required().description('Page number, starts from 1'),
+          limit: Joi.number().integer().min(1).required().description('Users per page')
         },
         headers
       },

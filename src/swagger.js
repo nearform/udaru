@@ -77,7 +77,7 @@ const OrganizationAndUser = Joi.object({
 const List = (data) => {
   return Joi.object({
     page: Joi.number().integer().positive().description('Page number, starts from 1'),
-    limit: Joi.number().integer().positive().description('Max number of ressults per page'),
+    limit: Joi.number().integer().positive().description('Max number of results per page'),
     total: Joi.number().integer().positive().description('Total number entries that match the query'),
     data: Joi.array().items(data)
   })
