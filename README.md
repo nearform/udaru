@@ -141,7 +141,7 @@ The Swagger API documentation gives explanations on the exposed API.
 To run Swagger:
 
 ```
-npm run start:service
+npm run start
 ```
 
 and then go to `http://localhost:8080/documentation`
