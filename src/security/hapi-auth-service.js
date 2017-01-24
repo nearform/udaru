@@ -2,7 +2,6 @@
 
 const Boom = require('boom')
 const Hoek = require('hoek')
-const config = require('./../lib/config')
 
 const internals = {}
 
@@ -37,29 +36,10 @@ internals.implementation = function (server, options) {
 
       const userId = String(authorization)
 
-      settings.validateFunc(server, request, userId, (error, isValid, user) => {
-        if (error) {
-          return reply(Boom.unauthorized(error.message))
-        }
+      settings.validateFunc(server, request, userId, (err, credentials) => {
+        if (err) return reply(err)
 
-        if (!isValid) {
-          return reply(Boom.forbidden('Invalid credentials', 'udaru'))
-        }
-
-        if (!user || typeof user !== 'object') {
-          return reply(Boom.badImplementation('Bad credentials object received'))
-        }
-
-        // only allow the SuperAdmin to impersonate an org
-        let organizationId = user.organizationId
-        if (organizationId === config.get('authorization.superUser.organization.id') && request.headers.org) {
-          organizationId = request.headers.org
-        }
-
-        request.udaru = {
-          user,
-          organizationId
-        }
+        request.udaru = credentials
 
         return reply.continue({ credentials: { scope: 'udaru' } })
       })
