@@ -234,11 +234,10 @@ lab.experiment('Teams - get/list', () => {
           const result = response.result
 
           expect(response.statusCode).to.equal(200)
-          expect(result.currentPage).to.equal(1)
-          expect(result.pageSize).to.equal(10)
-          expect(result.totalPages).to.equal(1)
-          expect(result.totalUsersCount).to.equal(5)
-          expect(result.users).to.equal(teamUsers)
+          expect(result.page).to.equal(1)
+          expect(result.limit).to.equal(10)
+          expect(result.total).to.equal(5)
+          expect(result.data).to.equal(teamUsers)
 
           const options = utils.requestOptions({
             method: 'GET',
@@ -249,11 +248,10 @@ lab.experiment('Teams - get/list', () => {
             const result = response.result
 
             expect(response.statusCode).to.equal(200)
-            expect(result.currentPage).to.equal(2)
-            expect(result.pageSize).to.equal(3)
-            expect(result.totalPages).to.equal(2)
-            expect(result.totalUsersCount).to.equal(5)
-            expect(result.users).to.equal([
+            expect(result.page).to.equal(2)
+            expect(result.limit).to.equal(3)
+            expect(result.total).to.equal(5)
+            expect(result.data).to.equal([
               { id: 'VerucaId', name: 'Veruca Salt' },
               { id: 'WillyId', name: 'Willy Wonka' }
             ])

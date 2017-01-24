@@ -6,6 +6,7 @@ const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 const crypto = require('crypto')
+const conf = require('./../../../src/lib/config')
 
 const teamOps = require('../../../src/lib/ops/teamOps')
 const policyOps = require('../../../src/lib/ops/policyOps')
@@ -187,12 +188,11 @@ lab.experiment('TeamOps', () => {
     teamOps.readTeamUsers({ id: '2' }, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
-      expect(result.currentPage).to.equal(1)
-      expect(result.pageSize).to.equal(2)
-      expect(result.totalPages).to.equal(1)
-      expect(result.totalUsersCount).to.equal(2)
-      expect(result.users.length).to.equal(2)
-      expect(result.users).to.equal([
+      expect(result.page).to.equal(1)
+      expect(result.limit).to.equal(conf.get('authorization.defaultPageSize'))
+      expect(result.total).to.equal(2)
+      expect(result.data.length).to.equal(2)
+      expect(result.data).to.equal([
         { id: 'CharlieId', name: 'Charlie Bucket' },
         { id: 'VerucaId', name: 'Veruca Salt' }
       ])
@@ -205,12 +205,11 @@ lab.experiment('TeamOps', () => {
     teamOps.readTeamUsers({ id: '2', page: 2, limit: 1 }, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
-      expect(result.currentPage).to.equal(2)
-      expect(result.pageSize).to.equal(1)
-      expect(result.totalPages).to.equal(2)
-      expect(result.totalUsersCount).to.equal(2)
-      expect(result.users.length).to.equal(1)
-      expect(result.users).to.equal([
+      expect(result.page).to.equal(2)
+      expect(result.limit).to.equal(1)
+      expect(result.total).to.equal(2)
+      expect(result.data.length).to.equal(1)
+      expect(result.data).to.equal([
         { id: 'VerucaId', name: 'Veruca Salt' }
       ])
 
