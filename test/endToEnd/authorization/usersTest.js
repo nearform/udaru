@@ -29,7 +29,7 @@ lab.experiment('Routes Authorizations', () => {
 
       const records = Factory(lab, {
         teams: {
-          calledTeam: { name: 'called team', organizationId, users: ['called'] }
+          calledTeam: { name: 'called team', description: 'desc', organizationId, users: ['called'] }
         },
         users: {
           caller: { name: 'caller', organizationId, policies: ['testedPolicy'] },
@@ -101,7 +101,7 @@ lab.experiment('Routes Authorizations', () => {
 
       const records = Factory(lab, {
         teams: {
-          calledTeam: { name: 'called team', organizationId, users: ['called'] }
+          calledTeam: { name: 'called team', description: 'desc', organizationId, users: ['called'] }
         },
         users: {
           caller: { name: 'caller', organizationId, policies: ['testedPolicy'] },
@@ -164,7 +164,7 @@ lab.experiment('Routes Authorizations', () => {
 
       const records = Factory(lab, {
         teams: {
-          calledTeam: { name: 'called team', organizationId }
+          calledTeam: { name: 'called team', description: 'desc', organizationId }
         },
         users: {
           caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
@@ -229,7 +229,7 @@ lab.experiment('Routes Authorizations', () => {
 
       const records = Factory(lab, {
         teams: {
-          calledTeam: { name: 'called team', organizationId, users: ['called'] }
+          calledTeam: { name: 'called team', description: 'desc', organizationId, users: ['called'] }
         },
         users: {
           caller: { name: 'caller', organizationId, policies: ['testedPolicy'] },
@@ -306,7 +306,7 @@ lab.experiment('Routes Authorizations', () => {
 
       const records = Factory(lab, {
         teams: {
-          calledTeam: { name: 'called team', organizationId, users: ['called'] }
+          calledTeam: { name: 'called team', description: 'desc', organizationId, users: ['called'] }
         },
         users: {
           caller: { name: 'caller', organizationId, policies: ['testedPolicy'] },
@@ -380,7 +380,7 @@ lab.experiment('Routes Authorizations', () => {
 
       const records = Factory(lab, {
         teams: {
-          calledTeam: { name: 'called team', organizationId, users: ['called'] }
+          calledTeam: { name: 'called team', description: 'desc', organizationId, users: ['called'] }
         },
         users: {
           caller: { name: 'caller', organizationId, policies: ['testedPolicy'] },
@@ -466,7 +466,7 @@ lab.experiment('Routes Authorizations', () => {
 
       const records = Factory(lab, {
         teams: {
-          calledTeam: { name: 'called team', organizationId, users: ['called'] }
+          calledTeam: { name: 'called team', description: 'desc', organizationId, users: ['called'] }
         },
         users: {
           caller: { name: 'caller', organizationId, policies: ['testedPolicy'] },
@@ -552,7 +552,7 @@ lab.experiment('Routes Authorizations', () => {
 
       const records = Factory(lab, {
         teams: {
-          calledTeam: { name: 'called team', organizationId, users: ['called'] }
+          calledTeam: { name: 'called team', description: 'desc', organizationId, users: ['called'] }
         },
         users: {
           caller: { name: 'caller', organizationId, policies: ['testedPolicy'] },
@@ -637,7 +637,7 @@ lab.experiment('Routes Authorizations', () => {
 
       const records = Factory(lab, {
         teams: {
-          calledTeam: { name: 'called team', organizationId, users: ['called'] }
+          calledTeam: { name: 'called team', description: 'desc', organizationId, users: ['called'] }
         },
         users: {
           caller: { name: 'caller', organizationId, policies: ['testedPolicy'] },

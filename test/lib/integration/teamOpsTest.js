@@ -31,7 +31,7 @@ lab.experiment('TeamOps', () => {
       users = fetchedUsers
 
       policyOps.createPolicy({
-        version: 1,
+        version: '1',
         name: randomId(),
         organizationId: 'WONKA',
         statements
@@ -41,7 +41,7 @@ lab.experiment('TeamOps', () => {
         policies.push(createdPolicy)
 
         policyOps.createPolicy({
-          version: 1,
+          version: '1',
           name: randomId(),
           organizationId: 'WONKA',
           statements
@@ -52,7 +52,7 @@ lab.experiment('TeamOps', () => {
 
           policyOps.createPolicy({
             id: 'testPolicyId-1234',
-            version: 1,
+            version: '1',
             name: randomId(),
             organizationId: 'ROOT',
             statements
@@ -185,7 +185,7 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('read users from a specific team', (done) => {
-    teamOps.readTeamUsers({ id: '2' }, (err, result) => {
+    teamOps.readTeamUsers({ id: '2', organizationId: 'WONKA' }, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
       expect(result.page).to.equal(1)
@@ -202,7 +202,7 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('paginated read users from a specific team', (done) => {
-    teamOps.readTeamUsers({ id: '2', page: 2, limit: 1 }, (err, result) => {
+    teamOps.readTeamUsers({ id: '2', page: 2, limit: 1, organizationId: 'WONKA' }, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
       expect(result.page).to.equal(2)

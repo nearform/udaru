@@ -1,7 +1,7 @@
 'use strict'
 
-const Joi = require('joi')
-const policyOps = require('./../../lib/ops/policyOps')
+const _ = require('lodash')
+const udaru = require('./../../udaru')
 const Action = require('./../../lib/config/config.auth').Action
 const conf = require('./../../lib/config')
 const swagger = require('./../../swagger')
@@ -15,7 +15,7 @@ exports.register = function (server, options, next) {
       const { organizationId } = request.udaru
       const limit = request.query.limit || conf.get('authorization.defaultPageSize')
       const page = request.query.page || 1
-      policyOps.listByOrganization({
+      udaru.policies.list({
         organizationId,
         limit: limit,
         page: page
@@ -42,10 +42,7 @@ exports.register = function (server, options, next) {
       },
       validate: {
         headers,
-        query: Joi.object({
-          page: Joi.number().integer().min(1).description('Page number, starts from 1'),
-          limit: Joi.number().integer().min(1).description('Items per page')
-        }).required()
+        query: _.pick(udaru.policies.list.validate, ['page', 'limit'])
       },
       response: {schema: swagger.List(swagger.Policy).label('PagedPolicies')}
     }
@@ -58,13 +55,11 @@ exports.register = function (server, options, next) {
       const { organizationId } = request.udaru
       const { id } = request.params
 
-      policyOps.readPolicy({ id, organizationId }, reply)
+      udaru.policies.read({ id, organizationId }, reply)
     },
     config: {
       validate: {
-        params: {
-          id: Joi.string().required().description('Policy ID')
-        },
+        params: _.pick(udaru.policies.read.validate, ['id']),
         headers
       },
       description: 'Fetch all the defined policies',

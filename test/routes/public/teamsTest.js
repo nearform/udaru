@@ -7,18 +7,20 @@ const Boom = require('boom')
 var proxyquire = require('proxyquire')
 var utils = require('./../../utils')
 
-var teamOps = {}
-var teamsRoutes = proxyquire('./../../../src/routes/public/teams', { './../../lib/ops/teamOps': teamOps })
+var udaru = {}
+var teamsRoutes = proxyquire('./../../../src/routes/public/teams', { './../../udaru': udaru })
 var server = proxyquire('./../../../src/wiring-hapi', { './routes/public/teams': teamsRoutes })
 
 lab.experiment('Teams', () => {
 
   lab.test('get team list should return error for error case', (done) => {
-    teamOps.listOrgTeams = (params, cb) => {
-      expect(params).to.equal({ organizationId: 'WONKA', limit: 1, page: 1 })
-      process.nextTick(() => {
-        cb(Boom.badImplementation())
-      })
+    udaru.teams = {
+      list: (params, cb) => {
+        expect(params).to.equal({ organizationId: 'WONKA', limit: 1, page: 1 })
+        process.nextTick(() => {
+          cb(Boom.badImplementation())
+        })
+      }
     }
 
     const options = utils.requestOptions({
@@ -38,10 +40,12 @@ lab.experiment('Teams', () => {
 
 
   lab.test('create new team should return error for error case', (done) => {
-    teamOps.createTeam = (params, cb) => {
-      process.nextTick(() => {
-        cb(Boom.badImplementation())
-      })
+    udaru.teams = {
+      create: (params, cb) => {
+        process.nextTick(() => {
+          cb(Boom.badImplementation())
+        })
+      }
     }
 
     const options = utils.requestOptions({
@@ -64,16 +68,18 @@ lab.experiment('Teams', () => {
   })
 
   lab.test('update team should return error for error case', (done) => {
-    teamOps.updateTeam = (params, cb) => {
-      expect(params).to.equal({
-        id: '2',
-        name: 'Team D',
-        description: 'Can Team C become Team D?',
-        organizationId: 'WONKA'
-      })
-      process.nextTick(() => {
-        cb(Boom.badImplementation())
-      })
+    udaru.teams = {
+      update: (params, cb) => {
+        expect(params).to.equal({
+          id: '2',
+          name: 'Team D',
+          description: 'Can Team C become Team D?',
+          organizationId: 'WONKA'
+        })
+        process.nextTick(() => {
+          cb(Boom.badImplementation())
+        })
+      }
     }
 
     const options = utils.requestOptions({
@@ -96,11 +102,13 @@ lab.experiment('Teams', () => {
   })
 
   lab.test('delete team should return error for error case', (done) => {
-    teamOps.deleteTeam = (params, cb) => {
-      expect(params).to.equal({ id: '1', organizationId: 'WONKA' })
-      process.nextTick(() => {
-        cb(Boom.badImplementation())
-      })
+    udaru.teams = {
+      delete: (params, cb) => {
+        expect(params).to.equal({ id: '1', organizationId: 'WONKA' })
+        process.nextTick(() => {
+          cb(Boom.badImplementation())
+        })
+      }
     }
 
     const options = utils.requestOptions({

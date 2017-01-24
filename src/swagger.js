@@ -69,7 +69,7 @@ const List = (data) => {
   return Joi.object({
     page: Joi.number().integer().min(1).description('Page number, starts from 1'),
     limit: Joi.number().integer().min(1).description('Items per page'),
-    total: Joi.number().integer().positive().description('Total number of entries matched by the query'),
+    total: Joi.number().integer().description('Total number of entries matched by the query'),
     data: Joi.array().items(data).label('Data')
   }).label('DataList')
 }

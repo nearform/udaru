@@ -186,7 +186,7 @@ lab.experiment('OrganizationOps', () => {
   })
 
   lab.test('get a specific organization that does not exist', (done) => {
-    organizationOps.readById(['I_do_not_exist'], (err, result) => {
+    organizationOps.readById('I_do_not_exist', (err, result) => {
       expect(err).to.exist()
       expect(err.output.statusCode).to.equal(404)
       expect(result).to.not.exist()
