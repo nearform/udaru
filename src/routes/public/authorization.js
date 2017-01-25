@@ -6,7 +6,6 @@ const authorize = require('./../../lib/ops/authorizeOps')
 const headers = require('./../headers')
 
 exports.register = function (server, options, next) {
-
   server.route({
     method: 'GET',
     path: '/authorization/access/{userId}/{action}/{resource*}',

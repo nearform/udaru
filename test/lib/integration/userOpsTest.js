@@ -11,18 +11,15 @@ const userOps = require('../../../src/lib/ops/userOps')
 const policyOps = require('../../../src/lib/ops/policyOps')
 
 lab.experiment('UserOps', () => {
-
   let wonkaTeams
   let wonkaPolicies
 
   lab.before(done => {
     teamOps.listOrgTeams({organizationId: 'WONKA'}, (err, teams) => {
-
       if (err) return done(err)
       wonkaTeams = teams
 
       policyOps.listByOrganization({organizationId: 'WONKA'}, (err, policies) => {
-
         if (err) return done(err)
         wonkaPolicies = policies
 

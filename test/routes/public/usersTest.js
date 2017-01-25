@@ -12,7 +12,6 @@ var usersRoutes = proxyquire('./../../../src/routes/public/users', { './../../li
 var server = proxyquire('./../../../src/wiring-hapi', { './routes/public/users': usersRoutes })
 
 lab.experiment('Users', () => {
-
   lab.test('get user list should return error for error case', (done) => {
     userOps.listOrgUsers = function (params, cb) {
       expect(params).to.equal({ organizationId: 'WONKA', limit: 100, page: 1 })

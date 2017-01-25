@@ -5,7 +5,6 @@ const Hoek = require('hoek')
 
 const internals = {}
 
-
 exports.register = function (server, options, next) {
   server.auth.scheme('service', internals.implementation)
 
@@ -17,9 +16,7 @@ exports.register.attributes = {
   version: '0.0.1'
 }
 
-
 internals.implementation = function (server, options) {
-
   Hoek.assert(options, 'Missing service auth strategy options')
   Hoek.assert(typeof options.validateFunc === 'function', 'options.validateFunc must be a valid function in service scheme')
 

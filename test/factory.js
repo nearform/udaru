@@ -6,9 +6,7 @@ const policyOps = require('../src/lib/ops/policyOps')
 const teamOps = require('../src/lib/ops/teamOps')
 const orgOps = require('../src/lib/ops/organizationOps')
 
-
 function Factory (lab, data) {
-
   const records = {}
 
   function createUsers (done) {

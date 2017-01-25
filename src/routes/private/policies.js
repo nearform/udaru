@@ -9,7 +9,6 @@ const swagger = require('./../../swagger')
 const headers = require('./../headers')
 
 exports.register = function (server, options, next) {
-
   server.route({
     method: 'POST',
     path: '/authorization/policies',

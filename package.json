@@ -5,21 +5,21 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "lint": "./node_modules/.bin/spacey-standard",
+    "lint": "standard",
     "bench": "node ./bench/util/runner.js",
-    "test": "npm run app:init-test-db && LABS_AUTH_SERVICE_logger_pino_level=silent ./node_modules/.bin/lab",
-    "coverage": "LABS_AUTH_SERVICE_logger_pino_level=silent ./node_modules/.bin/lab -r html -o coverage.html",
+    "test": "npm run app:init-test-db && LABS_AUTH_SERVICE_logger_pino_level=silent lab",
+    "test:commit-check": "npm run lint && npm run test",
+    "coverage": "LABS_AUTH_SERVICE_logger_pino_level=silent lab -r html -o coverage.html",
     "migrate": "node database/migrate.js --version=1",
     "pg:build": "docker-compose build",
     "pg:start": "docker-compose up -d",
     "pg:stop": "docker-compose down",
     "pg:init": "LABS_AUTH_SERVICE_local=true node database/init.js && npm run migrate",
     "pg:load-test-data": "LABS_AUTH_SERVICE_local=true node database/loadTestData.js",
-    "app:init-test-db": "npm run pg:init && npm run pg:load-test-data",
-    "lint-staged-files": "node ./linter.js"
+    "app:init-test-db": "npm run pg:init && npm run pg:load-test-data"
   },
   "pre-commit": [
-    "lint-staged-files"
+    "test:commit-check"
   ],
   "repository": {
     "type": "git",
@@ -57,8 +57,6 @@
     "postgrator": "2.8.2",
     "pre-commit": "1.2.2",
     "proxyquire": "1.7.10",
-    "simple-git": "^1.65.0",
-    "spacey-standard": "4.0.0",
-    "staged-git-files": "0.0.4"
+    "standard": "^8.6.0"
   }
 }

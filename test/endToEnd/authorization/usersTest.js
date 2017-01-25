@@ -26,7 +26,6 @@ function Policy (Statement) {
 lab.experiment('Routes Authorizations', () => {
   lab.experiment('users', () => {
     lab.experiment('GET /users/:id', () => {
-
       const records = Factory(lab, {
         teams: {
           calledTeam: { name: 'called team', organizationId, users: ['called'] }
@@ -98,7 +97,6 @@ lab.experiment('Routes Authorizations', () => {
     })
 
     lab.experiment('GET /users', () => {
-
       const records = Factory(lab, {
         teams: {
           calledTeam: { name: 'called team', organizationId, users: ['called'] }
@@ -119,7 +117,6 @@ lab.experiment('Routes Authorizations', () => {
           url: '/authorization/users',
           headers: { authorization: '{{caller.id}}' }
         })
-
 
       endpoint.test('should authorize caller with policy to list users')
         .withPolicy([{
@@ -155,7 +152,6 @@ lab.experiment('Routes Authorizations', () => {
     })
 
     lab.experiment('POST', () => {
-
       const calledId = 'fake-user'
       const userData = {
         id: calledId,
@@ -182,7 +178,6 @@ lab.experiment('Routes Authorizations', () => {
           payload: userData,
           headers: { authorization: '{{caller.id}}' }
         })
-
 
       lab.afterEach((done) => {
         userOps.deleteUser({ id: calledId, organizationId }, () => {
@@ -222,11 +217,9 @@ lab.experiment('Routes Authorizations', () => {
           Resource: ['/authorization/user/WONKA/team/*']
         }])
         .shouldRespond(403)
-
     })
 
     lab.experiment('DELETE', () => {
-
       const records = Factory(lab, {
         teams: {
           calledTeam: { name: 'called team', organizationId, users: ['called'] }
@@ -295,11 +288,9 @@ lab.experiment('Routes Authorizations', () => {
           Resource: ['/authorization/user/WONKA/*/dummy']
         }])
         .shouldRespond(403)
-
     })
 
     lab.experiment('PUT', () => {
-
       const userData = {
         name: 'called user'
       }
@@ -373,11 +364,9 @@ lab.experiment('Routes Authorizations', () => {
           Resource: ['/authorization/user/WONKA/*/dummy']
         }])
         .shouldRespond(403)
-
     })
 
     lab.experiment('PUT user policies', () => {
-
       const records = Factory(lab, {
         teams: {
           calledTeam: { name: 'called team', organizationId, users: ['called'] }
@@ -463,7 +452,6 @@ lab.experiment('Routes Authorizations', () => {
     })
 
     lab.experiment('POST user policies', () => {
-
       const records = Factory(lab, {
         teams: {
           calledTeam: { name: 'called team', organizationId, users: ['called'] }
@@ -549,7 +537,6 @@ lab.experiment('Routes Authorizations', () => {
     })
 
     lab.experiment('DELETE user policies', () => {
-
       const records = Factory(lab, {
         teams: {
           calledTeam: { name: 'called team', organizationId, users: ['called'] }
@@ -634,7 +621,6 @@ lab.experiment('Routes Authorizations', () => {
     })
 
     lab.experiment('DELETE single user policy', () => {
-
       const records = Factory(lab, {
         teams: {
           calledTeam: { name: 'called team', organizationId, users: ['called'] }
@@ -716,8 +702,6 @@ lab.experiment('Routes Authorizations', () => {
           Resource: ['/authorization/user/WONKA/*/dummy']
         }])
         .shouldRespond(403)
-
     })
-
   })
 })

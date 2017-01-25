@@ -12,7 +12,6 @@ var teamsRoutes = proxyquire('./../../../src/routes/public/teams', { './../../li
 var server = proxyquire('./../../../src/wiring-hapi', { './routes/public/teams': teamsRoutes })
 
 lab.experiment('Teams', () => {
-
   lab.test('get team list should return error for error case', (done) => {
     teamOps.listOrgTeams = (params, cb) => {
       expect(params).to.equal({ organizationId: 'WONKA', limit: 1, page: 1 })
@@ -35,7 +34,6 @@ lab.experiment('Teams', () => {
       done()
     })
   })
-
 
   lab.test('create new team should return error for error case', (done) => {
     teamOps.createTeam = (params, cb) => {

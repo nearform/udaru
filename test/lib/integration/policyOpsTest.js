@@ -8,7 +8,6 @@ const policyOps = require('../../../src/lib/ops/policyOps')
 const statements = { Statement: [{ Effect: 'Allow', Action: ['documents:Read'], Resource: ['wonka:documents:/public/*'] }] }
 
 lab.experiment('PolicyOps', () => {
-
   lab.test('list all organization policies', (done) => {
     policyOps.listByOrganization({ organizationId: 'WONKA' }, (err, result) => {
       expect(err).to.not.exist()

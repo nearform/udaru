@@ -12,7 +12,6 @@ var authRoutes = proxyquire('./../../../src/routes/public/authorization', { './.
 var server = proxyquire('./../../../src/wiring-hapi', { './routes/public/authorization': authRoutes })
 
 lab.experiment('Authorization', () => {
-
   lab.test('check authorization should return 500 for error case', (done) => {
     authorizeMock.isUserAuthorized = (params, cb) => {
       process.nextTick(() => {

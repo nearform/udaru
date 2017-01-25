@@ -85,7 +85,6 @@ function mapTeamSimple (row) {
 
 mapTeam.simple = mapTeamSimple
 
-
 module.exports = {
   organization: mapOrganization,
   policy: mapPolicy,

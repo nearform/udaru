@@ -130,7 +130,6 @@ var organizationOps = {
    * @param  {Function} cb
    */
   list: function list ({limit, page}, cb) {
-
     const sqlQuery = SQL`
       WITH total AS (
         SELECT COUNT(*) AS cnt FROM organizations

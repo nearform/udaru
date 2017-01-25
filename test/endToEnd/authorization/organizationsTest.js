@@ -25,7 +25,6 @@ function Policy (Statement) {
 lab.experiment('Routes Authorizations', () => {
   lab.experiment('organizations', () => {
     lab.experiment('GET ', () => {
-
       const records = Factory(lab, {
         users: {
           caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
@@ -58,11 +57,9 @@ lab.experiment('Routes Authorizations', () => {
           Resource: ['*']
         }])
         .shouldRespond(403)
-
     })
 
     lab.experiment('GET /authorization/organizations/{id}', () => {
-
       const records = Factory(lab, {
         users: {
           caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
@@ -111,11 +108,9 @@ lab.experiment('Routes Authorizations', () => {
           Resource: ['/authorization/organization/OTHER-ORG']
         }])
         .shouldRespond(403)
-
     })
 
     lab.experiment('POST', () => {
-
       const records = Factory(lab, {
         users: {
           caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
@@ -168,11 +163,9 @@ lab.experiment('Routes Authorizations', () => {
           Resource: ['/authorization/organization/OTHER-ORG']
         }])
         .shouldRespond(403)
-
     })
 
     lab.experiment('DELETE', () => {
-
       const records = Factory(lab, {
         users: {
           caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
@@ -224,11 +217,9 @@ lab.experiment('Routes Authorizations', () => {
           Resource: ['/authorization/organization/YET-ANOTHER-ORG']
         }])
         .shouldRespond(403)
-
     })
 
     lab.experiment('PUT', () => {
-
       const records = Factory(lab, {
         users: {
           caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
@@ -281,9 +272,6 @@ lab.experiment('Routes Authorizations', () => {
           Resource: ['/authorization/organization/YAT-ANOTHER-ORG']
         }])
         .shouldRespond(403)
-
     })
-
-
   })
 })

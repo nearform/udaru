@@ -19,7 +19,6 @@ function randomId () {
 }
 
 lab.experiment('TeamOps', () => {
-
   let testTeam
   let users
   let policies = []
@@ -94,7 +93,6 @@ lab.experiment('TeamOps', () => {
 
   lab.test('list of org teams', (done) => {
     teamOps.listOrgTeams({organizationId: 'WONKA'}, (err, result) => {
-
       expect(err).to.not.exist()
       expect(result).to.exist()
 
@@ -112,7 +110,6 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('Add twice the same user to a team', (done) => {
-
     let userIds = [users[0].id]
     teamOps.addUsersToTeam({id: testTeam.id, organizationId: 'WONKA', users: userIds}, (err, result) => {
       expect(err).to.not.exist()
@@ -125,7 +122,6 @@ lab.experiment('TeamOps', () => {
         expect(result.users.length).to.equal(2)
 
         teamOps.readTeam({ id: testTeam.id, organizationId: 'WONKA' }, (err, readTeam) => {
-
           expect(err).to.not.exist()
           expect(readTeam).to.exist()
           expect(readTeam.users.length).to.equal(2)
@@ -141,7 +137,6 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('create, update only the team name', (done) => {
-
     testTeam.name += '_n'
 
     teamOps.updateTeam(testTeam, (err, result) => {
@@ -155,7 +150,6 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('create, update only the team description', (done) => {
-
     testTeam.description = '_d'
 
     teamOps.updateTeam(testTeam, (err, result) => {
@@ -218,7 +212,6 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('creating a team should create a default admin policy', (done) => {
-
     policyOps.listByOrganization({organizationId: 'WONKA'}, (err, policies) => {
       expect(err).to.not.exist()
 
@@ -334,7 +327,6 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('createTeam should build path', (done) => {
-
     let childTeam = {
       name: 'test:team:child:' + randomId(),
       description: 'child',
@@ -454,7 +446,6 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('un-nest team', (done) => {
-
     const teamData = {
       name: 'Team Parent',
       description: 'This is a test team for paths',
@@ -489,7 +480,6 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('add policies to team', (done) => {
-
     teamOps.addTeamPolicies({ id: testTeam.id, policies: [policies[0].id, policies[1].id], organizationId: 'WONKA' }, (err, team) => {
       expect(err).to.not.exist()
       expect(team).to.exist()
@@ -504,7 +494,6 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('replace team policies', (done) => {
-
     teamOps.addTeamPolicies({
       id: testTeam.id,
       organizationId: 'WONKA',
@@ -524,7 +513,6 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('add the same policy twice to a team', (done) => {
-
     teamOps.addTeamPolicies({ id: testTeam.id, policies: [policies[0].id, policies[1].id], organizationId: 'WONKA' }, (err, team) => {
       expect(err).to.not.exist()
       expect(team).to.exist()
@@ -563,7 +551,6 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('delete specific team policy', (done) => {
-
     teamOps.addTeamPolicies({ id: testTeam.id, policies: [policies[0].id, policies[1].id], organizationId: 'WONKA' }, (err, team) => {
       expect(err).to.not.exist()
       expect(team).to.exist()
@@ -580,7 +567,6 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('add users from another org to a team', (done) => {
-
     userOps.createUser({ id: 'testUserRoot', name: 'test', organizationId: 'ROOT' }, (err, user) => {
       expect(err).to.not.exist()
 
@@ -596,7 +582,6 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('add users to a team', (done) => {
-
     let userIds = [users[0].id]
 
     teamOps.addUsersToTeam({ id: testTeam.id, users: userIds, organizationId: 'WONKA' }, (err, team) => {
@@ -614,7 +599,6 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('replace users of a team', (done) => {
-
     let userIds = [users[0].id]
 
     teamOps.addUsersToTeam({ id: testTeam.id, users: userIds, organizationId: 'WONKA' }, (err, team) => {
@@ -644,7 +628,6 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('delete users of a team', (done) => {
-
     let userIds = [users[0].id, users[1].id]
 
     teamOps.addUsersToTeam({ id: testTeam.id, users: userIds, organizationId: 'WONKA' }, (err, team) => {
@@ -707,5 +690,4 @@ lab.experiment('TeamOps', () => {
       })
     })
   })
-
 })

@@ -12,9 +12,7 @@ var policiesRoutes = proxyquire('./../../../src/routes/public/policies', { './..
 var server = proxyquire('./../../../src/wiring-hapi', { './routes/public/policies': policiesRoutes })
 
 lab.experiment('Policies', () => {
-
   lab.test('get policy list should return error for error case', (done) => {
-
     policyOps.listByOrganization = (params, cb) => {
       expect(params).to.equal({ organizationId: 'WONKA', limit: 10, page: 1 })
       setImmediate(() => {
