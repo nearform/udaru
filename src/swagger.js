@@ -54,14 +54,6 @@ const User = Joi.object({
   policies: Joi.array().items(PolicyRef)
 })
 
-const MetadataUserList = Joi.object({
-  currentPage: Joi.number().integer(),
-  pageSize: Joi.number().integer(),
-  totalPages: Joi.number().integer(),
-  totalUsersCount: Joi.number().integer(),
-  users: Joi.array().items(User)
-})
-
 const Organization = Joi.object({
   id: Joi.string(),
   name: Joi.string(),
@@ -83,7 +75,6 @@ const List = (data) => {
 
 module.exports = {
   List,
-  MetadataUserList,
   User,
   Team,
   Policy,

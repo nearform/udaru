@@ -439,7 +439,8 @@ exports.register = function (server, options, next) {
     path: '/authorization/teams/{id}/users',
     handler: function (request, reply) {
       const { id } = request.params
-      const { page, limit } = request.query
+      const limit = request.query.limit || conf.get('authorization.defaultPageSize')
+      const page = request.query.page || 1
 
       teamOps.readTeamUsers({ id, page, limit }, reply)
     },
@@ -463,7 +464,7 @@ exports.register = function (server, options, next) {
           getParams: (request) => ({ teamId: request.params.id })
         }
       },
-      response: {schema: swagger.MetadataUserList}
+      response: {schema: swagger.List(swagger.User)}
     }
   })
 

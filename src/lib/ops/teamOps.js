@@ -9,6 +9,7 @@ const userOps = require('./userOps')
 const utils = require('./utils')
 const SQL = require('./../db/SQL')
 const mapping = require('./../mapping')
+const conf = require('./../config')
 
 function generateId () {
   return uuid().replace(/-/g, '_')
@@ -402,27 +403,25 @@ var teamOps = {
    * @param  {params}   params { id, page, limit }
    * @param  {Function} cb
    */
-  readTeamUsers: function readTeamUsers ({ id, page = 1, limit = 0 }, cb) {
-    const resultLimit = limit < 0 ? 0 : limit
-    const pageNumber = page < 1 ? 1 : page
-    const offset = pageNumber * limit - limit
+  readTeamUsers: function readTeamUsers ({ id, page = 1, limit }, cb) {
+    const pageLimit = limit || conf.get('authorization.defaultPageSize')
+    const offset = (page - 1) * pageLimit
 
     const job = {
       id: id,
       offset: offset,
-      limit: resultLimit,
+      limit: pageLimit,
       team: {}
     }
 
     loadTeamUsers(job, (err) => {
       if (err) return cb(err)
-      const pageSize = resultLimit || job.totalUsersCount
+      const pageSize = pageLimit || job.totalUsersCount
       const result = {
-        currentPage: pageNumber,
-        pageSize: pageSize,
-        totalPages: Math.ceil(job.totalUsersCount / pageSize),
-        totalUsersCount: job.totalUsersCount,
-        users: job.team.users.map(user => Object.assign({}, user))
+        page: page,
+        limit: pageSize,
+        total: job.totalUsersCount,
+        data: job.team.users
       }
       return cb(null, result)
     })
