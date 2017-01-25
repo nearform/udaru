@@ -55,19 +55,28 @@ function createAdminUser (next) {
   })
 }
 
-async.series([
-  connect,
-  dropDb,
-  createDb,
-  dropAdminUser,
-  createAdminUser
-],
-function (err) {
-  if (err) console.log(err)
-
-  client.end(function (err) {
-    if (err) throw err
-
-    console.log('Db init: done')
+function init (cb) {
+  async.series([
+    connect,
+    dropDb,
+    createDb,
+    dropAdminUser,
+    createAdminUser
+  ],
+  function (err1) {
+    if (err1) console.log(err1)
+    client.end(function (err2) {
+      cb(err1 || err2)
+      cb()
+    })
   })
-})
+}
+
+module.exports = init
+
+if (require.main === module) {
+  init((err) => {
+    if (err) throw err
+    else console.log('Db init: done')
+  })
+}
