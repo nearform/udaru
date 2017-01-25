@@ -19,6 +19,7 @@ server.connection({
 
 const swaggerOptions = {
   jsonEditor: true,
+  reuseDefinitions: false,
   info: {
     title: 'Authorization API Documentation',
     version: packageJson.version
