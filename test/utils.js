@@ -27,7 +27,6 @@ function findPick (arr, search, fields) {
 
 function deleteUserFromAllTeams (id, cb) {
   const sqlQuery = SQL`DELETE FROM team_members WHERE user_id = ${id}`
-
   db.query(sqlQuery, cb)
 }
 

@@ -1,6 +1,0 @@
-1,Admins,Administrators of the Authorization System,,WONKA,1
-2,Readers,General read-only access,,WONKA,2
-3,Authors,Content contributors,,WONKA,3
-4,Managers,General Line Managers with confidential info,,WONKA,4
-5,Personnel Managers,Personnel Line Managers with confidential info,4,WONKA,5
-6,Company Lawyer,Author of legal documents,3,WONKA,6
