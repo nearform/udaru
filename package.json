@@ -23,18 +23,18 @@
   },
   "scripts": {
     "bench": "node ./bench/util/runner.js",
-    "coverage": "LABS_AUTH_SERVICE_logger_pino_level=silent lab -r html -o coverage.html",
-    "coveralls": "LABS_AUTH_SERVICE_logger_pino_level=silent lab -r lcov | coveralls",
+    "coverage": "npm run pg:init-test-db && LABS_AUTH_SERVICE_logger_pino_level=silent lab -c -t 95 -r html -o docs/coverage.html",
+    "coveralls": "npm run pg:init-test-db && LABS_AUTH_SERVICE_logger_pino_level=silent lab -c -t 95 -r lcov | coveralls",
     "lint": "standard",
     "pg:build": "docker-compose build",
-    "pg:init": "LABS_AUTH_SERVICE_local=true node database/init.js && npm run migrate",
+    "pg:init": "LABS_AUTH_SERVICE_local=true node database/init.js && npm run pg:migrate",
     "pg:init-test-db": "npm run pg:init && npm run pg:load-test-data",
     "pg:load-test-data": "LABS_AUTH_SERVICE_local=true node database/loadTestData.js",
     "pg:migrate": "node database/migrate.js --version=1",
     "pg:start": "docker-compose up -d",
     "pg:stop": "docker-compose down",
     "start": "node index.js",
-    "test": "npm run pg:init-test-db && LABS_AUTH_SERVICE_logger_pino_level=silent lab",
+    "test": "npm run pg:init-test-db && LABS_AUTH_SERVICE_logger_pino_level=silent lab -c -t 95",
     "test:commit-check": "npm run lint && npm run test"
   },
   "pre-commit": [
@@ -42,7 +42,7 @@
   ],
   "dependencies": {
     "async": "2.1.4",
-    "hapi": "16.0.1",
+    "hapi": "16.0.1", 
     "hapi-pino": "1.3.0",
     "hapi-swagger": "7.5.0",
     "iam-js": "git+http://git@github.com/nearform/iam-js.git",
