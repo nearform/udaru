@@ -5,7 +5,7 @@ const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 const Boom = require('boom')
 var proxyquire = require('proxyquire')
-var utils = require('../utils')
+var utils = require('../../utils')
 
 /**
  * Skipped because we should mock the entire udaru structure :/
@@ -20,11 +20,11 @@ var utils = require('../utils')
 // }
 // var server = proxyquire('./../../../src/hapi-udaru/wiring-hapi', { './../udaru': udaruF })
 
-lab.experiment('Users', () => {
-  lab.test.skip('get user list should return error for error case', (done) => {
-    udaru.users = {
-      list: function (params, cb) {
-        expect(params).to.equal({ organizationId: 'WONKA', limit: 100, page: 1 })
+lab.experiment('Teams', () => {
+  lab.test.skip('get team list should return error for error case', (done) => {
+    udaru.teams = {
+      list: (params, cb) => {
+        expect(params).to.equal({ organizationId: 'WONKA', limit: 1, page: 1 })
         process.nextTick(() => {
           cb(Boom.badImplementation())
         })
@@ -33,7 +33,7 @@ lab.experiment('Users', () => {
 
     const options = utils.requestOptions({
       method: 'GET',
-      url: '/authorization/users'
+      url: '/authorization/teams?page=1&limit=1'
     })
 
     server.inject(options, (response) => {
@@ -46,34 +46,9 @@ lab.experiment('Users', () => {
     })
   })
 
-  lab.test.skip('get single user should return error for error case', (done) => {
-    udaru.users = {
-      read: function (params, cb) {
-        expect(params).to.equal({ id: 'Myid', organizationId: 'WONKA' })
-        process.nextTick(() => {
-          cb(Boom.badImplementation())
-        })
-      }
-    }
-
-    const options = utils.requestOptions({
-      method: 'GET',
-      url: '/authorization/users/Myid'
-    })
-
-    server.inject(options, (response) => {
-      const result = response.result
-
-      expect(response.statusCode).to.equal(500)
-      expect(result).to.be.undefined
-
-      done()
-    })
-  })
-
-  lab.test.skip('create user should return error for error case', (done) => {
-    udaru.users = {
-      create: function (params, cb) {
+  lab.test.skip('create new team should return error for error case', (done) => {
+    udaru.teams = {
+      create: (params, cb) => {
         process.nextTick(() => {
           cb(Boom.badImplementation())
         })
@@ -82,9 +57,10 @@ lab.experiment('Users', () => {
 
     const options = utils.requestOptions({
       method: 'POST',
-      url: '/authorization/users',
+      url: '/authorization/teams',
       payload: {
-        name: 'Salman'
+        name: 'Team C',
+        description: 'This is Team C'
       }
     })
 
@@ -98,36 +74,15 @@ lab.experiment('Users', () => {
     })
   })
 
-  lab.test.skip('delete user should return error for error case', (done) => {
-    udaru.users = {
-      delete: function (params, cb) {
-        expect(params).to.equal({ id: 'MyId', organizationId: 'WONKA' })
-        process.nextTick(() => {
-          cb(Boom.badImplementation())
+  lab.test.skip('update team should return error for error case', (done) => {
+    udaru.teams = {
+      update: (params, cb) => {
+        expect(params).to.equal({
+          id: '2',
+          name: 'Team D',
+          description: 'Can Team C become Team D?',
+          organizationId: 'WONKA'
         })
-      }
-    }
-
-    const options = utils.requestOptions({
-      method: 'DELETE',
-      url: '/authorization/users/MyId'
-    })
-
-    server.inject(options, (response) => {
-      const result = response.result
-
-      expect(response.statusCode).to.equal(500)
-      expect(result).to.be.undefined
-
-      done()
-    })
-  })
-
-  lab.test.skip('update user should return error for error case', (done) => {
-    udaru.users = {
-      update: function (params, cb) {
-        expect(params.id).to.equal('MyId')
-        expect(params.organizationId).to.equal('WONKA')
         process.nextTick(() => {
           cb(Boom.badImplementation())
         })
@@ -136,10 +91,36 @@ lab.experiment('Users', () => {
 
     const options = utils.requestOptions({
       method: 'PUT',
-      url: '/authorization/users/MyId',
+      url: '/authorization/teams/2',
       payload: {
-        name: 'Joe'
+        name: 'Team D',
+        description: 'Can Team C become Team D?'
       }
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(500)
+      expect(result).to.be.undefined
+
+      done()
+    })
+  })
+
+  lab.test.skip('delete team should return error for error case', (done) => {
+    udaru.teams = {
+      delete: (params, cb) => {
+        expect(params).to.equal({ id: '1', organizationId: 'WONKA' })
+        process.nextTick(() => {
+          cb(Boom.badImplementation())
+        })
+      }
+    }
+
+    const options = utils.requestOptions({
+      method: 'DELETE',
+      url: '/authorization/teams/1'
     })
 
     server.inject(options, (response) => {

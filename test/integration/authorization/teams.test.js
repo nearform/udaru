@@ -4,7 +4,7 @@ const utils = require('../../utils')
 const { udaru } = utils
 const server = require('../../../lib/server')
 const Factory = require('../../factory')
-const BuildFor = require('./testBuilder')
+const BuildFor = require('./test-builder')
 
 const organizationId = 'WONKA'
 function Policy (Statement) {

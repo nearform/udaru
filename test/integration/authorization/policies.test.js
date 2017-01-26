@@ -5,7 +5,7 @@ const config = require('../../../lib/server/lib/config')
 
 
 const Factory = require('../../factory')
-const BuildFor = require('./testBuilder')
+const BuildFor = require('./test-builder')
 
 const utils = require('../../utils')
 const { udaru } = utils
