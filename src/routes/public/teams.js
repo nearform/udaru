@@ -222,7 +222,7 @@ exports.register = function (server, options, next) {
           return reply(err)
         }
 
-        return reply(res).code(201)
+        return reply(res).code(200)
       })
     },
     config: {
@@ -265,7 +265,7 @@ exports.register = function (server, options, next) {
           return reply(err)
         }
 
-        return reply(res).code(201)
+        return reply(res).code(200)
       })
     },
     config: {
