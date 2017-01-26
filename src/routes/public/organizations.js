@@ -46,7 +46,7 @@ exports.register = function (server, options, next) {
           limit: Joi.number().integer().min(1).description('Items per page')
         }).required()
       },
-      response: {schema: swagger.List(swagger.Organization)}
+      response: {schema: swagger.List(swagger.Organization).label('PagedOrganizations')}
     }
   })
 
