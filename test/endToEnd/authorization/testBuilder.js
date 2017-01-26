@@ -2,7 +2,6 @@
 
 const _ = require('lodash')
 const expect = require('code').expect
-
 const utils = require('../../utils')
 const { udaru } = utils
 

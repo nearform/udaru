@@ -1,10 +1,10 @@
-const config = require('./../src/lib/config')
-const db = require('./../src/lib/db')
-const SQL = require('./../src/lib/db/SQL')
+const config = require('./../lib/config')
+const db = require('./../lib/db')
+const SQL = require('./../lib/db/SQL')
 
-const organizationOps = require('./../src/lib/ops/organizationOps')
-const userOps = require('./../src/lib/ops/userOps')
-const policyOps = require('./../src/lib/ops/policyOps')
+const organizationOps = require('./../lib/ops/organizationOps')
+const userOps = require('./../lib/ops/userOps')
+const policyOps = require('./../lib/ops/policyOps')
 
 function createOrganization (job, next) {
   const superOrganizationData = config.get('authorization.superUser.organization')

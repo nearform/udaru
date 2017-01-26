@@ -26,7 +26,7 @@
   "bugs": {
     "url": "https://github.com/nearform/labs-authorization/issues"
   },
-  "main": "index.js",
+  "main": "lib/index.js",
   "engines": {
     "node": ">=6.0.0"
   },
@@ -40,9 +40,7 @@
     "pg:init-test-db": "npm run pg:init && npm run pg:load-test-data",
     "pg:load-test-data": "LABS_AUTH_SERVICE_local=true node database/loadTestData.js",
     "pg:migrate": "node database/migrate.js --version=1",
-    "pg:start": "docker-compose up -d",
-    "pg:stop": "docker-compose down",
-    "start": "node index.js",
+    "start": "node server/index.js",
     "test": "npm run pg:init-test-db && LABS_AUTH_SERVICE_logger_pino_level=silent lab -c -t 95",
     "test:commit-check": "npm run lint && npm run test"
   },

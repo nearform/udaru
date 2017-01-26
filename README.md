@@ -255,10 +255,10 @@ To achieve this we use the [`reconfig`][reconfig] module
 ## License
 Copyright nearForm Ltd 2017. Licensed under [MIT][license]
 
-[config]: https://github.com/nearform/labs-authorization/blob/master/src/lib/config.js
+[config]: https://github.com/nearform/labs-authorization/blob/master/lib/config.js
 [license]: ./LICENSE.md
 [postgrator]: https://github.com/rickbergfalk/postgrator
-[prefix-link]: https://github.com/nearform/labs-authorization/blob/master/src/lib/config.js#L29
+[prefix-link]: https://github.com/nearform/labs-authorization/blob/master/lib/config.js#L29
 [reconfig]: https://github.com/namshi/reconfig
 [swagger-link]: http://localhost:8080/documentation
 

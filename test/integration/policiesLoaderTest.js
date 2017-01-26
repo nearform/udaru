@@ -5,8 +5,8 @@ const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 
-const loader = require('../../../src/udaru/lib/policiesLoader')
-const policyOps = require('../../../src/udaru/lib/ops/policyOps')
+const loader = require('../../lib/module/lib/policiesLoader')
+const policyOps = require('../../lib/module/lib/ops/policyOps')
 
 const organizationId = 'WONKA'
 

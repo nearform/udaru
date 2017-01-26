@@ -5,11 +5,11 @@ const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 const async = require('async')
 
-const organizationOps = require('../../../src/udaru/lib/ops/organizationOps')
-const teamOps = require('../../../src/udaru/lib/ops/teamOps')
-const userOps = require('../../../src/udaru/lib/ops/userOps')
-const policyOps = require('../../../src/udaru/lib/ops/policyOps')
-const config = require('../../../src/udaru/lib/config')
+const organizationOps = require('../../lib/module/lib/ops/organizationOps')
+const teamOps = require('../../lib/module/lib/ops/teamOps')
+const userOps = require('../../lib/module/lib/ops/userOps')
+const policyOps = require('../../lib/module/lib/ops/policyOps')
+const config = require('../../lib/module/lib/config')
 const defaultPolicies = config.get('authorization.organizations.defaultPolicies', { 'organizationId': 'nearForm' })
 const defaultPoliciesNames = Object.keys(defaultPolicies).map((pName) => {
   let policy = defaultPolicies[pName]

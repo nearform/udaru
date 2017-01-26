@@ -6,12 +6,12 @@ const lab = exports.lab = Lab.script()
 const async = require('async')
 const _ = require('lodash')
 
-const authorize = require('../../../src/udaru/lib/ops/authorizeOps')
-const organizationOps = require('../../../src/udaru/lib/ops/organizationOps')
-const userOps = require('../../../src/udaru/lib/ops/userOps')
-const teamOps = require('../../../src/udaru/lib/ops/teamOps')
-const policyOps = require('../../../src/udaru/lib/ops/policyOps')
-const testUtils = require('../../utils')
+const authorize = require('../../lib/module/lib/ops/authorizeOps')
+const organizationOps = require('../../lib/module/lib/ops/organizationOps')
+const userOps = require('../../lib/module/lib/ops/userOps')
+const teamOps = require('../../lib/module/lib/ops/teamOps')
+const policyOps = require('../../lib/module/lib/ops/policyOps')
+const testUtils = require('../utils')
 
 const fs = require('fs')
 const path = require('path')
@@ -312,7 +312,7 @@ lab.experiment('AuthorizeOps - list and access with multiple policies', () => {
   const organizationId = 'nearForm'
 
   lab.before((done) => {
-    const policies = JSON.parse(fs.readFileSync(path.join(__dirname, 'policies.json'), { encoding: 'utf8' }))
+    const policies = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures/policies.json'), { encoding: 'utf8' }))
 
     organizationOps.create({ id: organizationId, name: 'nearForm', description: 'nearform description', user: { name: 'admin' } }, (err, res) => {
       if (err) return done(err)

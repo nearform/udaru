@@ -4,7 +4,7 @@ const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 
-const policyOps = require('../../../src/udaru/lib/ops/policyOps')
+const policyOps = require('../../lib/module/lib/ops/policyOps')
 const statements = { Statement: [{ Effect: 'Allow', Action: ['documents:Read'], Resource: ['wonka:documents:/public/*'] }] }
 
 lab.experiment('PolicyOps', () => {
