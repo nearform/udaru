@@ -35,7 +35,6 @@
     "coverage": "npm run pg:init-test-db && LABS_AUTH_SERVICE_logger_pino_level=silent lab -c -t 95 -r html -o docs/coverage.html",
     "coveralls": "npm run pg:init-test-db && LABS_AUTH_SERVICE_logger_pino_level=silent lab -c -t 95 -r lcov | coveralls",
     "lint": "standard",
-    "pg:build": "docker-compose build",
     "pg:init": "LABS_AUTH_SERVICE_local=true node database/init.js && npm run pg:migrate",
     "pg:init-test-db": "npm run pg:init && npm run pg:load-test-data",
     "pg:load-test-data": "LABS_AUTH_SERVICE_local=true node database/loadTestData.js",

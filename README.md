@@ -61,7 +61,7 @@ npm run coverage
 
 ### Stand-alone module
 ```js
-const Udaru = require('udaru') // or
+const Udaru = require('udaru')
 
 ...
 ```
