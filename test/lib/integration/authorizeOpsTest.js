@@ -28,14 +28,12 @@ const updateUserData = {
 }
 
 lab.experiment('AuthorizeOps', () => {
-
   let testUserId
   let testTeamId
   let wonkaPolicies
   let managersTeamId
 
   lab.before((done) => {
-
     teamOps.listOrgTeams({organizationId}, (err, teams) => {
       if (err) return done(err)
 
@@ -83,7 +81,6 @@ lab.experiment('AuthorizeOps', () => {
   })
 
   lab.test('authorize isUserAuthorized - check on a resource and action with wildcards both in action and resource', (done) => {
-
     userOps.replaceUserPolicies({ id: testUserId, policies: ['policyId5'], organizationId }, (err, result) => {
       if (err) return done(err)
 
@@ -100,7 +97,6 @@ lab.experiment('AuthorizeOps', () => {
   })
 
   lab.test('authorize isUserAuthorized - check on a resource and action with wildcards only for resource', (done) => {
-
     userOps.replaceUserPolicies({ id: testUserId, policies: ['policyId6'], organizationId }, (err, result) => {
       if (err) return done(err)
 

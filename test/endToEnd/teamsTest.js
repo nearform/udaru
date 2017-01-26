@@ -17,7 +17,6 @@ const teamData = {
 }
 
 lab.experiment('Teams - get/list', () => {
-
   lab.test('get team list: with pagination params', (done) => {
     const options = utils.requestOptions({
       method: 'GET',

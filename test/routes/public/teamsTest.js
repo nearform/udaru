@@ -12,7 +12,6 @@ var teamsRoutes = proxyquire('./../../../src/routes/public/teams', { './../../ud
 var server = proxyquire('./../../../src/wiring-hapi', { './routes/public/teams': teamsRoutes })
 
 lab.experiment('Teams', () => {
-
   lab.test('get team list should return error for error case', (done) => {
     udaru.teams = {
       list: (params, cb) => {
@@ -37,7 +36,6 @@ lab.experiment('Teams', () => {
       done()
     })
   })
-
 
   lab.test('create new team should return error for error case', (done) => {
     udaru.teams = {

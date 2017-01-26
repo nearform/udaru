@@ -1,14 +1,12 @@
 'use strict'
 
 const _ = require('lodash')
-const Joi = require('joi')
 const Action = require('./../../lib/config/config.auth').Action
 const udaru = require('./../../udaru')
 const headers = require('./../headers')
 const swagger = require('./../../swagger')
 
 exports.register = function (server, options, next) {
-
   server.route({
     method: 'GET',
     path: '/authorization/access/{userId}/{action}/{resource*}',

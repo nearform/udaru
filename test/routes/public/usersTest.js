@@ -12,7 +12,6 @@ var usersRoutes = proxyquire('./../../../src/routes/public/users', { './../../ud
 var server = proxyquire('./../../../src/wiring-hapi', { './routes/public/users': usersRoutes })
 
 lab.experiment('Users', () => {
-
   lab.test('get user list should return error for error case', (done) => {
     udaru.users = {
       list: function (params, cb) {

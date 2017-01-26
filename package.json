@@ -1,36 +1,54 @@
 {
   "name": "labs-authorization-service",
   "version": "0.0.2",
-  "description": "Full stack authorization Service",
-  "main": "index.js",
-  "scripts": {
-    "start": "node index.js",
-    "lint": "./node_modules/.bin/spacey-standard",
-    "bench": "node ./bench/util/runner.js",
-    "test": "npm run app:init-test-db && LABS_AUTH_SERVICE_logger_pino_level=silent ./node_modules/.bin/lab",
-    "coverage": "LABS_AUTH_SERVICE_logger_pino_level=silent ./node_modules/.bin/lab -r html -o coverage.html",
-    "migrate": "node database/migrate.js --version=1",
-    "pg:build": "docker-compose build",
-    "pg:start": "docker-compose up -d",
-    "pg:stop": "docker-compose down",
-    "pg:init": "LABS_AUTH_SERVICE_local=true node database/init.js && npm run migrate",
-    "pg:load-test-data": "LABS_AUTH_SERVICE_local=true node database/loadTestData.js",
-    "app:init-test-db": "npm run pg:init && npm run pg:load-test-data",
-    "lint-staged-files": "node ./linter.js"
-  },
-  "pre-commit": [
-    "lint-staged-files"
+  "description": "A policy based authorization module",
+  "license": "MIT",
+  "author": "nearForm Ltd",
+  "contributors": [
+    "Andrew Cashmore (https://github.com/andrewcashmore)",
+    "Damian Beresford (https://github.com/dberesford)",
+    "Dean McDonnell (https://github.com/mcdonnelldean)",
+    "Filippo De Santis (https://github.com/p16)",
+    "Mihai Dima (https://github.com/mihaidma)",
+    "Paolo Chiodi (https://github.com/paolochiodi)",
+    "Paul Negrutiu (https://github.com/floridemai)",
+    "Mark Ireland (https://github.com/irelandm)",
+    "Michael O'Brien (https://github.com/mobri3n)",
+    "Michele Capra (https://github.com/piccoloaiutante)",
+    "Nicolas Herment (https://github.com/nherment)",
+    "Salman Mitha (https://github.com/salmanm)"
   ],
+  "homepage": "https://github.com/nearform/labs-authorization#readme",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/nearform/labs-authorization.git"
   },
-  "author": "Mark Ireland",
-  "license": "MIT",
   "bugs": {
     "url": "https://github.com/nearform/labs-authorization/issues"
   },
-  "homepage": "https://github.com/nearform/labs-authorization#readme",
+  "main": "index.js",
+  "engines": {
+    "node": ">=6.0.0"
+  },
+  "scripts": {
+    "bench": "node ./bench/util/runner.js",
+    "coverage": "npm run pg:init-test-db && LABS_AUTH_SERVICE_logger_pino_level=silent lab -c -t 95 -r html -o docs/coverage.html",
+    "coveralls": "npm run pg:init-test-db && LABS_AUTH_SERVICE_logger_pino_level=silent lab -c -t 95 -r lcov | coveralls",
+    "lint": "standard",
+    "pg:build": "docker-compose build",
+    "pg:init": "LABS_AUTH_SERVICE_local=true node database/init.js && npm run pg:migrate",
+    "pg:init-test-db": "npm run pg:init && npm run pg:load-test-data",
+    "pg:load-test-data": "LABS_AUTH_SERVICE_local=true node database/loadTestData.js",
+    "pg:migrate": "node database/migrate.js --version=1",
+    "pg:start": "docker-compose up -d",
+    "pg:stop": "docker-compose down",
+    "start": "node index.js",
+    "test": "npm run pg:init-test-db && LABS_AUTH_SERVICE_logger_pino_level=silent lab -c -t 95",
+    "test:commit-check": "npm run lint && npm run test"
+  },
+  "pre-commit": [
+    "test:commit-check"
+  ],
   "dependencies": {
     "async": "2.1.4",
     "hapi": "16.0.1",
@@ -51,14 +69,13 @@
     "autocannon": "0.16.0",
     "bloomrun": "^3.0.3",
     "code": "4.0.0",
+    "coveralls": "^2.11.15",
     "lab": "11.2.1",
     "pg-copy-streams": "^1.2.0",
     "pino": "3.0.5",
     "postgrator": "2.8.2",
     "pre-commit": "1.2.2",
     "proxyquire": "1.7.10",
-    "simple-git": "^1.65.0",
-    "spacey-standard": "4.0.0",
-    "staged-git-files": "0.0.4"
+    "standard": "^8.6.0"
   }
 }

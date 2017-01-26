@@ -10,7 +10,6 @@ const headers = require('./../headers')
 const udaru = require('./../../udaru')
 
 exports.register = function (server, options, next) {
-
   server.route({
     method: 'POST',
     path: '/authorization/policies',

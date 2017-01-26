@@ -24,7 +24,6 @@ lab.experiment('config.auth.js', () => {
   })
 
   lab.test('Resources - teams', (done) => {
-
     expect(configAuth.resources.teams({})).to.equal('/authorization/team/*/*')
     expect(configAuth.resources.teams(orgData)).to.equal('/authorization/team/MyOrg/*')
     expect(configAuth.resources.teams(TeamData)).to.equal('/authorization/team/MyOrg/teamId')
@@ -35,7 +34,6 @@ lab.experiment('config.auth.js', () => {
   })
 
   lab.test('Resources - users', (done) => {
-
     expect(configAuth.resources.users({})).to.equal('/authorization/user/*/*/*')
     expect(configAuth.resources.users(orgData)).to.equal('/authorization/user/MyOrg/*/*')
     expect(configAuth.resources.users(TeamData)).to.equal('/authorization/user/MyOrg/teamId/*')
@@ -46,7 +44,6 @@ lab.experiment('config.auth.js', () => {
   })
 
   lab.test('Resources - policies', (done) => {
-
     expect(configAuth.resources.policies({})).to.equal('/authorization/policy/*/*')
     expect(configAuth.resources.policies(orgData)).to.equal('/authorization/policy/MyOrg/*')
     expect(configAuth.resources.policies(policyData)).to.equal('/authorization/policy/MyOrg/policyId')

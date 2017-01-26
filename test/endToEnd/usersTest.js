@@ -19,7 +19,6 @@ const policyCreateData = {
 }
 
 lab.experiment('Users: read - delete - update', () => {
-
   lab.test('user list should have default pagination', (done) => {
     const options = utils.requestOptions({
       method: 'GET',
@@ -193,7 +192,6 @@ lab.experiment('Users - create', () => {
       userOps.deleteUser({ id: 'testId', organizationId: 'OILCOUSA' }, done)
     })
   })
-
 
   lab.test('create user for a specific organization being a SuperUser but without specifying the user id', (done) => {
     const options = utils.requestOptions({

@@ -168,7 +168,6 @@ function insertTeamPolicies (job, next) {
   job.client.query(sql, utils.boomErrorWrapper(next))
 }
 
-
 function readDefaultPoliciesIds (job, next) {
   job.policies = []
 
@@ -467,7 +466,6 @@ var teamOps = {
         WHERE id = ${id}
         AND org_id = ${organizationId}
       `)
-
 
       db.query(sql, (err, res) => {
         if (err) return cb(Boom.badImplementation(err))

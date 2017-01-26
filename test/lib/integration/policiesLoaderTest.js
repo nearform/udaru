@@ -11,7 +11,6 @@ const policyOps = require('../../../src/lib/ops/policyOps')
 const organizationId = 'WONKA'
 
 lab.experiment('policiesLoader', () => {
-
   lab.test('should load policies from file and save them in the db', (done) => {
     loader.load(organizationId, path.join(__dirname, 'fixtures/policies_for_loader-WONKA.json'), (err) => {
       expect(err).to.not.exist()

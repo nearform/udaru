@@ -7,7 +7,6 @@ const lab = exports.lab = Lab.script()
 const SQL = require('./../../../src/lib/db/SQL')
 
 lab.experiment('SQL', () => {
-
   lab.test('SQL helper - build complex query with append', (done) => {
     const name = 'Team 5'
     const description = 'description'

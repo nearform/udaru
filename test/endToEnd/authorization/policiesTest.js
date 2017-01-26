@@ -27,7 +27,6 @@ function Policy (Statement) {
 lab.experiment('Routes Authorizations', () => {
   lab.experiment('policies', () => {
     lab.experiment('GET /authorization/policies', () => {
-
       const records = Factory(lab, {
         users: {
           caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
@@ -68,11 +67,9 @@ lab.experiment('Routes Authorizations', () => {
           Resource: ['/authorization/policy/dummy']
         }])
         .shouldRespond(403)
-
     })
 
     lab.experiment('GET /authorization/policies/{id}', () => {
-
       const records = Factory(lab, {
         users: {
           caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
@@ -122,11 +119,9 @@ lab.experiment('Routes Authorizations', () => {
           Resource: ['/authorization/policy/WONKA/dummy']
         }])
         .shouldRespond(403)
-
     })
 
     lab.experiment('POST /authorization/policies', () => {
-
       const records = Factory(lab, {
         users: {
           caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
@@ -169,7 +164,6 @@ lab.experiment('Routes Authorizations', () => {
         }])
         .shouldRespond(201)
 
-
       endpoint.test('should not authorize user with incorrect policy (action)')
         .withPolicy([{
           Effect: 'Allow',
@@ -185,11 +179,9 @@ lab.experiment('Routes Authorizations', () => {
           Resource: ['/authorization/policy/WONKA/dummy']
         }])
         .shouldRespond(403)
-
     })
 
     lab.experiment('PUT /authorization/policies/{{id}}', () => {
-
       const records = Factory(lab, {
         users: {
           caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
@@ -233,7 +225,6 @@ lab.experiment('Routes Authorizations', () => {
         }])
         .shouldRespond(200)
 
-
       endpoint.test('should not authorize user with incorrect policy (action)')
         .withPolicy([{
           Effect: 'Allow',
@@ -249,11 +240,9 @@ lab.experiment('Routes Authorizations', () => {
           Resource: ['/authorization/policy/WONKA/dummy']
         }])
         .shouldRespond(403)
-
     })
 
     lab.experiment('DELETE /authorization/policies/{{id}}', () => {
-
       const records = Factory(lab, {
         users: {
           caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
@@ -288,7 +277,6 @@ lab.experiment('Routes Authorizations', () => {
         }])
         .shouldRespond(204)
 
-
       endpoint.test('should not authorize user with incorrect policy (action)')
         .withPolicy([{
           Effect: 'Allow',
@@ -304,8 +292,6 @@ lab.experiment('Routes Authorizations', () => {
           Resource: ['/authorization/policy/WONKA/dummy']
         }])
         .shouldRespond(403)
-
     })
-
   })
 })

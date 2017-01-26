@@ -19,7 +19,6 @@ const defaultPoliciesNames = Object.keys(defaultPolicies).map((pName) => {
 const statements = { Statement: [{ Effect: 'Allow', Action: ['documents:Read'], Resource: ['wonka:documents:/public/*'] }] }
 
 lab.experiment('OrganizationOps', () => {
-
   lab.test('list of all organizations', (done) => {
     organizationOps.list({page: 1, limit: 7}, (err, result) => {
       expect(err).to.not.exist()
