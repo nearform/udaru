@@ -651,10 +651,15 @@ lab.experiment('Routes Authorizations', () => {
       const records = Factory(lab, {
         users: {
           caller: { name: 'caller', organizationId, policies: ['testedPolicy'] },
-          called: { name: 'called', organizationId, teams: ['calledTeam'] }
+          called: { name: 'called', organizationId }
         },
         teams: {
-          calledTeam: { name: 'called team', description: 'called team', organizationId, policies: ['deletedPolicy'] }
+          calledTeam: {
+            name: 'called team',
+            description: 'called team',
+            organizationId,
+            users: ['called']
+          }
         },
         policies: {
           testedPolicy: Policy(),
@@ -826,10 +831,10 @@ lab.experiment('Routes Authorizations', () => {
       const records = Factory(lab, {
         users: {
           caller: { name: 'caller', organizationId, policies: ['testedPolicy'] },
-          member: { name: 'member', organizationId, teams: ['calledTeam'] }
+          member: { name: 'member', organizationId }
         },
         teams: {
-          calledTeam: { name: 'called team', description: 'called team', organizationId }
+          calledTeam: { name: 'called team', description: 'called team', organizationId, users: ['member'] }
         },
         policies: {
           testedPolicy: Policy()
@@ -883,10 +888,15 @@ lab.experiment('Routes Authorizations', () => {
       const records = Factory(lab, {
         users: {
           caller: { name: 'caller', organizationId, policies: ['testedPolicy'] },
-          member: { name: 'member', organizationId, teams: ['calledTeam'] }
+          member: { name: 'member', organizationId }
         },
         teams: {
-          calledTeam: { name: 'called team', description: 'called team', organizationId, policies: ['deletedPolicy'] }
+          calledTeam: {
+            name: 'called team',
+            description: 'called team',
+            organizationId,
+            users: ['member']
+          }
         },
         policies: {
           testedPolicy: Policy(),
