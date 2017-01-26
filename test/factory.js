@@ -1,10 +1,10 @@
+'use strict'
+
 const async = require('async')
 const _ = require('lodash')
 
-const userOps = require('../src/lib/ops/userOps')
-const policyOps = require('../src/lib/ops/policyOps')
-const teamOps = require('../src/lib/ops/teamOps')
-const orgOps = require('../src/lib/ops/organizationOps')
+const utils = require('./utils')
+const { udaru } = utils
 
 const DEFAULT_POLICY = {
   version: '2016-07-01',
@@ -26,7 +26,7 @@ function Factory (lab, data) {
     if (!data.users) return done()
 
     async.mapValues(data.users, (user, key, next) => {
-      userOps.createUser(_.pick(user, 'id', 'name', 'organizationId'), next)
+      udaru.users.create(_.pick(user, 'id', 'name', 'organizationId'), next)
     }, (err, users) => {
       if (err) return done(err)
 
@@ -39,7 +39,7 @@ function Factory (lab, data) {
     if (!data.policies) return done()
 
     async.mapValues(data.policies, (policy, key, next) => {
-      policyOps.createPolicy(Object.assign({}, DEFAULT_POLICY, _.pick(policy, 'id', 'name', 'version', 'statements', 'organizationId')), (err, res) => {
+      udaru.policies.create(Object.assign({}, DEFAULT_POLICY, _.pick(policy, 'id', 'name', 'version', 'statements', 'organizationId')), (err, res) => {
         if (err) return next(err)
         res.organizationId = policy.organizationId || DEFAULT_POLICY.organizationId
         next(null, res)
@@ -56,7 +56,7 @@ function Factory (lab, data) {
     if (!data.teams) return done()
 
     async.mapValues(data.teams, (team, key, next) => {
-      teamOps.createTeam(_.pick(team, 'id', 'name', 'description', 'organizationId'), next)
+      udaru.teams.create(_.pick(team, 'id', 'name', 'description', 'organizationId'), next)
     }, (err, teams) => {
       if (err) return done(err)
 
@@ -69,7 +69,7 @@ function Factory (lab, data) {
     if (!data.organizations) return done()
 
     async.mapValues(data.organizations, (org, key, next) => {
-      orgOps.create(_.pick(org, 'id', 'name', 'description'), (err, res) => {
+      udaru.organizations.create(_.pick(org, 'id', 'name', 'description'), (err, res) => {
         if (err) return next(err)
         next(null, res.organization)
       })
@@ -101,7 +101,7 @@ function Factory (lab, data) {
 
     async.each(list, (team, next) => {
       team.users = _.uniq(team.users)
-      teamOps.replaceUsersInTeam(team, next)
+      udaru.teams.replaceUsers(team, next)
     }, done)
   }
 
@@ -125,7 +125,7 @@ function Factory (lab, data) {
 
     async.each(list, (user, next) => {
       user.policies = _.uniq(user.policies)
-      teamOps.replaceTeamPolicies(user, next)
+      udaru.teams.replacePolicies(user, next)
     }, done)
   }
 
@@ -136,7 +136,7 @@ function Factory (lab, data) {
       const teamId = records[teamKey].id
       const parentId = records[team.parent].id
 
-      teamOps.moveTeam({ id: teamId, parentId, organizationId: team.organizationId }, next)
+      udaru.teams.move({ id: teamId, parentId, organizationId: team.organizationId }, next)
     }, done)
   }
 
@@ -160,7 +160,7 @@ function Factory (lab, data) {
 
     async.each(list, (user, next) => {
       user.policies = _.uniq(user.policies)
-      userOps.replaceUserPolicies(user, next)
+      udaru.users.replacePolicies(user, next)
     }, done)
   }
 
@@ -186,7 +186,7 @@ function Factory (lab, data) {
     if (!data.users) return done()
 
     async.eachOf(data.users, (user, key, next) => {
-      userOps.deleteUser({
+      udaru.users.delete({
         organizationId: user.organizationId,
         id: records[key].id
       }, (err) => {
@@ -200,7 +200,7 @@ function Factory (lab, data) {
     if (!data.teams) return done()
 
     async.eachOf(data.teams, (team, key, next) => {
-      teamOps.deleteTeam({
+      udaru.teams.delete({
         organizationId: team.organizationId,
         id: records[key].id
       }, (err) => {
@@ -214,7 +214,7 @@ function Factory (lab, data) {
     if (!data.policies) return done()
 
     async.eachOf(data.policies, (policy, key, next) => {
-      policyOps.deletePolicy({
+      udaru.policies.delete({
         organizationId: records[key].organizationId,
         id: records[key].id
       }, (err) => {
@@ -228,7 +228,7 @@ function Factory (lab, data) {
     if (!data.organizations) return done()
 
     async.eachOf(data.organizations, (org, key, next) => {
-      orgOps.deleteById(records[key].id, (err) => {
+      udaru.organizations.delete(records[key].id, (err) => {
         if (err && err.output.payload.error !== 'Not Found') return next(err)
         next()
       })

@@ -1,15 +1,14 @@
-const config = require('./../src/lib/config')
-const db = require('./../src/lib/db')
-const SQL = require('./../src/lib/db/SQL')
+'use strict'
 
-const organizationOps = require('./../src/lib/ops/organizationOps')
-const userOps = require('./../src/lib/ops/userOps')
-const policyOps = require('./../src/lib/ops/policyOps')
+const SQL = require('./../lib/module/lib/db/SQL')
+const udaru = require('./../lib/module')
+const db = require('./../lib/module/lib/db')
+const config = require('./../lib/hapi-udaru/config')
 
 function createOrganization (job, next) {
   const superOrganizationData = config.get('authorization.superUser.organization')
 
-  organizationOps.create(superOrganizationData, { createOnly: true }, (error, result) => {
+  udaru.organizations.create(superOrganizationData, { createOnly: true }, (error, result) => {
     if (error) return next(error)
 
     job.organization = result.organization
@@ -26,7 +25,7 @@ function createUser (job, next) {
     organizationId: organization.id
   }
 
-  userOps.createUser(superUserData, (error, user) => {
+  udaru.users.create(superUserData, (error, user) => {
     if (error) return next(error)
 
     job.user = user
@@ -39,7 +38,7 @@ function createPolicy (job, next) {
 
   const superUserPolicy = config.get('authorization.superUser.defaultPolicy', { organizationId: organization.id })
 
-  policyOps.createPolicy(superUserPolicy, (error, policy) => {
+  udaru.policies.create(superUserPolicy, (error, policy) => {
     if (error) return next(error)
 
     job.policy = policy

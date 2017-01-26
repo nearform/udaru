@@ -4,10 +4,8 @@ const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 const utils = require('./../utils')
-const server = require('./../../src/wiring-hapi')
-const teamOps = require('./../../src/lib/ops/teamOps')
-const organizationOps = require('./../../src/lib/ops/organizationOps')
-const userOps = require('./../../src/lib/ops/userOps')
+const server = require('./../../lib/wiring-hapi')
+const { udaru } = utils
 
 const teamData = {
   name: 'testTeam',
@@ -203,7 +201,7 @@ lab.experiment('Teams - get/list', () => {
   })
 
   lab.test('get single team', (done) => {
-    teamOps.createTeam(teamData, (err, team) => {
+    udaru.teams.create(teamData, (err, team) => {
       expect(err).to.not.exist()
 
       const options = utils.requestOptions({
@@ -220,13 +218,13 @@ lab.experiment('Teams - get/list', () => {
         expect(result.id).to.equal(team.id)
         expect(result.name).to.equal(team.name)
 
-        teamOps.deleteTeam({ id: team.id, organizationId: team.organizationId }, done)
+        udaru.teams.delete({ id: team.id, organizationId: team.organizationId }, done)
       })
     })
   })
 
   lab.test('get users for a single team', (done) => {
-    teamOps.createTeam(teamData, (err, team) => {
+    udaru.teams.create(teamData, (err, team) => {
       if (err) return done(err)
       const teamUsers = [
           { id: 'AugustusId', name: 'Augustus Gloop' },
@@ -237,7 +235,7 @@ lab.experiment('Teams - get/list', () => {
       ]
       const teamUsersIds = teamUsers.map((user) => { return user.id })
 
-      teamOps.addUsersToTeam({id: team.id, organizationId: team.organizationId, users: teamUsersIds}, (err, team) => {
+      udaru.teams.addUsers({id: team.id, organizationId: team.organizationId, users: teamUsersIds}, (err, team) => {
         if (err) return done(err)
 
         expect(team.users).to.equal(teamUsers)
@@ -273,7 +271,7 @@ lab.experiment('Teams - get/list', () => {
               { id: 'WillyId', name: 'Willy Wonka' }
             ])
 
-            teamOps.deleteTeam({ id: team.id, organizationId: team.organizationId }, done)
+            udaru.teams.delete({ id: team.id, organizationId: team.organizationId }, done)
           })
         })
       })
@@ -306,7 +304,7 @@ lab.experiment('Teams - create', () => {
         path: result.id
       })
 
-      teamOps.deleteTeam({ id: result.id, organizationId: result.organizationId }, done)
+      udaru.teams.delete({ id: result.id, organizationId: result.organizationId }, done)
     })
   })
 
@@ -335,7 +333,7 @@ lab.experiment('Teams - create', () => {
         path: result.id
       })
 
-      teamOps.deleteTeam({ id: result.id, organizationId: result.organizationId }, done)
+      udaru.teams.delete({ id: result.id, organizationId: result.organizationId }, done)
     })
   })
 
@@ -359,7 +357,7 @@ lab.experiment('Teams - create', () => {
         path: 'test_fixed_id'
       })
 
-      teamOps.deleteTeam({ id: result.id, organizationId: result.organizationId }, done)
+      udaru.teams.delete({ id: result.id, organizationId: result.organizationId }, done)
     })
   })
 
@@ -478,7 +476,7 @@ lab.experiment('Teams - update', () => {
   })
 
   lab.test('update only team name', (done) => {
-    teamOps.createTeam(teamData, (err, team) => {
+    udaru.teams.create(teamData, (err, team) => {
       expect(err).to.not.exist()
 
       const options = utils.requestOptions({
@@ -496,13 +494,13 @@ lab.experiment('Teams - update', () => {
         expect(result.id).to.equal(team.id)
         expect(result.name).to.equal('Team C')
 
-        teamOps.deleteTeam({ id: team.id, organizationId: team.organizationId }, done)
+        udaru.teams.delete({ id: team.id, organizationId: team.organizationId }, done)
       })
     })
   })
 
   lab.test('update only team description', (done) => {
-    teamOps.createTeam(teamData, (err, team) => {
+    udaru.teams.create(teamData, (err, team) => {
       expect(err).to.not.exist()
 
       const options = utils.requestOptions({
@@ -520,13 +518,13 @@ lab.experiment('Teams - update', () => {
         expect(result.id).to.equal(team.id)
         expect(result.description).to.equal('Team B is now Team C')
 
-        teamOps.deleteTeam({ id: team.id, organizationId: team.organizationId }, done)
+        udaru.teams.delete({ id: team.id, organizationId: team.organizationId }, done)
       })
     })
   })
 
   lab.test('update team', (done) => {
-    teamOps.createTeam(teamData, (err, team) => {
+    udaru.teams.create(teamData, (err, team) => {
       expect(err).to.not.exist()
 
       const options = utils.requestOptions({
@@ -546,7 +544,7 @@ lab.experiment('Teams - update', () => {
         expect(result.name).to.equal('Team C')
         expect(result.description).to.equal('Team B is now Team C')
 
-        teamOps.deleteTeam({ id: team.id, organizationId: team.organizationId }, done)
+        udaru.teams.delete({ id: team.id, organizationId: team.organizationId }, done)
       })
     })
   })
@@ -554,7 +552,7 @@ lab.experiment('Teams - update', () => {
 
 lab.experiment('Teams - delete', () => {
   lab.test('delete team should return 204 for success', (done) => {
-    teamOps.createTeam(teamData, (err, team) => {
+    udaru.teams.create(teamData, (err, team) => {
       if (err) return done(err)
 
       const options = utils.requestOptions({
@@ -576,7 +574,7 @@ lab.experiment('Teams - delete', () => {
 
 lab.experiment('Teams - manage users', () => {
   lab.test('add users to a team', (done) => {
-    teamOps.createTeam(teamData, (err, team) => {
+    udaru.teams.create(teamData, (err, team) => {
       if (err) return done(err)
 
       const options = utils.requestOptions({
@@ -597,16 +595,16 @@ lab.experiment('Teams - manage users', () => {
           { id: 'MikeId', name: 'Mike Teavee' }
         ])
 
-        teamOps.deleteTeam({ id: team.id, organizationId: team.organizationId }, done)
+        udaru.teams.delete({ id: team.id, organizationId: team.organizationId }, done)
       })
     })
   })
 
   lab.test('replace users in a team', (done) => {
-    teamOps.createTeam(teamData, (err, team) => {
+    udaru.teams.create(teamData, (err, team) => {
       if (err) return done(err)
 
-      teamOps.addUsersToTeam({id: team.id, organizationId: team.organizationId, users: ['CharlieId']}, (err, team) => {
+      udaru.teams.addUsers({id: team.id, organizationId: team.organizationId, users: ['CharlieId']}, (err, team) => {
         if (err) return done(err)
 
         const options = utils.requestOptions({
@@ -626,17 +624,17 @@ lab.experiment('Teams - manage users', () => {
             { id: 'MikeId', name: 'Mike Teavee' }
           ])
 
-          teamOps.deleteTeam({ id: team.id, organizationId: team.organizationId }, done)
+          udaru.teams.delete({ id: team.id, organizationId: team.organizationId }, done)
         })
       })
     })
   })
 
   lab.test('delete all team members', (done) => {
-    teamOps.createTeam(teamData, (err, team) => {
+    udaru.teams.create(teamData, (err, team) => {
       if (err) return done(err)
 
-      teamOps.addUsersToTeam({id: team.id, organizationId: team.organizationId, users: ['CharlieId', 'MikeId']}, (err, team) => {
+      udaru.teams.addUsers({id: team.id, organizationId: team.organizationId, users: ['CharlieId', 'MikeId']}, (err, team) => {
         if (err) return done(err)
 
         const options = utils.requestOptions({
@@ -647,17 +645,17 @@ lab.experiment('Teams - manage users', () => {
         server.inject(options, (response) => {
           expect(response.statusCode).to.equal(204)
 
-          teamOps.deleteTeam({ id: team.id, organizationId: team.organizationId }, done)
+          udaru.teams.delete({ id: team.id, organizationId: team.organizationId }, done)
         })
       })
     })
   })
 
   lab.test('delete one team member', (done) => {
-    teamOps.createTeam(teamData, (err, team) => {
+    udaru.teams.create(teamData, (err, team) => {
       if (err) return done(err)
 
-      teamOps.addUsersToTeam({id: team.id, organizationId: team.organizationId, users: ['CharlieId', 'MikeId']}, (err, team) => {
+      udaru.teams.addUsers({id: team.id, organizationId: team.organizationId, users: ['CharlieId', 'MikeId']}, (err, team) => {
         if (err) return done(err)
 
         const options = utils.requestOptions({
@@ -668,14 +666,14 @@ lab.experiment('Teams - manage users', () => {
         server.inject(options, (response) => {
           expect(response.statusCode).to.equal(204)
 
-          teamOps.deleteTeam({ id: team.id, organizationId: team.organizationId }, done)
+          udaru.teams.delete({ id: team.id, organizationId: team.organizationId }, done)
         })
       })
     })
   })
 
   lab.test('default team admin should be able to assign users to own team', (done) => {
-    teamOps.createTeam({
+    udaru.teams.create({
       name: 'Team 5',
       description: 'This is a test team',
       parentId: null,
@@ -714,9 +712,9 @@ lab.experiment('Teams - manage users', () => {
           policies: []
         })
 
-        teamOps.deleteTeam({ id: team.id, organizationId: team.organizationId }, (err) => {
+        udaru.teams.delete({ id: team.id, organizationId: team.organizationId }, (err) => {
           if (err) return done(err)
-          userOps.deleteUser({ id: 'test-admin', organizationId: team.organizationId }, done)
+          udaru.users.delete({ id: 'test-admin', organizationId: team.organizationId }, done)
         })
       })
     })
@@ -739,12 +737,12 @@ lab.experiment('Teams - nest/un-nest', () => {
       expect(response.statusCode).to.equal(200)
       expect(result.path).to.equal('3.2')
 
-      teamOps.moveTeam({ id: result.id, parentId: null, organizationId: result.organizationId }, done)
+      udaru.teams.move({ id: result.id, parentId: null, organizationId: result.organizationId }, done)
     })
   })
 
   lab.test('Un-nest team should update the team path', (done) => {
-    teamOps.moveTeam({ id: '2', parentId: '3', organizationId: 'WONKA' }, (err, res) => {
+    udaru.teams.move({ id: '2', parentId: '3', organizationId: 'WONKA' }, (err, res) => {
       expect(err).to.not.exist()
 
       const options = utils.requestOptions({
@@ -783,7 +781,7 @@ lab.experiment('Teams - manage policies', () => {
         { id: 'policyId1', name: 'Director', version: '0.1' }
       ])
 
-      teamOps.replaceTeamPolicies({ id: result.id, policies: ['policyId1'], organizationId: result.organizationId }, done)
+      udaru.teams.replacePolicies({ id: result.id, policies: ['policyId1'], organizationId: result.organizationId }, done)
     })
   })
 
@@ -822,7 +820,7 @@ lab.experiment('Teams - manage policies', () => {
         { id: 'policyId4', name: 'Finance Director', version: '0.1' }
       ])
 
-      teamOps.replaceTeamPolicies({ id: result.id, policies: ['policyId1'], organizationId: result.organizationId }, done)
+      udaru.teams.replacePolicies({ id: result.id, policies: ['policyId1'], organizationId: result.organizationId }, done)
     })
   })
 
@@ -841,7 +839,7 @@ lab.experiment('Teams - manage policies', () => {
       expect(response.statusCode).to.equal(200)
       expect(result.policies).to.equal([{ id: 'policyId6', name: 'DB Only Read', version: '0.1' }])
 
-      teamOps.replaceTeamPolicies({ id: result.id, policies: ['policyId1'], organizationId: result.organizationId }, done)
+      udaru.teams.replacePolicies({ id: result.id, policies: ['policyId1'], organizationId: result.organizationId }, done)
     })
   })
 
@@ -869,7 +867,7 @@ lab.experiment('Teams - manage policies', () => {
     server.inject(options, (response) => {
       expect(response.statusCode).to.equal(204)
 
-      teamOps.replaceTeamPolicies({ id: '1', policies: ['policyId1'], organizationId: 'WONKA' }, done)
+      udaru.teams.replacePolicies({ id: '1', policies: ['policyId1'], organizationId: 'WONKA' }, done)
     })
   })
 
@@ -882,7 +880,7 @@ lab.experiment('Teams - manage policies', () => {
     server.inject(options, (response) => {
       expect(response.statusCode).to.equal(204)
 
-      teamOps.replaceTeamPolicies({ id: '1', policies: ['policyId1'], organizationId: 'WONKA' }, done)
+      udaru.teams.replacePolicies({ id: '1', policies: ['policyId1'], organizationId: 'WONKA' }, done)
     })
   })
 })
@@ -891,20 +889,20 @@ lab.experiment('Teams - checking org_id scoping', () => {
   let teamId
 
   lab.before((done) => {
-    organizationOps.create({ id: 'NEWORG', name: 'new org', description: 'new org' }, (err, org) => {
+    udaru.organizations.create({ id: 'NEWORG', name: 'new org', description: 'new org' }, (err, org) => {
       if (err) return done(err)
 
-      teamOps.createTeam({ name: 'otherTeam', description: 'd', parentId: null, organizationId: 'NEWORG' }, (err, team) => {
+      udaru.teams.create({ name: 'otherTeam', description: 'd', parentId: null, organizationId: 'NEWORG' }, (err, team) => {
         if (err) return done(err)
 
         teamId = team.id
-        userOps.createUser({ id: 'testUserId', name: 'testUser', organizationId: 'NEWORG' }, done)
+        udaru.users.create({ id: 'testUserId', name: 'testUser', organizationId: 'NEWORG' }, done)
       })
     })
   })
 
   lab.after((done) => {
-    organizationOps.deleteById('NEWORG', done)
+    udaru.organizations.delete('NEWORG', done)
   })
 
   lab.test('Adding a user from another organization should not be permitted', (done) => {

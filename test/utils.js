@@ -1,8 +1,10 @@
 'use strict'
 
 const _ = require('lodash')
-const db = require('./../src/lib/db')
-const SQL = require('./../src/lib/db/SQL')
+const db = require('./../lib/module/lib/db')
+const SQL = require('./../lib/module/lib/db/SQL')
+
+const udaru = require('./../lib/module')
 
 /**
  * Merge the authorization default header with the provided options
@@ -33,5 +35,7 @@ function deleteUserFromAllTeams (id, cb) {
 module.exports = {
   requestOptions,
   findPick,
-  deleteUserFromAllTeams
+  deleteUserFromAllTeams,
+  udaru,
+  db
 }

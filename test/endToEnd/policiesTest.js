@@ -5,8 +5,8 @@ const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 var utils = require('./../utils')
-var policyOps = require('./../../src/lib/ops/policyOps')
-var server = require('./../../src/wiring-hapi')
+var server = require('./../../lib/wiring-hapi')
+const { udaru } = utils
 
 const statements = { Statement: [{ Effect: 'Allow', Action: ['documents:Read'], Resource: ['wonka:documents:/public/*'] }] }
 const policyCreateData = {
@@ -102,7 +102,7 @@ lab.experiment('Policies - get/list', () => {
   })
 
   lab.test('get single policy', (done) => {
-    policyOps.createPolicy(policyCreateData, (err, p) => {
+    udaru.policies.create(policyCreateData, (err, p) => {
       expect(err).to.not.exist()
 
       const options = utils.requestOptions({
@@ -116,7 +116,7 @@ lab.experiment('Policies - get/list', () => {
         expect(response.statusCode).to.equal(200)
         expect(result).to.equal(p)
 
-        policyOps.deletePolicy({ id: p.id, organizationId: 'WONKA' }, done)
+        udaru.policies.delete({ id: p.id, organizationId: 'WONKA' }, done)
       })
     })
   })
@@ -196,7 +196,7 @@ lab.experiment('Policies - create/update/delete (need service key)', () => {
       expect(result.name).to.equal('Documents Admin')
       expect(result.statements).to.equal(statements)
 
-      policyOps.deletePolicy({ id: result.id, organizationId: 'WONKA' }, done)
+      udaru.policies.delete({ id: result.id, organizationId: 'WONKA' }, done)
     })
   })
 
@@ -219,7 +219,7 @@ lab.experiment('Policies - create/update/delete (need service key)', () => {
       expect(result.id).to.not.equal('')
       expect(result.name).to.equal('Documents Admin')
 
-      policyOps.deletePolicy({ id: result.id, organizationId: 'WONKA' }, done)
+      udaru.policies.delete({ id: result.id, organizationId: 'WONKA' }, done)
     })
   })
 
@@ -242,7 +242,7 @@ lab.experiment('Policies - create/update/delete (need service key)', () => {
       expect(result.id).to.equal('mySpecialPolicyId')
       expect(result.name).to.equal('Documents Admin')
 
-      policyOps.deletePolicy({ id: result.id, organizationId: 'WONKA' }, done)
+      udaru.policies.delete({ id: result.id, organizationId: 'WONKA' }, done)
     })
   })
 
@@ -282,7 +282,7 @@ lab.experiment('Policies - create/update/delete (need service key)', () => {
   })
 
   lab.test('update new policy should return the updated policy data', (done) => {
-    policyOps.createPolicy(policyCreateData, (err, p) => {
+    udaru.policies.create(policyCreateData, (err, p) => {
       expect(err).to.not.exist()
 
       const options = utils.requestOptions({
@@ -311,7 +311,7 @@ lab.experiment('Policies - create/update/delete (need service key)', () => {
         expect(result.version).to.equal('1234')
         expect(result.statements).to.equal({ Statement: [{ Action: ['documents:Read'], Effect: 'Deny', Resource: ['wonka:documents:/public/*'] }] })
 
-        policyOps.deletePolicy({ id: p.id, organizationId: 'WONKA' }, done)
+        udaru.policies.delete({ id: p.id, organizationId: 'WONKA' }, done)
       })
     })
   })
@@ -330,7 +330,7 @@ lab.experiment('Policies - create/update/delete (need service key)', () => {
   })
 
   lab.test('delete policy should return 204', (done) => {
-    policyOps.createPolicy(policyCreateData, (err, p) => {
+    udaru.policies.create(policyCreateData, (err, p) => {
       expect(err).to.not.exist()
 
       const options = utils.requestOptions({

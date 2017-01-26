@@ -1,7 +1,7 @@
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 
-const server = require('./../../../src/wiring-hapi')
+const server = require('./../../../lib/wiring-hapi')
 const Factory = require('../../factory')
 const BuildFor = require('./testBuilder')
 

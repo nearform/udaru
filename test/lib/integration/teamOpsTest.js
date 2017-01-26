@@ -6,11 +6,9 @@ const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 const crypto = require('crypto')
-const conf = require('./../../../src/lib/config')
 
-const teamOps = require('../../../src/lib/ops/teamOps')
-const policyOps = require('../../../src/lib/ops/policyOps')
-const userOps = require('../../../src/lib/ops/userOps')
+const testUtils = require('../../utils')
+const { udaru } = testUtils
 
 const statements = { Statement: [{ Effect: 'Allow', Action: ['documents:Read'], Resource: ['wonka:documents:/public/*'] }] }
 
@@ -23,13 +21,13 @@ lab.experiment('TeamOps', () => {
   let users
   let policies = []
   lab.before(done => {
-    userOps.listOrgUsers({organizationId: 'WONKA'}, (err, fetchedUsers) => {
+    udaru.users.list({organizationId: 'WONKA'}, (err, fetchedUsers) => {
       expect(err).to.not.exist()
       expect(fetchedUsers).to.exist()
       expect(fetchedUsers.length).to.be.at.least(2)
       users = fetchedUsers
 
-      policyOps.createPolicy({
+      udaru.policies.create({
         version: '1',
         name: randomId(),
         organizationId: 'WONKA',
@@ -39,7 +37,7 @@ lab.experiment('TeamOps', () => {
         expect(createdPolicy).to.exist()
         policies.push(createdPolicy)
 
-        policyOps.createPolicy({
+        udaru.policies.create({
           version: '1',
           name: randomId(),
           organizationId: 'WONKA',
@@ -49,7 +47,7 @@ lab.experiment('TeamOps', () => {
           expect(createdPolicy).to.exist()
           policies.push(createdPolicy)
 
-          policyOps.createPolicy({
+          udaru.policies.create({
             id: 'testPolicyId-1234',
             version: '1',
             name: randomId(),
@@ -72,7 +70,7 @@ lab.experiment('TeamOps', () => {
       description: 'description',
       organizationId: 'WONKA'
     }
-    teamOps.createTeam(testTeam, (err, result) => {
+    udaru.teams.create(testTeam, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
       expect(result.id).to.exist()
@@ -84,7 +82,7 @@ lab.experiment('TeamOps', () => {
   lab.afterEach(done => {
     // always cleanup test data
     if (testTeam && testTeam.id) {
-      teamOps.deleteTeam({id: testTeam.id, organizationId: 'WONKA'}, done)
+      udaru.teams.delete({id: testTeam.id, organizationId: 'WONKA'}, done)
       testTeam = null
     } else {
       done()
@@ -92,7 +90,7 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('list of org teams', (done) => {
-    teamOps.listOrgTeams({organizationId: 'WONKA'}, (err, result) => {
+    udaru.teams.list({organizationId: 'WONKA'}, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
 
@@ -111,17 +109,17 @@ lab.experiment('TeamOps', () => {
 
   lab.test('Add twice the same user to a team', (done) => {
     let userIds = [users[0].id]
-    teamOps.addUsersToTeam({id: testTeam.id, organizationId: 'WONKA', users: userIds}, (err, result) => {
+    udaru.teams.addUsers({id: testTeam.id, organizationId: 'WONKA', users: userIds}, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
 
       userIds = [users[0].id, users[1].id]
-      teamOps.addUsersToTeam({id: testTeam.id, organizationId: 'WONKA', users: userIds}, (err, result) => {
+      udaru.teams.addUsers({id: testTeam.id, organizationId: 'WONKA', users: userIds}, (err, result) => {
         expect(err).to.not.exist()
         expect(result).to.exist()
         expect(result.users.length).to.equal(2)
 
-        teamOps.readTeam({ id: testTeam.id, organizationId: 'WONKA' }, (err, readTeam) => {
+        udaru.teams.read({ id: testTeam.id, organizationId: 'WONKA' }, (err, readTeam) => {
           expect(err).to.not.exist()
           expect(readTeam).to.exist()
           expect(readTeam.users.length).to.equal(2)
@@ -139,7 +137,7 @@ lab.experiment('TeamOps', () => {
   lab.test('create, update only the team name', (done) => {
     testTeam.name += '_n'
 
-    teamOps.updateTeam(testTeam, (err, result) => {
+    udaru.teams.update(testTeam, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
       expect(result.name).to.equal(testTeam.name)
@@ -152,7 +150,7 @@ lab.experiment('TeamOps', () => {
   lab.test('create, update only the team description', (done) => {
     testTeam.description = '_d'
 
-    teamOps.updateTeam(testTeam, (err, result) => {
+    udaru.teams.update(testTeam, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
       expect(result.name).to.equal(testTeam.name)
@@ -164,7 +162,7 @@ lab.experiment('TeamOps', () => {
 
   // TODO: Needs review
   lab.test('read a specific team', (done) => {
-    teamOps.readTeam({ id: '2', organizationId: 'WONKA' }, (err, result) => {
+    udaru.teams.read({ id: '2', organizationId: 'WONKA' }, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
       expect(result.name).to.equal('Readers')
@@ -179,11 +177,11 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('read users from a specific team', (done) => {
-    teamOps.readTeamUsers({ id: '2', organizationId: 'WONKA' }, (err, result) => {
+    udaru.teams.listUsers({ id: '2', organizationId: 'WONKA' }, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
       expect(result.page).to.equal(1)
-      expect(result.limit).to.equal(conf.get('authorization.defaultPageSize'))
+      expect(result.limit).to.greaterThan(1)
       expect(result.total).to.equal(2)
       expect(result.data.length).to.equal(2)
       expect(result.data).to.equal([
@@ -196,7 +194,7 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('paginated read users from a specific team', (done) => {
-    teamOps.readTeamUsers({ id: '2', page: 2, limit: 1, organizationId: 'WONKA' }, (err, result) => {
+    udaru.teams.listUsers({ id: '2', page: 2, limit: 1, organizationId: 'WONKA' }, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
       expect(result.page).to.equal(2)
@@ -212,13 +210,13 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('creating a team should create a default admin policy', (done) => {
-    policyOps.listByOrganization({organizationId: 'WONKA'}, (err, policies) => {
+    udaru.policies.list({organizationId: 'WONKA'}, (err, policies) => {
       expect(err).to.not.exist()
 
       const defaultPolicy = policies.find((p) => { return p.name === 'Default Team Admin for ' + testTeam.id })
       expect(defaultPolicy).to.exist()
 
-      policyOps.deletePolicy({ id: defaultPolicy.id, organizationId: 'WONKA' }, (err) => {
+      udaru.policies.delete({ id: defaultPolicy.id, organizationId: 'WONKA' }, (err) => {
         expect(err).to.not.exist()
         done()
       })
@@ -232,14 +230,14 @@ lab.experiment('TeamOps', () => {
       organizationId: 'WONKA'
     }
 
-    teamOps.createTeam(testTeam, {createOnly: true}, (err, result) => {
+    udaru.teams.create(testTeam, {createOnly: true}, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
       expect(result.id).to.exist()
       testTeam.id = result.id // afterEach will cleanup based on the ID
 
-      policyOps.listByOrganization({organizationId: 'WONKA'}, (err, policies) => {
-        teamOps.deleteTeam(testTeam, (err) => { if (err) throw err })
+      udaru.policies.list({organizationId: 'WONKA'}, (err, policies) => {
+        udaru.teams.delete(testTeam, (err) => { if (err) throw err })
         expect(err).to.not.exist()
 
         const defaultPolicy = policies.find((p) => {
@@ -261,10 +259,10 @@ lab.experiment('TeamOps', () => {
     }
     setTimeout(() => {
       // TODO: delete team
-      teamOps.deleteTeam(testTeam, () => {})
+      udaru.teams.delete(testTeam, () => {})
     }, 5000)
 
-    teamOps.createTeam(testTeam, function (err, team) {
+    udaru.teams.create(testTeam, function (err, team) {
       expect(err).to.not.exist()
       expect(team).to.exist()
       expect(team.users).to.exist()
@@ -272,7 +270,7 @@ lab.experiment('TeamOps', () => {
       const defaultUser = team.users.find((u) => { return u.name === testTeam.user.name })
       expect(defaultUser).to.exist()
 
-      userOps.readUser({ id: defaultUser.id, organizationId: 'WONKA' }, (err, user) => {
+      udaru.users.read({ id: defaultUser.id, organizationId: 'WONKA' }, (err, user) => {
         expect(err).to.not.exist()
 
         expect(user.name).to.be.equal(testTeam.user.name)
@@ -280,10 +278,10 @@ lab.experiment('TeamOps', () => {
         const defaultPolicy = user.policies.find((p) => { return p.name === 'Default Team Admin for ' + team.id })
         expect(defaultPolicy).to.exist()
 
-        teamOps.deleteTeam({ id: team.id, organizationId: 'WONKA' }, (err) => {
+        udaru.teams.delete({ id: team.id, organizationId: 'WONKA' }, (err) => {
           expect(err).to.not.exist()
 
-          userOps.deleteUser({ id: user.id, organizationId: 'WONKA' }, done)
+          udaru.users.delete({ id: user.id, organizationId: 'WONKA' }, done)
         })
       })
     })
@@ -299,10 +297,10 @@ lab.experiment('TeamOps', () => {
     }
     setTimeout(() => {
       // TODO: delete team
-      teamOps.deleteTeam(testTeam, () => {})
+      udaru.teams.delete(testTeam, () => {})
     }, 5000)
 
-    teamOps.createTeam(testTeam, function (err, team) {
+    udaru.teams.create(testTeam, function (err, team) {
       expect(err).to.not.exist()
       expect(team).to.exist()
       expect(team.users).to.exist()
@@ -311,16 +309,16 @@ lab.experiment('TeamOps', () => {
 
       const defaultUser = team.users[0]
 
-      userOps.readUser({ id: defaultUser.id, organizationId: 'WONKA' }, (err, user) => {
+      udaru.users.read({ id: defaultUser.id, organizationId: 'WONKA' }, (err, user) => {
         expect(err).to.not.exist()
 
         const defaultPolicy = user.policies.find((p) => { return p.name === 'Default Team Admin for ' + team.id })
         expect(defaultPolicy).to.exist()
 
-        teamOps.deleteTeam({ id: team.id, organizationId: 'WONKA' }, (err) => {
+        udaru.teams.delete({ id: team.id, organizationId: 'WONKA' }, (err) => {
           expect(err).to.not.exist()
 
-          userOps.deleteUser({ id: user.id, organizationId: 'WONKA' }, done)
+          udaru.users.delete({ id: user.id, organizationId: 'WONKA' }, done)
         })
       })
     })
@@ -334,12 +332,12 @@ lab.experiment('TeamOps', () => {
       organizationId: 'WONKA'
     }
 
-    teamOps.createTeam(childTeam, function (err, result) {
+    udaru.teams.create(childTeam, function (err, result) {
       expect(err).to.not.exist()
       expect(result).to.exist()
       expect(result.path).to.equal(testTeam.id + '.' + result.id)
 
-      teamOps.deleteTeam({ id: result.id, organizationId: 'WONKA' }, done)
+      udaru.teams.delete({ id: result.id, organizationId: 'WONKA' }, done)
     })
   })
 
@@ -352,16 +350,16 @@ lab.experiment('TeamOps', () => {
     }
     childTeam.parentId = testTeam.id
 
-    teamOps.createTeam(childTeam, (err, childTeam) => {
+    udaru.teams.create(childTeam, (err, childTeam) => {
       expect(err).to.not.exist()
       expect(childTeam).to.exist()
 
       expect(childTeam.path).to.equal(testTeam.id + '.' + childTeam.id)
 
-      teamOps.deleteTeam({ organizationId: 'WONKA', id: testTeam.id }, (err) => {
+      udaru.teams.delete({ organizationId: 'WONKA', id: testTeam.id }, (err) => {
         expect(err).to.not.exist()
         testTeam = null // so that afterEach don't try to delete a team that was already deleted
-        teamOps.readTeam({ id: childTeam.id, organizationId: 'WONKA' }, (err) => {
+        udaru.teams.read({ id: childTeam.id, organizationId: 'WONKA' }, (err) => {
           expect(err).to.exist()
           expect(err.isBoom).to.be.true()
           expect(err.message).to.match(/Team with id [a-zA-Z0-9_]+ could not be found/)
@@ -380,7 +378,7 @@ lab.experiment('TeamOps', () => {
       organizationId: 'ROOT'
     }
 
-    teamOps.createTeam(childTeam, (err, childTeam) => {
+    udaru.teams.create(childTeam, (err, childTeam) => {
       expect(err).to.not.exist()
       expect(childTeam).to.exist()
 
@@ -390,18 +388,18 @@ lab.experiment('TeamOps', () => {
         description: 'This is a test team for paths',
         organizationId: 'WONKA'
       }
-      teamOps.createTeam(testTeam2, (err, testTeam2) => {
+      udaru.teams.create(testTeam2, (err, testTeam2) => {
         expect(err).to.not.exist()
         expect(testTeam2).to.exist()
 
-        teamOps.moveTeam({ id: childTeam.id, parentId: testTeam2.id, organizationId: 'WONKA' }, (err, result) => {
+        udaru.teams.move({ id: childTeam.id, parentId: testTeam2.id, organizationId: 'WONKA' }, (err, result) => {
           expect(err).to.exist()
           expect(err.message).to.equal('Some teams [childTeam] were not found')
 
-          teamOps.deleteTeam({ id: childTeam.id, organizationId: 'ROOT' }, (err, result) => {
+          udaru.teams.delete({ id: childTeam.id, organizationId: 'ROOT' }, (err, result) => {
             expect(err).to.not.exist()
 
-            teamOps.deleteTeam({ id: testTeam2.id, organizationId: 'WONKA' }, done)
+            udaru.teams.delete({ id: testTeam2.id, organizationId: 'WONKA' }, done)
           })
         })
       })
@@ -416,7 +414,7 @@ lab.experiment('TeamOps', () => {
       organizationId: 'WONKA'
     }
 
-    teamOps.createTeam(childTeam, (err, childTeam) => {
+    udaru.teams.create(childTeam, (err, childTeam) => {
       expect(err).to.not.exist()
       expect(childTeam).to.exist()
 
@@ -425,20 +423,20 @@ lab.experiment('TeamOps', () => {
         description: 'This is a test team for paths',
         organizationId: 'WONKA'
       }
-      teamOps.createTeam(testTeam2, (err, testTeam2) => {
+      udaru.teams.create(testTeam2, (err, testTeam2) => {
         expect(err).to.not.exist()
         expect(testTeam2).to.exist()
-        teamOps.moveTeam({ id: childTeam.id, parentId: testTeam2.id, organizationId: 'WONKA' }, (err, result) => {
+        udaru.teams.move({ id: childTeam.id, parentId: testTeam2.id, organizationId: 'WONKA' }, (err, result) => {
           expect(err).to.not.exist()
           expect(result).to.exist()
           expect(result.path).to.equal(testTeam2.id + '.' + childTeam.id)
 
-          teamOps.readTeam({id: childTeam.id, organizationId: 'WONKA'}, (err, result) => {
+          udaru.teams.read({id: childTeam.id, organizationId: 'WONKA'}, (err, result) => {
             expect(err).to.not.exist()
             expect(result).to.exist()
             expect(result.path).to.equal(testTeam2.id + '.' + childTeam.id)
 
-            teamOps.deleteTeam({id: testTeam2.id, organizationId: 'WONKA'}, done)
+            udaru.teams.delete({id: testTeam2.id, organizationId: 'WONKA'}, done)
           })
         })
       })
@@ -453,25 +451,25 @@ lab.experiment('TeamOps', () => {
       organizationId: 'WONKA'
     }
 
-    teamOps.createTeam(teamData, (err, result) => {
+    udaru.teams.create(teamData, (err, result) => {
       expect(err).to.not.exist()
 
       const teamId = result.id
 
       expect(result.path).to.equal(testTeam.id + '.' + teamId)
 
-      teamOps.moveTeam({ id: teamId, parentId: null, organizationId: 'WONKA' }, (err, result) => {
+      udaru.teams.move({ id: teamId, parentId: null, organizationId: 'WONKA' }, (err, result) => {
         expect(err).to.not.exist()
         expect(result).to.exist()
         expect(result.path).to.equal(teamId.toString())
 
-        teamOps.deleteTeam({id: teamId, organizationId: 'WONKA'}, done)
+        udaru.teams.delete({id: teamId, organizationId: 'WONKA'}, done)
       })
     })
   })
 
   lab.test('add policies from another org to team', (done) => {
-    teamOps.addTeamPolicies({ id: testTeam.id, policies: [policies[2].id], organizationId: 'WONKA' }, (err, team) => {
+    udaru.teams.addPolicies({ id: testTeam.id, policies: [policies[2].id], organizationId: 'WONKA' }, (err, team) => {
       expect(err).to.exist()
       expect(err.message).to.equal('Some policies [testPolicyId-1234] were not found')
 
@@ -480,7 +478,7 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('add policies to team', (done) => {
-    teamOps.addTeamPolicies({ id: testTeam.id, policies: [policies[0].id, policies[1].id], organizationId: 'WONKA' }, (err, team) => {
+    udaru.teams.addPolicies({ id: testTeam.id, policies: [policies[0].id, policies[1].id], organizationId: 'WONKA' }, (err, team) => {
       expect(err).to.not.exist()
       expect(team).to.exist()
       expect(team.policies).to.have.length(2)
@@ -494,7 +492,7 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('replace team policies', (done) => {
-    teamOps.addTeamPolicies({
+    udaru.teams.addPolicies({
       id: testTeam.id,
       organizationId: 'WONKA',
       policies: [policies[0].id]
@@ -502,7 +500,7 @@ lab.experiment('TeamOps', () => {
       expect(err).to.not.exist()
       expect(team).to.exist()
 
-      teamOps.replaceTeamPolicies({ id: team.id, policies: [policies[1].id], organizationId: 'WONKA' }, (err, team) => {
+      udaru.teams.replacePolicies({ id: team.id, policies: [policies[1].id], organizationId: 'WONKA' }, (err, team) => {
         expect(err).to.not.exist()
         expect(team).to.exist()
         expect(team.policies).to.have.length(1)
@@ -513,7 +511,7 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('add the same policy twice to a team', (done) => {
-    teamOps.addTeamPolicies({ id: testTeam.id, policies: [policies[0].id, policies[1].id], organizationId: 'WONKA' }, (err, team) => {
+    udaru.teams.addPolicies({ id: testTeam.id, policies: [policies[0].id, policies[1].id], organizationId: 'WONKA' }, (err, team) => {
       expect(err).to.not.exist()
       expect(team).to.exist()
       expect(team.policies).to.have.length(2)
@@ -522,7 +520,7 @@ lab.experiment('TeamOps', () => {
         _.pick(policies[1], 'id', 'name', 'version')
       ])
 
-      teamOps.addTeamPolicies({ id: team.id, policies: [policies[1].id], organizationId: 'WONKA' }, (err, team) => {
+      udaru.teams.addPolicies({ id: team.id, policies: [policies[1].id], organizationId: 'WONKA' }, (err, team) => {
         expect(err).to.not.exist()
         expect(team).to.exist()
         expect(team.policies).to.have.length(2)
@@ -536,12 +534,12 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('delete team policies', (done) => {
-    teamOps.addTeamPolicies({ id: testTeam.id, policies: [policies[0].id, policies[1].id], organizationId: 'WONKA' }, (err, team) => {
+    udaru.teams.addPolicies({ id: testTeam.id, policies: [policies[0].id, policies[1].id], organizationId: 'WONKA' }, (err, team) => {
       expect(err).to.not.exist()
       expect(team).to.exist()
       expect(team.policies).to.have.length(2)
 
-      teamOps.deleteTeamPolicies({ id: team.id, organizationId: 'WONKA' }, (err, team) => {
+      udaru.teams.deletePolicies({ id: team.id, organizationId: 'WONKA' }, (err, team) => {
         expect(err).to.not.exist()
         expect(team).to.exist()
         expect(team.policies).to.equal([])
@@ -551,12 +549,12 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('delete specific team policy', (done) => {
-    teamOps.addTeamPolicies({ id: testTeam.id, policies: [policies[0].id, policies[1].id], organizationId: 'WONKA' }, (err, team) => {
+    udaru.teams.addPolicies({ id: testTeam.id, policies: [policies[0].id, policies[1].id], organizationId: 'WONKA' }, (err, team) => {
       expect(err).to.not.exist()
       expect(team).to.exist()
       expect(team.policies).to.have.length(2)
 
-      teamOps.deleteTeamPolicy({ teamId: team.id, policyId: policies[0].id, organizationId: 'WONKA' }, (err, team) => {
+      udaru.teams.deletePolicy({ teamId: team.id, policyId: policies[0].id, organizationId: 'WONKA' }, (err, team) => {
         expect(err).to.not.exist()
         expect(team).to.exist()
         expect(team.policies).to.equal([_.pick(policies[1], 'id', 'name', 'version')])
@@ -567,16 +565,16 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('add users from another org to a team', (done) => {
-    userOps.createUser({ id: 'testUserRoot', name: 'test', organizationId: 'ROOT' }, (err, user) => {
+    udaru.users.create({ id: 'testUserRoot', name: 'test', organizationId: 'ROOT' }, (err, user) => {
       expect(err).to.not.exist()
 
       let userIds = [user.id]
 
-      teamOps.addUsersToTeam({ id: testTeam.id, users: userIds, organizationId: 'WONKA' }, (err, team) => {
+      udaru.teams.addUsers({ id: testTeam.id, users: userIds, organizationId: 'WONKA' }, (err, team) => {
         expect(err).to.exist()
         expect(err.message).to.equal('Some users [testUserRoot] were not found')
 
-        userOps.deleteUser(user, done)
+        udaru.users.delete(user, done)
       })
     })
   })
@@ -584,7 +582,7 @@ lab.experiment('TeamOps', () => {
   lab.test('add users to a team', (done) => {
     let userIds = [users[0].id]
 
-    teamOps.addUsersToTeam({ id: testTeam.id, users: userIds, organizationId: 'WONKA' }, (err, team) => {
+    udaru.teams.addUsers({ id: testTeam.id, users: userIds, organizationId: 'WONKA' }, (err, team) => {
       expect(err).to.not.exist()
       expect(team).to.exist()
       expect(team.users).to.equal([
@@ -601,7 +599,7 @@ lab.experiment('TeamOps', () => {
   lab.test('replace users of a team', (done) => {
     let userIds = [users[0].id]
 
-    teamOps.addUsersToTeam({ id: testTeam.id, users: userIds, organizationId: 'WONKA' }, (err, team) => {
+    udaru.teams.addUsers({ id: testTeam.id, users: userIds, organizationId: 'WONKA' }, (err, team) => {
       expect(err).to.not.exist()
       expect(team).to.exist()
       expect(team.users).to.equal([
@@ -613,7 +611,7 @@ lab.experiment('TeamOps', () => {
 
       userIds = [users[1].id]
 
-      teamOps.replaceUsersInTeam({ id: team.id, users: userIds, organizationId: 'WONKA' }, (err, team) => {
+      udaru.teams.replaceUsers({ id: team.id, users: userIds, organizationId: 'WONKA' }, (err, team) => {
         expect(err).to.not.exist()
         expect(team).to.exist()
         expect(team.users).to.equal([
@@ -630,7 +628,7 @@ lab.experiment('TeamOps', () => {
   lab.test('delete users of a team', (done) => {
     let userIds = [users[0].id, users[1].id]
 
-    teamOps.addUsersToTeam({ id: testTeam.id, users: userIds, organizationId: 'WONKA' }, (err, team) => {
+    udaru.teams.addUsers({ id: testTeam.id, users: userIds, organizationId: 'WONKA' }, (err, team) => {
       expect(err).to.not.exist()
       expect(team).to.exist()
       expect(team.users).to.equal([
@@ -644,10 +642,10 @@ lab.experiment('TeamOps', () => {
         }
       ])
 
-      teamOps.deleteTeamMembers({ id: team.id, organizationId: 'WONKA' }, (err, result) => {
+      udaru.teams.deleteMembers({ id: team.id, organizationId: 'WONKA' }, (err, result) => {
         expect(err).to.not.exist()
         expect(result).to.not.exist()
-        teamOps.readTeam({ id: team.id, organizationId: 'WONKA' }, (err, team) => {
+        udaru.teams.read({ id: team.id, organizationId: 'WONKA' }, (err, team) => {
           expect(err).to.not.exist()
           expect(team).to.exist()
           expect(team.users).to.equal([])
@@ -660,7 +658,7 @@ lab.experiment('TeamOps', () => {
   lab.test('delete a specific user of a team', (done) => {
     let userIds = [users[0].id, users[1].id]
 
-    teamOps.addUsersToTeam({ id: testTeam.id, users: userIds, organizationId: 'WONKA' }, (err, team) => {
+    udaru.teams.addUsers({ id: testTeam.id, users: userIds, organizationId: 'WONKA' }, (err, team) => {
       expect(err).to.not.exist()
       expect(team).to.exist()
       expect(team.users).to.equal([
@@ -674,11 +672,11 @@ lab.experiment('TeamOps', () => {
         }
       ])
 
-      teamOps.deleteTeamMember({ id: team.id, userId: users[1].id, organizationId: 'WONKA' }, (err, result) => {
+      udaru.teams.deleteMember({ id: team.id, userId: users[1].id, organizationId: 'WONKA' }, (err, result) => {
         expect(err).to.not.exist()
         expect(result).to.not.exist()
 
-        teamOps.readTeam({ id: team.id, organizationId: 'WONKA' }, (err, team) => {
+        udaru.teams.read({ id: team.id, organizationId: 'WONKA' }, (err, team) => {
           expect(err).to.not.exist()
           expect(team).to.exist()
           expect(team.users).to.equal([{
