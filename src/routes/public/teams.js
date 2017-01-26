@@ -1,7 +1,8 @@
 'use strict'
 
+const _ = require('lodash')
 const Joi = require('joi')
-const teamOps = require('./../../lib/ops/teamOps')
+const udaru = require('./../../udaru')
 const Action = require('./../../lib/config/config.auth').Action
 const conf = require('./../../lib/config')
 const swagger = require('./../../swagger')
@@ -15,7 +16,7 @@ exports.register = function (server, options, next) {
       const { organizationId } = request.udaru
       const limit = request.query.limit || conf.get('authorization.defaultPageSize')
       const page = request.query.page || 1
-      teamOps.listOrgTeams({
+      udaru.teams.list({
         organizationId,
         limit: limit,
         page: page
@@ -42,10 +43,7 @@ exports.register = function (server, options, next) {
       },
       validate: {
         headers,
-        query: Joi.object({
-          page: Joi.number().integer().min(1).description('Page number, starts from 1'),
-          limit: Joi.number().integer().min(1).description('Items per page')
-        }).required()
+        query: _.pick(udaru.teams.list.validate, ['page', 'limit'])
       },
       response: {schema: swagger.List(swagger.Team).label('PagedTeams')}
     }
@@ -67,7 +65,7 @@ exports.register = function (server, options, next) {
         user
       }
 
-      teamOps.createTeam(params, function (err, res) {
+      udaru.teams.create(params, function (err, res) {
         if (err) {
           return reply(err)
         }
@@ -77,15 +75,7 @@ exports.register = function (server, options, next) {
     },
     config: {
       validate: {
-        payload: {
-          id: Joi.string().regex(/^[0-9a-zA-Z_]+$/).allow('').description('The ID to be used for the new team. Only alphanumeric characters and underscore are supported'),
-          name: Joi.string().required().description('Name of the new team'),
-          description: Joi.string().required().description('Description of new team'),
-          user: Joi.object().description('Default admin of the team').keys({
-            id: Joi.string().description('User ID'),
-            name: Joi.string().required('User name')
-          })
-        },
+        payload: _.pick(udaru.teams.create.validate, ['id', 'name', 'description', 'user']),
         headers
       },
       description: 'Create a team',
@@ -107,13 +97,11 @@ exports.register = function (server, options, next) {
       const { organizationId } = request.udaru
       const { id } = request.params
 
-      teamOps.readTeam({ id, organizationId }, reply)
+      udaru.teams.read({ id, organizationId }, reply)
     },
     config: {
       validate: {
-        params: {
-          id: Joi.string().required().description('Team ID')
-        },
+        params: _.pick(udaru.teams.read.validate, ['id']),
         headers
       },
       description: 'Fetch a team given its identifier',
@@ -144,17 +132,12 @@ exports.register = function (server, options, next) {
         organizationId
       }
 
-      teamOps.updateTeam(params, reply)
+      udaru.teams.update(params, reply)
     },
     config: {
       validate: {
-        params: {
-          id: Joi.string().required().description('Team ID')
-        },
-        payload: Joi.object().keys({
-          name: Joi.string().description('Team name'),
-          description: Joi.string().description('Team description')
-        }).or('name', 'description'),
+        params: _.pick(udaru.teams.update.validate, ['id']),
+        payload: Joi.object(_.pick(udaru.teams.update.validate, ['name', 'description'])).or('name', 'description'),
         headers
       },
       description: 'Update a team',
@@ -177,7 +160,7 @@ exports.register = function (server, options, next) {
       const { id } = request.params
       const { organizationId } = request.udaru
 
-      teamOps.deleteTeam({ id, organizationId }, function (err, res) {
+      udaru.teams.delete({ id, organizationId }, function (err, res) {
         if (err) {
           return reply(err)
         }
@@ -187,9 +170,7 @@ exports.register = function (server, options, next) {
     },
     config: {
       validate: {
-        params: {
-          id: Joi.string().required().description('The team ID')
-        },
+        params: _.pick(udaru.teams.delete.validate, ['id']),
         headers
       },
       description: 'Delete a team',
@@ -216,7 +197,7 @@ exports.register = function (server, options, next) {
         organizationId
       }
 
-      teamOps.moveTeam(params, function (err, res) {
+      udaru.teams.move(params, function (err, res) {
         if (err) {
           return reply(err)
         }
@@ -226,11 +207,9 @@ exports.register = function (server, options, next) {
     },
     config: {
       validate: {
-        params: {
-          id: Joi.string().required().description('Team ID')
-        },
+        params: _.pick(udaru.teams.move.validate, ['id']),
         payload: {
-          parentId: Joi.string().required().description('The new parent ID')
+          parentId: udaru.teams.move.validate.parentId.required()
         },
         headers
       },
@@ -259,7 +238,7 @@ exports.register = function (server, options, next) {
         organizationId
       }
 
-      teamOps.moveTeam(params, function (err, res) {
+      udaru.teams.move(params, function (err, res) {
         if (err) {
           return reply(err)
         }
@@ -269,9 +248,7 @@ exports.register = function (server, options, next) {
     },
     config: {
       validate: {
-        params: {
-          id: Joi.string().required().description('Team ID')
-        },
+        params: _.pick(udaru.teams.move.validate, ['id']),
         headers
       },
       description: 'Unnest a team',
@@ -300,16 +277,12 @@ exports.register = function (server, options, next) {
         organizationId,
         policies
       }
-      teamOps.addTeamPolicies(params, reply)
+      udaru.teams.addPolicies(params, reply)
     },
     config: {
       validate: {
-        params: {
-          id: Joi.string().required().description('Team ID')
-        },
-        payload: {
-          policies: Joi.array().items(Joi.string()).required().description('Policy IDs')
-        },
+        params: _.pick(udaru.teams.addPolicies.validate, ['id']),
+        payload: _.pick(udaru.teams.addPolicies.validate, ['policies']),
         headers
       },
       description: 'Add one or more policies to a team',
@@ -339,16 +312,12 @@ exports.register = function (server, options, next) {
         policies
       }
 
-      teamOps.replaceTeamPolicies(params, reply)
+      udaru.teams.replacePolicies(params, reply)
     },
     config: {
       validate: {
-        params: {
-          id: Joi.string().required().description('Team ID')
-        },
-        payload: {
-          policies: Joi.array().items(Joi.string()).required().description('Policy IDs')
-        },
+        params: _.pick(udaru.teams.replacePolicies.validate, ['id']),
+        payload: _.pick(udaru.teams.replacePolicies.validate, ['policies']),
         headers
       },
       description: 'Clear and replace policies for a team',
@@ -371,7 +340,7 @@ exports.register = function (server, options, next) {
       const { id } = request.params
       const { organizationId } = request.udaru
 
-      teamOps.deleteTeamPolicies({ id, organizationId }, function (err, res) {
+      udaru.teams.deletePolicies({ id, organizationId }, function (err, res) {
         if (err) {
           return reply(err)
         }
@@ -381,9 +350,7 @@ exports.register = function (server, options, next) {
     },
     config: {
       validate: {
-        params: {
-          id: Joi.string().required().description('Team ID')
-        },
+        params: _.pick(udaru.teams.deletePolicies.validate, ['id']),
         headers
       },
       description: 'Clear all team policies',
@@ -405,7 +372,7 @@ exports.register = function (server, options, next) {
       const { teamId, policyId } = request.params
       const { organizationId } = request.udaru
 
-      teamOps.deleteTeamPolicy({ teamId, policyId, organizationId }, function (err, res) {
+      udaru.teams.deletePolicy({ teamId, policyId, organizationId }, function (err, res) {
         if (err) {
           return reply(err)
         }
@@ -415,10 +382,7 @@ exports.register = function (server, options, next) {
     },
     config: {
       validate: {
-        params: {
-          teamId: Joi.string().required().description('Team ID'),
-          policyId: Joi.string().required().description('Policy ID')
-        },
+        params: _.pick(udaru.teams.deletePolicy.validate, ['teamId', 'policyId']),
         headers
       },
       description: 'Remove a team policy',
@@ -438,20 +402,16 @@ exports.register = function (server, options, next) {
     path: '/authorization/teams/{id}/users',
     handler: function (request, reply) {
       const { id } = request.params
+      const { organizationId } = request.udaru
       const limit = request.query.limit || conf.get('authorization.defaultPageSize')
       const page = request.query.page || 1
 
-      teamOps.readTeamUsers({ id, page, limit }, reply)
+      udaru.teams.listUsers({ id, page, limit, organizationId }, reply)
     },
     config: {
       validate: {
-        params: {
-          id: Joi.string().required().description('Team ID')
-        },
-        query: {
-          page: Joi.number().integer().min(1).required().description('Page number, starts from 1'),
-          limit: Joi.number().integer().min(1).required().description('Users per page')
-        },
+        params: _.pick(udaru.teams.listUsers.validate, ['id']),
+        query: _.pick(udaru.teams.listUsers.validate, ['page', 'limit']),
         headers
       },
       description: 'Fetch team users given its identifier',
@@ -481,16 +441,12 @@ exports.register = function (server, options, next) {
         organizationId
       }
 
-      teamOps.addUsersToTeam(params, reply)
+      udaru.teams.addUsers(params, reply)
     },
     config: {
       validate: {
-        params: {
-          id: Joi.string().required().description('The team ID')
-        },
-        payload: Joi.object().keys({
-          users: Joi.array().items(Joi.string()).description('User IDs')
-        }),
+        params: _.pick(udaru.teams.addUsers.validate, ['id']),
+        payload: _.pick(udaru.teams.addUsers.validate, ['users']),
         headers
       },
       description: 'Add team users',
@@ -520,16 +476,12 @@ exports.register = function (server, options, next) {
         organizationId
       }
 
-      teamOps.replaceUsersInTeam(params, reply)
+      udaru.teams.replaceUsers(params, reply)
     },
     config: {
       validate: {
-        params: {
-          id: Joi.string().required().description('Team ID')
-        },
-        payload: Joi.object().keys({
-          users: Joi.array().items(Joi.string()).description('User IDs')
-        }),
+        params: _.pick(udaru.teams.replaceUsers.validate, ['id']),
+        payload: _.pick(udaru.teams.replaceUsers.validate, ['users']),
         headers
       },
       description: 'Replace team users with the given ones',
@@ -552,7 +504,7 @@ exports.register = function (server, options, next) {
       const { id } = request.params
       const { organizationId } = request.udaru
 
-      teamOps.deleteTeamMembers({ id, organizationId }, function (err, res) {
+      udaru.teams.deleteMembers({ id, organizationId }, function (err, res) {
         if (err) {
           return reply(err)
         }
@@ -562,9 +514,7 @@ exports.register = function (server, options, next) {
     },
     config: {
       validate: {
-        params: {
-          id: Joi.string().required().description('Team ID')
-        },
+        params: _.pick(udaru.teams.deleteMembers.validate, ['id']),
         headers
       },
       description: 'Delete all team users',
@@ -586,7 +536,7 @@ exports.register = function (server, options, next) {
       const { id, userId } = request.params
       const { organizationId } = request.udaru
 
-      teamOps.deleteTeamMember({ id, userId, organizationId }, function (err, res) {
+      udaru.teams.deleteMember({ id, userId, organizationId }, function (err, res) {
         if (err) {
           return reply(err)
         }
@@ -596,10 +546,7 @@ exports.register = function (server, options, next) {
     },
     config: {
       validate: {
-        params: {
-          id: Joi.string().required().description('The team ID'),
-          userId: Joi.string().required().description('The user ID')
-        },
+        params: _.pick(udaru.teams.deleteMember.validate, ['id', 'userId']),
         headers
       },
       description: 'Delete one team member',

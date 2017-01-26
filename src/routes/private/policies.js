@@ -1,12 +1,13 @@
 'use strict'
 
+const _ = require('lodash')
 const Joi = require('joi')
 const Boom = require('boom')
 const serviceKey = require('./../../security/serviceKey')
 const Action = require('./../../lib/config/config.auth').Action
-const policyOps = require('./../../lib/ops/policyOps')
 const swagger = require('./../../swagger')
 const headers = require('./../headers')
+const udaru = require('./../../udaru')
 
 exports.register = function (server, options, next) {
   server.route({
@@ -26,7 +27,7 @@ exports.register = function (server, options, next) {
         statements
       }
 
-      policyOps.createPolicy(params, function (err, res) {
+      udaru.policies.create(params, function (err, res) {
         if (err) {
           return reply(err)
         }
@@ -36,12 +37,7 @@ exports.register = function (server, options, next) {
     },
     config: {
       validate: {
-        payload: {
-          id: Joi.string().allow('').description('Policy ID'),
-          version: Joi.string().required().description('Policy version'),
-          name: Joi.string().required().description('Policy name'),
-          statements: swagger.PolicyStatements.required().description('Policy statements')
-        },
+        payload: _.pick(udaru.policies.create.validate, ['id', 'name', 'version', 'statements']),
         query: {
           sig: Joi.string().required()
         },
@@ -77,18 +73,12 @@ exports.register = function (server, options, next) {
         statements
       }
 
-      policyOps.updatePolicy(params, reply)
+      udaru.policies.update(params, reply)
     },
     config: {
       validate: {
-        params: {
-          id: Joi.string().required().description('Policy ID')
-        },
-        payload: {
-          version: Joi.string().required().description('Policy version'),
-          name: Joi.string().required().description('Policy name'),
-          statements: swagger.PolicyStatements.required().description('Policy statements')
-        },
+        params: _.pick(udaru.policies.update.validate, ['id']),
+        payload: _.pick(udaru.policies.update.validate, ['version', 'name', 'statements']),
         query: {
           sig: Joi.string().required()
         },
@@ -116,7 +106,7 @@ exports.register = function (server, options, next) {
       const { id } = request.params
       const { organizationId } = request.udaru
 
-      policyOps.deletePolicy({ id, organizationId }, function (err, res) {
+      udaru.policies.delete({ id, organizationId }, function (err, res) {
         if (err) {
           return reply(err)
         }
@@ -126,9 +116,7 @@ exports.register = function (server, options, next) {
     },
     config: {
       validate: {
-        params: {
-          id: Joi.string().required().description('Policy ID')
-        },
+        params: _.pick(udaru.policies.delete.validate, ['id']),
         query: {
           sig: Joi.string().required()
         },

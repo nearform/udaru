@@ -17,7 +17,7 @@ const teamData = {
 }
 
 lab.experiment('Teams - get/list', () => {
-  lab.test('get team list: pagination params are required', (done) => {
+  lab.test('get team list: with pagination params', (done) => {
     const options = utils.requestOptions({
       method: 'GET',
       url: '/authorization/teams'
@@ -27,6 +27,24 @@ lab.experiment('Teams - get/list', () => {
       expect(response.statusCode).to.equal(200)
       expect(response.result.page).to.equal(1)
       expect(response.result.limit).greaterThan(1)
+      done()
+    })
+  })
+
+  lab.test('get teams list from organization with no team', (done) => {
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: '/authorization/teams',
+      headers: {
+        authorization: 'ROOTid'
+      }
+    })
+
+    server.inject(options, (response) => {
+      expect(response.statusCode).to.equal(200)
+      expect(response.result.page).to.equal(1)
+      expect(response.result.limit).greaterThan(1)
+      expect(response.result.total).equal(0)
       done()
     })
   })
@@ -798,7 +816,7 @@ lab.experiment('Teams - manage policies', () => {
     server.inject(options, (response) => {
       expect(response.statusCode).to.equal(204)
 
-      teamOps.replaceTeamPolicies({ id: 1, policies: ['policyId1'], organizationId: 'WONKA' }, done)
+      teamOps.replaceTeamPolicies({ id: '1', policies: ['policyId1'], organizationId: 'WONKA' }, done)
     })
   })
 

@@ -40,7 +40,7 @@ lab.experiment('PolicyOps', () => {
 
   lab.test('create, update and delete a policy', (done) => {
     const policyData = {
-      version: 1,
+      version: '1',
       name: 'Documents Admin',
       organizationId: 'WONKA',
       statements
@@ -59,7 +59,7 @@ lab.experiment('PolicyOps', () => {
       const updateData = {
         id: policyId,
         organizationId: 'WONKA',
-        version: 2,
+        version: '2',
         name: 'Documents Admin v2',
         statements: { Statement: [{ Effect: 'Deny', Action: ['documents:Read'], Resource: ['wonka:documents:/public/*'] }] }
       }
@@ -80,7 +80,7 @@ lab.experiment('PolicyOps', () => {
   lab.test('create policy with specific id', (done) => {
     const policyData = {
       id: 'MySpecialId',
-      version: 1,
+      version: '1',
       name: 'Documents Admin',
       organizationId: 'WONKA',
       statements

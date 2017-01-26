@@ -1,7 +1,7 @@
 'use strict'
 
-const Joi = require('joi')
-const organizationOps = require('./../../lib/ops/organizationOps')
+const _ = require('lodash')
+const udaru = require('./../../udaru')
 const Action = require('./../../lib/config/config.auth').Action
 const conf = require('./../../lib/config')
 const swagger = require('./../../swagger')
@@ -14,7 +14,7 @@ exports.register = function (server, options, next) {
     handler: function (request, reply) {
       const limit = request.query.limit || conf.get('authorization.defaultPageSize')
       const page = request.query.page || 1
-      organizationOps.list({
+      udaru.organizations.list({
         limit: limit,
         page: page
       }, (err, data, total) => {
@@ -40,10 +40,7 @@ exports.register = function (server, options, next) {
       },
       validate: {
         headers,
-        query: Joi.object({
-          page: Joi.number().integer().min(1).description('Page number, starts from 1'),
-          limit: Joi.number().integer().min(1).description('Items per page')
-        }).required()
+        query: udaru.organizations.list.validate
       },
       response: {schema: swagger.List(swagger.Organization).label('PagedOrganizations')}
     }
@@ -53,7 +50,7 @@ exports.register = function (server, options, next) {
     method: 'GET',
     path: '/authorization/organizations/{id}',
     handler: function (request, reply) {
-      organizationOps.readById(request.params.id, reply)
+      udaru.organizations.read(request.params.id, reply)
     },
     config: {
       description: 'Get organization',
@@ -67,7 +64,7 @@ exports.register = function (server, options, next) {
       },
       validate: {
         params: {
-          id: Joi.string().required().description('Organization ID')
+          id: udaru.organizations.read.validate
         },
         headers
       },
@@ -86,7 +83,7 @@ exports.register = function (server, options, next) {
         user: request.payload.user
       }
 
-      organizationOps.create(params, function (err, res) {
+      udaru.organizations.create(params, function (err, res) {
         if (err) {
           return reply(err)
         }
@@ -96,15 +93,7 @@ exports.register = function (server, options, next) {
     },
     config: {
       validate: {
-        payload: {
-          id: Joi.string().regex(/^[a-zA-Z0-9]{1,64}$/).required().description('Organization ID'),
-          name: Joi.string().required().description('Organization name'),
-          description: Joi.string().required().description('Organization description'),
-          user: Joi.object().keys({
-            id: Joi.string().description('User ID'),
-            name: Joi.string().required().description('User name')
-          })
-        },
+        payload: udaru.organizations.create.validate,
         headers
       },
       description: 'Create an organization',
@@ -123,7 +112,7 @@ exports.register = function (server, options, next) {
     method: 'DELETE',
     path: '/authorization/organizations/{id}',
     handler: function (request, reply) {
-      organizationOps.deleteById(request.params.id, function (err, res) {
+      udaru.organizations.delete(request.params.id, function (err, res) {
         if (err) {
           return reply(err)
         }
@@ -143,7 +132,7 @@ exports.register = function (server, options, next) {
       },
       validate: {
         params: {
-          id: Joi.string().required().description('Organization ID')
+          id: udaru.organizations.delete.validate
         },
         headers
       }
@@ -157,17 +146,12 @@ exports.register = function (server, options, next) {
       const { id } = request.params
       const { name, description } = request.payload
 
-      organizationOps.update({id, name, description}, reply)
+      udaru.organizations.update({id, name, description}, reply)
     },
     config: {
       validate: {
-        params: {
-          id: Joi.string().required().description('organization ID')
-        },
-        payload: {
-          name: Joi.string().required().description('Organization name'),
-          description: Joi.string().required().description('Organization description')
-        },
+        params: _.pick(udaru.organizations.update.validate, ['id']),
+        payload: _.pick(udaru.organizations.update.validate, ['name', 'description']),
         headers
       },
       description: 'Update an organization',

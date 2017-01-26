@@ -1,7 +1,7 @@
 'use strict'
 
-const Joi = require('joi')
-const userOps = require('./../../lib/ops/userOps')
+const _ = require('lodash')
+const udaru = require('./../../udaru')
 const Action = require('./../../lib/config/config.auth').Action
 const conf = require('./../../lib/config')
 const swagger = require('./../../swagger')
@@ -16,7 +16,7 @@ exports.register = function (server, options, next) {
       const limit = request.query.limit || conf.get('authorization.defaultPageSize')
       const page = request.query.page || 1
 
-      userOps.listOrgUsers({organizationId, limit, page}, (err, data, total) => {
+      udaru.users.list({organizationId, limit, page}, (err, data, total) => {
         reply(
           err,
           err ? null : {
@@ -39,10 +39,7 @@ exports.register = function (server, options, next) {
       },
       validate: {
         headers,
-        query: Joi.object({
-          page: Joi.number().integer().min(1).description('Page number, starts from 1'),
-          limit: Joi.number().integer().min(1).description('Users per page')
-        }).required()
+        query: _.pick(udaru.users.list.validate, ['page', 'limit'])
       },
       response: {schema: swagger.List(swagger.User).label('PagedUsers')}
     }
@@ -55,13 +52,11 @@ exports.register = function (server, options, next) {
       const { organizationId } = request.udaru
       const id = request.params.id
 
-      userOps.readUser({ id, organizationId }, reply)
+      udaru.users.read({ id, organizationId }, reply)
     },
     config: {
       validate: {
-        params: {
-          id: Joi.string().required().description('User ID')
-        },
+        params: _.pick(udaru.users.read.validate, ['id']),
         headers
       },
       description: 'Fetch a user given its identifier',
@@ -84,7 +79,7 @@ exports.register = function (server, options, next) {
       const { organizationId } = request.udaru
       const { id, name } = request.payload
 
-      userOps.createUser({ id, name, organizationId }, function (err, res) {
+      udaru.users.create({ id, name, organizationId }, function (err, res) {
         if (err) {
           return reply(err)
         }
@@ -94,10 +89,7 @@ exports.register = function (server, options, next) {
     },
     config: {
       validate: {
-        payload: {
-          id: Joi.string().description('User ID'),
-          name: Joi.string().required().description('User name')
-        },
+        payload: _.pick(udaru.users.create.validate, ['id', 'name']),
         headers
       },
       description: 'Create a new user',
@@ -119,7 +111,7 @@ exports.register = function (server, options, next) {
       const { organizationId } = request.udaru
       const id = request.params.id
 
-      userOps.deleteUser({ id, organizationId }, function (err, res) {
+      udaru.users.delete({ id, organizationId }, function (err, res) {
         if (err) {
           return reply(err)
         }
@@ -129,9 +121,7 @@ exports.register = function (server, options, next) {
     },
     config: {
       validate: {
-        params: {
-          id: Joi.string().required().description('user ID')
-        },
+        params: _.pick(udaru.users.delete.validate, ['id']),
         headers
       },
       description: 'Delete a user',
@@ -159,16 +149,12 @@ exports.register = function (server, options, next) {
         organizationId,
         name
       }
-      userOps.updateUser(params, reply)
+      udaru.users.update(params, reply)
     },
     config: {
       validate: {
-        params: {
-          id: Joi.string().required().description('user ID')
-        },
-        payload: {
-          name: Joi.string().required().description('user name')
-        },
+        params: _.pick(udaru.users.update.validate, ['id']),
+        payload: _.pick(udaru.users.update.validate, ['name']),
         headers
       },
       description: 'Update a user',
@@ -197,16 +183,12 @@ exports.register = function (server, options, next) {
         organizationId,
         policies
       }
-      userOps.addUserPolicies(params, reply)
+      udaru.users.addPolicies(params, reply)
     },
     config: {
       validate: {
-        params: {
-          id: Joi.string().required().description('User ID')
-        },
-        payload: {
-          policies: Joi.array().required().items(Joi.string().required())
-        },
+        params: _.pick(udaru.users.addPolicies.validate, ['id']),
+        payload: _.pick(udaru.users.addPolicies.validate, ['policies']),
         headers
       },
       description: 'Add one or more policies to a user',
@@ -236,16 +218,12 @@ exports.register = function (server, options, next) {
         policies
       }
 
-      userOps.replaceUserPolicies(params, reply)
+      udaru.users.replacePolicies(params, reply)
     },
     config: {
       validate: {
-        params: {
-          id: Joi.string().required().description('User ID')
-        },
-        payload: {
-          policies: Joi.array().required().items(Joi.string().required())
-        },
+        params: _.pick(udaru.users.replacePolicies.validate, ['id']),
+        payload: _.pick(udaru.users.replacePolicies.validate, ['policies']),
         headers
       },
       description: 'Clear and replace policies for a user',
@@ -268,7 +246,7 @@ exports.register = function (server, options, next) {
       const { id } = request.params
       const { organizationId } = request.udaru
 
-      userOps.deleteUserPolicies({ id, organizationId }, function (err, res) {
+      udaru.users.deletePolicies({ id, organizationId }, function (err, res) {
         if (err) {
           return reply(err)
         }
@@ -278,9 +256,7 @@ exports.register = function (server, options, next) {
     },
     config: {
       validate: {
-        params: {
-          id: Joi.string().required().description('User ID')
-        },
+        params: _.pick(udaru.users.deletePolicies.validate, ['id']),
         headers
       },
       description: 'Clear all user\'s policies',
@@ -302,7 +278,7 @@ exports.register = function (server, options, next) {
       const { userId, policyId } = request.params
       const { organizationId } = request.udaru
 
-      userOps.deleteUserPolicy({ userId, policyId, organizationId }, function (err, res) {
+      udaru.users.deletePolicy({ userId, policyId, organizationId }, function (err, res) {
         if (err) {
           return reply(err)
         }
@@ -312,10 +288,7 @@ exports.register = function (server, options, next) {
     },
     config: {
       validate: {
-        params: {
-          userId: Joi.string().required().description('User ID'),
-          policyId: Joi.string().required().description('Policy ID')
-        },
+        params: _.pick(udaru.users.deletePolicy.validate, ['userId', 'policyId']),
         headers
       },
       description: 'Remove a user\'s policy',

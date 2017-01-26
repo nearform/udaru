@@ -38,8 +38,8 @@ function impersonate (job, next) {
   next()
 }
 
-function checkAuthorization (userId, action, resource, done) {
-  const params = { userId, action, resource }
+function checkAuthorization (userId, action, organizationId, resource, done) {
+  const params = { userId, action, organizationId, resource }
 
   authorizeOps.isUserAuthorized(params, (err, result) => {
     if (err) return done(err)
@@ -99,8 +99,9 @@ function authorize (job, next) {
 
     const action = job.authParams.action
     const userId = job.currentUser.id
+    const organizationId = job.organizationId
 
-    async.any(resources, async.apply(checkAuthorization, userId, action), (err, valid) => {
+    async.any(resources, async.apply(checkAuthorization, userId, action, organizationId), (err, valid) => {
       if (err) return next(Boom.forbidden('Invalid credentials', 'udaru'))
       if (!valid) return next(Boom.forbidden('Invalid credentials', 'udaru'))
 
