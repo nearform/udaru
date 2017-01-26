@@ -216,8 +216,9 @@ To achieve this we use the [`reconfig`](https://github.com/namshi/reconfig) modu
 
 
 ## License
+Copyright nearForm Ltd 2017. Licensed under [MIT][License]
 
-Copyright nearForm 2017. Licensed under [MIT](/LICENSE)
+[License]: ./LICENSE.md
 
 [BadgeTravis]: https://travis-ci.org/nearform/labs-authorization.svg?branch=master
 [Travis]: https://travis-ci.org/nearform/labs-authorization?branch=master

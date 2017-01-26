@@ -3,7 +3,7 @@
   "version": "0.0.2",
   "description": "A policy based authorization module",
   "license": "MIT",
-  "author": "Mark Ireland",
+  "author": "nearForm Ltd",
   "contributors": [
     "Dean McDonnell (https://github.com/mcdonnelldean)",
     "Mihai Dima (https://github.com/mihaidma)",
