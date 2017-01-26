@@ -428,7 +428,7 @@ exports.register = function (server, options, next) {
       plugins: {
         auth: {
           action: Action.RemoveTeamPolicy,
-          getParams: (request) => ({ teamId: request.params.id })
+          getParams: (request) => ({ teamId: request.params.teamId })
         }
       }
     }
