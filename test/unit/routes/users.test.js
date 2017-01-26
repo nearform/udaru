@@ -5,11 +5,11 @@ const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 const Boom = require('boom')
 var proxyquire = require('proxyquire')
-var utils = require('../utils')
+var utils = require('../../utils')
 
 var udaru = {}
-var usersRoutes = proxyquire('../../lib/server/routes/public/users', { '../../../module': udaru })
-var server = proxyquire('../../lib/server', { './routes/public/users': usersRoutes })
+var usersRoutes = proxyquire('../../../lib/server/routes/public/users', { '../../../module': udaru })
+var server = proxyquire('../../../lib/server', { './routes/public/users': usersRoutes })
 
 lab.experiment('Users', () => {
   lab.test('get user list should return error for error case', (done) => {

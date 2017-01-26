@@ -5,11 +5,11 @@ const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 const Boom = require('boom')
 var proxyquire = require('proxyquire')
-var utils = require('../utils')
+var utils = require('../../utils')
 
 var udaru = {}
-var authRoutes = proxyquire('../../lib/server/routes/public/authorization', { '../../../module': udaru })
-var server = proxyquire('../../lib/server', { './routes/public/authorization': authRoutes })
+var authRoutes = proxyquire('../../../lib/server/routes/public/authorization', { '../../../module': udaru })
+var server = proxyquire('../../../lib/server', { './routes/public/authorization': authRoutes })
 
 lab.experiment('Authorization', () => {
   lab.test('check authorization should return 500 for error case', (done) => {

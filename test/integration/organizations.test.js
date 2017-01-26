@@ -5,6 +5,7 @@ const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 const utils = require('../utils')
 const { udaru } = utils
+
 var server = require('../../lib/server')
 
 lab.experiment('Organizations', () => {

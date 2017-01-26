@@ -3,7 +3,7 @@ const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 const server = require('../../../lib/server')
 const Factory = require('../../factory')
-const BuildFor = require('./testBuilder')
+const BuildFor = require('./test-builder')
 
 const utils = require('../../utils')
 const { udaru } = utils
