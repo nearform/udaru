@@ -5,9 +5,18 @@
   "license": "MIT",
   "author": "nearForm Ltd",
   "contributors": [
+    "Andrew Cashmore (https://github.com/andrewcashmore)",
+    "Damian Beresford (https://github.com/dberesford)",
     "Dean McDonnell (https://github.com/mcdonnelldean)",
+    "Filippo De Santis (https://github.com/p16)",
     "Mihai Dima (https://github.com/mihaidma)",
-    "Paolo Chiodi (https://github.com/paolochiodi)"
+    "Paolo Chiodi (https://github.com/paolochiodi)",
+    "Paul Negrutiu (https://github.com/floridemai)",
+    "Mark Ireland (https://github.com/irelandm)",
+    "Michael O'Brien (https://github.com/mobri3n)",
+    "Michele Capra (https://github.com/piccoloaiutante)",
+    "Nicolas Herment (https://github.com/nherment)",
+    "Salman Mitha (https://github.com/salmanm)"
   ],
   "homepage": "https://github.com/nearform/labs-authorization#readme",
   "repository": {
