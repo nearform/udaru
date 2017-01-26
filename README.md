@@ -1,10 +1,13 @@
 # Udaru
-[![Travis][BadgeTravis]][Travis]
+[![npm][npm-badge]][npm-url]
+[![travis][travis-badge]][travis-url]
+[![coveralls][coveralls-badge]][coveralls-url]
+[![david][david-badge]][david-url]
 
 Udaru is a policy based authorization module that can be used to add permissions to 'actions' and 
 'resources'. Udaru supports 'organisations', 'teams', and 'users'; policies can be created for 
-each. Udaru can be used as a stand-alone module (this repo), or as a [stand-alone server]() or 
-[Hapi plugin]().
+each. Udaru can be used as a [stand-alone module]() , or as a [stand-alone server]() or 
+[Hapi plugin](). This repository contains the code for all three running configurations.
 
 ## Install
 To install via npm,
@@ -14,6 +17,22 @@ npm install udaru
 ```
 
 ## Testing, benching & linting
+Before running tests, ensure a valid Postgres database is running. The simplest way to do this is
+via Docker. Assuming docker is intstalled on your machine, in the root folder, run,
+
+```
+docker-compose up
+```
+
+This will start a postgress database. Running test or coverage runs will automaticaly populate the
+database with the information it needs.
+
+To run tests,
+
+```
+npm run test
+```
+
 To lint the repository,
 
 ```
@@ -38,17 +57,30 @@ To obtain a coverage report,
 npm run coverage
 ```
 
+## Usage
+
+### Stand-alone module
+To follow...
+
+### Stand alone server
+To follow...
+
+### Hapi plugin
+To follow...
+
 ## Database
 
 **Important note:** the app needs PostgreSQL >= 9.5
 
-Running the initial demo (first cut of the service) uses Postgres in a Docker running instance, which can be created with:
+Running the initial demo (first cut of the service) uses Postgres in a Docker running instance, 
+which can be created with:
 
 ```
 npm run pg:build
 ```
 
-Note: In case you have issues building or running it with Docker make sure you have a recent version of docker engine and docker compose.
+Note: In case you have issues building or running it with Docker make sure you have a recent 
+version of docker engine and docker compose.
 
 ### Start Postgres in a Docker container
 
@@ -89,15 +121,17 @@ npm run pg:load-test-data
 
 ### pgAdmin database access
 
-As the Postgresql docker container has its 5432 port forwarded on the local machine the database can be accessed with pgAdmin.
+As the Postgresql docker container has its 5432 port forwarded on the local machine the database 
+can be accessed with pgAdmin.
 
-To access the database using the pgAdmin you have to fill in also the container IP beside the database names and access credentials. The container IP can be seen with `docker ps`.
+To access the database using the pgAdmin you have to fill in also the container IP beside the 
+database names and access credentials. The container IP can be seen with `docker ps`.
 
 ### Migrations
 
 For testing and documentation purposes we have db migrations.
 
-We use [`postgrator`](https://github.com/rickbergfalk/postgrator) and you can find the sql files in the [`database/migrations`](/database/migrations) folder.
+We use [`postgrator`][postgrator] and you can find the sql files in the [`database/migrations`](/database/migrations) folder.
 
 To run the migrations you just need to execute
 
@@ -178,7 +212,7 @@ To run Swagger:
 npm run start
 ```
 
-and then go to `http://localhost:8080/documentation`
+and then go to [`http://localhost:8080/documentation`][swagger-link]
 
 The Swagger documentation also gives the ability to execute calls to the API and see their results.
 
@@ -186,15 +220,17 @@ The Swagger documentation also gives the ability to execute calls to the API and
 
 ## ENV variables to set configuration options
 
-There is a default configuration file [`service/lib/config.js`](https://github.com/nearform/labs-authorization/blob/master/src/lib/config.js).
+There is a default configuration file [`service/lib/config.js`][config].
 
-This configuration is the one used in dev environment and we are quite sure the production one will be different :) To override this configuration you can use ENV variables on the server/container/machine you will run the app(s) on.
+This configuration is the one used in dev environment and we are quite sure the production one will 
+be different :) To override this configuration you can use ENV variables on the 
+server/container/machine you will run the app(s) on.
 
-To override those configuration settings you will have to specify your ENV variables with a [prefix](https://github.com/nearform/labs-authorization/blob/master/src/lib/config.js#L29) and then the "path" to the property you want to override.
+To override those configuration settings you will have to specify your ENV variables with a 
+[prefix][prefix-link] and then the "path" to the property you want to override.
 
+**Configuration**
 ```
-#  Configuration
-
 {
   security: {
     api: {
@@ -206,19 +242,32 @@ To override those configuration settings you will have to specify your ENV varia
     }
   }
 }
+```
 
-# env variable override
-
+**ENV variable override**
+```
 LABS_AUTH_SERVICE_security_api_servicekeys_private_0=jerfkgfjdedfkg3j213i43u31jk2erwegjndf
 ```
 
-To achieve this we use the [`reconfig`](https://github.com/namshi/reconfig) module
+To achieve this we use the [`reconfig`][reconfig] module
 
 
 ## License
-Copyright nearForm Ltd 2017. Licensed under [MIT][License]
+Copyright nearForm Ltd 2017. Licensed under [MIT][license]
 
-[License]: ./LICENSE.md
+[config]: https://github.com/nearform/labs-authorization/blob/master/src/lib/config.js
+[license]: ./LICENSE.md
+[postgrator]: https://github.com/rickbergfalk/postgrator
+[prefix-link]: https://github.com/nearform/labs-authorization/blob/master/src/lib/config.js#L29
+[reconfig]: https://github.com/namshi/reconfig
+[swagger-link]: http://localhost:8080/documentation
 
-[BadgeTravis]: https://travis-ci.org/nearform/labs-authorization.svg?branch=master
-[Travis]: https://travis-ci.org/nearform/labs-authorization?branch=master
+[travis-badge]: https://travis-ci.org/nearform/labs-authorization.svg?branch=master
+[travis-url]: https://travis-ci.org/nearform/labs-authorization
+[npm-badge]: https://badge.fury.io/js/labs-authorization.svg
+[npm-url]: https://npmjs.org/package/labs-authorization
+[logo-url]: https://raw.githubusercontent.com/nearform/labs-authorization/master/assets/labs-authorization.png
+[coveralls-badge]: https://coveralls.io/repos/nearform/labs-authorization/badge.svg?branch=master&service=github
+[coveralls-url]: https://coveralls.io/github/nearform/labs-authorization?branch=master
+[david-badge]: https://david-dm.org/nearform/labs-authorization.svg
+[david-url]: https://david-dm.org/nearform/labs-authorization
