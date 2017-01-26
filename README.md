@@ -2,7 +2,7 @@
 [![npm][npm-badge]][npm-url]
 [![travis][travis-badge]][travis-url]
 [![coveralls][coveralls-badge]][coveralls-url]
-[![david][david-badge]][david-url]
+[![snyk][snyk-badge]][snyk-url]
 
 Udaru is a policy based authorization module that can be used to add permissions to 'actions' and 
 'resources'. Udaru supports 'organizations', 'teams', and 'users'; policies can be created for 
@@ -269,5 +269,5 @@ Copyright nearForm Ltd 2017. Licensed under [MIT][license]
 [logo-url]: https://raw.githubusercontent.com/nearform/labs-authorization/master/assets/labs-authorization.png
 [coveralls-badge]: https://coveralls.io/repos/nearform/labs-authorization/badge.svg?branch=master&service=github
 [coveralls-url]: https://coveralls.io/github/nearform/labs-authorization?branch=master
-[david-badge]: https://david-dm.org/nearform/labs-authorization.svg
-[david-url]: https://david-dm.org/nearform/labs-authorization
+[snyk-badge]: https://snyk.io/test/github/nearform/labs-authorization/badge.svg
+[snyk-url]: https://snyk.io/test/github/nearform/labs-authorization
