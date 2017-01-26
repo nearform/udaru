@@ -1,5 +1,6 @@
 'use strict'
 
+const Joi = require('joi')
 const Boom = require('boom')
 const uuid = require('uuid/v4')
 const db = require('./../db')
@@ -10,6 +11,7 @@ const utils = require('./utils')
 const SQL = require('./../db/SQL')
 const mapping = require('./../mapping')
 const conf = require('./../config')
+const validationRules = require('./validation').teams
 
 function generateId () {
   return uuid().replace(/-/g, '_')
@@ -271,12 +273,13 @@ function loadTeams (job, next) {
 }
 
 function loadTeamUsers (job, next) {
-  const { id, offset, limit } = job
+  const { id, offset, limit, organizationId } = job
   const sql = SQL`
     SELECT users.id, users.name, COUNT(*) OVER() AS total_users_count
     FROM team_members mem, users
     WHERE mem.team_id = ${id}
     AND mem.user_id = users.id
+    AND users.org_id = ${organizationId}
     ORDER BY UPPER(users.name)
   `
   if (limit) {
@@ -313,7 +316,6 @@ function loadTeamPolicies (job, next) {
 }
 
 var teamOps = {
-
   /**
    * List the teams in an organization
    *
@@ -323,47 +325,51 @@ var teamOps = {
   listOrgTeams: function listOrgTeams (params, cb) {
     let { organizationId, limit, page } = params
 
-    let sqlQuery = SQL`
-      WITH total AS (
-        SELECT COUNT(*) AS cnt
+    Joi.validate({ organizationId, page, limit }, validationRules.listOrgTeams, function (err) {
+      if (err) return cb(Boom.badRequest(err))
+
+      let sqlQuery = SQL`
+        WITH total AS (
+          SELECT COUNT(*) AS cnt
+          FROM teams
+          WHERE org_id = ${organizationId}
+        )
+        SELECT
+          teams.id,
+          teams.name,
+          teams.description,
+          teams.path,
+          teams.org_id,
+          t.cnt::INTEGER AS total,
+          COUNT(team_members.team_id) AS users_count
         FROM teams
+        LEFT JOIN team_members ON team_members.team_id = teams.id
+        INNER JOIN total AS t ON 1=1
         WHERE org_id = ${organizationId}
-      )
-      SELECT
-        teams.id,
-        teams.name,
-        teams.description,
-        teams.path,
-        teams.org_id,
-        t.cnt::INTEGER AS total,
-        COUNT(team_members.team_id) AS users_count
-      FROM teams
-      LEFT JOIN team_members ON team_members.team_id = teams.id
-      INNER JOIN total AS t ON 1=1
-      WHERE org_id = ${organizationId}
-      GROUP BY teams.id, teams.name, teams.description, teams.path, teams.org_id, t.cnt
-      ORDER BY UPPER(name)
-    `
+        GROUP BY teams.id, teams.name, teams.description, teams.path, teams.org_id, t.cnt
+        ORDER BY UPPER(name)
+      `
 
-    if (limit) {
-      sqlQuery.append(SQL` LIMIT ${limit}`)
-    }
-    if (limit && page) {
-      let offset = (page - 1) * limit
-      sqlQuery.append(SQL` OFFSET ${offset}`)
-    }
+      if (limit) {
+        sqlQuery.append(SQL` LIMIT ${limit}`)
+      }
+      if (limit && page) {
+        let offset = (page - 1) * limit
+        sqlQuery.append(SQL` OFFSET ${offset}`)
+      }
 
-    db.query(sqlQuery, function (err, result) {
-      if (err) return cb(err)
-      let total = result.rows.length > 0 ? result.rows[0].total : 0
-      return cb(null, result.rows.map(mapping.team.list), total)
+      db.query(sqlQuery, function (err, result) {
+        if (err) return cb(err)
+        let total = result.rows.length > 0 ? result.rows[0].total : 0
+        return cb(null, result.rows.map(mapping.team.list), total)
+      })
     })
   },
 
   /**
    * Creates a new team
    *
-   * @param  {Object}   params { name, description, parentId, organizationId, user }
+   * @param  {Object}   params { id, name, description, parentId, organizationId, user }
    * @param  {Object}   opts { createOnly }
    * @param  {Function} cb
    */
@@ -375,6 +381,16 @@ var teamOps = {
 
     const { createOnly } = opts
     const tasks = [
+      (job, next) => {
+        const { id, name, description, parentId, organizationId, user } = params
+
+        // We should not use boom bur return specific errors that will be then handled out side the udaru.js module
+        Joi.validate({ id, name, description, parentId, organizationId, user }, validationRules.createTeam, (err) => {
+          if (err) return next(Boom.badRequest(err))
+
+          next()
+        })
+      },
       (job, next) => {
         job.params = params
         next()
@@ -398,36 +414,6 @@ var teamOps = {
   },
 
   /**
-   * Fetch the users data from a team
-   *
-   * @param  {params}   params { id, page, limit }
-   * @param  {Function} cb
-   */
-  readTeamUsers: function readTeamUsers ({ id, page = 1, limit }, cb) {
-    const pageLimit = limit || conf.get('authorization.defaultPageSize')
-    const offset = (page - 1) * pageLimit
-
-    const job = {
-      id: id,
-      offset: offset,
-      limit: pageLimit,
-      team: {}
-    }
-
-    loadTeamUsers(job, (err) => {
-      if (err) return cb(err)
-      const pageSize = pageLimit || job.totalUsersCount
-      const result = {
-        page: page,
-        limit: pageSize,
-        total: job.totalUsersCount,
-        data: job.team.users
-      }
-      return cb(null, result)
-    })
-  },
-
-  /**
    * Fetch specific team data
    *
    * @param  {params}   params { id, organizationId }
@@ -439,6 +425,13 @@ var teamOps = {
     }
 
     async.applyEachSeries([
+      (job, next) => {
+        Joi.validate({ id, organizationId }, validationRules.readTeam, (err) => {
+          if (err) return next(Boom.badRequest(err))
+
+          next()
+        })
+      },
       (job, next) => {
         job.id = id
         job.organizationId = organizationId
@@ -454,29 +447,34 @@ var teamOps = {
     })
   },
 
-   /**
-   * @param {Object}    params {id, name, description, organizationId }
-   * @param {Function}  cb
+  /**
+   * Uodate team data
+   * @param {Object}   params {id, name, description, organizationId }
+   * @param {Function} cb
    */
   updateTeam: function updateTeam (params, cb) {
     const { id, name, description, organizationId } = params
-    const updates = []
 
-    const sql = SQL` UPDATE teams SET `
-    if (name) { updates.push(SQL`name = ${name}`) }
-    if (description) { updates.push(SQL`description = ${description}`) }
-    sql.append(sql.glue(updates, ' , '))
-    sql.append(SQL`
-      WHERE id = ${id}
-      AND org_id = ${organizationId}
-    `)
+    Joi.validate({ id, name, description, organizationId }, Joi.object().keys(validationRules.updateTeam).or('name', 'description'), function (err) {
+      if (err) return cb(Boom.badRequest(err))
+
+      const updates = []
+      const sql = SQL` UPDATE teams SET `
+      if (name) { updates.push(SQL`name = ${name}`) }
+      if (description) { updates.push(SQL`description = ${description}`) }
+      sql.append(sql.glue(updates, ' , '))
+      sql.append(SQL`
+        WHERE id = ${id}
+        AND org_id = ${organizationId}
+      `)
 
 
-    db.query(sql, (err, res) => {
-      if (err) return cb(Boom.badImplementation(err))
-      if (res.rowCount === 0) return cb(Boom.notFound(`Team with id ${id} could not be found`))
+      db.query(sql, (err, res) => {
+        if (err) return cb(Boom.badImplementation(err))
+        if (res.rowCount === 0) return cb(Boom.notFound(`Team with id ${id} could not be found`))
 
-      teamOps.readTeam({ id, organizationId }, cb)
+        teamOps.readTeam({ id, organizationId }, cb)
+      })
     })
   },
 
@@ -488,6 +486,15 @@ var teamOps = {
    */
   deleteTeam: function deleteTeam (params, cb) {
     db.withTransaction([
+      (job, next) => {
+        const { id, organizationId } = params
+
+        Joi.validate({ id, organizationId }, validationRules.deleteTeam, (err) => {
+          if (err) return next(Boom.badRequest(err))
+
+          next()
+        })
+      },
       (job, next) => {
         job.teamId = params.id
         job.organizationId = params.organizationId
@@ -516,6 +523,13 @@ var teamOps = {
 
     db.withTransaction([
       (job, next) => {
+        Joi.validate({ id, organizationId }, validationRules.moveTeam, (err) => {
+          if (err) return next(Boom.badRequest(err))
+
+          next()
+        })
+      },
+      (job, next) => {
         job.params = params
         next()
       },
@@ -530,6 +544,30 @@ var teamOps = {
   },
 
   /**
+   * Add one or more policies to a team
+   *
+   * @param  {Object}   params { id, organizationId, policies }
+   * @param  {Function} cb
+   */
+  addTeamPolicies: function addTeamPolicies (params, cb) {
+    const { id, organizationId, policies } = params
+
+    Joi.validate({ id, organizationId, policies }, validationRules.addTeamPolicies, function (err) {
+      if (err) return cb(Boom.badRequest(err))
+
+      utils.checkPoliciesOrg(db, policies, organizationId, (err) => {
+        if (err) return cb(err)
+
+        insertTeamPolicies({ client: db, teamId: id, policies }, (err, res) => {
+          if (err) return cb(err)
+
+          teamOps.readTeam({ id, organizationId }, cb)
+        })
+      })
+    })
+  },
+
+  /**
    * Replace team poilicies
    *
    * @param  {Object}   params { id, organizationId, policies }
@@ -538,6 +576,13 @@ var teamOps = {
   replaceTeamPolicies: function replaceTeamPolicies (params, cb) {
     const { id, organizationId, policies } = params
     const tasks = [
+      (job, next) => {
+        Joi.validate({ id, organizationId, policies }, validationRules.replaceTeamPolicies, (err) => {
+          if (err) return next(Boom.badRequest(err))
+
+          next()
+        })
+      },
       (job, next) => {
         job.teamId = id
         job.organizationId = organizationId
@@ -560,26 +605,6 @@ var teamOps = {
   },
 
   /**
-   * Add one or more policies to a team
-   *
-   * @param  {Object}   params { id, organizationId, policies }
-   * @param  {Function} cb
-   */
-  addTeamPolicies: function addTeamPolicies (params, cb) {
-    const { id, organizationId, policies } = params
-
-    utils.checkPoliciesOrg(db, policies, organizationId, (err) => {
-      if (err) return cb(err)
-
-      insertTeamPolicies({ client: db, teamId: id, policies }, (err, res) => {
-        if (err) return cb(err)
-
-        teamOps.readTeam({ id, organizationId }, cb)
-      })
-    })
-  },
-
-  /**
    * Remove all team's policies
    *
    * @param  {Object}   params { id, organizationId }
@@ -588,10 +613,14 @@ var teamOps = {
   deleteTeamPolicies: function deleteTeamPolicies (params, cb) {
     const { id, organizationId } = params
 
-    clearTeamPolicies({ teamId: id, client: db }, (err, res) => {
-      if (err) return cb(err)
+    Joi.validate({ id, organizationId }, validationRules.deleteTeamPolicies, function (err) {
+      if (err) return cb(Boom.badRequest(err))
 
-      teamOps.readTeam({ id, organizationId }, cb)
+      clearTeamPolicies({ teamId: id, client: db }, (err, res) => {
+        if (err) return cb(err)
+
+        teamOps.readTeam({ id, organizationId }, cb)
+      })
     })
   },
 
@@ -604,10 +633,49 @@ var teamOps = {
   deleteTeamPolicy: function deleteTeamPolicy (params, cb) {
     const { teamId, organizationId, policyId } = params
 
-    removeTeamPolicy({ client: db, teamId, policyId }, (err, res) => {
-      if (err) return cb(err)
+    Joi.validate({ teamId, organizationId, policyId }, validationRules.deleteTeamPolicy, function (err) {
+      if (err) return cb(Boom.badRequest(err))
 
-      teamOps.readTeam({ id: teamId, organizationId }, cb)
+      removeTeamPolicy({ client: db, teamId, policyId }, (err, res) => {
+        if (err) return cb(err)
+
+        teamOps.readTeam({ id: teamId, organizationId }, cb)
+      })
+    })
+  },
+
+  /**
+   * Fetch the users data from a team
+   *
+   * @param  {params}   params { id, page, limit }
+   * @param  {Function} cb
+   */
+  readTeamUsers: function readTeamUsers ({ id, page = 1, limit, organizationId }, cb) {
+    Joi.validate({ id, page, limit, organizationId }, validationRules.readTeamUsers, function (err) {
+      if (err) return cb(Boom.badRequest(err))
+
+      const pageLimit = limit || conf.get('authorization.defaultPageSize')
+      const offset = (page - 1) * pageLimit
+
+      const job = {
+        id: id,
+        organizationId: organizationId,
+        offset: offset,
+        limit: pageLimit,
+        team: {}
+      }
+
+      loadTeamUsers(job, (err) => {
+        if (err) return cb(err)
+        const pageSize = pageLimit || job.totalUsersCount
+        const result = {
+          page: page,
+          limit: pageSize,
+          total: job.totalUsersCount,
+          data: job.team.users
+        }
+        return cb(null, result)
+      })
     })
   },
 
@@ -618,8 +686,15 @@ var teamOps = {
    * @param  {Function} cb
    */
   addUsersToTeam: function addUsersToTeam (params, cb) {
-    const { id, organizationId } = params
+    const { id, users, organizationId } = params
     const tasks = [
+      (job, next) => {
+        Joi.validate({ id, users, organizationId }, validationRules.addUsersToTeam, (err) => {
+          if (err) return next(Boom.badRequest(err))
+
+          next()
+        })
+      },
       (job, next) => {
         job.teamId = id
         job.organizationId = organizationId
@@ -648,8 +723,15 @@ var teamOps = {
    * @param  {Function} cb
    */
   replaceUsersInTeam: function replaceUsersInTeam (params, cb) {
-    const { id, organizationId } = params
+    const { id, users, organizationId } = params
     const tasks = [
+      (job, next) => {
+        Joi.validate({ id, users, organizationId }, validationRules.replaceUsersInTeam, (err) => {
+          if (err) return next(Boom.badRequest(err))
+
+          next()
+        })
+      },
       (job, next) => {
         job.teamId = params.id
         job.organizationId = params.organizationId
@@ -683,6 +765,13 @@ var teamOps = {
 
     const tasks = [
       (job, next) => {
+        Joi.validate({ id, organizationId }, validationRules.deleteTeamMembers, (err) => {
+          if (err) return next(Boom.badRequest(err))
+
+          next()
+        })
+      },
+      (job, next) => {
         job.teamId = id
         job.organizationId = organizationId
 
@@ -709,6 +798,13 @@ var teamOps = {
     const { id, userId, organizationId } = params
     const tasks = [
       (job, next) => {
+        Joi.validate({ id, userId, organizationId }, validationRules.deleteTeamMember, (err) => {
+          if (err) return next(Boom.badRequest(err))
+
+          next()
+        })
+      },
+      (job, next) => {
         job.teamId = id
         job.organizationId = organizationId
         job.userId = userId
@@ -726,5 +822,21 @@ var teamOps = {
     })
   }
 }
+
+teamOps.deleteTeamMembers.validate = validationRules.deleteTeamMembers
+teamOps.deleteTeamMember.validate = validationRules.deleteTeamMember
+teamOps.replaceTeamPolicies.validate = validationRules.replaceTeamPolicies
+teamOps.deleteTeamPolicies.validate = validationRules.deleteTeamPolicies
+teamOps.deleteTeamPolicy.validate = validationRules.deleteTeamPolicy
+teamOps.readTeamUsers.validate = validationRules.readTeamUsers
+teamOps.addUsersToTeam.validate = validationRules.addUsersToTeam
+teamOps.replaceUsersInTeam.validate = validationRules.replaceUsersInTeam
+teamOps.listOrgTeams.validate = validationRules.listOrgTeams
+teamOps.createTeam.validate = validationRules.createTeam
+teamOps.readTeam.validate = validationRules.readTeam
+teamOps.updateTeam.validate = validationRules.updateTeam
+teamOps.deleteTeam.validate = validationRules.deleteTeam
+teamOps.moveTeam.validate = validationRules.moveTeam
+teamOps.addTeamPolicies.validate = validationRules.addTeamPolicies
 
 module.exports = teamOps

@@ -42,7 +42,7 @@ lab.experiment('Users: read - delete - update', () => {
   lab.test('get user list', (done) => {
     const options = utils.requestOptions({
       method: 'GET',
-      url: '/authorization/users?page=1&limit=123'
+      url: '/authorization/users?page=1&limit=3'
     })
 
     server.inject(options, (response) => {
@@ -51,7 +51,8 @@ lab.experiment('Users: read - delete - update', () => {
       expect(response.statusCode).to.equal(200)
       expect(result.total).to.equal(7)
       expect(result.page).to.equal(1)
-      expect(result.limit).to.equal(123)
+      expect(result.limit).to.equal(3)
+      expect(result.data.length).to.equal(3)
       expect(result.data[0]).to.equal({
         id: 'AugustusId',
         name: 'Augustus Gloop',
@@ -424,7 +425,7 @@ lab.experiment('Users - checking org_id scoping', () => {
       if (err) return done(err)
 
       const policyData = {
-        version: 1,
+        version: '1',
         name: 'Documents Admin',
         organizationId: 'NEWORG',
         statements

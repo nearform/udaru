@@ -1,5 +1,6 @@
 'use strict'
 
+const Joi = require('joi')
 const Boom = require('boom')
 const db = require('./../db')
 const policyOps = require('./policyOps')
@@ -7,6 +8,7 @@ const userOps = require('./userOps')
 const SQL = require('./../db/SQL')
 const mapping = require('./../mapping')
 const utils = require('./utils')
+const validationRules = require('./validation').organizations
 
 function fetchOrganizationUsers (job, next) {
   const { id } = job
@@ -122,43 +124,69 @@ function insertOrgAdminUser (job, next) {
 }
 
 var organizationOps = {
-
   /**
    * Fetch all organizations
    *
    * @param  {Object} params must contain both `limit` and `page` for pagination. Page is 1-indexed.
    * @param  {Function} cb
    */
-  list: function list ({limit, page}, cb) {
+  list: function list ({ limit, page }, cb) {
+    Joi.validate({ limit, page }, validationRules.list, function (err) {
+      if (err) return cb(err)
 
-    const sqlQuery = SQL`
-      WITH total AS (
-        SELECT COUNT(*) AS cnt FROM organizations
-      )
-      SELECT o.*, t.cnt::INTEGER AS total
-      FROM organizations AS o
-      INNER JOIN total AS t ON 1=1
-      ORDER BY UPPER(o.name)
-    `
+      const sqlQuery = SQL`
+        WITH total AS (
+          SELECT COUNT(*) AS cnt FROM organizations
+        )
+        SELECT o.*, t.cnt::INTEGER AS total
+        FROM organizations AS o
+        INNER JOIN total AS t ON 1=1
+        ORDER BY UPPER(o.name)
+      `
 
-    if (limit) {
-      sqlQuery.append(SQL` LIMIT ${limit}`)
-    }
-    if (limit && page) {
-      let offset = (page - 1) * limit
-      sqlQuery.append(SQL` OFFSET ${offset}`)
-    }
-    db.query(sqlQuery, function (err, result) {
-      if (err) return cb(Boom.badImplementation(err))
-      let total = result.rows.length > 0 ? result.rows[0].total : 0
-      return cb(null, result.rows.map(mapping.organization), total)
+      if (limit) {
+        sqlQuery.append(SQL` LIMIT ${limit}`)
+      }
+      if (limit && page) {
+        let offset = (page - 1) * limit
+        sqlQuery.append(SQL` OFFSET ${offset}`)
+      }
+      db.query(sqlQuery, function (err, result) {
+        if (err) return cb(Boom.badImplementation(err))
+        let total = result.rows.length > 0 ? result.rows[0].total : 0
+        return cb(null, result.rows.map(mapping.organization), total)
+      })
+    })
+  },
+
+  /**
+   * Fetch data for an organization
+   *
+   * @param  {String}   id
+   * @param  {Function} cb
+   */
+  readById: function readById (id, cb) {
+    Joi.validate(id, validationRules.readById, function (err) {
+      if (err) return cb(err)
+
+      const sqlQuery = SQL`
+        SELECT *
+        FROM organizations
+        WHERE id = ${id}
+      `
+      db.query(sqlQuery, function (err, result) {
+        if (err) return cb(Boom.badImplementation(err))
+        if (result.rowCount === 0) return cb(Boom.notFound(`Organization ${id} not found`))
+
+        return cb(null, mapping.organization(result.rows[0]))
+      })
     })
   },
 
   /**
    * Creates a new organization
    *
-   * @param  {Object}   params {id, name, description}
+   * @param  {Object}   params {id, name, description, user}
    * @param  {Object}   opts { createOnly }
    * @param  {Function} cb
    */
@@ -171,6 +199,15 @@ var organizationOps = {
     const { createOnly } = opts
 
     const tasks = [
+      (job, next) => {
+        const { id, name, description, user } = params
+
+        Joi.validate({ id, name, description, user }, validationRules.create, (err) => {
+          if (err) return next(Boom.badRequest(err))
+
+          next()
+        })
+      },
       (job, next) => {
         job.params = params
         job.user = params.user
@@ -198,26 +235,6 @@ var organizationOps = {
   },
 
   /**
-   * Fetch data for an organization
-   *
-   * @param  {String}   id
-   * @param  {Function} cb
-   */
-  readById: function readById (id, cb) {
-    const sqlQuery = SQL`
-      SELECT *
-      FROM organizations
-      WHERE id = ${id}
-    `
-    db.query(sqlQuery, function (err, result) {
-      if (err) return cb(Boom.badImplementation(err))
-      if (result.rowCount === 0) return cb(Boom.notFound(`Organization ${id} not found`))
-
-      return cb(null, mapping.organization(result.rows[0]))
-    })
-  },
-
-  /**
    * Delete organization
    *
    * @param  {String}   id
@@ -225,6 +242,13 @@ var organizationOps = {
    */
   deleteById: function deleteById (id, cb) {
     const tasks = [
+      (job, next) => {
+        Joi.validate(id, validationRules.deleteById, (err) => {
+          if (err) return next(Boom.badRequest(err))
+
+          next()
+        })
+      },
       (job, next) => {
         job.id = id
         next()
@@ -252,20 +276,30 @@ var organizationOps = {
   update: function update (params, cb) {
     const { id, name, description } = params
 
-    const sqlQuery = SQL`
-      UPDATE organizations
-      SET
-        name = ${name},
-        description = ${description}
-      WHERE id = ${id}
-    `
-    db.query(sqlQuery, function (err, result) {
-      if (err) return cb(Boom.badImplementation(err))
-      if (result.rowCount === 0) return cb(Boom.notFound())
+    Joi.validate({ id, name, description }, validationRules.update, function (err) {
+      if (err) return cb(err)
 
-      organizationOps.readById(id, cb)
+      const sqlQuery = SQL`
+        UPDATE organizations
+        SET
+          name = ${name},
+          description = ${description}
+        WHERE id = ${id}
+      `
+      db.query(sqlQuery, function (err, result) {
+        if (err) return cb(Boom.badImplementation(err))
+        if (result.rowCount === 0) return cb(Boom.notFound())
+
+        organizationOps.readById(id, cb)
+      })
     })
   }
 }
+
+organizationOps.list.validate = validationRules.list
+organizationOps.readById.validate = validationRules.readById
+organizationOps.create.validate = validationRules.create
+organizationOps.deleteById.validate = validationRules.deleteById
+organizationOps.update.validate = validationRules.update
 
 module.exports = organizationOps

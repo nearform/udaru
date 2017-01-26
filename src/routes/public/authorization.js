@@ -1,8 +1,9 @@
 'use strict'
 
+const _ = require('lodash')
 const Joi = require('joi')
 const Action = require('./../../lib/config/config.auth').Action
-const authorize = require('./../../lib/ops/authorizeOps')
+const udaru = require('./../../udaru')
 const headers = require('./../headers')
 const swagger = require('./../../swagger')
 
@@ -22,7 +23,7 @@ exports.register = function (server, options, next) {
         organizationId
       }
 
-      authorize.isUserAuthorized(params, reply)
+      udaru.authorize.isUserAuthorized(params, reply)
     },
     config: {
       plugins: {
@@ -32,11 +33,7 @@ exports.register = function (server, options, next) {
         }
       },
       validate: {
-        params: {
-          userId: Joi.string().required().description('The user that wants to perform the action on a given resource'),
-          action: Joi.string().required().description('The action to check'),
-          resource: Joi.string().required().description('The resource that the user wants to perform the action on')
-        },
+        params: _.pick(udaru.authorize.isUserAuthorized.validate, ['userId', 'action', 'resource']),
         headers
       },
       description: 'Authorize user action against a resource',
@@ -58,7 +55,7 @@ exports.register = function (server, options, next) {
         organizationId
       }
 
-      authorize.listAuthorizations(params, reply)
+      udaru.authorize.listActions(params, reply)
     },
     config: {
       plugins: {
@@ -68,10 +65,7 @@ exports.register = function (server, options, next) {
         }
       },
       validate: {
-        params: {
-          userId: Joi.string().required().description('The user that wants to perform the action on a given resource'),
-          resource: Joi.string().required().description('The resource that the user wants to perform the action on')
-        },
+        params: _.pick(udaru.authorize.listActions.validate, ['userId', 'resource']),
         headers
       },
       description: 'List all the actions a user can perform on a resource',

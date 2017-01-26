@@ -7,17 +7,19 @@ const Boom = require('boom')
 var proxyquire = require('proxyquire')
 var utils = require('./../../utils')
 
-var authorizeMock = {}
-var authRoutes = proxyquire('./../../../src/routes/public/authorization', { './../../lib/ops/authorizeOps': authorizeMock })
+var udaru = {}
+var authRoutes = proxyquire('./../../../src/routes/public/authorization', { './../../udaru': udaru })
 var server = proxyquire('./../../../src/wiring-hapi', { './routes/public/authorization': authRoutes })
 
 lab.experiment('Authorization', () => {
 
   lab.test('check authorization should return 500 for error case', (done) => {
-    authorizeMock.isUserAuthorized = (params, cb) => {
-      process.nextTick(() => {
-        cb(Boom.badImplementation())
-      })
+    udaru.authorize = {
+      isUserAuthorized: (params, cb) => {
+        process.nextTick(() => {
+          cb(Boom.badImplementation())
+        })
+      }
     }
 
     const options = utils.requestOptions({
@@ -35,10 +37,12 @@ lab.experiment('Authorization', () => {
   })
 
   lab.test('list authorizations should return 500 for error case', (done) => {
-    authorizeMock.listAuthorizations = (params, cb) => {
-      process.nextTick(() => {
-        cb(Boom.badImplementation())
-      })
+    udaru.authorize = {
+      listActions: (params, cb) => {
+        process.nextTick(() => {
+          cb(Boom.badImplementation())
+        })
+      }
     }
 
     const options = utils.requestOptions({

@@ -7,18 +7,20 @@ const Boom = require('boom')
 var proxyquire = require('proxyquire')
 var utils = require('./../../utils')
 
-var userOps = {}
-var usersRoutes = proxyquire('./../../../src/routes/public/users', { './../../lib/ops/userOps': userOps })
+var udaru = {}
+var usersRoutes = proxyquire('./../../../src/routes/public/users', { './../../udaru': udaru })
 var server = proxyquire('./../../../src/wiring-hapi', { './routes/public/users': usersRoutes })
 
 lab.experiment('Users', () => {
 
   lab.test('get user list should return error for error case', (done) => {
-    userOps.listOrgUsers = function (params, cb) {
-      expect(params).to.equal({ organizationId: 'WONKA', limit: 100, page: 1 })
-      process.nextTick(() => {
-        cb(Boom.badImplementation())
-      })
+    udaru.users = {
+      list: function (params, cb) {
+        expect(params).to.equal({ organizationId: 'WONKA', limit: 100, page: 1 })
+        process.nextTick(() => {
+          cb(Boom.badImplementation())
+        })
+      }
     }
 
     const options = utils.requestOptions({
@@ -37,11 +39,13 @@ lab.experiment('Users', () => {
   })
 
   lab.test('get single user should return error for error case', (done) => {
-    userOps.readUser = function (params, cb) {
-      expect(params).to.equal({ id: 'Myid', organizationId: 'WONKA' })
-      process.nextTick(() => {
-        cb(Boom.badImplementation())
-      })
+    udaru.users = {
+      read: function (params, cb) {
+        expect(params).to.equal({ id: 'Myid', organizationId: 'WONKA' })
+        process.nextTick(() => {
+          cb(Boom.badImplementation())
+        })
+      }
     }
 
     const options = utils.requestOptions({
@@ -60,10 +64,12 @@ lab.experiment('Users', () => {
   })
 
   lab.test('create user should return error for error case', (done) => {
-    userOps.createUser = function (params, cb) {
-      process.nextTick(() => {
-        cb(Boom.badImplementation())
-      })
+    udaru.users = {
+      create: function (params, cb) {
+        process.nextTick(() => {
+          cb(Boom.badImplementation())
+        })
+      }
     }
 
     const options = utils.requestOptions({
@@ -85,11 +91,13 @@ lab.experiment('Users', () => {
   })
 
   lab.test('delete user should return error for error case', (done) => {
-    userOps.deleteUser = function (params, cb) {
-      expect(params).to.equal({ id: 'MyId', organizationId: 'WONKA' })
-      process.nextTick(() => {
-        cb(Boom.badImplementation())
-      })
+    udaru.users = {
+      delete: function (params, cb) {
+        expect(params).to.equal({ id: 'MyId', organizationId: 'WONKA' })
+        process.nextTick(() => {
+          cb(Boom.badImplementation())
+        })
+      }
     }
 
     const options = utils.requestOptions({
@@ -108,12 +116,14 @@ lab.experiment('Users', () => {
   })
 
   lab.test('update user should return error for error case', (done) => {
-    userOps.updateUser = function (params, cb) {
-      expect(params.id).to.equal('MyId')
-      expect(params.organizationId).to.equal('WONKA')
-      process.nextTick(() => {
-        cb(Boom.badImplementation())
-      })
+    udaru.users = {
+      update: function (params, cb) {
+        expect(params.id).to.equal('MyId')
+        expect(params.organizationId).to.equal('WONKA')
+        process.nextTick(() => {
+          cb(Boom.badImplementation())
+        })
+      }
     }
 
     const options = utils.requestOptions({
