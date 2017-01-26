@@ -60,13 +60,27 @@ npm run coverage
 ## Usage
 
 ### Stand-alone module
-To follow...
+```js
+const Udaru = require('udaru') // or
+
+...
+```
 
 ### Stand alone server
-To follow...
+```
+npm run start
+```
 
 ### Hapi plugin
-To follow...
+```js
+const Hapi = require('hapi')
+const UdaruPlugin = require('udaru/hapi-plugin')
+
+...
+
+const server = new Hapi.server()
+server.register({register: UdaruPlugin})
+```
 
 ## Database
 
