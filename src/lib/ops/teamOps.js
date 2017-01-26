@@ -107,11 +107,11 @@ function makeDefaultUserAdmin (job, next) {
 }
 
 function removeTeams (job, next) {
-  const { teamIds, organizationId } = job
+  const { teamId, teamIds, organizationId } = job
 
-  job.client.query(SQL`DELETE FROM teams WHERE id = ANY (${teamIds}) AND org_id = ${organizationId}`, (err, result) => {
+  job.client.query(SQL`DELETE FROM teams WHERE id = ANY (${teamIds}) AND org_id = ${organizationId} RETURNING id`, (err, result) => {
     if (err) return next(Boom.badImplementation(err))
-    if (result.rowCount !== teamIds.length) return next(Boom.notFound('Could not find all teams to be deleted'))
+    if (result.rows.map(getId).indexOf(teamId) < 0) return next(Boom.notFound(`Could not find team [${teamId}] to be deleted`))
     next()
   })
 }

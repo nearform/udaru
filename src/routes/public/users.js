@@ -44,7 +44,7 @@ exports.register = function (server, options, next) {
           limit: Joi.number().integer().min(1).description('Users per page')
         }).required()
       },
-      response: {schema: swagger.List(swagger.User)}
+      response: {schema: swagger.List(swagger.User).label('PagedUsers')}
     }
   })
 

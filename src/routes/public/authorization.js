@@ -4,6 +4,7 @@ const Joi = require('joi')
 const Action = require('./../../lib/config/config.auth').Action
 const authorize = require('./../../lib/ops/authorizeOps')
 const headers = require('./../headers')
+const swagger = require('./../../swagger')
 
 exports.register = function (server, options, next) {
   server.route({
@@ -40,9 +41,7 @@ exports.register = function (server, options, next) {
       description: 'Authorize user action against a resource',
       notes: 'The GET /authorization/access/{userId}/{action}/{resource} endpoint answers if a user can perform an action\non a resource.\n',
       tags: ['api', 'service', 'authorization'],
-      response: {schema: Joi.object({
-        access: Joi.boolean()
-      })}
+      response: {schema: swagger.Access}
     }
   })
 
@@ -77,9 +76,7 @@ exports.register = function (server, options, next) {
       description: 'List all the actions a user can perform on a resource',
       notes: 'The GET /authorization/list/{userId}/{resource} endpoint returns a list of all the actions a user\ncan perform on a given resource.\n',
       tags: ['api', 'service', 'authorization'],
-      response: {schema: Joi.object({
-        actions: Joi.array().items(Joi.string())
-      })}
+      response: {schema: swagger.UserActions}
     }
   })
 

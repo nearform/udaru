@@ -37,10 +37,10 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         payload: {
-          id: Joi.string().allow('').description('policy id'),
-          version: Joi.string().required().description('policy version'),
-          name: Joi.string().required().description('policy name'),
-          statements: swagger.PolicyStatements.required().description('policy statements')
+          id: Joi.string().allow('').description('Policy ID'),
+          version: Joi.string().required().description('Policy version'),
+          name: Joi.string().required().description('Policy name'),
+          statements: swagger.PolicyStatements.required().description('Policy statements')
         },
         query: {
           sig: Joi.string().required()
@@ -82,12 +82,12 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.string().required().description('policy id')
+          id: Joi.string().required().description('Policy ID')
         },
         payload: {
-          version: Joi.string().required().description('policy version'),
-          name: Joi.string().required().description('policy name'),
-          statements: swagger.PolicyStatements.required().description('policy statements')
+          version: Joi.string().required().description('Policy version'),
+          name: Joi.string().required().description('Policy name'),
+          statements: swagger.PolicyStatements.required().description('Policy statements')
         },
         query: {
           sig: Joi.string().required()
@@ -127,7 +127,7 @@ exports.register = function (server, options, next) {
     config: {
       validate: {
         params: {
-          id: Joi.string().required().description('policy id')
+          id: Joi.string().required().description('Policy ID')
         },
         query: {
           sig: Joi.string().required()
@@ -135,7 +135,7 @@ exports.register = function (server, options, next) {
         headers
       },
       description: 'Delete a policy',
-      notes: 'The DELETE /authorization/policies/{id} endpoint is a private endpoint. It can be accessed only using a service key.\nThis service key needs to be passed as a query string in the form "sig=<key>"\n',
+      notes: 'The DELETE /authorization/policies/{id} endpoint is a private endpoint. It can be accessed only using a service key.\n\nThis service key needs to be passed as a query string in the form "sig=<key>"\n',
       tags: ['api', 'service', 'delete', 'policy', 'private'],
       plugins: {
         auth: {

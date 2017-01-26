@@ -7,10 +7,11 @@ const lab = exports.lab = Lab.script()
 const configAuth = require('../../../src/lib/config/config.auth')
 
 lab.experiment('config.auth.js', () => {
-  let orgData = { organizationId: 'MyOrg' }
-  let TeamData = { organizationId: 'MyOrg', teamId: 'teamId' }
-  let UserData = { organizationId: 'MyOrg', teamId: 'teamId', userId: 'userId' }
-  let RandomData = { organizationId: 'MyOrg', teamId: 'teamId', userId: 'userId', random: 'random', data: 'data' }
+  const orgData = { organizationId: 'MyOrg' }
+  const TeamData = { organizationId: 'MyOrg', teamId: 'teamId' }
+  const UserData = { organizationId: 'MyOrg', teamId: 'teamId', userId: 'userId' }
+  const RandomData = { organizationId: 'MyOrg', teamId: 'teamId', userId: 'userId', random: 'random', data: 'data' }
+  const policyData = { organizationId: 'MyOrg', policyId: 'policyId' }
 
   lab.test('Resources - organization', (done) => {
     expect(configAuth.resources.organizations({})).to.equal('/authorization/organization/*')
@@ -43,11 +44,12 @@ lab.experiment('config.auth.js', () => {
   })
 
   lab.test('Resources - policies', (done) => {
-    expect(configAuth.resources.policies({})).to.equal('/authorization/policy/*')
-    expect(configAuth.resources.policies(orgData)).to.equal('/authorization/policy/MyOrg')
-    expect(configAuth.resources.policies(TeamData)).to.equal('/authorization/policy/MyOrg')
-    expect(configAuth.resources.policies(UserData)).to.equal('/authorization/policy/MyOrg')
-    expect(configAuth.resources.policies(RandomData)).to.equal('/authorization/policy/MyOrg')
+    expect(configAuth.resources.policies({})).to.equal('/authorization/policy/*/*')
+    expect(configAuth.resources.policies(orgData)).to.equal('/authorization/policy/MyOrg/*')
+    expect(configAuth.resources.policies(policyData)).to.equal('/authorization/policy/MyOrg/policyId')
+    expect(configAuth.resources.policies(TeamData)).to.equal('/authorization/policy/MyOrg/*')
+    expect(configAuth.resources.policies(UserData)).to.equal('/authorization/policy/MyOrg/*')
+    expect(configAuth.resources.policies(RandomData)).to.equal('/authorization/policy/MyOrg/*')
 
     done()
   })

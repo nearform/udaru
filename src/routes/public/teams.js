@@ -47,7 +47,7 @@ exports.register = function (server, options, next) {
           limit: Joi.number().integer().min(1).description('Items per page')
         }).required()
       },
-      response: {schema: swagger.List(swagger.Team)}
+      response: {schema: swagger.List(swagger.Team).label('PagedTeams')}
     }
   })
 
@@ -221,7 +221,7 @@ exports.register = function (server, options, next) {
           return reply(err)
         }
 
-        return reply(res).code(201)
+        return reply(res).code(200)
       })
     },
     config: {
@@ -264,7 +264,7 @@ exports.register = function (server, options, next) {
           return reply(err)
         }
 
-        return reply(res).code(201)
+        return reply(res).code(200)
       })
     },
     config: {
@@ -427,7 +427,7 @@ exports.register = function (server, options, next) {
       plugins: {
         auth: {
           action: Action.RemoveTeamPolicy,
-          getParams: (request) => ({ teamId: request.params.id })
+          getParams: (request) => ({ teamId: request.params.teamId })
         }
       }
     }
@@ -463,7 +463,7 @@ exports.register = function (server, options, next) {
           getParams: (request) => ({ teamId: request.params.id })
         }
       },
-      response: {schema: swagger.List(swagger.User)}
+      response: {schema: swagger.List(swagger.User).label('PagedUsers')}
     }
   })
 
