@@ -7,7 +7,7 @@ const serviceKey = require('./../../security/serviceKey')
 const Action = require('./../../lib/config/config.auth').Action
 const swagger = require('./../../swagger')
 const headers = require('./../headers')
-const udaru = require('./../../udaru')
+const udaru = require('./../../../udaru')
 
 exports.register = function (server, options, next) {
   server.route({

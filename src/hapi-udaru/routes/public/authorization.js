@@ -2,7 +2,7 @@
 
 const _ = require('lodash')
 const Action = require('./../../lib/config/config.auth').Action
-const udaru = require('./../../udaru')
+const udaru = require('./../../../udaru')
 const headers = require('./../headers')
 const swagger = require('./../../swagger')
 

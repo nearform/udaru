@@ -1,8 +1,9 @@
+'use strict'
 
 const _ = require('lodash')
 const expect = require('code').expect
 
-const policyOps = require('../../../src/lib/ops/policyOps')
+const policyOps = require('../../../src/udaru/lib/ops/policyOps')
 const utils = require('../../utils')
 
 function Policy (Statement) {

@@ -5,8 +5,8 @@ const Boom = require('boom')
 
 const config = require('./../lib/config')
 const authConfig = require('./../lib/config/config.auth')
-const userOps = require('./../lib/ops/userOps')
-const authorizeOps = require('./../lib/ops/authorizeOps')
+const userOps = require('./../../udaru/lib/ops/userOps')
+const authorizeOps = require('./../../udaru/lib/ops/authorizeOps')
 
 function canImpersonate (user) {
   return user.organizationId === config.get('authorization.superUser.organization.id')

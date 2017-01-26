@@ -6,11 +6,11 @@ const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 const crypto = require('crypto')
-const conf = require('./../../../src/lib/config')
+const conf = require('./../../../src/udaru/lib/config')
 
-const teamOps = require('../../../src/lib/ops/teamOps')
-const policyOps = require('../../../src/lib/ops/policyOps')
-const userOps = require('../../../src/lib/ops/userOps')
+const teamOps = require('../../../src/udaru/lib/ops/teamOps')
+const policyOps = require('../../../src/udaru/lib/ops/policyOps')
+const userOps = require('../../../src/udaru/lib/ops/userOps')
 
 const statements = { Statement: [{ Effect: 'Allow', Action: ['documents:Read'], Resource: ['wonka:documents:/public/*'] }] }
 

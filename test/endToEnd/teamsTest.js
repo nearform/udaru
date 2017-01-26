@@ -4,10 +4,10 @@ const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 const utils = require('./../utils')
-const server = require('./../../src/wiring-hapi')
-const teamOps = require('./../../src/lib/ops/teamOps')
-const organizationOps = require('./../../src/lib/ops/organizationOps')
-const userOps = require('./../../src/lib/ops/userOps')
+const server = require('./../../src/hapi-udaru/wiring-hapi')
+const teamOps = require('./../../src/udaru/lib/ops/teamOps')
+const organizationOps = require('./../../src/udaru/lib/ops/organizationOps')
+const userOps = require('./../../src/udaru/lib/ops/userOps')
 
 const teamData = {
   name: 'testTeam',

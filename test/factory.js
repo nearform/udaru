@@ -1,10 +1,12 @@
+'use strict'
+
 const async = require('async')
 const _ = require('lodash')
 
-const userOps = require('../src/lib/ops/userOps')
-const policyOps = require('../src/lib/ops/policyOps')
-const teamOps = require('../src/lib/ops/teamOps')
-const orgOps = require('../src/lib/ops/organizationOps')
+const userOps = require('../src/udaru/lib/ops/userOps')
+const policyOps = require('../src/udaru/lib/ops/policyOps')
+const teamOps = require('../src/udaru/lib/ops/teamOps')
+const orgOps = require('../src/udaru/lib/ops/organizationOps')
 
 function Factory (lab, data) {
   const records = {}

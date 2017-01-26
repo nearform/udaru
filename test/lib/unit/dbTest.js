@@ -30,7 +30,7 @@ const tasks = [
   }
 ]
 
-const db = proxyquire('../../../src/lib/db', {'pg': {
+const db = proxyquire('../../../src/udaru/lib/db', {'pg': {
   Pool: function () {
     return client
   }

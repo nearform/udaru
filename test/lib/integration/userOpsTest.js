@@ -6,9 +6,9 @@ const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 
 const u = require('../../utils')
-const teamOps = require('../../../src/lib/ops/teamOps')
-const userOps = require('../../../src/lib/ops/userOps')
-const policyOps = require('../../../src/lib/ops/policyOps')
+const teamOps = require('../../../src/udaru/lib/ops/teamOps')
+const userOps = require('../../../src/udaru/lib/ops/userOps')
+const policyOps = require('../../../src/udaru/lib/ops/policyOps')
 
 lab.experiment('UserOps', () => {
   let wonkaTeams

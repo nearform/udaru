@@ -1,8 +1,8 @@
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 
-const orgOps = require('../../../src/lib/ops/organizationOps')
-const server = require('./../../../src/wiring-hapi')
+const orgOps = require('../../../src/udaru/lib/ops/organizationOps')
+const server = require('./../../../src/hapi-udaru/wiring-hapi')
 const Factory = require('../../factory')
 const BuildFor = require('./testBuilder')
 

@@ -5,8 +5,8 @@ const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 var utils = require('./../utils')
-var policyOps = require('./../../src/lib/ops/policyOps')
-var server = require('./../../src/wiring-hapi')
+var policyOps = require('./../../src/udaru/lib/ops/policyOps')
+var server = require('./../../src/hapi-udaru/wiring-hapi')
 
 const statements = { Statement: [{ Effect: 'Allow', Action: ['documents:Read'], Resource: ['wonka:documents:/public/*'] }] }
 const policyCreateData = {

@@ -8,8 +8,8 @@ var proxyquire = require('proxyquire')
 var utils = require('./../../utils')
 
 var udaru = {}
-var authRoutes = proxyquire('./../../../src/routes/public/authorization', { './../../udaru': udaru })
-var server = proxyquire('./../../../src/wiring-hapi', { './routes/public/authorization': authRoutes })
+var authRoutes = proxyquire('./../../../src/hapi-udaru/routes/public/authorization', { './../../../udaru': udaru })
+var server = proxyquire('./../../../src/hapi-udaru/wiring-hapi', { './routes/public/authorization': authRoutes })
 
 lab.experiment('Authorization', () => {
   lab.test('check authorization should return 500 for error case', (done) => {

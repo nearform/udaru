@@ -1,6 +1,6 @@
 'use strict'
 
-const packageJson = require('./../package.json')
+const packageJson = require('./../../package.json')
 const config = require('./lib/config')
 
 const Hapi = require('hapi')

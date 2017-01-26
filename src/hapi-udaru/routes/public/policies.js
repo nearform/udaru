@@ -1,7 +1,7 @@
 'use strict'
 
 const _ = require('lodash')
-const udaru = require('./../../udaru')
+const udaru = require('./../../../udaru')
 const Action = require('./../../lib/config/config.auth').Action
 const conf = require('./../../lib/config')
 const swagger = require('./../../swagger')

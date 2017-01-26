@@ -8,8 +8,8 @@ var proxyquire = require('proxyquire')
 var utils = require('./../../utils')
 
 var udaru = {}
-var usersRoutes = proxyquire('./../../../src/routes/public/users', { './../../udaru': udaru })
-var server = proxyquire('./../../../src/wiring-hapi', { './routes/public/users': usersRoutes })
+var usersRoutes = proxyquire('./../../../src/hapi-udaru/routes/public/users', { './../../../udaru': udaru })
+var server = proxyquire('./../../../src/hapi-udaru/wiring-hapi', { './routes/public/users': usersRoutes })
 
 lab.experiment('Users', () => {
   lab.test('get user list should return error for error case', (done) => {
