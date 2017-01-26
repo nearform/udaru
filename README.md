@@ -1,8 +1,42 @@
-# labs-authorization
+# Udaru
 [![Travis][BadgeTravis]][Travis]
 
+Udaru is a policy based authorization module that can be used to add permissions to 'actions' and 
+'resources'. Udaru supports 'organisations', 'teams', and 'users'; policies can be created for 
+each. Udaru can be used as a stand-alone module (this repo), or as a [stand-alone server]() or 
+[Hapi plugin]().
 
-A component providing authorization functionality
+## Install
+To install via npm,
+
+```
+npm install udaru
+```
+
+## Testing, benching & linting
+To lint the repository,
+
+```
+npm run lint
+```
+
+To fix (most) linting issues,
+
+```
+npm run lint -- --fix
+```
+
+To run a bench test on a given route,
+
+```
+npm run bench -- "METHOD swagger/route/template/path"
+```
+
+To obtain a coverage report,
+
+```
+npm run coverage
+```
 
 ## Database
 
@@ -16,7 +50,7 @@ npm run pg:build
 
 Note: In case you have issues building or running it with Docker make sure you have a recent version of docker engine and docker compose.
 
-###Start Postgres in a Docker container
+### Start Postgres in a Docker container
 
 A Docker container with Postgres can be started with:
 ```
@@ -39,7 +73,7 @@ docker exec -ti e343edecaaa7 bash
 docker exec -ti e bash        // short container name
 ```
 
-###Populate the database
+### Populate the database
 
 The Authorization database, system user and initial tables
 can be created by executing:
@@ -53,7 +87,7 @@ Test data can be added with:
 npm run pg:load-test-data
 ```
 
-###pgAdmin database access
+### pgAdmin database access
 
 As the Postgresql docker container has its 5432 port forwarded on the local machine the database can be accessed with pgAdmin.
 
@@ -149,11 +183,6 @@ and then go to `http://localhost:8080/documentation`
 The Swagger documentation also gives the ability to execute calls to the API and see their results.
 
 
-## Testing
-
-Tests are supplied for the service interface and the Hapi wiring (run `npm test`).
-
-The test data in the database are going to be reloaded when running `npm test`.
 
 ## ENV variables to set configuration options
 
@@ -164,7 +193,7 @@ This configuration is the one used in dev environment and we are quite sure the 
 To override those configuration settings you will have to specify your ENV variables with a [prefix](https://github.com/nearform/labs-authorization/blob/master/src/lib/config.js#L29) and then the "path" to the property you want to override.
 
 ```
-# service config
+#  Configuration
 
 {
   security: {
@@ -186,15 +215,9 @@ LABS_AUTH_SERVICE_security_api_servicekeys_private_0=jerfkgfjdedfkg3j213i43u31jk
 To achieve this we use the [`reconfig`](https://github.com/namshi/reconfig) module
 
 
-## Solution Usage
+## License
 
-This looks somewhat as follows:
-
-![Authorization Architecture](./docs/authorization.png)
+Copyright nearForm 2017. Licensed under [MIT](/LICENSE)
 
 [BadgeTravis]: https://travis-ci.org/nearform/labs-authorization.svg?branch=master
 [Travis]: https://travis-ci.org/nearform/labs-authorization?branch=master
-
-# License
-
-Copyright nearForm 2017. Licensed under [MIT](/LICENSE)

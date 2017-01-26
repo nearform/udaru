@@ -1,4 +1,4 @@
-# Creating a release
+# How to release
 
 1.  Review github issues, triage, close and merge issues related to the release.
 2.  Navigate to the [Test Rig][Test] and ensure all test are passing.
