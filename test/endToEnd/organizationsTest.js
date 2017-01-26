@@ -186,6 +186,103 @@ lab.experiment('Organizations', () => {
     })
   })
 
+  lab.test('create organization with no id', (done) => {
+    const organization = {
+      name: 'nearForm',
+      description: 'nearForm org'
+    }
+
+    const options = utils.requestOptions({
+      method: 'POST',
+      url: '/authorization/organizations',
+      payload: organization
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result.organization
+
+      expect(response.statusCode).to.equal(201)
+      expect(result.id).to.not.be.null()
+      expect(result.name).to.equal(organization.name)
+      expect(result.description).to.equal(organization.description)
+
+      organizationOps.deleteById(result.id, done)
+    })
+  })
+
+  lab.test('create organization with specified but undefined id', (done) => {
+    const organization = {
+      id: undefined,
+      name: 'nearForm',
+      description: 'nearForm org'
+    }
+
+    const options = utils.requestOptions({
+      method: 'POST',
+      url: '/authorization/organizations',
+      payload: organization
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result.organization
+
+      expect(response.statusCode).to.equal(201)
+      expect(result.id).to.not.be.null()
+      expect(result.name).to.equal(organization.name)
+      expect(result.description).to.equal(organization.description)
+
+      organizationOps.deleteById(result.id, done)
+    })
+  })
+
+  lab.test('create organization with null id', (done) => {
+    const organization = {
+      id: null,
+      name: 'nearForm',
+      description: 'nearForm org'
+    }
+
+    const options = utils.requestOptions({
+      method: 'POST',
+      url: '/authorization/organizations',
+      payload: organization
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(400)
+      expect(result.error).to.equal('Bad Request')
+      expect(result.id).to.not.exist()
+
+      done()
+    })
+  })
+
+  lab.test('create organization with empty string id', (done) => {
+    const organization = {
+      id: '',
+      name: 'nearForm',
+      description: 'nearForm org'
+    }
+
+    const options = utils.requestOptions({
+      method: 'POST',
+      url: '/authorization/organizations',
+      payload: organization
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(400)
+      expect(result.error).to.equal('Bad Request')
+      expect(result.id).to.not.exist()
+
+      done()
+    })
+  })
+
   lab.test('create organization and an admin user should return 201 for success', (done) => {
     const organization = {
       id: 'nearForm',

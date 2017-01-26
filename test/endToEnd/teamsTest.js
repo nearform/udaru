@@ -282,7 +282,7 @@ lab.experiment('Teams - get/list', () => {
 })
 
 lab.experiment('Teams - create', () => {
-  lab.test('default', (done) => {
+  lab.test('Create with no id', (done) => {
     const options = utils.requestOptions({
       method: 'POST',
       url: '/authorization/teams',
@@ -296,6 +296,7 @@ lab.experiment('Teams - create', () => {
       const result = response.result
 
       expect(response.statusCode).to.equal(201)
+      expect(result.id).to.not.be.null()
       expect(result).to.contain({
         name: 'Team B',
         organizationId: 'WONKA',
@@ -309,7 +310,36 @@ lab.experiment('Teams - create', () => {
     })
   })
 
-  lab.test('support specific id', (done) => {
+  lab.test('Create with undefined id', (done) => {
+    const options = utils.requestOptions({
+      method: 'POST',
+      url: '/authorization/teams',
+      payload: {
+        id: undefined,
+        name: 'Team B',
+        description: 'This is Team B'
+      }
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(201)
+      expect(result.id).to.not.be.null()
+      expect(result).to.contain({
+        name: 'Team B',
+        organizationId: 'WONKA',
+        description: 'This is Team B',
+        users: [],
+        policies: [],
+        path: result.id
+      })
+
+      teamOps.deleteTeam({ id: result.id, organizationId: result.organizationId }, done)
+    })
+  })
+
+  lab.test('Create with specific id', (done) => {
     const options = utils.requestOptions({
       method: 'POST',
       url: '/authorization/teams',
@@ -333,7 +363,7 @@ lab.experiment('Teams - create', () => {
     })
   })
 
-  lab.test('will not complain for empty id string', (done) => {
+  lab.test('create team with empty id string', (done) => {
     const options = utils.requestOptions({
       method: 'POST',
       url: '/authorization/teams',
@@ -347,10 +377,33 @@ lab.experiment('Teams - create', () => {
     server.inject(options, (response) => {
       const result = response.result
 
-      expect(response.statusCode).to.equal(201)
-      expect(result.id).to.not.equal('')
+      expect(response.statusCode).to.equal(400)
+      expect(result.error).to.equal('Bad Request')
+      expect(result.id).to.not.exist()
 
-      teamOps.deleteTeam({ id: result.id, organizationId: result.organizationId }, done)
+      done()
+    })
+  })
+
+  lab.test('create team with null id string', (done) => {
+    const options = utils.requestOptions({
+      method: 'POST',
+      url: '/authorization/teams',
+      payload: {
+        id: null,
+        name: 'Team B',
+        description: 'This is Team B'
+      }
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(400)
+      expect(result.error).to.equal('Bad Request')
+      expect(result.id).to.not.exist()
+
+      done()
     })
   })
 

@@ -6,7 +6,7 @@ CREATE EXTENSION ltree;
   probably GUID
  */
 CREATE TABLE organizations (
- id          VARCHAR(20) UNIQUE,
+ id          VARCHAR(128) UNIQUE,
  name        VARCHAR(64) NOT NULL,
  description VARCHAR(30)
 );
