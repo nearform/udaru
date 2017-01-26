@@ -14,7 +14,6 @@
     "type": "git",
     "url": "git+https://github.com/nearform/labs-authorization.git"
   },
-  
   "bugs": {
     "url": "https://github.com/nearform/labs-authorization/issues"
   },
@@ -25,6 +24,7 @@
   "scripts": {
     "bench": "node ./bench/util/runner.js",
     "coverage": "LABS_AUTH_SERVICE_logger_pino_level=silent lab -r html -o coverage.html",
+    "coveralls": "LABS_AUTH_SERVICE_logger_pino_level=silent lab -r lcov | coveralls",
     "lint": "standard",
     "pg:build": "docker-compose build",
     "pg:init": "LABS_AUTH_SERVICE_local=true node database/init.js && npm run migrate",
@@ -60,6 +60,7 @@
     "autocannon": "0.16.0",
     "bloomrun": "^3.0.3",
     "code": "4.0.0",
+    "coveralls": "^2.11.15",
     "lab": "11.2.1",
     "pg-copy-streams": "^1.2.0",
     "pino": "3.0.5",
