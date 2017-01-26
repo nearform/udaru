@@ -6,7 +6,7 @@ const resourcesConfig = new Reconfig({
     organizations: '/{{ namespace }}/organization/[organizationId]',
     teams: '/{{ namespace }}/team/[organizationId]/[teamId]',
     users: '/{{ namespace }}/user/[organizationId]/[teamId]/[userId]',
-    policies: '/{{ namespace }}/policy/[organizationId]'
+    policies: '/{{ namespace }}/policy/[organizationId]/[policyId]'
   }
 }, {
   paramsInterpolation: ['[', ']'],
