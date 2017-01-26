@@ -666,7 +666,7 @@ lab.experiment('Teams - nest/un-nest', () => {
     server.inject(options, (response) => {
       const { result } = response
 
-      expect(response.statusCode).to.equal(201)
+      expect(response.statusCode).to.equal(200)
       expect(result.path).to.equal('3.2')
 
       teamOps.moveTeam({ id: result.id, parentId: null, organizationId: result.organizationId }, done)
@@ -685,7 +685,7 @@ lab.experiment('Teams - nest/un-nest', () => {
       server.inject(options, (response) => {
         const { result } = response
 
-        expect(response.statusCode).to.equal(201)
+        expect(response.statusCode).to.equal(200)
         expect(result.path).to.equal('2')
 
         done()
