@@ -42,7 +42,7 @@
   ],
   "dependencies": {
     "async": "2.1.4",
-    "hapi": "16.0.1", 
+    "hapi": "16.0.1",
     "hapi-pino": "1.3.0",
     "hapi-swagger": "7.5.0",
     "iam-js": "git+http://git@github.com/nearform/iam-js.git",

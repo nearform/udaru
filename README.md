@@ -5,7 +5,7 @@
 [![david][david-badge]][david-url]
 
 Udaru is a policy based authorization module that can be used to add permissions to 'actions' and 
-'resources'. Udaru supports 'organisations', 'teams', and 'users'; policies can be created for 
+'resources'. Udaru supports 'organizations', 'teams', and 'users'; policies can be created for 
 each. Udaru can be used as a [stand-alone module]() , or as a [stand-alone server]() or 
 [Hapi plugin](). This repository contains the code for all three running configurations.
 
@@ -18,7 +18,7 @@ npm install udaru
 
 ## Testing, benching & linting
 Before running tests, ensure a valid Postgres database is running. The simplest way to do this is
-via Docker. Assuming docker is intstalled on your machine, in the root folder, run,
+via Docker. Assuming docker is installed on your machine, in the root folder, run,
 
 ```
 docker-compose up
