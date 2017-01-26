@@ -97,7 +97,6 @@ function removePolicy (job, next) {
   })
 }
 
-
 const policyOps = {
   /**
    * List all the policies related to a specific organization

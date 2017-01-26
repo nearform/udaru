@@ -1,7 +1,6 @@
 'use strict'
 
 const _ = require('lodash')
-const Joi = require('joi')
 const Action = require('./../../lib/config/config.auth').Action
 const udaru = require('./../../udaru')
 const headers = require('./../headers')
