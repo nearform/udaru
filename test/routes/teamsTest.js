@@ -17,10 +17,7 @@ lab.experiment('Teams', () => {
       list: (params, cb) => {
         expect(params).to.equal({ organizationId: 'WONKA', limit: 1, page: 1 })
         process.nextTick(() => {
-          
-
           cb(Boom.badImplementation())
-          
         })
       }
     }
