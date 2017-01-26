@@ -22,7 +22,7 @@ before_script:
   - psql -c 'create database "authorization";' -U postgres
 
 script:
-  - npm run commit-check
+  - npm run test:commit-check
 
 after_script:
   - npm run coveralls
