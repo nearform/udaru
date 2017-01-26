@@ -3,7 +3,7 @@
 const path = require('path')
 const pg = require('pg')
 const fs = require('fs')
-const config = require('./../src/hapi-udaru/lib/config')
+const config = require('../lib/server/lib/config')
 
 if (!config.get('local')) {
   console.log('ERROR: You are trying to load test data in the database while not in local environment.')

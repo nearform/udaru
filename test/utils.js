@@ -1,8 +1,9 @@
 'use strict'
 
 const _ = require('lodash')
-const dbInit = require('./../src/udaru/lib/db')
-const SQL = require('./../src/udaru/lib/db/SQL')
+const db = require('./../lib/module/lib/db')
+const SQL = require('./../lib/module/lib/db/SQL')
+
 
 const config = require('./../src/hapi-udaru/lib/config')
 const udaru = require('./../src/udaru')(config._rawConfig)

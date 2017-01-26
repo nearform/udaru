@@ -7,8 +7,8 @@ const async = require('async')
 
 const testUtils = require('../../utils')
 const { udaru } = testUtils
+const config = require('../../lib/module/lib/config')
 
-const config = require('../../../src/hapi-udaru/lib/config')
 const defaultPolicies = config.get('authorization.organizations.defaultPolicies', { 'organizationId': 'nearForm' })
 const defaultPoliciesNames = Object.keys(defaultPolicies).map((pName) => {
   let policy = defaultPolicies[pName]

@@ -309,7 +309,7 @@ lab.experiment('AuthorizeOps - list and access with multiple policies', () => {
   const organizationId = 'nearForm'
 
   lab.before((done) => {
-    const policies = JSON.parse(fs.readFileSync(path.join(__dirname, 'policies.json'), { encoding: 'utf8' }))
+    const policies = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures/policies.json'), { encoding: 'utf8' }))
 
     udaru.organizations.create({ id: organizationId, name: 'nearForm', description: 'nearform description', user: { name: 'admin' } }, (err, res) => {
       if (err) return done(err)

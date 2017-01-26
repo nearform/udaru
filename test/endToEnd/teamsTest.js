@@ -4,7 +4,7 @@ const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 const utils = require('./../utils')
-const server = require('./../../src/hapi-udaru/wiring-hapi')
+const server = require('../../lib/server')
 const { udaru } = utils
 
 const teamData = {

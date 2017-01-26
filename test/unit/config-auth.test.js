@@ -3,8 +3,7 @@
 const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
-
-const configAuth = require('../../../src/hapi-udaru/lib/config/config.auth')
+const configAuth = require('../../lib/module/lib/config/config.auth')
 
 lab.experiment('config.auth.js', () => {
   const orgData = { organizationId: 'MyOrg' }

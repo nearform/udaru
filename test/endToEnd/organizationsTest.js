@@ -3,9 +3,9 @@
 const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
-const utils = require('./../utils')
-const server = require('./../../src/hapi-udaru/wiring-hapi')
+const utils = require('../utils')
 const { udaru } = utils
+var server = require('../../lib/server')
 
 lab.experiment('Organizations', () => {
   lab.test('get organizations list has default pagination params', (done) => {

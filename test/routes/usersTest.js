@@ -5,7 +5,7 @@ const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 const Boom = require('boom')
 var proxyquire = require('proxyquire')
-var utils = require('./../../utils')
+var utils = require('../utils')
 
 /**
  * Skipped because we should mock the entire udaru structure :/

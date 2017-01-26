@@ -5,7 +5,7 @@ const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 
-const loader = require('../../../src/policiesLoader')
+const loader = require('../../lib/module/lib/policiesLoader')
 const testUtils = require('../../utils')
 const { udaru } = testUtils
 
