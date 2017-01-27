@@ -267,30 +267,51 @@ const policyOps = {
    */
   listAllUserPolicies: function listAllUserPolicies ({ userId, organizationId }, cb) {
     const sql = SQL`
-        SELECT DISTINCT
-          ON (id) id,
-          version,
-          name,
-          statements
+      WITH user_teams AS (
+        SELECT id FROM teams WHERE path @> (
+          SELECT array_agg(path) FROM teams
+          INNER JOIN team_members tm
+          ON tm.team_id = teams.id
+          WHERE tm.user_id = ${userId}
+        )
+      ),
+      policies_from_teams AS (
+        SELECT
+          policy_id
         FROM
-          policies p
-        LEFT JOIN
-          user_policies up ON p.id = up.policy_id
-        LEFT JOIN
-          team_policies tp ON p.id = tp.policy_id
-        LEFT JOIN
-          organization_policies op ON p.id = op.policy_id
+          team_policies
         WHERE
-          up.user_id = ${userId} OR
-          tp.team_id IN (
-            SELECT team_id FROM teams WHERE path @> (
-              SELECT array_agg(path) FROM teams
-              INNER JOIN team_members tm
-              ON tm.team_id = teams.id
-              WHERE tm.user_id = ${userId}
-            )
-          ) OR
-          op.org_id = ${organizationId}
+          team_id IN (SELECT id FROM user_teams)
+      ),
+      policies_from_user AS (
+        SELECT
+          policy_id
+        FROM
+          user_policies
+        WHERE
+          user_id = ${userId}
+      ),
+      policies_from_organization AS (
+        SELECT
+          policy_id
+        FROM
+          organization_policies
+        WHERE
+          org_id = ${organizationId}
+      )
+      SELECT
+        id,
+        version,
+        name,
+        statements
+      FROM
+        policies
+      WHERE
+        id IN (SELECT policy_id FROM policies_from_user)
+      OR
+        id IN (SELECT policy_id FROM policies_from_teams)
+      OR
+        id IN (SELECT policy_id FROM policies_from_organization)
     `
 
     db.query(sql, function (err, result) {
