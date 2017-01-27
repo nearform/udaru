@@ -6,6 +6,19 @@ const policyOps = require('../src/lib/ops/policyOps')
 const teamOps = require('../src/lib/ops/teamOps')
 const orgOps = require('../src/lib/ops/organizationOps')
 
+const DEFAULT_POLICY = {
+  version: '2016-07-01',
+  name: 'Test Policy',
+  statements: {
+    Statement: [{
+      Effect: 'Allow',
+      Action: ['dummy'],
+      Resource: ['dummy']
+    }]
+  },
+  organizationId: 'WONKA'
+}
+
 function Factory (lab, data) {
   const records = {}
 
@@ -26,9 +39,9 @@ function Factory (lab, data) {
     if (!data.policies) return done()
 
     async.mapValues(data.policies, (policy, key, next) => {
-      policyOps.createPolicy(_.pick(policy, 'id', 'name', 'version', 'statements', 'organizationId'), (err, res) => {
+      policyOps.createPolicy(Object.assign({}, DEFAULT_POLICY, _.pick(policy, 'id', 'name', 'version', 'statements', 'organizationId')), (err, res) => {
         if (err) return next(err)
-        res.organizationId = policy.organizationId
+        res.organizationId = policy.organizationId || DEFAULT_POLICY.organizationId
         next(null, res)
       })
     }, (err, policies) => {
@@ -93,8 +106,38 @@ function Factory (lab, data) {
   }
 
   function linkTeamPolicies (done) {
-    // TODO: implement
-    done()
+    const list = {}
+
+    _.each(data.teams, (team, teamKey) => {
+      if (!team.policies || !team.policies.length) return
+      const teamId = records[teamKey].id
+      list[teamId] = {
+        id: teamId,
+        organizationId: team.organizationId,
+        policies: []
+      }
+
+      _.each(team.policies, (policyKey) => {
+        const policyId = records[policyKey].id
+        list[teamId].policies.push(policyId)
+      })
+    })
+
+    async.each(list, (user, next) => {
+      user.policies = _.uniq(user.policies)
+      teamOps.replaceTeamPolicies(user, next)
+    }, done)
+  }
+
+  function buildTeamTree (done) {
+    async.eachOf(data.teams, (team, teamKey, next) => {
+      if (!team.parent) return next()
+
+      const teamId = records[teamKey].id
+      const parentId = records[team.parent].id
+
+      teamOps.moveTeam({ id: teamId, parentId, organizationId: team.organizationId }, next)
+    }, done)
   }
 
   function linkUserPolicies (done) {
@@ -133,7 +176,8 @@ function Factory (lab, data) {
       async.parallel([
         linkTeamUsers,
         linkTeamPolicies,
-        linkUserPolicies
+        linkUserPolicies,
+        buildTeamTree
       ], done)
     })
   }
@@ -171,7 +215,7 @@ function Factory (lab, data) {
 
     async.eachOf(data.policies, (policy, key, next) => {
       policyOps.deletePolicy({
-        organizationId: policy.organizationId,
+        organizationId: records[key].organizationId,
         id: records[key].id
       }, (err) => {
         if (err && err.output.payload.error !== 'Not Found') return next(err)
