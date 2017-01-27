@@ -1,12 +1,11 @@
 'use strict'
 
 const _ = require('lodash')
-const db = require('./../lib/module/lib/db')
-const SQL = require('./../lib/module/lib/db/SQL')
+const db = require('../lib/module/lib/db')
+const SQL = require('../lib/module/lib/db/SQL')
 
-
-const config = require('./../src/hapi-udaru/lib/config')
-const udaru = require('./../src/udaru')(config._rawConfig)
+const config = require('../lib/server/lib/config')
+const udaru = require('../lib')(config._rawConfig)
 
 const db = dbInit(config.get('pgdb'))
 
