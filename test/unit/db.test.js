@@ -30,12 +30,12 @@ const tasks = [
   }
 ]
 
-
-const db = proxyquire('../../lib/module/lib/db', {'pg': {
+const dbInit = proxyquire('../../lib/module/lib/db', {'pg': {
   Pool: function () {
     return client
   }
 }})
+
 const db = dbInit({})
 
 lab.experiment('bd', () => {

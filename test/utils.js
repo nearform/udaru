@@ -1,7 +1,7 @@
 'use strict'
 
 const _ = require('lodash')
-const db = require('../lib/module/lib/db')
+const dbInit = require('../lib/module/lib/db')
 const SQL = require('../lib/module/lib/db/SQL')
 
 const config = require('../lib/server/lib/config')

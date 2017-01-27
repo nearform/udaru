@@ -6,7 +6,7 @@ const lab = exports.lab = Lab.script()
 const async = require('async')
 const _ = require('lodash')
 
-const testUtils = require('../../utils')
+const testUtils = require('../utils')
 const { udaru } = testUtils
 const authorize = udaru.authorize
 

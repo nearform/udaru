@@ -4,7 +4,6 @@ const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 const Boom = require('boom')
-var proxyquire = require('proxyquire')
 var utils = require('../../utils')
 
 /**
@@ -14,11 +13,8 @@ var utils = require('../../utils')
  *                               ^
  *   TypeError: Cannot read property 'list' of undefined
  */
-// var udaru = {}
-// var udaruF = function () {
-//   return udaru
-// }
-// var server = proxyquire('./../../../src/hapi-udaru/wiring-hapi', { './../udaru': udaruF })
+var udaru = {}
+var server = {}
 
 lab.experiment('Teams', () => {
   lab.test.skip('get team list should return error for error case', (done) => {

@@ -3,7 +3,6 @@ const lab = exports.lab = Lab.script()
 const server = require('../../../lib/server')
 const config = require('../../../lib/server/lib/config')
 
-
 const Factory = require('../../factory')
 const BuildFor = require('./test-builder')
 

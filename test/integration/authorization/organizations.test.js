@@ -7,7 +7,6 @@ const BuildFor = require('./test-builder')
 const utils = require('../../utils')
 const { udaru } = utils
 
-
 const organizationId = 'WONKA'
 function Policy (Statement) {
   return {

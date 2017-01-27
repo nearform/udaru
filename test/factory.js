@@ -5,7 +5,6 @@ const _ = require('lodash')
 const utils = require('./utils')
 const { udaru } = utils
 
-
 function Factory (lab, data) {
   const records = {}
 

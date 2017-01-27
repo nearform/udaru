@@ -4,7 +4,7 @@ const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 
-const testUtils = require('../../utils')
+const testUtils = require('../utils')
 const { udaru } = testUtils
 
 const statements = { Statement: [{ Effect: 'Allow', Action: ['documents:Read'], Resource: ['wonka:documents:/public/*'] }] }
