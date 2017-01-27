@@ -99,7 +99,7 @@ function authorize (job, next) {
 
     const action = job.authParams.action
     const userId = job.currentUser.id
-    const organizationId = job.organizationId
+    const organizationId = job.currentUser.organizationId
 
     async.any(resources, async.apply(checkAuthorization, userId, action, organizationId), (err, valid) => {
       if (err) return next(Boom.forbidden('Invalid credentials', 'udaru'))
