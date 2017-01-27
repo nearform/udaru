@@ -47,7 +47,7 @@ const users = {
     organizationId: validationRules.organizationId
   },
   createUser: {
-    id: validationRules.id.optional().allow('').description('User ID'),
+    id: validationRules.id.optional().description('User ID'),
     name: validationRules.name,
     organizationId: validationRules.organizationId
   },
@@ -88,7 +88,7 @@ const teams = {
     organizationId: validationRules.organizationId
   },
   createTeam: {
-    id: Joi.string().regex(/^[0-9a-zA-Z_]+$/).allow('').description('The ID to be used for the new team. Only alphanumeric characters and underscore are supported'),
+    id: Joi.string().regex(/^[0-9a-zA-Z_]+$/).description('The ID to be used for the new team. Only alphanumeric characters and underscore are supported'),
     parentId: Joi.any(),
     name: requiredString.description('Team name'),
     description: validationRules.description,
@@ -197,7 +197,7 @@ const organizations = {
   },
   readById: validationRules.organizationId,
   create: {
-    id: Joi.string().regex(/^[a-zA-Z0-9]{1,64}$/).required().description('Organization ID'),
+    id: Joi.string().description('Organization ID'),
     name: validationRules.name,
     description: validationRules.description,
     user: validationRules.user

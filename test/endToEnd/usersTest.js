@@ -218,6 +218,82 @@ lab.experiment('Users - create', () => {
     })
   })
 
+  lab.test('create user for a specific organization being a SuperUser with a specified undefined user id', (done) => {
+    const options = utils.requestOptions({
+      method: 'POST',
+      url: '/authorization/users',
+      payload: {
+        id: undefined,
+        name: 'Salman'
+      },
+      headers: {
+        authorization: 'ROOTid',
+        org: 'OILCOUSA'
+      }
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(201)
+      expect(result.id).to.not.be.null()
+      expect(result.name).to.equal('Salman')
+      expect(result.organizationId).to.equal('OILCOUSA')
+
+      userOps.deleteUser({ id: result.id, organizationId: 'OILCOUSA' }, done)
+    })
+  })
+
+  lab.test('create user for a specific organization being a SuperUser but with specifying empty string user id', (done) => {
+    const options = utils.requestOptions({
+      method: 'POST',
+      url: '/authorization/users',
+      payload: {
+        id: '',
+        name: 'Salman'
+      },
+      headers: {
+        authorization: 'ROOTid',
+        org: 'OILCOUSA'
+      }
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(400)
+      expect(result.error).to.equal('Bad Request')
+      expect(result.id).to.not.exist()
+
+      done()
+    })
+  })
+
+  lab.test('create user for a specific organization being a SuperUser but with specifying null user id', (done) => {
+    const options = utils.requestOptions({
+      method: 'POST',
+      url: '/authorization/users',
+      payload: {
+        id: null,
+        name: 'Salman'
+      },
+      headers: {
+        authorization: 'ROOTid',
+        org: 'OILCOUSA'
+      }
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(400)
+      expect(result.error).to.equal('Bad Request')
+      expect(result.id).to.not.exist()
+
+      done()
+    })
+  })
+
   lab.test('create user for a specific organization being a SuperUser with an already used id', (done) => {
     const options = utils.requestOptions({
       method: 'POST',

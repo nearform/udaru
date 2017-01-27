@@ -9,6 +9,7 @@ const SQL = require('./../db/SQL')
 const mapping = require('./../mapping')
 const utils = require('./utils')
 const validationRules = require('./validation').organizations
+const uuid = require('uuid/v4')
 
 function fetchOrganizationUsers (job, next) {
   const { id } = job
@@ -75,6 +76,7 @@ function deleteOrganization (job, next) {
 
 function insertOrganization (job, next) {
   const { id, name, description } = job.params
+
   const sqlQuery = SQL`
     INSERT INTO organizations (
       id, name, description
@@ -200,7 +202,9 @@ var organizationOps = {
 
     const tasks = [
       (job, next) => {
-        const { id, name, description, user } = params
+        const id = params.id || uuid()
+        params.id = id
+        const { name, description, user } = params
 
         Joi.validate({ id, name, description, user }, validationRules.create, (err) => {
           if (err) return next(Boom.badRequest(err))
