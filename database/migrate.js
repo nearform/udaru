@@ -3,7 +3,7 @@
 const postgrator = require('postgrator')
 const path = require('path')
 const minimist = require('minimist')
-const config = require('./../src/hapi-udaru/lib/config')
+const config = require('../lib/server/lib/config')
 
 postgrator.setConfig({
   migrationDirectory: path.join(__dirname, '/migrations'),
