@@ -39,7 +39,7 @@ function Factory (lab, data) {
     if (!data.policies) return done()
 
     async.mapValues(data.policies, (policy, key, next) => {
-      policyOps.createPolicy(Object.assign(_.pick(policy, 'id', 'name', 'version', 'statements', 'organizationId'), DEFAULT_POLICY), (err, res) => {
+      policyOps.createPolicy(Object.assign({}, DEFAULT_POLICY, _.pick(policy, 'id', 'name', 'version', 'statements', 'organizationId')), (err, res) => {
         if (err) return next(err)
         res.organizationId = policy.organizationId || DEFAULT_POLICY.organizationId
         next(null, res)
