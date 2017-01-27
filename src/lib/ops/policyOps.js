@@ -264,6 +264,7 @@ const policyOps = {
    * @param  {Function} cb
    */
   listAllUserPolicies: function listAllUserPolicies ({ userId, organizationId }, cb) {
+    const rootOrgId = config.get('authorization.superUser.organization.id')
     const sql = SQL`
       WITH user_teams AS (
         SELECT id FROM teams WHERE path @> (
@@ -305,11 +306,14 @@ const policyOps = {
       FROM
         policies
       WHERE
-        id IN (SELECT policy_id FROM policies_from_user)
-      OR
-        id IN (SELECT policy_id FROM policies_from_teams)
-      OR
-        id IN (SELECT policy_id FROM policies_from_organization)
+        org_id IN (${organizationId}, ${rootOrgId})
+      AND (
+          id IN (SELECT policy_id FROM policies_from_user)
+        OR
+          id IN (SELECT policy_id FROM policies_from_teams)
+        OR
+          id IN (SELECT policy_id FROM policies_from_organization)
+      )
     `
 
     db.query(sql, function (err, result) {
