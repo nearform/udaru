@@ -1,12 +1,14 @@
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 
-const server = require('../../../src/wiring-hapi')
-const config = require('../../../src/lib/config')
-const policyOps = require('../../../src/lib/ops/policyOps')
+const server = require('../../../lib/wiring-hapi')
+const config = require('../../../lib/hapi-udaru/config')
 
 const Factory = require('../../factory')
 const BuildFor = require('./testBuilder')
+
+const utils = require('../../utils')
+const { udaru } = utils
 
 const organizationId = 'WONKA'
 function Policy (Statement) {
@@ -150,7 +152,7 @@ lab.experiment('Routes Authorizations', () => {
         })
 
       lab.afterEach((done) => {
-        policyOps.deletePolicy({ id: 'added-policy', organizationId: 'WONKA' }, () => {
+        udaru.policies.delete({ id: 'added-policy', organizationId: 'WONKA' }, () => {
           // ignore error
           done()
         })

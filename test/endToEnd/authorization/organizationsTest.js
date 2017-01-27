@@ -1,10 +1,11 @@
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 
-const orgOps = require('../../../src/lib/ops/organizationOps')
-const server = require('./../../../src/wiring-hapi')
+const server = require('./../../../lib/wiring-hapi')
 const Factory = require('../../factory')
 const BuildFor = require('./testBuilder')
+const utils = require('../../utils')
+const { udaru } = utils
 
 const organizationId = 'WONKA'
 function Policy (Statement) {
@@ -121,7 +122,7 @@ lab.experiment('Routes Authorizations', () => {
       })
 
       lab.afterEach((done) => {
-        orgOps.deleteById('OTHERORG', () => {
+        udaru.organizations.delete('OTHERORG', () => {
           // this is needed to ignore the error (i.e. in case the policy wasn't properly created)
           done()
         })
