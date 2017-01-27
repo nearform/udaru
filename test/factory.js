@@ -129,6 +129,17 @@ function Factory (lab, data) {
     }, done)
   }
 
+  function buildTeamTree (done) {
+    async.eachOf(data.teams, (team, teamKey, next) => {
+      if (!team.parent) return next()
+
+      const teamId = records[teamKey].id
+      const parentId = records[team.parent].id
+
+      teamOps.moveTeam({ id: teamId, parentId, organizationId: team.organizationId }, next)
+    }, done)
+  }
+
   function linkUserPolicies (done) {
     const list = {}
 
@@ -165,7 +176,8 @@ function Factory (lab, data) {
       async.parallel([
         linkTeamUsers,
         linkTeamPolicies,
-        linkUserPolicies
+        linkUserPolicies,
+        buildTeamTree
       ], done)
     })
   }
