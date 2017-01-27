@@ -3,10 +3,9 @@
 const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
-var utils = require('./../utils')
-var organizationOps = require('./../../src/udaru/lib/ops/organizationOps')
-
-var server = require('./../../src/hapi-udaru/wiring-hapi')
+const utils = require('./../utils')
+const server = require('./../../src/hapi-udaru/wiring-hapi')
+const { udaru } = utils
 
 lab.experiment('Organizations', () => {
   lab.test('get organizations list has default pagination params', (done) => {
@@ -182,7 +181,7 @@ lab.experiment('Organizations', () => {
         user: undefined
       })
 
-      organizationOps.deleteById('nearForm', done)
+      udaru.organizations.delete('nearForm', done)
     })
   })
 
@@ -219,12 +218,12 @@ lab.experiment('Organizations', () => {
         }
       })
 
-      organizationOps.deleteById('nearForm', done)
+      udaru.organizations.delete('nearForm', done)
     })
   })
 
   lab.test('delete organization should return 204 if success', (done) => {
-    organizationOps.create({ id: 'nearForm', name: 'nearForm', description: 'nearForm org' }, (err, res) => {
+    udaru.organizations.create({ id: 'nearForm', name: 'nearForm', description: 'nearForm org' }, (err, res) => {
       expect(err).to.not.exist()
 
       const options = utils.requestOptions({
@@ -244,7 +243,7 @@ lab.experiment('Organizations', () => {
   })
 
   lab.test('update organization should return 200 for success', (done) => {
-    organizationOps.create({ id: 'nearForm', name: 'nearForm', description: 'nearForm org' }, (err, res) => {
+    udaru.organizations.create({ id: 'nearForm', name: 'nearForm', description: 'nearForm org' }, (err, res) => {
       expect(err).to.not.exist()
 
       let orgUpdate = {
@@ -268,7 +267,7 @@ lab.experiment('Organizations', () => {
         expect(response.statusCode).to.equal(200)
         expect(result).to.equal({ id: 'nearForm', name: 'new name', description: 'new desc' })
 
-        organizationOps.deleteById('nearForm', done)
+        udaru.organizations.delete('nearForm', done)
       })
     })
   })

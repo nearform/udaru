@@ -4,6 +4,9 @@ const _ = require('lodash')
 const db = require('./../src/udaru/lib/db')
 const SQL = require('./../src/udaru/lib/db/SQL')
 
+const config = require('./../src/hapi-udaru/lib/config')
+const udaru = require('./../src/udaru')(config._rawConfig)
+
 /**
  * Merge the authorization default header with the provided options
  *
@@ -33,5 +36,6 @@ function deleteUserFromAllTeams (id, cb) {
 module.exports = {
   requestOptions,
   findPick,
-  deleteUserFromAllTeams
+  deleteUserFromAllTeams,
+  udaru
 }

@@ -2,7 +2,9 @@ const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 
 const server = require('../../../src/hapi-udaru/wiring-hapi')
-const teamOps = require('../../../src/udaru/lib/ops/teamOps')
+
+const utils = require('../../utils')
+const { udaru } = utils
 
 const Factory = require('../../factory')
 const BuildFor = require('./testBuilder')
@@ -136,7 +138,7 @@ lab.experiment('Routes Authorizations', () => {
       })
 
       lab.afterEach((done) => {
-        teamOps.deleteTeam({ id: 'created_team', organizationId }, () => {
+        udaru.teams.delete({ id: 'created_team', organizationId }, () => {
           // ignore error
           done()
         })

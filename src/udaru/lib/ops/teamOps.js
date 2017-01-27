@@ -3,9 +3,7 @@
 const Joi = require('joi')
 const Boom = require('boom')
 const uuid = require('uuid/v4')
-const db = require('./../db')
 const async = require('async')
-const policyOps = require('./policyOps')
 const userOps = require('./userOps')
 const utils = require('./utils')
 const SQL = require('./../db/SQL')
@@ -64,27 +62,6 @@ function insertTeam (job, next) {
     if (err) return next(Boom.badImplementation(err))
 
     job.team = res.rows[0]
-    next()
-  })
-}
-
-function createDefaultPolicies (job, next) {
-  policyOps.createTeamDefaultPolicies(job.client, job.params.organizationId, job.team.id, (err, res) => {
-    if (err) return next(Boom.badImplementation(err))
-    job.policyIds = res.rows.map(getId)
-    next()
-  })
-}
-
-function createDefaultUser (job, next) {
-  if (!job.params.user) return next()
-  const { id, name } = job.params.user
-  const { organizationId } = job.params
-
-  userOps.insertUser(job.client, { id, name, organizationId }, (err, user) => {
-    if (err) return next(Boom.badImplementation(err))
-
-    job.user = user.rows[0]
     next()
   })
 }
@@ -168,22 +145,6 @@ function insertTeamPolicies (job, next) {
   job.client.query(sql, utils.boomErrorWrapper(next))
 }
 
-function readDefaultPoliciesIds (job, next) {
-  job.policies = []
-
-  async.each(job.teamIds, (teamId, done) => {
-    policyOps.readTeamDefaultPolicies(job.client, job.organizationId, teamId, function (err, res) {
-      if (err) return done(Boom.badImplementation(err))
-      job.policies.push(...res.rows.map(getId))
-      done()
-    })
-  }, next)
-}
-
-function deleteDefaultPolicies (job, next) {
-  policyOps.deleteAllPolicyByIds(job.client, job.policies, job.organizationId, utils.boomErrorWrapper(next))
-}
-
 function moveTeamSql (job, next) {
   const { parentId, id: teamId } = job.params
   const sql = SQL`
@@ -259,7 +220,7 @@ function loadTeams (job, next) {
     WHERE id = ${id}
     AND org_id = ${organizationId}
   `
-  db.query(sql, (err, result) => {
+  job.client.query(sql, (err, result) => {
     if (err) return next(Boom.badImplementation(err))
     if (result.rowCount === 0) return next(Boom.notFound(`Team with id ${id} could not be found`))
 
@@ -287,7 +248,8 @@ function loadTeamUsers (job, next) {
   if (offset) {
     sql.append(SQL` OFFSET ${offset}`)
   }
-  db.query(sql, function (err, result) {
+
+  job.client.query(sql, function (err, result) {
     if (err) return next(Boom.badImplementation(err))
 
     job.totalUsersCount = result.rowCount > 0 ? parseInt(result.rows[0].total_users_count) : 0
@@ -306,7 +268,7 @@ function loadTeamPolicies (job, next) {
     AND tpol.policy_id = pol.id
     ORDER BY UPPER(pol.name)
   `
-  db.query(sql, function (err, result) {
+  job.client.query(sql, function (err, result) {
     if (err) return next(Boom.badImplementation(err))
 
     job.team.policies = result.rows.map(mapping.policy.simple)
@@ -314,527 +276,571 @@ function loadTeamPolicies (job, next) {
   })
 }
 
-var teamOps = {
-  /**
-   * List the teams in an organization
-   *
-   * @param  {Object}   params { organizationId, limit, page } where page is 1-indexed
-   * @param  {Function} cb
-   */
-  listOrgTeams: function listOrgTeams (params, cb) {
-    let { organizationId, limit, page } = params
+function TeamOps (db, policyOps, userOps) {
 
-    Joi.validate({ organizationId, page, limit }, validationRules.listOrgTeams, function (err) {
-      if (err) return cb(Boom.badRequest(err))
+  function createDefaultUser (job, next) {
+    if (!job.params.user) return next()
+    const { id, name } = job.params.user
+    const { organizationId } = job.params
 
-      let sqlQuery = SQL`
-        WITH total AS (
-          SELECT COUNT(*) AS cnt
-          FROM teams
-          WHERE org_id = ${organizationId}
-        )
-        SELECT
-          teams.id,
-          teams.name,
-          teams.description,
-          teams.path,
-          teams.org_id,
-          t.cnt::INTEGER AS total,
-          COUNT(team_members.team_id) AS users_count
-        FROM teams
-        LEFT JOIN team_members ON team_members.team_id = teams.id
-        INNER JOIN total AS t ON 1=1
-        WHERE org_id = ${organizationId}
-        GROUP BY teams.id, teams.name, teams.description, teams.path, teams.org_id, t.cnt
-        ORDER BY UPPER(name)
-      `
+    userOps.insertUser(job.client, { id, name, organizationId }, (err, user) => {
+      if (err) return next(Boom.badImplementation(err))
 
-      if (limit) {
-        sqlQuery.append(SQL` LIMIT ${limit}`)
-      }
-      if (limit && page) {
-        let offset = (page - 1) * limit
-        sqlQuery.append(SQL` OFFSET ${offset}`)
-      }
+      job.user = user.rows[0]
+      next()
+    })
+  }
 
-      db.query(sqlQuery, function (err, result) {
-        if (err) return cb(err)
-        let total = result.rows.length > 0 ? result.rows[0].total : 0
-        return cb(null, result.rows.map(mapping.team.list), total)
+  function createDefaultPolicies (job, next) {
+    policyOps.createTeamDefaultPolicies(job.client, job.params.organizationId, job.team.id, (err, res) => {
+      if (err) return next(Boom.badImplementation(err))
+      job.policyIds = res.rows.map(getId)
+      next()
+    })
+  }
+
+  function readDefaultPoliciesIds (job, next) {
+    job.policies = []
+
+    async.each(job.teamIds, (teamId, done) => {
+      policyOps.readTeamDefaultPolicies(job.client, job.organizationId, teamId, function (err, res) {
+        if (err) return done(Boom.badImplementation(err))
+        job.policies.push(...res.rows.map(getId))
+        done()
       })
-    })
-  },
+    }, next)
+  }
 
-  /**
-   * Creates a new team
-   *
-   * @param  {Object}   params { id, name, description, parentId, organizationId, user }
-   * @param  {Object}   opts { createOnly }
-   * @param  {Function} cb
-   */
-  createTeam: function createTeam (params, opts, cb) {
-    if (!cb) {
-      cb = opts
-      opts = {}
-    }
+  function deleteDefaultPolicies (job, next) {
+    policyOps.deleteAllPolicyByIds(job.client, job.policies, job.organizationId, utils.boomErrorWrapper(next))
+  }
 
-    const { createOnly } = opts
-    const tasks = [
-      (job, next) => {
-        const { id, name, description, parentId, organizationId, user } = params
+  const teamOps = {
+    /**
+     * List the teams in an organization
+     *
+     * @param  {Object}   params { organizationId, limit, page } where page is 1-indexed
+     * @param  {Function} cb
+     */
+    listOrgTeams: function listOrgTeams (params, cb) {
+      let { organizationId, limit, page } = params
 
-        // We should not use boom bur return specific errors that will be then handled out side the udaru.js module
-        Joi.validate({ id, name, description, parentId, organizationId, user }, validationRules.createTeam, (err) => {
-          if (err) return next(Boom.badRequest(err))
+      Joi.validate({ organizationId, page, limit }, validationRules.listOrgTeams, function (err) {
+        if (err) return cb(Boom.badRequest(err))
+
+        let sqlQuery = SQL`
+          WITH total AS (
+            SELECT COUNT(*) AS cnt
+            FROM teams
+            WHERE org_id = ${organizationId}
+          )
+          SELECT
+            teams.id,
+            teams.name,
+            teams.description,
+            teams.path,
+            teams.org_id,
+            t.cnt::INTEGER AS total,
+            COUNT(team_members.team_id) AS users_count
+          FROM teams
+          LEFT JOIN team_members ON team_members.team_id = teams.id
+          INNER JOIN total AS t ON 1=1
+          WHERE org_id = ${organizationId}
+          GROUP BY teams.id, teams.name, teams.description, teams.path, teams.org_id, t.cnt
+          ORDER BY UPPER(name)
+        `
+
+        if (limit) {
+          sqlQuery.append(SQL` LIMIT ${limit}`)
+        }
+        if (limit && page) {
+          let offset = (page - 1) * limit
+          sqlQuery.append(SQL` OFFSET ${offset}`)
+        }
+
+        db.query(sqlQuery, function (err, result) {
+          if (err) return cb(err)
+          let total = result.rows.length > 0 ? result.rows[0].total : 0
+          return cb(null, result.rows.map(mapping.team.list), total)
+        })
+      })
+    },
+
+    /**
+     * Creates a new team
+     *
+     * @param  {Object}   params { id, name, description, parentId, organizationId, user }
+     * @param  {Object}   opts { createOnly }
+     * @param  {Function} cb
+     */
+    createTeam: function createTeam (params, opts, cb) {
+      if (!cb) {
+        cb = opts
+        opts = {}
+      }
+
+      const { createOnly } = opts
+      const tasks = [
+        (job, next) => {
+          const { id, name, description, parentId, organizationId, user } = params
+
+          // We should not use boom bur return specific errors that will be then handled out side the udaru.js module
+          Joi.validate({ id, name, description, parentId, organizationId, user }, validationRules.createTeam, (err) => {
+            if (err) return next(Boom.badRequest(err))
+
+            next()
+          })
+        },
+        (job, next) => {
+          job.params = params
+          next()
+        },
+        insertTeam
+      ]
+      if (!createOnly) {
+        tasks.push(
+          createDefaultPolicies,
+          createDefaultUser,
+          makeDefaultUserAdmin,
+          assignDefaultUserToTeam
+        )
+      }
+
+      db.withTransaction(tasks, (err, res) => {
+        if (err) return cb(err)
+
+        teamOps.readTeam({ id: res.team.id, organizationId: params.organizationId }, cb)
+      })
+    },
+
+    /**
+     * Fetch specific team data
+     *
+     * @param  {params}   params { id, organizationId }
+     * @param  {Function} cb
+     */
+    readTeam: function readTeam ({ id, organizationId }, cb) {
+      const job = {
+        team: {}
+      }
+
+      async.applyEachSeries([
+        (job, next) => {
+          Joi.validate({ id, organizationId }, validationRules.readTeam, (err) => {
+            if (err) return next(Boom.badRequest(err))
+
+            next()
+          })
+        },
+        (job, next) => {
+          job.client = db
+          job.id = id
+          job.organizationId = organizationId
+          next()
+        },
+        loadTeams,
+        loadTeamUsers,
+        loadTeamPolicies
+      ], job, (err) => {
+        if (err) return cb(err)
+
+        return cb(null, job.team)
+      })
+    },
+
+    /**
+     * Uodate team data
+     * @param {Object}   params {id, name, description, organizationId }
+     * @param {Function} cb
+     */
+    updateTeam: function updateTeam (params, cb) {
+      const { id, name, description, organizationId } = params
+
+      Joi.validate({ id, name, description, organizationId }, Joi.object().keys(validationRules.updateTeam).or('name', 'description'), function (err) {
+        if (err) return cb(Boom.badRequest(err))
+
+        const updates = []
+        const sql = SQL` UPDATE teams SET `
+        if (name) { updates.push(SQL`name = ${name}`) }
+        if (description) { updates.push(SQL`description = ${description}`) }
+        sql.append(sql.glue(updates, ' , '))
+        sql.append(SQL`
+          WHERE id = ${id}
+          AND org_id = ${organizationId}
+        `)
+
+        db.query(sql, (err, res) => {
+          if (err) return cb(Boom.badImplementation(err))
+          if (res.rowCount === 0) return cb(Boom.notFound(`Team with id ${id} could not be found`))
+
+          teamOps.readTeam({ id, organizationId }, cb)
+        })
+      })
+    },
+
+    /**
+     * Delete specific team
+     *
+     * @param  {Object}   params { id, organizationId }
+     * @param  {Function} cb     [description]
+     */
+    deleteTeam: function deleteTeam (params, cb) {
+      db.withTransaction([
+        (job, next) => {
+          const { id, organizationId } = params
+
+          Joi.validate({ id, organizationId }, validationRules.deleteTeam, (err) => {
+            if (err) return next(Boom.badRequest(err))
+
+            next()
+          })
+        },
+        (job, next) => {
+          job.teamId = params.id
+          job.organizationId = params.organizationId
+          next()
+        },
+        loadTeamDescendants,
+        deleteTeamsMembers,
+        deleteTeamsPolicies,
+        readDefaultPoliciesIds,
+        deleteDefaultPolicies,
+        removeTeams
+      ], (err) => {
+        if (err) return cb(err)
+        cb()
+      })
+    },
+
+    /**
+     * Nest/Un-nest a team
+     *
+     * @param  {Object}   params { id, parentId = null, organizationId }
+     * @param  {Function} cb
+     */
+    moveTeam: function moveTeam (params, cb) {
+      const { id, organizationId } = params
+
+      db.withTransaction([
+        (job, next) => {
+          Joi.validate({ id, organizationId }, validationRules.moveTeam, (err) => {
+            if (err) return next(Boom.badRequest(err))
+
+            next()
+          })
+        },
+        (job, next) => {
+          job.params = params
+          next()
+        },
+        checkBothTeamsFromSameOrg,
+        moveTeamSql,
+        moveTeamDescendants
+      ], (err) => {
+        if (err) return cb(err)
+
+        teamOps.readTeam({id, organizationId}, cb)
+      })
+    },
+
+    /**
+     * Add one or more policies to a team
+     *
+     * @param  {Object}   params { id, organizationId, policies }
+     * @param  {Function} cb
+     */
+    addTeamPolicies: function addTeamPolicies (params, cb) {
+      const { id, organizationId, policies } = params
+
+      Joi.validate({ id, organizationId, policies }, validationRules.addTeamPolicies, function (err) {
+        if (err) return cb(Boom.badRequest(err))
+
+        utils.checkPoliciesOrg(db, policies, organizationId, (err) => {
+          if (err) return cb(err)
+
+          insertTeamPolicies({ client: db, teamId: id, policies }, (err, res) => {
+            if (err) return cb(err)
+
+            teamOps.readTeam({ id, organizationId }, cb)
+          })
+        })
+      })
+    },
+
+    /**
+     * Replace team poilicies
+     *
+     * @param  {Object}   params { id, organizationId, policies }
+     * @param  {Function} cb
+     */
+    replaceTeamPolicies: function replaceTeamPolicies (params, cb) {
+      const { id, organizationId, policies } = params
+      const tasks = [
+        (job, next) => {
+          Joi.validate({ id, organizationId, policies }, validationRules.replaceTeamPolicies, (err) => {
+            if (err) return next(Boom.badRequest(err))
+
+            next()
+          })
+        },
+        (job, next) => {
+          job.teamId = id
+          job.organizationId = organizationId
+          job.policies = policies
 
           next()
-        })
-      },
-      (job, next) => {
-        job.params = params
-        next()
-      },
-      insertTeam
-    ]
-    if (!createOnly) {
-      tasks.push(
-        createDefaultPolicies,
-        createDefaultUser,
-        makeDefaultUserAdmin,
-        assignDefaultUserToTeam
-      )
-    }
+        },
+        (job, next) => {
+          utils.checkPoliciesOrg(job.client, job.policies, job.organizationId, next)
+        },
+        clearTeamPolicies,
+        insertTeamPolicies
+      ]
 
-    db.withTransaction(tasks, (err, res) => {
-      if (err) return cb(err)
-
-      teamOps.readTeam({ id: res.team.id, organizationId: params.organizationId }, cb)
-    })
-  },
-
-  /**
-   * Fetch specific team data
-   *
-   * @param  {params}   params { id, organizationId }
-   * @param  {Function} cb
-   */
-  readTeam: function readTeam ({ id, organizationId }, cb) {
-    const job = {
-      team: {}
-    }
-
-    async.applyEachSeries([
-      (job, next) => {
-        Joi.validate({ id, organizationId }, validationRules.readTeam, (err) => {
-          if (err) return next(Boom.badRequest(err))
-
-          next()
-        })
-      },
-      (job, next) => {
-        job.id = id
-        job.organizationId = organizationId
-        next()
-      },
-      loadTeams,
-      loadTeamUsers,
-      loadTeamPolicies
-    ], job, (err) => {
-      if (err) return cb(err)
-
-      return cb(null, job.team)
-    })
-  },
-
-  /**
-   * Uodate team data
-   * @param {Object}   params {id, name, description, organizationId }
-   * @param {Function} cb
-   */
-  updateTeam: function updateTeam (params, cb) {
-    const { id, name, description, organizationId } = params
-
-    Joi.validate({ id, name, description, organizationId }, Joi.object().keys(validationRules.updateTeam).or('name', 'description'), function (err) {
-      if (err) return cb(Boom.badRequest(err))
-
-      const updates = []
-      const sql = SQL` UPDATE teams SET `
-      if (name) { updates.push(SQL`name = ${name}`) }
-      if (description) { updates.push(SQL`description = ${description}`) }
-      sql.append(sql.glue(updates, ' , '))
-      sql.append(SQL`
-        WHERE id = ${id}
-        AND org_id = ${organizationId}
-      `)
-
-      db.query(sql, (err, res) => {
-        if (err) return cb(Boom.badImplementation(err))
-        if (res.rowCount === 0) return cb(Boom.notFound(`Team with id ${id} could not be found`))
+      db.withTransaction(tasks, (err, res) => {
+        if (err) return cb(err)
 
         teamOps.readTeam({ id, organizationId }, cb)
       })
-    })
-  },
+    },
 
-  /**
-   * Delete specific team
-   *
-   * @param  {Object}   params { id, organizationId }
-   * @param  {Function} cb     [description]
-   */
-  deleteTeam: function deleteTeam (params, cb) {
-    db.withTransaction([
-      (job, next) => {
-        const { id, organizationId } = params
+    /**
+     * Remove all team's policies
+     *
+     * @param  {Object}   params { id, organizationId }
+     * @param  {Function} cb
+     */
+    deleteTeamPolicies: function deleteTeamPolicies (params, cb) {
+      const { id, organizationId } = params
 
-        Joi.validate({ id, organizationId }, validationRules.deleteTeam, (err) => {
-          if (err) return next(Boom.badRequest(err))
+      Joi.validate({ id, organizationId }, validationRules.deleteTeamPolicies, function (err) {
+        if (err) return cb(Boom.badRequest(err))
 
-          next()
-        })
-      },
-      (job, next) => {
-        job.teamId = params.id
-        job.organizationId = params.organizationId
-        next()
-      },
-      loadTeamDescendants,
-      deleteTeamsMembers,
-      deleteTeamsPolicies,
-      readDefaultPoliciesIds,
-      deleteDefaultPolicies,
-      removeTeams
-    ], (err) => {
-      if (err) return cb(err)
-      cb()
-    })
-  },
-
-  /**
-   * Nest/Un-nest a team
-   *
-   * @param  {Object}   params { id, parentId = null, organizationId }
-   * @param  {Function} cb
-   */
-  moveTeam: function moveTeam (params, cb) {
-    const { id, organizationId } = params
-
-    db.withTransaction([
-      (job, next) => {
-        Joi.validate({ id, organizationId }, validationRules.moveTeam, (err) => {
-          if (err) return next(Boom.badRequest(err))
-
-          next()
-        })
-      },
-      (job, next) => {
-        job.params = params
-        next()
-      },
-      checkBothTeamsFromSameOrg,
-      moveTeamSql,
-      moveTeamDescendants
-    ], (err) => {
-      if (err) return cb(err)
-
-      teamOps.readTeam({id, organizationId}, cb)
-    })
-  },
-
-  /**
-   * Add one or more policies to a team
-   *
-   * @param  {Object}   params { id, organizationId, policies }
-   * @param  {Function} cb
-   */
-  addTeamPolicies: function addTeamPolicies (params, cb) {
-    const { id, organizationId, policies } = params
-
-    Joi.validate({ id, organizationId, policies }, validationRules.addTeamPolicies, function (err) {
-      if (err) return cb(Boom.badRequest(err))
-
-      utils.checkPoliciesOrg(db, policies, organizationId, (err) => {
-        if (err) return cb(err)
-
-        insertTeamPolicies({ client: db, teamId: id, policies }, (err, res) => {
+        clearTeamPolicies({ teamId: id, client: db }, (err, res) => {
           if (err) return cb(err)
 
           teamOps.readTeam({ id, organizationId }, cb)
         })
       })
-    })
-  },
+    },
 
-  /**
-   * Replace team poilicies
-   *
-   * @param  {Object}   params { id, organizationId, policies }
-   * @param  {Function} cb
-   */
-  replaceTeamPolicies: function replaceTeamPolicies (params, cb) {
-    const { id, organizationId, policies } = params
-    const tasks = [
-      (job, next) => {
-        Joi.validate({ id, organizationId, policies }, validationRules.replaceTeamPolicies, (err) => {
-          if (err) return next(Boom.badRequest(err))
+    /**
+     * Remove a specific team policy
+     *
+     * @param  {Object}   params { userId, organizationId, policyId }
+     * @param  {Function} cb
+     */
+    deleteTeamPolicy: function deleteTeamPolicy (params, cb) {
+      const { teamId, organizationId, policyId } = params
+
+      Joi.validate({ teamId, organizationId, policyId }, validationRules.deleteTeamPolicy, function (err) {
+        if (err) return cb(Boom.badRequest(err))
+
+        removeTeamPolicy({ client: db, teamId, policyId }, (err, res) => {
+          if (err) return cb(err)
+
+          teamOps.readTeam({ id: teamId, organizationId }, cb)
+        })
+      })
+    },
+
+    /**
+     * Fetch the users data from a team
+     *
+     * @param  {params}   params { id, page, limit }
+     * @param  {Function} cb
+     */
+    readTeamUsers: function readTeamUsers ({ id, page = 1, limit, organizationId }, cb) {
+      Joi.validate({ id, page, limit, organizationId }, validationRules.readTeamUsers, function (err) {
+        if (err) return cb(Boom.badRequest(err))
+
+        const pageLimit = limit || conf.get('authorization.defaultPageSize')
+        const offset = (page - 1) * pageLimit
+
+        const job = {
+          id: id,
+          organizationId: organizationId,
+          offset: offset,
+          limit: pageLimit,
+          team: {},
+          client: db
+        }
+
+        loadTeamUsers(job, (err) => {
+          if (err) return cb(err)
+          const pageSize = pageLimit || job.totalUsersCount
+          const result = {
+            page: page,
+            limit: pageSize,
+            total: job.totalUsersCount,
+            data: job.team.users
+          }
+          return cb(null, result)
+        })
+      })
+    },
+
+    /**
+     * Add one or more users to a team
+     *
+     * @param  {Object}   params { id, users, organizationId }
+     * @param  {Function} cb
+     */
+    addUsersToTeam: function addUsersToTeam (params, cb) {
+      const { id, users, organizationId } = params
+      const tasks = [
+        (job, next) => {
+          Joi.validate({ id, users, organizationId }, validationRules.addUsersToTeam, (err) => {
+            if (err) return next(Boom.badRequest(err))
+
+            next()
+          })
+        },
+        (job, next) => {
+          job.teamId = id
+          job.organizationId = organizationId
+          job.params = params
 
           next()
-        })
-      },
-      (job, next) => {
-        job.teamId = id
-        job.organizationId = organizationId
-        job.policies = policies
+        },
+        (job, next) => {
+          utils.checkUsersOrg(job.client, job.params.users, job.organizationId, next)
+        },
+        checkTeamExists,
+        insertTeamMembers
+      ]
 
-        next()
-      },
-      (job, next) => {
-        utils.checkPoliciesOrg(job.client, job.policies, job.organizationId, next)
-      },
-      clearTeamPolicies,
-      insertTeamPolicies
-    ]
-
-    db.withTransaction(tasks, (err, res) => {
-      if (err) return cb(err)
-
-      teamOps.readTeam({ id, organizationId }, cb)
-    })
-  },
-
-  /**
-   * Remove all team's policies
-   *
-   * @param  {Object}   params { id, organizationId }
-   * @param  {Function} cb
-   */
-  deleteTeamPolicies: function deleteTeamPolicies (params, cb) {
-    const { id, organizationId } = params
-
-    Joi.validate({ id, organizationId }, validationRules.deleteTeamPolicies, function (err) {
-      if (err) return cb(Boom.badRequest(err))
-
-      clearTeamPolicies({ teamId: id, client: db }, (err, res) => {
+      db.withTransaction(tasks, (err, res) => {
         if (err) return cb(err)
 
         teamOps.readTeam({ id, organizationId }, cb)
       })
-    })
-  },
+    },
 
-  /**
-   * Remove a specific team policy
-   *
-   * @param  {Object}   params { userId, organizationId, policyId }
-   * @param  {Function} cb
-   */
-  deleteTeamPolicy: function deleteTeamPolicy (params, cb) {
-    const { teamId, organizationId, policyId } = params
+    /**
+     * Replace team members
+     *
+     * @param  {Object}   params { id, users, organizationId }
+     * @param  {Function} cb
+     */
+    replaceUsersInTeam: function replaceUsersInTeam (params, cb) {
+      const { id, users, organizationId } = params
+      const tasks = [
+        (job, next) => {
+          Joi.validate({ id, users, organizationId }, validationRules.replaceUsersInTeam, (err) => {
+            if (err) return next(Boom.badRequest(err))
 
-    Joi.validate({ teamId, organizationId, policyId }, validationRules.deleteTeamPolicy, function (err) {
-      if (err) return cb(Boom.badRequest(err))
+            next()
+          })
+        },
+        (job, next) => {
+          job.teamId = params.id
+          job.organizationId = params.organizationId
+          job.params = params
 
-      removeTeamPolicy({ client: db, teamId, policyId }, (err, res) => {
+          next()
+        },
+        (job, next) => {
+          utils.checkUsersOrg(job.client, job.params.users, job.organizationId, next)
+        },
+        checkTeamExists,
+        deleteTeamUsers,
+        insertTeamMembers
+      ]
+
+      db.withTransaction(tasks, (err, res) => {
         if (err) return cb(err)
 
-        teamOps.readTeam({ id: teamId, organizationId }, cb)
+        teamOps.readTeam({ id, organizationId }, cb)
       })
-    })
-  },
+    },
 
-  /**
-   * Fetch the users data from a team
-   *
-   * @param  {params}   params { id, page, limit }
-   * @param  {Function} cb
-   */
-  readTeamUsers: function readTeamUsers ({ id, page = 1, limit, organizationId }, cb) {
-    Joi.validate({ id, page, limit, organizationId }, validationRules.readTeamUsers, function (err) {
-      if (err) return cb(Boom.badRequest(err))
+    /**
+     * Delete team members
+     *
+     * @param  {Object}   params { id, organizationId }
+     * @param  {Function} cb
+     */
+    deleteTeamMembers: function deleteTeamMembers (params, cb) {
+      const { id, organizationId } = params
 
-      const pageLimit = limit || conf.get('authorization.defaultPageSize')
-      const offset = (page - 1) * pageLimit
+      const tasks = [
+        (job, next) => {
+          Joi.validate({ id, organizationId }, validationRules.deleteTeamMembers, (err) => {
+            if (err) return next(Boom.badRequest(err))
 
-      const job = {
-        id: id,
-        organizationId: organizationId,
-        offset: offset,
-        limit: pageLimit,
-        team: {}
-      }
+            next()
+          })
+        },
+        (job, next) => {
+          job.teamId = id
+          job.organizationId = organizationId
 
-      loadTeamUsers(job, (err) => {
+          next()
+        },
+        checkTeamExists,
+        deleteTeamUsers
+      ]
+
+      db.withTransaction(tasks, (err, res) => {
         if (err) return cb(err)
-        const pageSize = pageLimit || job.totalUsersCount
-        const result = {
-          page: page,
-          limit: pageSize,
-          total: job.totalUsersCount,
-          data: job.team.users
-        }
-        return cb(null, result)
+
+        cb()
       })
-    })
-  },
+    },
 
-  /**
-   * Add one or more users to a team
-   *
-   * @param  {Object}   params { id, users, organizationId }
-   * @param  {Function} cb
-   */
-  addUsersToTeam: function addUsersToTeam (params, cb) {
-    const { id, users, organizationId } = params
-    const tasks = [
-      (job, next) => {
-        Joi.validate({ id, users, organizationId }, validationRules.addUsersToTeam, (err) => {
-          if (err) return next(Boom.badRequest(err))
+    /**
+     * Delete one team member
+     *
+     * @param  {Object}   params { id, userId, organizationId }
+     * @param  {Function} cb
+     */
+    deleteTeamMember: function deleteTeamMember (params, cb) {
+      const { id, userId, organizationId } = params
+      const tasks = [
+        (job, next) => {
+          Joi.validate({ id, userId, organizationId }, validationRules.deleteTeamMember, (err) => {
+            if (err) return next(Boom.badRequest(err))
 
-          next()
-        })
-      },
-      (job, next) => {
-        job.teamId = id
-        job.organizationId = organizationId
-        job.params = params
-
-        next()
-      },
-      (job, next) => {
-        utils.checkUsersOrg(job.client, job.params.users, job.organizationId, next)
-      },
-      checkTeamExists,
-      insertTeamMembers
-    ]
-
-    db.withTransaction(tasks, (err, res) => {
-      if (err) return cb(err)
-
-      teamOps.readTeam({ id, organizationId }, cb)
-    })
-  },
-
-  /**
-   * Replace team members
-   *
-   * @param  {Object}   params { id, users, organizationId }
-   * @param  {Function} cb
-   */
-  replaceUsersInTeam: function replaceUsersInTeam (params, cb) {
-    const { id, users, organizationId } = params
-    const tasks = [
-      (job, next) => {
-        Joi.validate({ id, users, organizationId }, validationRules.replaceUsersInTeam, (err) => {
-          if (err) return next(Boom.badRequest(err))
+            next()
+          })
+        },
+        (job, next) => {
+          job.teamId = id
+          job.organizationId = organizationId
+          job.userId = userId
 
           next()
-        })
-      },
-      (job, next) => {
-        job.teamId = params.id
-        job.organizationId = params.organizationId
-        job.params = params
+        },
+        checkTeamExists,
+        deleteTeamUser
+      ]
 
-        next()
-      },
-      (job, next) => {
-        utils.checkUsersOrg(job.client, job.params.users, job.organizationId, next)
-      },
-      checkTeamExists,
-      deleteTeamUsers,
-      insertTeamMembers
-    ]
+      db.withTransaction(tasks, (err, res) => {
+        if (err) return cb(err)
 
-    db.withTransaction(tasks, (err, res) => {
-      if (err) return cb(err)
-
-      teamOps.readTeam({ id, organizationId }, cb)
-    })
-  },
-
-  /**
-   * Delete team members
-   *
-   * @param  {Object}   params { id, organizationId }
-   * @param  {Function} cb
-   */
-  deleteTeamMembers: function deleteTeamMembers (params, cb) {
-    const { id, organizationId } = params
-
-    const tasks = [
-      (job, next) => {
-        Joi.validate({ id, organizationId }, validationRules.deleteTeamMembers, (err) => {
-          if (err) return next(Boom.badRequest(err))
-
-          next()
-        })
-      },
-      (job, next) => {
-        job.teamId = id
-        job.organizationId = organizationId
-
-        next()
-      },
-      checkTeamExists,
-      deleteTeamUsers
-    ]
-
-    db.withTransaction(tasks, (err, res) => {
-      if (err) return cb(err)
-
-      cb()
-    })
-  },
-
-  /**
-   * Delete one team member
-   *
-   * @param  {Object}   params { id, userId, organizationId }
-   * @param  {Function} cb
-   */
-  deleteTeamMember: function deleteTeamMember (params, cb) {
-    const { id, userId, organizationId } = params
-    const tasks = [
-      (job, next) => {
-        Joi.validate({ id, userId, organizationId }, validationRules.deleteTeamMember, (err) => {
-          if (err) return next(Boom.badRequest(err))
-
-          next()
-        })
-      },
-      (job, next) => {
-        job.teamId = id
-        job.organizationId = organizationId
-        job.userId = userId
-
-        next()
-      },
-      checkTeamExists,
-      deleteTeamUser
-    ]
-
-    db.withTransaction(tasks, (err, res) => {
-      if (err) return cb(err)
-
-      cb()
-    })
+        cb()
+      })
+    }
   }
+
+  teamOps.deleteTeamMembers.validate = validationRules.deleteTeamMembers
+  teamOps.deleteTeamMember.validate = validationRules.deleteTeamMember
+  teamOps.replaceTeamPolicies.validate = validationRules.replaceTeamPolicies
+  teamOps.deleteTeamPolicies.validate = validationRules.deleteTeamPolicies
+  teamOps.deleteTeamPolicy.validate = validationRules.deleteTeamPolicy
+  teamOps.readTeamUsers.validate = validationRules.readTeamUsers
+  teamOps.addUsersToTeam.validate = validationRules.addUsersToTeam
+  teamOps.replaceUsersInTeam.validate = validationRules.replaceUsersInTeam
+  teamOps.listOrgTeams.validate = validationRules.listOrgTeams
+  teamOps.createTeam.validate = validationRules.createTeam
+  teamOps.readTeam.validate = validationRules.readTeam
+  teamOps.updateTeam.validate = validationRules.updateTeam
+  teamOps.deleteTeam.validate = validationRules.deleteTeam
+  teamOps.moveTeam.validate = validationRules.moveTeam
+  teamOps.addTeamPolicies.validate = validationRules.addTeamPolicies
+
+  return teamOps
 }
 
-teamOps.deleteTeamMembers.validate = validationRules.deleteTeamMembers
-teamOps.deleteTeamMember.validate = validationRules.deleteTeamMember
-teamOps.replaceTeamPolicies.validate = validationRules.replaceTeamPolicies
-teamOps.deleteTeamPolicies.validate = validationRules.deleteTeamPolicies
-teamOps.deleteTeamPolicy.validate = validationRules.deleteTeamPolicy
-teamOps.readTeamUsers.validate = validationRules.readTeamUsers
-teamOps.addUsersToTeam.validate = validationRules.addUsersToTeam
-teamOps.replaceUsersInTeam.validate = validationRules.replaceUsersInTeam
-teamOps.listOrgTeams.validate = validationRules.listOrgTeams
-teamOps.createTeam.validate = validationRules.createTeam
-teamOps.readTeam.validate = validationRules.readTeam
-teamOps.updateTeam.validate = validationRules.updateTeam
-teamOps.deleteTeam.validate = validationRules.deleteTeam
-teamOps.moveTeam.validate = validationRules.moveTeam
-teamOps.addTeamPolicies.validate = validationRules.addTeamPolicies
-
-module.exports = teamOps
+module.exports = TeamOps

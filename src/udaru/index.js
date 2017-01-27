@@ -1,60 +1,76 @@
 'use strict'
 
-const userOps = require('./lib/ops/userOps')
-const organizationOps = require('./lib/ops/organizationOps')
-const authorizeOps = require('./lib/ops/authorizeOps')
-const teamOps = require('./lib/ops/teamOps')
-const policyOps = require('./lib/ops/policyOps')
+const UserOps = require('./lib/ops/userOps')
+const OrganizationOps = require('./lib/ops/organizationOps')
+const AuthorizeOps = require('./lib/ops/authorizeOps')
+const TeamOps = require('./lib/ops/teamOps')
+const PolicyOps = require('./lib/ops/policyOps')
+const dbInit = require('./lib/db')
 
-module.exports = {
-  authorize: {
-    isUserAuthorized: authorizeOps.isUserAuthorized,
-    listActions: authorizeOps.listAuthorizations
-  },
+function udaru (config) {
 
-  organizations: {
-    list: organizationOps.list,
-    create: organizationOps.create,
-    read: organizationOps.readById,
-    delete: organizationOps.deleteById,
-    update: organizationOps.update
-  },
+  const db = dbInit(config)
 
-  policies: {
-    list: policyOps.listByOrganization,
-    read: policyOps.readPolicy,
-    create: policyOps.createPolicy,
-    update: policyOps.updatePolicy,
-    delete: policyOps.deletePolicy
-  },
+  const userOps = UserOps(db)
+  const policyOps = PolicyOps(db)
+  const organizationOps = OrganizationOps(db, policyOps, userOps)
+  const teamOps = TeamOps(db, policyOps, userOps)
+  const authorizeOps = AuthorizeOps(policyOps)
 
-  teams: {
-    list: teamOps.listOrgTeams,
-    create: teamOps.createTeam,
-    read: teamOps.readTeam,
-    update: teamOps.updateTeam,
-    delete: teamOps.deleteTeam,
-    move: teamOps.moveTeam,
-    listUsers: teamOps.readTeamUsers,
-    replacePolicies: teamOps.replaceTeamPolicies,
-    addPolicies: teamOps.addTeamPolicies,
-    deletePolicies: teamOps.deleteTeamPolicies,
-    deletePolicy: teamOps.deleteTeamPolicy,
-    addUsers: teamOps.addUsersToTeam,
-    replaceUsers: teamOps.replaceUsersInTeam,
-    deleteMembers: teamOps.deleteTeamMembers,
-    deleteMember: teamOps.deleteTeamMember
-  },
+  return {
+    getUserOrganizationId: userOps.getUserOrganizationId,
 
-  users: {
-    list: userOps.listOrgUsers,
-    create: userOps.createUser,
-    read: userOps.readUser,
-    update: userOps.updateUser,
-    delete: userOps.deleteUser,
-    replacePolicies: userOps.replaceUserPolicies,
-    addPolicies: userOps.addUserPolicies,
-    deletePolicies: userOps.deleteUserPolicies,
-    deletePolicy: userOps.deleteUserPolicy
+    authorize: {
+      isUserAuthorized: authorizeOps.isUserAuthorized,
+      listActions: authorizeOps.listAuthorizations
+    },
+
+    organizations: {
+      list: organizationOps.list,
+      create: organizationOps.create,
+      read: organizationOps.readById,
+      delete: organizationOps.deleteById,
+      update: organizationOps.update
+    },
+
+    policies: {
+      list: policyOps.listByOrganization,
+      read: policyOps.readPolicy,
+      create: policyOps.createPolicy,
+      update: policyOps.updatePolicy,
+      delete: policyOps.deletePolicy
+    },
+
+    teams: {
+      list: teamOps.listOrgTeams,
+      create: teamOps.createTeam,
+      read: teamOps.readTeam,
+      update: teamOps.updateTeam,
+      delete: teamOps.deleteTeam,
+      move: teamOps.moveTeam,
+      listUsers: teamOps.readTeamUsers,
+      replacePolicies: teamOps.replaceTeamPolicies,
+      addPolicies: teamOps.addTeamPolicies,
+      deletePolicies: teamOps.deleteTeamPolicies,
+      deletePolicy: teamOps.deleteTeamPolicy,
+      addUsers: teamOps.addUsersToTeam,
+      replaceUsers: teamOps.replaceUsersInTeam,
+      deleteMembers: teamOps.deleteTeamMembers,
+      deleteMember: teamOps.deleteTeamMember
+    },
+
+    users: {
+      list: userOps.listOrgUsers,
+      create: userOps.createUser,
+      read: userOps.readUser,
+      update: userOps.updateUser,
+      delete: userOps.deleteUser,
+      replacePolicies: userOps.replaceUserPolicies,
+      addPolicies: userOps.addUserPolicies,
+      deletePolicies: userOps.deleteUserPolicies,
+      deletePolicy: userOps.deleteUserPolicy
+    }
   }
 }
+
+module.exports = udaru

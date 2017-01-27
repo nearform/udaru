@@ -17,6 +17,8 @@ server.connection({
   }
 })
 
+server.app.udaru = require('./../udaru')(config._rawConfig)
+
 const swaggerOptions = {
   jsonEditor: true,
   reuseDefinitions: false,

@@ -5,8 +5,6 @@ const Boom = require('boom')
 
 const config = require('./../lib/config')
 const authConfig = require('./../lib/config/config.auth')
-const userOps = require('./../../udaru/lib/ops/userOps')
-const authorizeOps = require('./../../udaru/lib/ops/authorizeOps')
 
 function canImpersonate (user) {
   return user.organizationId === config.get('authorization.superUser.organization.id')
@@ -15,10 +13,10 @@ function canImpersonate (user) {
 function loadUser (job, next) {
   const { userId } = job
 
-  userOps.getUserOrganizationId(userId, (err, organizationId) => {
+  job.udaru.getUserOrganizationId(userId, (err, organizationId) => {
     if (err) return next(Boom.unauthorized('Bad credentials'))
 
-    userOps.readUser({ id: userId, organizationId }, (err, user) => {
+    job.udaru.users.read({ id: userId, organizationId }, (err, user) => {
       if (err) return next(Boom.unauthorized('Bad credentials'))
       job.currentUser = user
 
@@ -38,16 +36,16 @@ function impersonate (job, next) {
   next()
 }
 
-function checkAuthorization (userId, action, organizationId, resource, done) {
+function checkAuthorization (udaru, userId, action, organizationId, resource, done) {
   const params = { userId, action, organizationId, resource }
 
-  authorizeOps.isUserAuthorized(params, (err, result) => {
+  udaru.authorize.isUserAuthorized(params, (err, result) => {
     if (err) return done(err)
     done(null, result.access)
   })
 }
 
-function buildResourcesForUser (builder, userId, organizationId, done) {
+function buildResourcesForUser (udaru, builder, userId, organizationId, done) {
   const buildParams = {
     userId,
     teamId: '*',
@@ -56,7 +54,7 @@ function buildResourcesForUser (builder, userId, organizationId, done) {
 
   const resources = [builder(buildParams)]
 
-  userOps.readUser({ id: userId, organizationId: organizationId }, (err, user) => {
+  udaru.users.read({ id: userId, organizationId: organizationId }, (err, user) => {
     if (err && err.output.statusCode === 404) return done(null, resources)
     if (err) return done(err)
 
@@ -69,7 +67,7 @@ function buildResourcesForUser (builder, userId, organizationId, done) {
   })
 }
 
-function buildResources (authParams, request, organizationId, done) {
+function buildResources (udaru, authParams, request, organizationId, done) {
   let resource = authParams.resource
 
   if (resource) {
@@ -87,21 +85,21 @@ function buildResources (authParams, request, organizationId, done) {
   const buildParams = Object.assign({}, { organizationId }, requestParams)
 
   if (resourceType === 'users' && buildParams.userId) {
-    return buildResourcesForUser(resourceBuilder, buildParams.userId, organizationId, done)
+    return buildResourcesForUser(udaru, resourceBuilder, buildParams.userId, organizationId, done)
   }
 
   done(null, [resourceBuilder(buildParams)])
 }
 
 function authorize (job, next) {
-  buildResources(job.authParams, job.request, job.organizationId, (err, resources) => {
+  buildResources(job.udaru, job.authParams, job.request, job.organizationId, (err, resources) => {
     if (err) return Boom.unauthorized('Bad credentials')
 
     const action = job.authParams.action
     const userId = job.currentUser.id
     const organizationId = job.organizationId
 
-    async.any(resources, async.apply(checkAuthorization, userId, action, organizationId), (err, valid) => {
+    async.any(resources, async.apply(checkAuthorization, job.udaru, userId, action, organizationId), (err, valid) => {
       if (err) return next(Boom.forbidden('Invalid credentials', 'udaru'))
       if (!valid) return next(Boom.forbidden('Invalid credentials', 'udaru'))
 
@@ -118,6 +116,7 @@ module.exports = (options, server, request, userId, callback) => {
   }
 
   const job = {
+    udaru: server.app.udaru,
     userId,
     request,
     authParams,

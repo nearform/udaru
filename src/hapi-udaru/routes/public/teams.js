@@ -2,13 +2,14 @@
 
 const _ = require('lodash')
 const Joi = require('joi')
-const udaru = require('./../../../udaru')
 const Action = require('./../../lib/config/config.auth').Action
 const conf = require('./../../lib/config')
 const swagger = require('./../../swagger')
 const headers = require('./../headers')
 
 exports.register = function (server, options, next) {
+  const udaru = server.app.udaru
+
   server.route({
     method: 'GET',
     path: '/authorization/teams',

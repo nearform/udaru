@@ -3,8 +3,8 @@
 const _ = require('lodash')
 const expect = require('code').expect
 
-const policyOps = require('../../../src/udaru/lib/ops/policyOps')
 const utils = require('../../utils')
+const { udaru } = utils
 
 function Policy (Statement) {
   return {
@@ -118,7 +118,7 @@ class CustomTest {
       policyData.id = testedPolicy.id
       policyData.organizationId = testedPolicy.organizationId
 
-      policyOps.updatePolicy(policyData, (err, policy) => {
+      udaru.policies.update(policyData, (err, policy) => {
         if (err) return done(err)
 
         const options = utils.requestOptions(interpolate(endpointData, records))

@@ -4,10 +4,8 @@ const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 const utils = require('./../utils')
-const userOps = require('../../src/udaru/lib/ops/userOps')
-const organizationOps = require('../../src/udaru/lib/ops/organizationOps')
-const policyOps = require('../../src/udaru/lib/ops/policyOps')
 const server = require('./../../src/hapi-udaru/wiring-hapi')
+const { udaru } = utils
 
 const statements = { Statement: [{ Effect: 'Allow', Action: ['documents:Read'], Resource: ['wonka:documents:/public/*'] }] }
 
@@ -90,7 +88,7 @@ lab.experiment('Users: read - delete - update', () => {
   })
 
   lab.test('delete user should return 204 if success', (done) => {
-    userOps.createUser({name: 'test', id: 'testId', organizationId: 'ROOT'}, (err, user) => {
+    udaru.users.create({name: 'test', id: 'testId', organizationId: 'ROOT'}, (err, user) => {
       expect(err).to.not.exist()
 
       const options = utils.requestOptions({
@@ -133,7 +131,7 @@ lab.experiment('Users: read - delete - update', () => {
         policies: []
       })
 
-      userOps.updateUser({ name: 'Modify Me', id: 'ModifyId', organizationId: 'WONKA' }, done)
+      udaru.users.update({ name: 'Modify Me', id: 'ModifyId', organizationId: 'WONKA' }, done)
     })
   })
 })
@@ -189,7 +187,7 @@ lab.experiment('Users - create', () => {
       expect(result.name).to.equal('Salman')
       expect(result.organizationId).to.equal('OILCOUSA')
 
-      userOps.deleteUser({ id: 'testId', organizationId: 'OILCOUSA' }, done)
+      udaru.users.delete({ id: 'testId', organizationId: 'OILCOUSA' }, done)
     })
   })
 
@@ -214,7 +212,7 @@ lab.experiment('Users - create', () => {
       expect(result.name).to.equal('Salman')
       expect(result.organizationId).to.equal('OILCOUSA')
 
-      userOps.deleteUser({ id: result.id, organizationId: 'OILCOUSA' }, done)
+      udaru.users.delete({ id: result.id, organizationId: 'OILCOUSA' }, done)
     })
   })
 
@@ -263,7 +261,7 @@ lab.experiment('Users - create', () => {
       expect(result.name).to.equal('Salman')
       expect(result.organizationId).to.equal('ROOT')
 
-      userOps.deleteUser({ id: result.id, organizationId: 'ROOT' }, done)
+      udaru.users.delete({ id: result.id, organizationId: 'ROOT' }, done)
     })
   })
 
@@ -290,7 +288,7 @@ lab.experiment('Users - create', () => {
 
 lab.experiment('Users - manage policies', () => {
   lab.test('add policies to a user', (done) => {
-    policyOps.createPolicy(policyCreateData, (err, p) => {
+    udaru.policies.create(policyCreateData, (err, p) => {
       expect(err).to.not.exist()
 
       const options = utils.requestOptions({
@@ -307,17 +305,17 @@ lab.experiment('Users - manage policies', () => {
         expect(response.statusCode).to.equal(200)
         expect(result.policies[0].id).to.equal(p.id)
 
-        userOps.deleteUserPolicies({ id: 'ModifyId', organizationId: 'WONKA' }, (err, res) => {
+        udaru.users.deletePolicies({ id: 'ModifyId', organizationId: 'WONKA' }, (err, res) => {
           expect(err).to.not.exist()
 
-          policyOps.deletePolicy({ id: p.id, organizationId: 'WONKA' }, done)
+          udaru.policies.delete({ id: p.id, organizationId: 'WONKA' }, done)
         })
       })
     })
   })
 
   lab.test('clear and replace policies for a user', (done) => {
-    policyOps.createPolicy(policyCreateData, (err, p) => {
+    udaru.policies.create(policyCreateData, (err, p) => {
       expect(err).to.not.exist()
 
       const options = utils.requestOptions({
@@ -335,7 +333,7 @@ lab.experiment('Users - manage policies', () => {
         expect(result.policies.length).to.equal(1)
         expect(result.policies[0].id).to.equal(p.id)
 
-        policyOps.createPolicy(policyCreateData, (err, newP) => {
+        udaru.policies.create(policyCreateData, (err, newP) => {
           expect(err).to.not.exist()
 
           options.payload.policies = [newP.id]
@@ -347,13 +345,13 @@ lab.experiment('Users - manage policies', () => {
             expect(result.policies.length).to.equal(1)
             expect(result.policies[0].id).to.equal(newP.id)
 
-            userOps.deleteUserPolicies({ id: 'ModifyId', organizationId: 'WONKA' }, (err, res) => {
+            udaru.users.deletePolicies({ id: 'ModifyId', organizationId: 'WONKA' }, (err, res) => {
               expect(err).to.not.exist()
 
-              policyOps.deletePolicy({ id: p.id, organizationId: 'WONKA' }, (err, res) => {
+              udaru.policies.delete({ id: p.id, organizationId: 'WONKA' }, (err, res) => {
                 expect(err).to.not.exist()
 
-                policyOps.deletePolicy({ id: newP.id, organizationId: 'WONKA' }, done)
+                udaru.policies.delete({ id: newP.id, organizationId: 'WONKA' }, done)
               })
             })
           })
@@ -368,20 +366,20 @@ lab.experiment('Users - manage policies', () => {
       url: '/authorization/users/ModifyId/policies'
     })
 
-    policyOps.createPolicy(policyCreateData, (err, p) => {
+    udaru.policies.create(policyCreateData, (err, p) => {
       expect(err).to.not.exist()
 
-      userOps.addUserPolicies({ id: 'ModifyId', organizationId: 'WONKA', policies: [p.id] }, (err) => {
+      udaru.users.addPolicies({ id: 'ModifyId', organizationId: 'WONKA', policies: [p.id] }, (err) => {
         expect(err).to.not.exist()
 
         server.inject(options, (response) => {
           expect(response.statusCode).to.equal(204)
 
-          userOps.readUser({ id: 'ModifyId', organizationId: 'WONKA' }, (err, user) => {
+          udaru.users.read({ id: 'ModifyId', organizationId: 'WONKA' }, (err, user) => {
             expect(err).not.to.exist()
             expect(user.policies).to.equal([])
 
-            policyOps.deletePolicy({ id: p.id, organizationId: 'WONKA' }, done)
+            udaru.policies.delete({ id: p.id, organizationId: 'WONKA' }, done)
           })
         })
       })
@@ -389,10 +387,10 @@ lab.experiment('Users - manage policies', () => {
   })
 
   lab.test('remove one user\'s policies', (done) => {
-    policyOps.createPolicy(policyCreateData, (err, p) => {
+    udaru.policies.create(policyCreateData, (err, p) => {
       expect(err).to.not.exist()
 
-      userOps.addUserPolicies({ id: 'ModifyId', organizationId: 'WONKA', policies: [p.id] }, (err) => {
+      udaru.users.addPolicies({ id: 'ModifyId', organizationId: 'WONKA', policies: [p.id] }, (err) => {
         expect(err).to.not.exist()
 
         const options = utils.requestOptions({
@@ -403,11 +401,11 @@ lab.experiment('Users - manage policies', () => {
         server.inject(options, (response) => {
           expect(response.statusCode).to.equal(204)
 
-          userOps.readUser({ id: 'ModifyId', organizationId: 'WONKA' }, (err, user) => {
+          udaru.users.read({ id: 'ModifyId', organizationId: 'WONKA' }, (err, user) => {
             expect(err).not.to.exist()
             expect(user.policies).to.equal([])
 
-            policyOps.deletePolicy({ id: p.id, organizationId: 'WONKA' }, done)
+            udaru.policies.delete({ id: p.id, organizationId: 'WONKA' }, done)
           })
         })
       })
@@ -419,7 +417,7 @@ lab.experiment('Users - checking org_id scoping', () => {
   let policyId
 
   lab.before((done) => {
-    organizationOps.create({ id: 'NEWORG', name: 'new org', description: 'new org' }, (err, org) => {
+    udaru.organizations.create({ id: 'NEWORG', name: 'new org', description: 'new org' }, (err, org) => {
       if (err) return done(err)
 
       const policyData = {
@@ -429,7 +427,7 @@ lab.experiment('Users - checking org_id scoping', () => {
         statements
       }
 
-      policyOps.createPolicy(policyData, (err, policy) => {
+      udaru.policies.create(policyData, (err, policy) => {
         if (err) return done(err)
 
         policyId = policy.id
@@ -439,7 +437,7 @@ lab.experiment('Users - checking org_id scoping', () => {
   })
 
   lab.after((done) => {
-    organizationOps.deleteById('NEWORG', done)
+    udaru.organizations.delete('NEWORG', done)
   })
 
   lab.test('add policies from a different organization should not be allowed', (done) => {

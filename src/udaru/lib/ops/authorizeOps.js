@@ -3,64 +3,68 @@
 const Boom = require('boom')
 const Joi = require('joi')
 const iam = require('iam-js')
-const policyOps = require('./policyOps')
 const validationRules = require('./validation').authorize
 
-const authorize = {
-  /**
-   * Return if a user can perform an action on a certain resource
-   *
-   * @param  {Object}   options { resource, action, userId,  }
-   * @param  {Function} cb
-   */
-  isUserAuthorized: function isUserAuthorized ({ resource, action, userId, organizationId }, cb) {
-    Joi.validate({ resource, action, userId, organizationId }, validationRules.isUserAuthorized, function (err) {
-      if (err) return cb(Boom.badRequest(err))
+function AuthorizeOps (policyOps) {
 
-      policyOps.listAllUserPolicies({ userId, organizationId }, (err, policies) => {
-        if (err) {
-          return cb(err)
-        }
+  const authorize = {
+    /**
+     * Return if a user can perform an action on a certain resource
+     *
+     * @param  {Object}   options { resource, action, userId,  }
+     * @param  {Function} cb
+     */
+    isUserAuthorized: function isUserAuthorized ({ resource, action, userId, organizationId }, cb) {
+      Joi.validate({ resource, action, userId, organizationId }, validationRules.isUserAuthorized, function (err) {
+        if (err) return cb(Boom.badRequest(err))
 
-        iam(policies, ({ process }) => {
-          process(resource, action, (err, access) => {
-            if (err) {
-              return cb(err)
-            }
+        policyOps.listAllUserPolicies({ userId, organizationId }, (err, policies) => {
+          if (err) {
+            return cb(err)
+          }
 
-            cb(null, { access })
+          iam(policies, ({ process }) => {
+            process(resource, action, (err, access) => {
+              if (err) {
+                return cb(err)
+              }
+
+              cb(null, { access })
+            })
           })
         })
       })
-    })
-  },
+    },
 
-  /**
-   * List all user's actions on a given resource
-   *
-   * @param  {Object}   options { userId, resource }
-   * @param  {Function} cb
-   */
-  listAuthorizations: function listAuthorizations ({ userId, resource, organizationId }, cb) {
-    Joi.validate({ resource, userId, organizationId }, validationRules.listAuthorizations, function (err) {
-      if (err) return cb(Boom.badRequest(err))
+    /**
+     * List all user's actions on a given resource
+     *
+     * @param  {Object}   options { userId, resource }
+     * @param  {Function} cb
+     */
+    listAuthorizations: function listAuthorizations ({ userId, resource, organizationId }, cb) {
+      Joi.validate({ resource, userId, organizationId }, validationRules.listAuthorizations, function (err) {
+        if (err) return cb(Boom.badRequest(err))
 
-      policyOps.listAllUserPolicies({ userId, organizationId }, (err, policies) => {
-        if (err) return cb(Boom.wrap(err))
+        policyOps.listAllUserPolicies({ userId, organizationId }, (err, policies) => {
+          if (err) return cb(Boom.wrap(err))
 
-        iam(policies, ({ actions }) => {
-          actions(resource, (err, result) => {
-            if (err) return cb(err)
+          iam(policies, ({ actions }) => {
+            actions(resource, (err, result) => {
+              if (err) return cb(err)
 
-            cb(null, { actions: result })
+              cb(null, { actions: result })
+            })
           })
         })
       })
-    })
+    }
   }
+
+  authorize.isUserAuthorized.validate = validationRules.isUserAuthorized
+  authorize.listAuthorizations.validate = validationRules.listAuthorizations
+
+  return authorize
 }
 
-authorize.isUserAuthorized.validate = validationRules.isUserAuthorized
-authorize.listAuthorizations.validate = validationRules.listAuthorizations
-
-module.exports = authorize
+module.exports = AuthorizeOps
