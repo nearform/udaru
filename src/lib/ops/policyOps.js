@@ -50,8 +50,7 @@ function deleteTeamsAssociations (client, ids, orgId, cb) {
                DELETE FROM team_policies AS p
                USING teams AS t
                WHERE t.id = p.team_id
-                 AND p.policy_id = ANY (${ids})
-                 AND t.org_id = ${orgId}`,
+                 AND p.policy_id = ANY (${ids})`,
                utils.boomErrorWrapper(cb))
 }
 
@@ -60,8 +59,7 @@ function deleteUsersAssociations (client, ids, orgId, cb) {
                DELETE FROM user_policies AS p
                USING users AS u
                WHERE u.id = p.user_id
-                 AND p.policy_id = ANY (${ids})
-                 AND u.org_id = ${orgId}`,
+                 AND p.policy_id = ANY (${ids})`,
                utils.boomErrorWrapper(cb))
 }
 
