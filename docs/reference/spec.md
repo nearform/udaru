@@ -49,7 +49,7 @@ e.g `authorization/foo-org-xyz` references the Foo Organization.
 
 ## Inception
 
-The SuperUser is created at first install, this is simply a normal user with the SuperUser policy attached to it. This can be done be done at setup time in the simplest way we can. The SuperUser is responsible for creating new Organizations, and in particular an Organization Administrator (OrgAdmin) - someone in the Organization responsible for managing that Organization.
+The SuperUser is created at first install, this is simply a normal user with the SuperUser policy attached to it. This can be done at setup time in the simplest way we can. The SuperUser is responsible for creating new Organizations, and in particular an Organization Administrator (OrgAdmin) - someone in the Organization responsible for managing that Organization.
 
 The SuperUser policy will look as follows, it simply allows all actions on all resources:
 

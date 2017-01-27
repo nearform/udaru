@@ -4,10 +4,15 @@
 [![coveralls][coveralls-badge]][coveralls-url]
 [![snyk][snyk-badge]][snyk-url]
 
-Udaru is a policy based authorization module that can be used to add permissions to 'actions' and 
-'resources'. Udaru supports 'organizations', 'teams', and 'users'; policies can be created for 
-each. Udaru can be used as a stand-alone module , or as a stand-alone server or 
+Udaru is a policy based authorization module that can be used as an Policy Based Acess Control mechanism.
+It supports Organizations, Teams and User entities that be used to build the access model. The policies attached to these entities define the 'Actions' that can be performed by an entity on various 'Resources'.
+
+Udaru can be used as a stand-alone module, as a stand-alone server or as an
 Hapi plugin. This repository contains the code for all three running configurations.
+
+A detailed explanation on how the Udaru authorization system is structured and the terms and elements used to define the authorization system ca be found in the [Authorization Introduction][] document.
+
+A description on how the internals of the authorization system are implemented can be found in the [Authorization Tech Spec][].
 
 ## Install
 To install via npm,
@@ -82,7 +87,7 @@ server.register({register: UdaruPlugin})
 ```
 
 ### Database support
-Udaru requires an instance of Postgres to function correctly. For simplicity, a preconfigured 
+Udaru requires an instance of Postgres to function correctly. For simplicity, a preconfigured
 `docker-compose` file has been provided. To run,
 
 ```
@@ -108,15 +113,15 @@ npm run pg:load-test-data
 - **Note:** Running a test or coverage command will auto run these commands
 
 ### pgAdmin database access
-As the Postgresql docker container has its 5432 port forwarded on the local machine the database 
+As the Postgresql docker container has its 5432 port forwarded on the local machine the database
 can be accessed with pgAdmin.
 
-To access the database using the pgAdmin you have to fill in also the container IP beside the 
+To access the database using the pgAdmin you have to fill in also the container IP beside the
 database names and access credentials. The container IP can be seen with `docker ps`.
 
 ### Migrations
-For testing and documentation purposes we have db migrations. We use [`postgrator`][postgrator]; 
-you can find the sql files in the [`database/migrations`](/database/migrations) folder. To run 
+For testing and documentation purposes we have db migrations. We use [`postgrator`][postgrator];
+you can find the sql files in the [`database/migrations`](/database/migrations) folder. To run
 the migrations,
 
 ```
@@ -148,12 +153,12 @@ To get more information see [Service Api documentation](#service-api-documentati
 
 ### Setup SuperUser
 
-The init script needs to be run in order to setup the SuperUser: `node service/scripts/init`
+The init script needs to be run in order to setup the SuperUser: `node scripts/init`
 
 If you want to specify a better SuperUser id (default is `SuperUserId`) you can prefix the script as follow:
 
 ```
-LABS_AUTH_SERVICE_authorization_superUser_id=myComplexId12345 node service/scripts/init
+LABS_AUTH_SERVICE_authorization_superUser_id=myComplexId12345 node scripts/init
 ```
 
 **Note:** if you have already ran some tests or loaded the test data, you will need to run `npm pg:init` again to reset the db.
@@ -162,7 +167,7 @@ LABS_AUTH_SERVICE_authorization_superUser_id=myComplexId12345 node service/scrip
 
 Another script is available to load policies from a file
 
-Usage: `node service/script/loadPolicies --org=FOO policies.json`
+Usage: `node script/loadPolicies --org=FOO policies.json`
 
 JSON structure:
 
@@ -202,13 +207,13 @@ and then go to [`http://localhost:8080/documentation`][swagger-link]
 The Swagger documentation also gives the ability to execute calls to the API and see their results.
 
 ### ENV variables to set configuration options
-There is a default configuration file [`service/lib/config.js`][config].
+There is a default configuration file [`lib/config.js`][config].
 
-This configuration is the one used in dev environment and we are quite sure the production one will 
-be different :) To override this configuration you can use ENV variables on the 
+This configuration is the one used in dev environment and we are quite sure the production one will
+be different :) To override this configuration you can use ENV variables on the
 server/container/machine you will run udaru(s) on.
 
-To override those configuration settings you will have to specify your ENV variables with a 
+To override those configuration settings you will have to specify your ENV variables with a
 [prefix][prefix-link] and then the "path" to the property you want to override.
 
 **Configuration**
@@ -243,6 +248,8 @@ Copyright nearForm Ltd 2017. Licensed under [MIT][license]
 [prefix-link]: https://github.com/nearform/labs-authorization/blob/master/lib/config.js#L29
 [reconfig]: https://github.com/namshi/reconfig
 [swagger-link]: http://localhost:8080/documentation
+[Authorization Tech Spec]: ./docs/reference/spec.md
+[Authorization Introduction]: ./docs/authorization-introduction.md
 
 [travis-badge]: https://travis-ci.org/nearform/labs-authorization.svg?branch=master
 [travis-url]: https://travis-ci.org/nearform/labs-authorization
