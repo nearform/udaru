@@ -1,9 +1,9 @@
 'use strict'
 
+const Reconfig = require('reconfig')
 const Boom = require('boom')
 const Joi = require('joi')
 const async = require('async')
-const config = require('./../config')
 const SQL = require('./../db/SQL')
 const mapping = require('./../mapping')
 const utils = require('./utils')
@@ -96,7 +96,9 @@ function removePolicy (job, next) {
   })
 }
 
-function PolicyOps (db) {
+function PolicyOps (db, config) {
+
+  config = new Reconfig(config)
 
   const policyOps = {
     /**

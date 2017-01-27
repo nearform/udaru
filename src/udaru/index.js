@@ -12,12 +12,13 @@ function udaru (config) {
   const db = dbInit(config)
 
   const userOps = UserOps(db)
-  const policyOps = PolicyOps(db)
+  const policyOps = PolicyOps(db, config)
   const organizationOps = OrganizationOps(db, policyOps, userOps)
   const teamOps = TeamOps(db, policyOps, userOps)
   const authorizeOps = AuthorizeOps(policyOps)
 
   return {
+    db: db,
     getUserOrganizationId: userOps.getUserOrganizationId,
 
     authorize: {

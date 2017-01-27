@@ -4,12 +4,14 @@ const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 
-const policyOps = require('../../../src/udaru/lib/ops/policyOps')
+const testUtils = require('../../utils')
+const { udaru } = testUtils
+
 const statements = { Statement: [{ Effect: 'Allow', Action: ['documents:Read'], Resource: ['wonka:documents:/public/*'] }] }
 
 lab.experiment('PolicyOps', () => {
   lab.test('list all organization policies', (done) => {
-    policyOps.listByOrganization({ organizationId: 'WONKA' }, (err, result) => {
+    udaru.policies.list({ organizationId: 'WONKA' }, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
       expect(result.length).to.equal(13)
@@ -25,7 +27,7 @@ lab.experiment('PolicyOps', () => {
   })
 
   lab.test('read a specific policy', (done) => {
-    policyOps.readPolicy({ id: 'policyId1', organizationId: 'WONKA' }, (err, policy) => {
+    udaru.policies.read({ id: 'policyId1', organizationId: 'WONKA' }, (err, policy) => {
       expect(err).to.not.exist()
       expect(policy).to.exist()
 
@@ -46,7 +48,7 @@ lab.experiment('PolicyOps', () => {
       statements
     }
 
-    policyOps.createPolicy(policyData, (err, policy) => {
+    udaru.policies.create(policyData, (err, policy) => {
       expect(err).to.not.exist()
       expect(policy).to.exist()
 
@@ -64,7 +66,7 @@ lab.experiment('PolicyOps', () => {
         statements: { Statement: [{ Effect: 'Deny', Action: ['documents:Read'], Resource: ['wonka:documents:/public/*'] }] }
       }
 
-      policyOps.updatePolicy(updateData, (err, policy) => {
+      udaru.policies.update(updateData, (err, policy) => {
         expect(err).to.not.exist()
         expect(policy).to.exist()
 
@@ -72,7 +74,7 @@ lab.experiment('PolicyOps', () => {
         expect(policy.version).to.equal('2')
         expect(policy.statements).to.equal({ Statement: [{ Effect: 'Deny', Action: ['documents:Read'], Resource: ['wonka:documents:/public/*'] }] })
 
-        policyOps.deletePolicy({ id: policyId, organizationId: 'WONKA' }, done)
+        udaru.policies.delete({ id: policyId, organizationId: 'WONKA' }, done)
       })
     })
   })
@@ -86,7 +88,7 @@ lab.experiment('PolicyOps', () => {
       statements
     }
 
-    policyOps.createPolicy(policyData, (err, policy) => {
+    udaru.policies.create(policyData, (err, policy) => {
       expect(err).to.not.exist()
       expect(policy).to.exist()
 
@@ -95,7 +97,7 @@ lab.experiment('PolicyOps', () => {
       expect(policy.version).to.equal('1')
       expect(policy.statements).to.equal(statements)
 
-      policyOps.deletePolicy({ id: policy.id, organizationId: 'WONKA' }, done)
+      udaru.policies.delete({ id: policy.id, organizationId: 'WONKA' }, done)
     })
   })
 })

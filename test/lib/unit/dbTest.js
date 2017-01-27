@@ -30,11 +30,12 @@ const tasks = [
   }
 ]
 
-const db = proxyquire('../../../src/udaru/lib/db', {'pg': {
+const dbInit = proxyquire('../../../src/udaru/lib/db', {'pg': {
   Pool: function () {
     return client
   }
 }})
+const db = dbInit({})
 
 lab.experiment('bd', () => {
   lab.beforeEach((done) => {

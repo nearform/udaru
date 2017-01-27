@@ -1,14 +1,13 @@
 'use strict'
 
+const _ = require('lodash')
 const Joi = require('joi')
 const Boom = require('boom')
 const uuid = require('uuid/v4')
 const async = require('async')
-const userOps = require('./userOps')
 const utils = require('./utils')
 const SQL = require('./../db/SQL')
 const mapping = require('./../mapping')
-const conf = require('./../config')
 const validationRules = require('./validation').teams
 
 function generateId () {
@@ -276,7 +275,7 @@ function loadTeamPolicies (job, next) {
   })
 }
 
-function TeamOps (db, policyOps, userOps) {
+function TeamOps (db, policyOps, userOps, config) {
 
   function createDefaultUser (job, next) {
     if (!job.params.user) return next()
@@ -654,7 +653,7 @@ function TeamOps (db, policyOps, userOps) {
       Joi.validate({ id, page, limit, organizationId }, validationRules.readTeamUsers, function (err) {
         if (err) return cb(Boom.badRequest(err))
 
-        const pageLimit = limit || conf.get('authorization.defaultPageSize')
+        const pageLimit = limit || _.get(config, 'authorization.defaultPageSize')
         const offset = (page - 1) * pageLimit
 
         const job = {

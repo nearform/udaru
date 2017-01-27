@@ -1,11 +1,13 @@
 'use strict'
 
 const _ = require('lodash')
-const db = require('./../src/udaru/lib/db')
+const dbInit = require('./../src/udaru/lib/db')
 const SQL = require('./../src/udaru/lib/db/SQL')
 
 const config = require('./../src/hapi-udaru/lib/config')
 const udaru = require('./../src/udaru')(config._rawConfig)
+
+const db = dbInit(config.get('pgdb'))
 
 /**
  * Merge the authorization default header with the provided options
@@ -37,5 +39,6 @@ module.exports = {
   requestOptions,
   findPick,
   deleteUserFromAllTeams,
-  udaru
+  udaru,
+  db
 }
