@@ -3,8 +3,8 @@
 const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
-const utils = require('./../utils')
-const server = require('./../../lib/wiring-hapi')
+const utils = require('../../utils')
+const server = require('../../../lib/server')
 const { udaru } = utils
 
 lab.experiment('Organizations', () => {

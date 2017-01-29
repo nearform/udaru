@@ -5,10 +5,10 @@ const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 const async = require('async')
 
-const testUtils = require('../../utils')
+const testUtils = require('../utils')
 const { udaru } = testUtils
 
-const config = require('../../../lib/hapi-udaru/config')
+const config = require('../../lib/plugin/config')
 const defaultPolicies = config.get('authorization.organizations.defaultPolicies', { 'organizationId': 'nearForm' })
 const defaultPoliciesNames = Object.keys(defaultPolicies).map((pName) => {
   let policy = defaultPolicies[pName]

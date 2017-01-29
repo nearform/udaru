@@ -5,7 +5,7 @@ const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 const Boom = require('boom')
 // var proxyquire = require('proxyquire')
-var utils = require('./../../utils')
+var utils = require('../../../utils')
 
 /**
  * Skipped because we should mock the entire udaru structure :/
@@ -18,7 +18,7 @@ var udaru = {}
 // var udaruF = function () {
 //   return udaru
 // }
-const server = {} // proxyquire('./../../../lib/hapi-udaru/wiring-hapi', { './../module': udaruF })
+const server = {} // proxyquire('./../../../lib/plugin/server', { './../core': udaruF })
 
 lab.experiment('Authorization', () => {
   lab.test.skip('check authorization should return 500 for error case', (done) => {

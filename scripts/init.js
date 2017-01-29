@@ -1,9 +1,9 @@
 'use strict'
 
-const SQL = require('./../lib/module/lib/db/SQL')
-const udaru = require('./../lib/module')
-const db = require('./../lib/module/lib/db')
-const config = require('./../lib/hapi-udaru/config')
+const SQL = require('./../lib/core/lib/db/SQL')
+const udaru = require('./../lib/core')
+const db = require('./../lib/core/lib/db')
+const config = require('./../lib/plugin/config')
 
 function createOrganization (job, next) {
   const superOrganizationData = config.get('authorization.superUser.organization')

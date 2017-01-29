@@ -1,7 +1,7 @@
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 
-const server = require('../../../lib/wiring-hapi')
+const server = require('../../../lib/server')
 
 const utils = require('../../utils')
 const { udaru } = utils

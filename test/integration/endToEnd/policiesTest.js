@@ -4,8 +4,8 @@ const _ = require('lodash')
 const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
-var utils = require('./../utils')
-var server = require('./../../lib/wiring-hapi')
+var utils = require('../../utils')
+var server = require('../../../lib/server')
 const { udaru } = utils
 
 const statements = { Statement: [{ Effect: 'Allow', Action: ['documents:Read'], Resource: ['wonka:documents:/public/*'] }] }
