@@ -1,0 +1,2 @@
+ALTER TABLE organizations
+  ALTER COLUMN id TYPE VARCHAR(128);
