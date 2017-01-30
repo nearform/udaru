@@ -26,7 +26,7 @@
   "bugs": {
     "url": "https://github.com/nearform/labs-authorization/issues"
   },
-  "main": "index.js",
+  "main": "lib/index.js",
   "engines": {
     "node": ">=6.0.0"
   },
@@ -35,14 +35,11 @@
     "coverage": "npm run pg:init-test-db && LABS_AUTH_SERVICE_logger_pino_level=silent lab -c -t 95 -r html -o docs/coverage.html",
     "coveralls": "npm run pg:init-test-db && LABS_AUTH_SERVICE_logger_pino_level=silent lab -c -t 95 -r lcov | coveralls",
     "lint": "standard",
-    "pg:build": "docker-compose build",
     "pg:init": "LABS_AUTH_SERVICE_local=true node database/init.js && npm run pg:migrate",
     "pg:init-test-db": "npm run pg:init && npm run pg:load-test-data",
     "pg:load-test-data": "LABS_AUTH_SERVICE_local=true node database/loadTestData.js",
     "pg:migrate": "node database/migrate.js --version=1",
-    "pg:start": "docker-compose up -d",
-    "pg:stop": "docker-compose down",
-    "start": "node index.js",
+    "start": "node lib/server/start.js",
     "test": "npm run pg:init-test-db && LABS_AUTH_SERVICE_logger_pino_level=silent lab -c -t 95",
     "test:commit-check": "npm run lint && npm run test"
   },
@@ -54,7 +51,7 @@
     "hapi": "16.0.1",
     "hapi-pino": "1.3.0",
     "hapi-swagger": "7.5.0",
-    "iam-js": "git+http://git@github.com/nearform/iam-js.git",
+    "iam-js": "nearform/iam-js",
     "inert": "4.0.3",
     "joi": "10.0.5",
     "jsonfile": "2.4.0",

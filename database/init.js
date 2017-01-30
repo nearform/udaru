@@ -3,7 +3,7 @@
 const _ = require('lodash')
 const async = require('async')
 const pg = require('pg')
-const config = require('./../lib/hapi-udaru/config')
+const config = require('./../lib/plugin/config')
 
 if (!config.get('local')) {
   console.log('ERROR: You are trying to init the database while not in local environment.')

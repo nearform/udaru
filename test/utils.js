@@ -1,10 +1,10 @@
 'use strict'
 
 const _ = require('lodash')
-const db = require('./../lib/module/lib/db')
-const SQL = require('./../lib/module/lib/db/SQL')
+const db = require('./../lib/core/lib/db')
+const SQL = require('./../lib/core/lib/db/SQL')
 
-const udaru = require('./../lib/module')
+const udaru = require('./../lib/core')
 
 /**
  * Merge the authorization default header with the provided options

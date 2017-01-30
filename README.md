@@ -6,8 +6,8 @@
 
 Udaru is a policy based authorization module that can be used to add permissions to 'actions' and 
 'resources'. Udaru supports 'organizations', 'teams', and 'users'; policies can be created for 
-each. Udaru can be used as a [stand-alone module]() , or as a [stand-alone server]() or 
-[Hapi plugin](). This repository contains the code for all three running configurations.
+each. Udaru can be used as a stand-alone module , or as a stand-alone server or 
+Hapi plugin. This repository contains the code for all three running configurations.
 
 ## Install
 To install via npm,
@@ -60,67 +60,54 @@ npm run coverage
 ## Usage
 
 ### Stand-alone module
-To follow...
+```js
+const udaru = require('udaru')
+...
+```
 
 ### Stand alone server
-To follow...
+```
+npm run start
+```
 
 ### Hapi plugin
-To follow...
+```js
+const Hapi = require('hapi')
+const UdaruPlugin = require('udaru/plugin')
 
-## Database
+...
 
-**Important note:** the app needs PostgreSQL >= 9.5
-
-Running the initial demo (first cut of the service) uses Postgres in a Docker running instance, 
-which can be created with:
-
-```
-npm run pg:build
+const server = new Hapi.server()
+server.register({register: UdaruPlugin})
 ```
 
-Note: In case you have issues building or running it with Docker make sure you have a recent 
-version of docker engine and docker compose.
+### Database support
+Udaru requires an instance of Postgres to function correctly. For simplicity, a preconfigured 
+`docker-compose` file has been provided. To run,
 
-### Start Postgres in a Docker container
-
-A Docker container with Postgres can be started with:
 ```
-npm run pg:start
+docker-compose up
 ```
 
-To see the running container and its ID:
-```
-docker ps
-```
+- **Note:** Ensure you are using the latest version of Docker for (Linux/OSX/Windows)
+- **Note:** Udaru needs PostgreSQL >= 9.5
 
-To connect to the running container:
-```
-docker exec -ti <container_id> <command>
-```
-e.g.
-```
-docker exec -ti e343edecaaa7 ls
-docker exec -ti e343edecaaa7 bash
-docker exec -ti e bash        // short container name
-```
-
-### Populate the database
-
-The Authorization database, system user and initial tables
-can be created by executing:
+#### Populate the database
+The Authorization database, system user and initial tables can be created by executing,
 
 ```
 npm run pg:init
 ```
 
 Test data can be added with:
+
 ```
 npm run pg:load-test-data
 ```
 
-### pgAdmin database access
+- **Note:** Running a test or coverage command will auto run these commands
 
+### pgAdmin database access
 As the Postgresql docker container has its 5432 port forwarded on the local machine the database 
 can be accessed with pgAdmin.
 
@@ -128,16 +115,15 @@ To access the database using the pgAdmin you have to fill in also the container 
 database names and access credentials. The container IP can be seen with `docker ps`.
 
 ### Migrations
+For testing and documentation purposes we have db migrations. We use [`postgrator`][postgrator]; 
+you can find the sql files in the [`database/migrations`](/database/migrations) folder. To run 
+the migrations,
 
-For testing and documentation purposes we have db migrations.
+```
+node database/migrate.js --version=<version>`
+```
 
-We use [`postgrator`][postgrator] and you can find the sql files in the [`database/migrations`](/database/migrations) folder.
-
-To run the migrations you just need to execute
-
-`node database/migrate.js --version=<version>`
-
-Running the tests (`npm test`) or setting up the app with the test db (`npm run app:init-test-db`) will automaticcaly bring the db to the latest version.
+- **Note:** Running the tests or init commands will automaticaly bring the db to the latest version.
 
 ## Service
 
@@ -160,7 +146,7 @@ with data in the form:
 
 To get more information see [Service Api documentation](#service-api-documentation)
 
-## Setup SuperUser
+### Setup SuperUser
 
 The init script needs to be run in order to setup the SuperUser: `node service/scripts/init`
 
@@ -172,7 +158,7 @@ LABS_AUTH_SERVICE_authorization_superUser_id=myComplexId12345 node service/scrip
 
 **Note:** if you have already ran some tests or loaded the test data, you will need to run `npm pg:init` again to reset the db.
 
-## Load policies from file
+### Load policies from file
 
 Another script is available to load policies from a file
 
@@ -202,8 +188,7 @@ JSON structure:
 }
 ```
 
-## Service API documentation
-
+### Service API documentation
 The Swagger API documentation gives explanations on the exposed API.
 
 To run Swagger:
@@ -216,15 +201,12 @@ and then go to [`http://localhost:8080/documentation`][swagger-link]
 
 The Swagger documentation also gives the ability to execute calls to the API and see their results.
 
-
-
-## ENV variables to set configuration options
-
+### ENV variables to set configuration options
 There is a default configuration file [`service/lib/config.js`][config].
 
 This configuration is the one used in dev environment and we are quite sure the production one will 
 be different :) To override this configuration you can use ENV variables on the 
-server/container/machine you will run the app(s) on.
+server/container/machine you will run udaru(s) on.
 
 To override those configuration settings you will have to specify your ENV variables with a 
 [prefix][prefix-link] and then the "path" to the property you want to override.
@@ -255,10 +237,10 @@ To achieve this we use the [`reconfig`][reconfig] module
 ## License
 Copyright nearForm Ltd 2017. Licensed under [MIT][license]
 
-[config]: https://github.com/nearform/labs-authorization/blob/master/src/lib/config.js
+[config]: https://github.com/nearform/labs-authorization/blob/master/lib/config.js
 [license]: ./LICENSE.md
 [postgrator]: https://github.com/rickbergfalk/postgrator
-[prefix-link]: https://github.com/nearform/labs-authorization/blob/master/src/lib/config.js#L29
+[prefix-link]: https://github.com/nearform/labs-authorization/blob/master/lib/config.js#L29
 [reconfig]: https://github.com/namshi/reconfig
 [swagger-link]: http://localhost:8080/documentation
 
