@@ -61,7 +61,7 @@ npm run coverage
 
 ### Stand-alone module
 ```js
-const Udaru = require('udaru')
+const udaru = require('udaru')
 ...
 ```
 
@@ -123,7 +123,7 @@ the migrations,
 node database/migrate.js --version=<version>`
 ```
 
-- **Note:** Running the tests or init commandswill automaticcaly bring the db to the latest version.
+- **Note:** Running the tests or init commands will automaticaly bring the db to the latest version.
 
 ## Service
 
