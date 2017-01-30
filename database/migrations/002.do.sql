@@ -1,2 +1,4 @@
+DROP TABLE IF EXISTS ref_actions;
+
 ALTER TABLE organizations
   ALTER COLUMN id TYPE VARCHAR(128);
