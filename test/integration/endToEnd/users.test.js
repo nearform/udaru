@@ -390,6 +390,36 @@ lab.experiment('Users - manage policies', () => {
     })
   })
 
+  lab.test('add policy with invalid ID to a user', (done) => {
+    const options = utils.requestOptions({
+      method: 'PUT',
+      url: '/authorization/users/ModifyId/policies',
+      payload: {
+        policies: ['InvalidPolicyID']
+      }
+    })
+
+    server.inject(options, (response) => {
+      expect(response.statusCode).to.equal(400)
+      done()
+    })
+  })
+
+  lab.test('replace policies with a policy with invalid ID should return an error', (done) => {
+    const options = utils.requestOptions({
+      method: 'POST',
+      url: '/authorization/users/ModifyId/policies',
+      payload: {
+        policies: ['InvalidPolicyID']
+      }
+    })
+
+    server.inject(options, (response) => {
+      expect(response.statusCode).to.equal(400)
+      done()
+    })
+  })
+
   lab.test('clear and replace policies for a user', (done) => {
     udaru.policies.create(policyCreateData, (err, p) => {
       expect(err).to.not.exist()

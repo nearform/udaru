@@ -785,6 +785,21 @@ lab.experiment('Teams - manage policies', () => {
     })
   })
 
+  lab.test('Add to one team a policy with invalid ID should return an error', (done) => {
+    const options = utils.requestOptions({
+      method: 'PUT',
+      url: '/authorization/teams/1/policies',
+      payload: {
+        policies: ['InvalidID']
+      }
+    })
+
+    server.inject(options, (response) => {
+      expect(response.statusCode).to.equal(400)
+      done()
+    })
+  })
+
   lab.test('Add one policy from another org to a team should return an error', (done) => {
     const options = utils.requestOptions({
       method: 'PUT',
@@ -840,6 +855,21 @@ lab.experiment('Teams - manage policies', () => {
       expect(result.policies).to.equal([{ id: 'policyId6', name: 'DB Only Read', version: '0.1' }])
 
       udaru.teams.replacePolicies({ id: result.id, policies: ['policyId1'], organizationId: result.organizationId }, done)
+    })
+  })
+
+  lab.test('Replace team policies with a policy with invalid ID should return an error', (done) => {
+    const options = utils.requestOptions({
+      method: 'POST',
+      url: '/authorization/teams/1/policies',
+      payload: {
+        policies: ['InvalidID']
+      }
+    })
+
+    server.inject(options, (response) => {
+      expect(response.statusCode).to.equal(400)
+      done()
     })
   })
 
@@ -905,6 +935,21 @@ lab.experiment('Teams - checking org_id scoping', () => {
     udaru.organizations.delete('NEWORG', done)
   })
 
+  lab.test('Adding a user with invalid ID should not be permitted', (done) => {
+    const options = utils.requestOptions({
+      method: 'PUT',
+      url: '/authorization/teams/2/users',
+      payload: {
+        users: ['invalidUserId']
+      }
+    })
+
+    server.inject(options, (response) => {
+      expect(response.statusCode).to.equal(400)
+      done()
+    })
+  })
+
   lab.test('Adding a user from another organization should not be permitted', (done) => {
     const options = utils.requestOptions({
       method: 'PUT',
@@ -926,6 +971,21 @@ lab.experiment('Teams - checking org_id scoping', () => {
       url: '/authorization/teams/2/users',
       payload: {
         users: ['testUserId', 'MikeId']
+      }
+    })
+
+    server.inject(options, (response) => {
+      expect(response.statusCode).to.equal(400)
+      done()
+    })
+  })
+
+  lab.test('Adding a user with invalid ID should not be permitted', (done) => {
+    const options = utils.requestOptions({
+      method: 'POST',
+      url: '/authorization/teams/2/users',
+      payload: {
+        users: ['InvalidUserId']
       }
     })
 

@@ -369,7 +369,21 @@ lab.experiment('TeamOps', () => {
     })
   })
 
-  lab.test('moveTeam should return an erro if teams arre from different orgs', (done) => {
+  lab.test('moveTeam should return an error if the moved team has invalid ID', (done) => {
+    const id = 'InvalidMoveID'
+    const parentId = 'InvalidParentMoveID'
+    udaru.teams.move({ id: id, parentId: parentId, organizationId: 'WONKA' }, (err, result) => {
+      expect(err).to.exist()
+      expect(err.message).to.include('Some teams')
+      expect(err.message).to.include('were not found')
+      expect(err.message).to.include(id)
+      expect(err.message).to.include(parentId)
+
+      done()
+    })
+  })
+
+  lab.test('moveTeam should return an error if teams are from different orgs', (done) => {
     let childTeam = {
       id: 'childTeam',
       name: 'Team Child',
