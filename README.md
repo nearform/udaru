@@ -4,15 +4,15 @@
 [![coveralls][coveralls-badge]][coveralls-url]
 [![snyk][snyk-badge]][snyk-url]
 
-Udaru is a policy based authorization module that can be used as an Policy Based Acess Control mechanism.
+Udaru is an authorization module that can be used as an Policy Based Acess Control mechanism.
 It supports Organizations, Teams and User entities that be used to build the access model. The policies attached to these entities define the 'Actions' that can be performed by an entity on various 'Resources'.
 
 Udaru can be used as a stand-alone module, as a stand-alone server or as an
 Hapi plugin. This repository contains the code for all three running configurations.
 
-A detailed explanation on how the Udaru authorization system is structured and the terms and elements used to define the authorization system ca be found in the [Authorization Introduction][] document.
+A detailed explanation on how the Udaru authorization system is structured and the terms and elements used to define the authorization system can be found in the [Authorization Introduction][] document.
 
-A description on how the internals of the authorization system are implemented can be found in the [Authorization Tech Spec][].
+A description on how the internals of the authorization system are implemented can be found in the [Authorization Technical Specs][]
 
 ## Install
 To install via npm,
@@ -248,8 +248,8 @@ Copyright nearForm Ltd 2017. Licensed under [MIT][license]
 [prefix-link]: https://github.com/nearform/labs-authorization/blob/master/lib/config.js#L29
 [reconfig]: https://github.com/namshi/reconfig
 [swagger-link]: http://localhost:8080/documentation
-[Authorization Tech Spec]: ./docs/reference/spec.md
-[Authorization Introduction]: ./docs/authorization-introduction.md
+[Authorization Technical Specs]: docs/reference/spec.md
+[Authorization Introduction]: docs/authorization-introduction.md
 
 [travis-badge]: https://travis-ci.org/nearform/labs-authorization.svg?branch=master
 [travis-url]: https://travis-ci.org/nearform/labs-authorization
