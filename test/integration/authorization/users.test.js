@@ -705,5 +705,172 @@ lab.experiment('Routes Authorizations', () => {
         }])
         .shouldRespond(403)
     })
+
+    lab.experiment('POST user teams', () => {
+      const records = Factory(lab, {
+        teams: {
+          calledTeam1: { name: 'called team 1', description: 'desc', organizationId, users: ['called'] },
+          calledTeam2: { name: 'called team 2', description: 'desc', organizationId, users: ['called'] }
+        },
+        users: {
+          caller: { name: 'caller', organizationId, policies: ['testedPolicy'] },
+          called: { name: 'called', organizationId }
+        },
+        policies: {
+          testedPolicy: Policy()
+        }
+      })
+
+      const endpoint = BuildFor(lab, records)
+        .server(server)
+        .endpoint({
+          method: 'POST',
+          url: '/authorization/users/{{called.id}}/teams',
+          payload: { teams: ['{{calledTeam1.id}}', '{{calledTeam2.id}}'] },
+          headers: { authorization: '{{caller.id}}' }
+        })
+
+      endpoint.test('should authorize caller with policy for all users in both teams')
+        .withPolicy([{
+          Effect: 'Allow',
+          Action: ['authorization:users:teams:replace'],
+          Resource: [
+            '/authorization/user/WONKA/{{calledTeam1.id}}/*',
+            '/authorization/user/WONKA/{{calledTeam2.id}}/*'
+          ]
+        }])
+        .shouldRespond(200)
+
+      endpoint.test('should authorize caller with policy for all users in all teams')
+        .withPolicy([{
+          Effect: 'Allow',
+          Action: ['authorization:users:teams:replace'],
+          Resource: ['/authorization/user/WONKA/*/*']
+        }])
+        .shouldRespond(200)
+
+      endpoint.test('should authorize caller with policy for all user actions')
+        .withPolicy([{
+          Effect: 'Allow',
+          Action: ['authorization:users:teams:*'],
+          Resource: ['/authorization/user/WONKA/*/*']
+        }])
+        .shouldRespond(200)
+
+      endpoint.test('should not authorize caller without a correct policy (action)')
+        .withPolicy([{
+          Effect: 'Allow',
+          Action: ['authorization:users:dummy'],
+          Resource: ['/authorization/user/WONKA/*']
+        }])
+        .shouldRespond(403)
+
+      endpoint.test('should not authorize caller without a correct policy (resource)')
+        .withPolicy([{
+          Effect: 'Allow',
+          Action: ['authorization:users:policy:replace'],
+          Resource: ['/authorization/user/WONKA/*/dummy']
+        }])
+        .shouldRespond(403)
+
+      endpoint.test('should not authorize caller without a correct policy on one of the teams')
+        .withPolicy([{
+          Effect: 'Allow',
+          Action: ['authorization:users:teams:replace'],
+          Resource: ['/authorization/user/WONKA/{{calledTeam1.id}}/*']
+        }])
+        .shouldRespond(403)
+
+      endpoint.test('should not authorize caller with policy only on the specific users')
+        .withPolicy([{
+          Effect: 'Allow',
+          Action: ['authorization:users:teams:replace'],
+          Resource: ['/authorization/user/WONKA/*/{{called.id}}']
+        }])
+        .shouldRespond(403)
+    })
+
+    lab.experiment('DELETE user teams', () => {
+      const records = Factory(lab, {
+        teams: {
+          calledTeam1: { name: 'called team 1', description: 'desc', organizationId, users: ['called'] },
+          calledTeam2: { name: 'called team 2', description: 'desc', organizationId, users: ['called'] }
+        },
+        users: {
+          caller: { name: 'caller', organizationId, policies: ['testedPolicy'] },
+          called: { name: 'called', organizationId }
+        },
+        policies: {
+          testedPolicy: Policy()
+        }
+      })
+
+      const endpoint = BuildFor(lab, records)
+        .server(server)
+        .endpoint({
+          method: 'DELETE',
+          url: '/authorization/users/{{called.id}}/teams',
+          headers: { authorization: '{{caller.id}}' }
+        })
+
+      endpoint.test('should authorize caller with policy for all users in both teams')
+        .withPolicy([{
+          Effect: 'Allow',
+          Action: ['authorization:users:teams:remove'],
+          Resource: [
+            '/authorization/user/WONKA/{{calledTeam1.id}}/*',
+            '/authorization/user/WONKA/{{calledTeam2.id}}/*'
+          ]
+        }])
+        .shouldRespond(200)
+
+      endpoint.test('should authorize caller with policy for all users in all teams')
+        .withPolicy([{
+          Effect: 'Allow',
+          Action: ['authorization:users:teams:remove'],
+          Resource: ['/authorization/user/WONKA/*/*']
+        }])
+        .shouldRespond(200)
+
+      endpoint.test('should authorize caller with policy for all user actions')
+        .withPolicy([{
+          Effect: 'Allow',
+          Action: ['authorization:users:teams:*'],
+          Resource: ['/authorization/user/WONKA/*/*']
+        }])
+        .shouldRespond(200)
+
+      endpoint.test('should not authorize caller without a correct policy (action)')
+        .withPolicy([{
+          Effect: 'Allow',
+          Action: ['authorization:users:dummy'],
+          Resource: ['/authorization/user/WONKA/*']
+        }])
+        .shouldRespond(403)
+
+      endpoint.test('should not authorize caller without a correct policy (resource)')
+        .withPolicy([{
+          Effect: 'Allow',
+          Action: ['authorization:users:policy:remove'],
+          Resource: ['/authorization/user/WONKA/*/dummy']
+        }])
+        .shouldRespond(403)
+
+      endpoint.test('should not authorize caller without a correct policy on one of the teams')
+        .withPolicy([{
+          Effect: 'Allow',
+          Action: ['authorization:users:teams:remove'],
+          Resource: ['/authorization/user/WONKA/{{calledTeam1.id}}/*']
+        }])
+        .shouldRespond(403)
+
+      endpoint.test('should anot uthorize caller with policy only on the specific users')
+        .withPolicy([{
+          Effect: 'Allow',
+          Action: ['authorization:users:teams:remove'],
+          Resource: ['/authorization/user/WONKA/*/{{called.id}}']
+        }])
+        .shouldRespond(403)
+    })
   })
 })

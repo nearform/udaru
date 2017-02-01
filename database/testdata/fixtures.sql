@@ -39,7 +39,7 @@ VALUES
   (2, 'Readers', 'General read-only access', NULL, 'WONKA', TEXT2LTREE('2')),
   (3, 'Authors', 'Content contributors', NULL, 'WONKA', TEXT2LTREE('3')),
   (4, 'Managers', 'General Line Managers with confidential info', NULL, 'WONKA', TEXT2LTREE('4'));
-  
+
 INSERT INTO teams (id, name, description, team_parent_id, org_id, path)
   SELECT 5, 'Personnel Managers', 'Personnel Line Managers with confidential info', id, 'WONKA', TEXT2LTREE('5') FROM teams WHERE name = 'Managers'
 UNION
@@ -211,7 +211,7 @@ UNION
 
 
 INSERT INTO team_policies
-  SELECT t.id, p.id 
+  SELECT t.id, p.id
   FROM teams AS t
   INNER JOIN policies AS p
     ON  p.name = 'Director'
