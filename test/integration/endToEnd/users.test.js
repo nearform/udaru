@@ -576,3 +576,47 @@ lab.experiment('Users - checking org_id scoping', () => {
     })
   })
 })
+
+lab.experiment('Users - manage teams', () => {
+  lab.test('replace users teams', (done) => {
+    const options = utils.requestOptions({
+      method: 'POST',
+      url: '/authorization/users/ModifyId/teams',
+      payload: {
+        teams: ['2', '3']
+      }
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(200)
+      expect(result.id).to.equal('ModifyId')
+      expect(result.teams).to.equal([{ id: '3', name: 'Authors' }, { id: '2', name: 'Readers' }])
+
+      udaru.users.deleteTeams({ id: result.id, organizationId: result.organizationId, teams: [] }, done)
+    })
+  })
+
+  lab.test('Delete user from her teams', (done) => {
+    udaru.users.replaceTeams({ id: 'ModifyId', organizationId: 'WONKA', teams: ['2', '3'] }, (err, user) => {
+      if (err) return done(err)
+
+      const options = utils.requestOptions({
+        method: 'DELETE',
+        url: '/authorization/users/ModifyId/teams'
+      })
+
+      server.inject(options, (response) => {
+        const result = response.result
+
+        expect(response.statusCode).to.equal(200)
+        expect(result.id).to.equal('ModifyId')
+        expect(result.teams).to.equal([])
+
+        done()
+      })
+    })
+  })
+})
+

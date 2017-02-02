@@ -25,7 +25,7 @@ function connect (next) {
 
 function dropDb (next) {
   client.query(`DROP DATABASE IF EXISTS "${config.get('pgdb.database')}"`, function (err, result) {
-    if (err) throw next(err)
+    if (err) return next(err)
 
     next()
   })
@@ -33,7 +33,7 @@ function dropDb (next) {
 
 function createDb (next) {
   client.query(`CREATE DATABASE "${config.get('pgdb.database')}"`, function (err, result) {
-    if (err) throw next(err)
+    if (err) return next(err)
 
     next()
   })
@@ -41,7 +41,7 @@ function createDb (next) {
 
 function dropAdminUser (next) {
   client.query('DROP USER IF EXISTS "admin"', function (err, result) {
-    if (err) throw next(err)
+    if (err) return next(err)
 
     next()
   })
@@ -49,7 +49,7 @@ function dropAdminUser (next) {
 
 function createAdminUser (next) {
   client.query('CREATE USER "admin" WITH PASSWORD \'default\'', function (err, result) {
-    if (err) throw next(err)
+    if (err) return next(err)
 
     next()
   })
