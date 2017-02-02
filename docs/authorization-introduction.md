@@ -113,8 +113,6 @@ Example:
 curl -X PUT --header 'Content-Type: application/json' --header 'Accept: application/json' --header 'authorization: ROOTID' --header 'org: WONKA' -d '{"policies":["PolicyID"]}' 'http://localhost:8080/authorization/teams/TeamID/policies'
 ```
 
-
-[iam-js]: https://github.com/nearform/iam-js
 [node-pbac]: https://github.com/monken/node-pbac
 [AWS IAM]: https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies.html
 [AWS IAM Policy]: https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements.html
