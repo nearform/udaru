@@ -4,5 +4,6 @@
 
 *.log
 docs/coverage.html
+sqlmap
 
 node_modules

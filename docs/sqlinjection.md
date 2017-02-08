@@ -39,14 +39,16 @@ The get users endpoint request is the following:
 ### Endpoint `sqlmap` testing
 
 The command with which tested the endpoint:
-`python sqlmap.py -u "http://localhost:8080/authorization/users?page=1&limit=10" --method=GET --headers="authorization: ROOTid\norg: WONKA" --level=5 --risk=3 --dbms=postgresql -p "page,limit,org,authorization" --timeout 3`
+`python sqlmap.py -u "http://localhost:8080/authorization/users?page=1&limit=10" --method=GET --headers="authorization: ROOTid\norg: WONKA" --level=5 --risk=3 --dbms=postgresql -p "page,limit,org,authorization" --timeout 3 --flush-session`
 
 Parameter details:
 - Used an increased `risk` and `level` of testing than the default levels,
 - Specified the db type to help `sqlmap`,
 - A verbose level of 0 `-v 0` can be specified to display only the critical level errors. During investigation used a verbosity level of 5 to check the queries are correctly formed,
 - Used the `-p` parameter to specify which fields/params to be injection tested,
-- Specified a timeout of 3 seconds.
+- Specified a timeout of 3 seconds,
+- Added `--flush-session` to clear session between runs,
+- The `--batch` flag chooses default answers for the console questions.
 
 **No issues found** by `sqlmap` on this endpoint.
 
@@ -93,11 +95,11 @@ The add policy to user endpoint request is the following:
 ### Endpoint `sqlmap` testing
 
 The command with which tested the endpoint for user ID injection:
-`python sqlmap.py -u "http://localhost:8080/authorization/users/CharlieId*/policies" --method=PUT --headers="authorization: CharlieId\norg: WONKA" --data="{\"policies\":[\"policyId9\"]}" --level=5 --risk=3 --dbms=postgresql --timeout 3`
+`python sqlmap.py -u "http://localhost:8080/authorization/users/CharlieId*/policies" --method=PUT --headers="authorization: CharlieId\norg: WONKA" --data="{\"policies\":[\"policyId9\"]}" --level=5 --risk=3 --dbms=postgresql --timeout 3 --flush-session`
 
 The command with which tested the PUT payload injection:
 `python sqlmap.py -u "http://localhost:8080/authorization/users/CharlieId/policies" --method=PUT --headers="authorization: CharlieId\norg: WONKA" --data="{\"policies\":[\"policyId9*\"]}" --level=5 --ris
-k=3 --dbms=postgresql --timeout 3`
+k=3 --dbms=postgresql --timeout 3 --flush-session`
 
 In the endpoints used `*` after the `CharlieId` user ID and in the to specify `sqlmap` to try to inject that param.
 
@@ -125,7 +127,7 @@ The authorize user action endpoint request is the following:
 ### Endpoint `sqlmap` testing
 
 The command with which tested the endpoint for user ID injection:
-`python sqlmap.py -u "http://localhost:8080/authorization/access/ManyPoliciesId*/a*/a*" --method=GET --headers="authorization: ROOTid\norg: WONKA" --level=5 --risk=3 --dbms=postgresql --timeout 3`
+`python sqlmap.py -u "http://localhost:8080/authorization/access/ManyPoliciesId*/a*/a*" --method=GET --headers="authorization: ROOTid\norg: WONKA" --level=5 --risk=3 --dbms=postgresql --timeout 3 --flush-session`
 
 In the endpoint used `*` after the `ID`, `action` and `resource` to instruct `sqlmap` to try to inject them.
 Tried with both `ROOTid` and `ManyPoliciesId` for authorization. Tried injecting the URL parameters for the users `CharlieId` and `ManyPoliciesId`.
