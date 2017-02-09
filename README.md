@@ -238,6 +238,23 @@ LABS_AUTH_SERVICE_security_api_servicekeys_private_0=jerfkgfjdedfkg3j213i43u31jk
 
 To achieve this we use the [`reconfig`][reconfig] module
 
+## Security
+
+Evaluated Udaru against SQL injection. More details can be found in the [SQL Injection][] document.
+
+To automatically run [sqlmap][] injection tests run:
+```
+npm run test:security
+```
+
+These tests are not included in the main test suite. The security test spawns a hapi.js server exposing the Udaru routes. It only needs the DB to be running and being initialized with data.
+
+The injection tests can be configured in the [sqlmap config][]. A few output configuration changes that can be made:
+- `level` can be set to 5 for more aggresive testing,
+- `risk` can be set to 3 for more testing options. Note: this level might alter the DB data,
+- `verbose` can be set to level 1-5. Level 1 displays info about the injections tried.
+
+More detais on the [sqlmap][] repository.
 
 ## License
 Copyright nearForm Ltd 2017. Licensed under [MIT][license]
@@ -250,6 +267,9 @@ Copyright nearForm Ltd 2017. Licensed under [MIT][license]
 [swagger-link]: http://localhost:8080/documentation
 [Authorization Technical Specs]: docs/reference/spec.md
 [Authorization Introduction]: docs/authorization-introduction.md
+[SQL Injection]: docs/sqlinjection.md
+[sqlmap]: https://github.com/sqlmapproject/sqlmap
+[sqlmap config]: ./security/fixtures/injection-endpoints.json
 
 [travis-badge]: https://travis-ci.org/nearform/labs-authorization.svg?branch=master
 [travis-url]: https://travis-ci.org/nearform/labs-authorization
