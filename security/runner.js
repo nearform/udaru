@@ -15,7 +15,7 @@ if (!endpoints) {
 }
 
 function executeMap (config, urlDescription, done) {
-  const command = 'sqlmap/sqlmap.py'
+  const command = './node_modules/sqlmap/sqlmap.py'
   const params = [
     `--url=${urlDescription.url}`,
     `--method=${urlDescription.method}`,
