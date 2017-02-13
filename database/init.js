@@ -39,29 +39,11 @@ function createDb (next) {
   })
 }
 
-function dropAdminUser (next) {
-  client.query('DROP USER IF EXISTS "admin"', function (err, result) {
-    if (err) return next(err)
-
-    next()
-  })
-}
-
-function createAdminUser (next) {
-  client.query('CREATE USER "admin" WITH PASSWORD \'default\'', function (err, result) {
-    if (err) return next(err)
-
-    next()
-  })
-}
-
 function init (cb) {
   async.series([
     connect,
     dropDb,
-    createDb,
-    dropAdminUser,
-    createAdminUser
+    createDb
   ],
   function (err1) {
     if (err1) console.log(err1)
