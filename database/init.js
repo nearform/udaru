@@ -24,6 +24,10 @@ function connect (next) {
 }
 
 function dropDb (next) {
+  if (/production/i.test(process.env.NODE_ENV)) {
+    return next()
+  }
+
   client.query(`DROP DATABASE IF EXISTS "${config.get('pgdb.database')}"`, function (err, result) {
     if (err) return next(err)
 
