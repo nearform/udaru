@@ -4,10 +4,42 @@ const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 const utils = require('../../utils')
+const uuid = require('uuid/v4')
 const server = require('../../../lib/server')
 const { udaru } = utils
 
+const organizationId = 'SHIPLINE'
+const statementsTest = { Statement: [{ Effect: 'Allow', Action: ['nfdocuments:Read'], Resource: ['nearform:documents:/public/*'] }] }
+const testPolicy = {
+  id: uuid(),
+  version: '2016-07-01',
+  name: 'Test Policy Org',
+  organizationId: organizationId,
+  statements: statementsTest
+}
+const testPolicy2 = {
+  id: uuid(),
+  version: '2016-07-02',
+  name: 'Test Policy Org2',
+  organizationId: organizationId,
+  statements: statementsTest
+}
+
 lab.experiment('Organizations', () => {
+  lab.before((done) => {
+    udaru.policies.create(testPolicy, (err, p) => {
+      if (err) return done(err)
+      udaru.policies.create(testPolicy2, done)
+    })
+  })
+
+  lab.after((done) => {
+    udaru.organizations.deletePolicy({ id: organizationId, policyId: testPolicy.id }, (err) => {
+      if (err) return done(err)
+      udaru.organizations.deletePolicy({ id: organizationId, policyId: testPolicy2.id }, done)
+    })
+  })
+
   lab.test('get organizations list has default pagination params', (done) => {
     const options = utils.requestOptions({
       method: 'GET',
@@ -148,7 +180,8 @@ lab.experiment('Organizations', () => {
       expect(result).to.equal({
         id: 'WONKA',
         name: 'Wonka Inc',
-        description: 'Scrumpalicious Chocolate'
+        description: 'Scrumpalicious Chocolate',
+        policies: []
       })
 
       done()
@@ -176,7 +209,8 @@ lab.experiment('Organizations', () => {
         organization: {
           id: 'nearForm',
           name: 'nearForm',
-          description: 'nearForm org'
+          description: 'nearForm org',
+          policies: []
         },
         user: undefined
       })
@@ -307,7 +341,8 @@ lab.experiment('Organizations', () => {
         organization: {
           id: 'nearForm',
           name: 'nearForm',
-          description: 'nearForm org'
+          description: 'nearForm org',
+          policies: []
         },
         user: {
           id: 'exampleId',
@@ -362,9 +397,130 @@ lab.experiment('Organizations', () => {
         const result = response.result
 
         expect(response.statusCode).to.equal(200)
-        expect(result).to.equal({ id: 'nearForm', name: 'new name', description: 'new desc' })
+        expect(result).to.equal({ id: 'nearForm', name: 'new name', description: 'new desc', policies: [] })
 
         udaru.organizations.delete('nearForm', done)
+      })
+    })
+  })
+
+  lab.test('add policies to an organization', (done) => {
+    const options = utils.requestOptions({
+      method: 'PUT',
+      url: `/authorization/organizations/${organizationId}/policies`,
+      payload: {
+        policies: [testPolicy.id]
+      }
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(200)
+      expect(result.policies).to.exist()
+      expect(result.policies.length).to.equal(1)
+      expect(result.policies[0].id).to.equal(testPolicy.id)
+
+      done()
+    })
+  })
+
+  lab.test('add policy with invalid ID to an organization', (done) => {
+    const options = utils.requestOptions({
+      method: 'PUT',
+      url: '/authorization/organizations/WONKA/policies',
+      payload: {
+        policies: ['InvalidPolicyID']
+      }
+    })
+
+    server.inject(options, (response) => {
+      expect(response.statusCode).to.equal(400)
+      done()
+    })
+  })
+
+  lab.test('replace the policies of an organization', (done) => {
+    udaru.organizations.addPolicies({ id: organizationId, policies: [testPolicy.id] }, (err, res) => {
+      expect(err).to.not.exist()
+
+      const options = utils.requestOptions({
+        method: 'POST',
+        url: `/authorization/organizations/${organizationId}/policies`,
+        payload: {
+          policies: [testPolicy2.id]
+        }
+      })
+
+      server.inject(options, (response) => {
+        const result = response.result
+
+        expect(response.statusCode).to.equal(200)
+        expect(result.policies).to.exist()
+        expect(result.policies.length).to.equal(1)
+        expect(result.policies[0].id).to.equal(testPolicy2.id)
+
+        done()
+      })
+    })
+  })
+
+  lab.test('add policy with invalid ID to an organization', (done) => {
+    const options = utils.requestOptions({
+      method: 'POST',
+      url: '/authorization/organizations/WONKA/policies',
+      payload: {
+        policies: ['InvalidPolicyID']
+      }
+    })
+
+    server.inject(options, (response) => {
+      expect(response.statusCode).to.equal(400)
+      done()
+    })
+  })
+
+  lab.test('delete the policies of an organization', (done) => {
+    udaru.organizations.addPolicies({ id: organizationId, policies: [testPolicy.id, testPolicy2.id] }, (err, res) => {
+      expect(err).to.not.exist()
+
+      const options = utils.requestOptions({
+        method: 'DELETE',
+        url: `/authorization/organizations/${organizationId}/policies`
+      })
+
+      server.inject(options, (response) => {
+        expect(response.statusCode).to.equal(204)
+
+        udaru.organizations.read(organizationId, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res.policies.length).to.equal(0)
+
+          done()
+        })
+      })
+    })
+  })
+
+  lab.test('delete the policy of an organization', (done) => {
+    udaru.organizations.addPolicies({ id: organizationId, policies: [testPolicy.id, testPolicy2.id] }, (err, res) => {
+      expect(err).to.not.exist()
+
+      const options = utils.requestOptions({
+        method: 'DELETE',
+        url: `/authorization/organizations/${organizationId}/policies/${testPolicy2.id}`
+      })
+
+      server.inject(options, (response) => {
+        expect(response.statusCode).to.equal(204)
+
+        udaru.organizations.read(organizationId, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res.policies.length).to.equal(1)
+          expect(res.policies[0].id).to.equal(testPolicy.id)
+
+          done()
+        })
       })
     })
   })

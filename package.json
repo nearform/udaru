@@ -33,7 +33,7 @@
   "scripts": {
     "bench": "node ./bench/util/runner.js",
     "test:security": "node ./security/runner.js",
-    "postinstall": "git clone https://github.com/sqlmapproject/sqlmap.git ./sqlmap",
+    "postinstall": "napa sqlmapproject/sqlmap",
     "coverage": "npm run pg:init-test-db && LABS_AUTH_SERVICE_logger_pino_level=silent lab -c -t 95 -r html -o docs/coverage.html",
     "coveralls": "npm run pg:init-test-db && LABS_AUTH_SERVICE_logger_pino_level=silent lab -c -t 95 -r lcov | coveralls",
     "lint": "standard",
@@ -71,6 +71,7 @@
     "code": "4.0.0",
     "coveralls": "^2.11.15",
     "lab": "11.2.1",
+    "napa": "^2.3.0",
     "pg-copy-streams": "^1.2.0",
     "pino": "3.0.5",
     "postgrator": "2.8.2",

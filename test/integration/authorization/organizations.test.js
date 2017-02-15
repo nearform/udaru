@@ -222,6 +222,7 @@ lab.experiment('Routes Authorizations', () => {
 
     lab.experiment('PUT', () => {
       const records = Factory(lab, {
+
         users: {
           caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
         },
@@ -270,7 +271,7 @@ lab.experiment('Routes Authorizations', () => {
         .withPolicy([{
           Effect: 'Allow',
           Action: ['authorization:organizations:update'],
-          Resource: ['/authorization/organization/YAT-ANOTHER-ORG']
+          Resource: ['/authorization/organization/YET-ANOTHER-ORG']
         }])
         .shouldRespond(403)
     })
