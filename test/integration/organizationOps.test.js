@@ -104,6 +104,27 @@ lab.experiment('OrganizationOps', () => {
     })
   })
 
+  lab.test('create twice an organization with the same id should fail second time', (done) => {
+    const organizationData = {
+      id: 'nearForm',
+      name: 'nearForm',
+      description: 'nearForm description'
+    }
+    udaru.organizations.create(organizationData, { createOnly: true }, (err, result) => {
+      expect(err).to.not.exist()
+      expect(result.organization).to.exist()
+      expect(result.organization.name).to.equal('nearForm')
+
+      udaru.organizations.create(organizationData, { createOnly: true }, (err, result) => {
+        expect(err).to.exist()
+        expect(err.output.statusCode).to.equal(400)
+        expect(err.message).to.match(/Organization with id nearForm already present/)
+
+        udaru.organizations.delete(organizationData.id, done)
+      })
+    })
+  })
+
   lab.test('create an organization specifying a user should create the user and assign the OrgAdmin policy to it', (done) => {
     udaru.organizations.create({
       id: 'nearForm',
@@ -186,6 +207,17 @@ lab.experiment('OrganizationOps', () => {
           })
         })
       })
+    })
+  })
+
+  lab.test('create an organization with long name should fail', (done) => {
+    const orgName = Array(66).join('a')
+    udaru.organizations.create({ id: 'nearForm', name: orgName, description: 'nearform description' }, (err, result) => {
+      expect(err).to.exist()
+      expect(err.output.statusCode).to.equal(400)
+      expect(err.message).to.match(/length must be less than/)
+
+      done()
     })
   })
 

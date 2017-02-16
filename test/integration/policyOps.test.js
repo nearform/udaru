@@ -105,6 +105,40 @@ lab.experiment('PolicyOps', () => {
     })
   })
 
+  lab.test('create policy with duplicate id should fail', (done) => {
+    const policyData = {
+      id: 'MyDuplicateId',
+      version: '1',
+      name: 'Documents Admin',
+      organizationId: 'WONKA',
+      statements
+    }
+
+    udaru.policies.create(policyData, (err, policy) => {
+      expect(err).to.not.exist()
+      expect(policy).to.exist()
+
+      udaru.policies.create(policyData, (err, policy) => {
+        expect(err).to.exist()
+        expect(err.output.statusCode).to.equal(400)
+        expect(err.message).to.match(/Policy with id MyDuplicateId already present/)
+
+        udaru.policies.delete({ id: policyData.id, organizationId: 'WONKA' }, done)
+      })
+    })
+  })
+
+  lab.test('create a policy with long name should fail', (done) => {
+    const policyName = Array(66).join('a')
+    udaru.policies.create({ organizationId: 'WONKA', name: policyName, id: 'longtestid', version: '1', statements }, (err, result) => {
+      expect(err).to.exist()
+      expect(err.output.statusCode).to.equal(400)
+      expect(err.message).to.match(/length must be less than/)
+
+      done()
+    })
+  })
+
   lab.experiment('listAllUserPolicies', () => {
     const records = Factory(lab, {
       teams: {
