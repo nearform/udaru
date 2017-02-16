@@ -4,7 +4,9 @@ const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 
+const async = require('async')
 const policyOps = require('../../lib/core/lib/ops/policyOps')
+const uuid = require('uuid/v4')
 const Factory = require('../factory')
 const db = require('../../lib/core/lib/db/index')
 const SQL = require('../../lib/core/lib/db/SQL')
@@ -218,6 +220,294 @@ lab.experiment('PolicyOps', () => {
         expect(results.map(getName)).to.not.include(records.alienPolicy.name)
         done()
       })
+    })
+  })
+
+  lab.experiment('delete policy removes policies from users, teams, organizations', () => {
+    const organizationId = 'TestPolicyRemoval'
+    const userPolicyId = uuid()
+    const teamPolicyId = uuid()
+    const organizationPolicyId = uuid()
+    const defaultTeamAdminCount = 1
+    const defaultOrgAdminCount = 1
+
+    function Policy (policyId) {
+      return {
+        id: policyId,
+        version: '2016-07-01',
+        name: 'Test Policy',
+        statements,
+        organizationId
+      }
+    }
+
+    const records = Factory(lab, {
+      organizations: {
+        testedOrg: {
+          id: organizationId,
+          name: 'org',
+          description: 'org',
+          policies: ['organizationPolicy']
+        }
+      },
+      teams: {
+        userTeam: {
+          name: 'user team',
+          description: 'user team',
+          organizationId: organizationId,
+          users: ['called'],
+          policies: ['teamPolicy']
+        }
+      },
+      users: {
+        called: {
+          name: 'called',
+          organizationId: organizationId,
+          policies: ['userPolicy']
+        }
+      },
+      policies: {
+        userPolicy: Policy(userPolicyId),
+        teamPolicy: Policy(teamPolicyId),
+        organizationPolicy: Policy(organizationPolicyId)
+      }
+    })
+
+    lab.test('check user, team, org policies are correctly attached', (done) => {
+      const tasks = []
+      tasks.push((next) => {
+        udaru.users.read({ id: records.called.id, organizationId: organizationId }, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res.policies.length).to.equal(1)
+          expect(res.policies[0].id).to.equal(userPolicyId)
+
+          next(err, res)
+        })
+      })
+      tasks.push((next) => {
+        udaru.teams.read({ id: records.userTeam.id, organizationId: organizationId }, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res.policies.length).to.equal(1)
+          expect(res.policies[0].id).to.equal(teamPolicyId)
+
+          next(err, res)
+        })
+      })
+      tasks.push((next) => {
+        udaru.organizations.read(organizationId, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res.policies.length).to.equal(1)
+          expect(res.policies[0].id).to.equal(organizationPolicyId)
+
+          next(err, res)
+        })
+      })
+      tasks.push((next) => {
+        udaru.policies.list({ organizationId }, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res).to.exist()
+          expect(res.length).to.equal(3 + defaultTeamAdminCount + defaultOrgAdminCount)
+          next(err, res)
+        })
+      })
+
+      async.series(tasks, done)
+    })
+
+    lab.test('remove policy removes properly from org, teams and users', (done) => {
+      const tasks = []
+
+      tasks.push((next) => {
+        policyOps.deletePolicy({ id: userPolicyId, organizationId: organizationId }, (err) => {
+          expect(err).to.not.exist()
+
+          next(err)
+        })
+      })
+      tasks.push((next) => {
+        policyOps.deletePolicy({ id: teamPolicyId, organizationId: organizationId }, (err) => {
+          expect(err).to.not.exist()
+
+          next(err)
+        })
+      })
+      tasks.push((next) => {
+        policyOps.deletePolicy({ id: organizationPolicyId, organizationId: organizationId }, (err) => {
+          expect(err).to.not.exist()
+
+          next(err)
+        })
+      })
+      tasks.push((next) => {
+        udaru.users.read({ id: records.called.id, organizationId: organizationId }, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res.policies.length).to.equal(0)
+
+          next(err, res)
+        })
+      })
+      tasks.push((next) => {
+        udaru.teams.read({ id: records.userTeam.id, organizationId: organizationId }, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res.policies.length).to.equal(0)
+
+          next(err, res)
+        })
+      })
+      tasks.push((next) => {
+        udaru.organizations.read(organizationId, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res.policies.length).to.equal(0)
+
+          next(err, res)
+        })
+      })
+      tasks.push((next) => {
+        udaru.policies.list({ organizationId }, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res).to.exist()
+          expect(res.length).to.equal(defaultTeamAdminCount + defaultOrgAdminCount)
+
+          next(err, res)
+        })
+      })
+
+      async.series(tasks, done)
+    })
+  })
+
+  lab.experiment('delete policy attached to more elements removes policies from users, teams, organizations', () => {
+    const organizationId = 'TestPolicyRemoval'
+    const testPolicyId = uuid()
+    const defaultTeamAdminCount = 1
+    const defaultOrgAdminCount = 1
+
+    function Policy (policyId) {
+      return {
+        id: policyId,
+        version: '2016-07-01',
+        name: 'Test Policy',
+        statements,
+        organizationId
+      }
+    }
+
+    const records = Factory(lab, {
+      organizations: {
+        testedOrg: {
+          id: organizationId,
+          name: 'org',
+          description: 'org',
+          policies: ['testPolicy']
+        }
+      },
+      teams: {
+        userTeam: {
+          name: 'user team',
+          description: 'user team',
+          organizationId: organizationId,
+          users: ['called'],
+          policies: ['testPolicy']
+        }
+      },
+      users: {
+        called: {
+          name: 'called',
+          organizationId: organizationId,
+          policies: ['testPolicy']
+        }
+      },
+      policies: {
+        testPolicy: Policy(testPolicyId)
+      }
+    })
+
+    lab.test('check user, team, org policies are correctly attached', (done) => {
+      const tasks = []
+      tasks.push((next) => {
+        udaru.users.read({ id: records.called.id, organizationId: organizationId }, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res.policies.length).to.equal(1)
+          expect(res.policies[0].id).to.equal(testPolicyId)
+
+          next(err, res)
+        })
+      })
+      tasks.push((next) => {
+        udaru.teams.read({ id: records.userTeam.id, organizationId: organizationId }, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res.policies.length).to.equal(1)
+          expect(res.policies[0].id).to.equal(testPolicyId)
+
+          next(err, res)
+        })
+      })
+      tasks.push((next) => {
+        udaru.organizations.read(organizationId, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res.policies.length).to.equal(1)
+          expect(res.policies[0].id).to.equal(testPolicyId)
+
+          next(err, res)
+        })
+      })
+      tasks.push((next) => {
+        udaru.policies.list({ organizationId }, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res).to.exist()
+          expect(res.length).to.equal(1 + defaultTeamAdminCount + defaultOrgAdminCount)
+          next(err, res)
+        })
+      })
+
+      async.series(tasks, done)
+    })
+
+    lab.test('remove policy removes properly from org, teams and users', (done) => {
+      const tasks = []
+
+      tasks.push((next) => {
+        policyOps.deletePolicy({ id: testPolicyId, organizationId: organizationId }, (err) => {
+          expect(err).to.not.exist()
+
+          next(err)
+        })
+      })
+      tasks.push((next) => {
+        udaru.users.read({ id: records.called.id, organizationId: organizationId }, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res.policies.length).to.equal(0)
+
+          next(err, res)
+        })
+      })
+      tasks.push((next) => {
+        udaru.teams.read({ id: records.userTeam.id, organizationId: organizationId }, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res.policies.length).to.equal(0)
+
+          next(err, res)
+        })
+      })
+      tasks.push((next) => {
+        udaru.organizations.read(organizationId, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res.policies.length).to.equal(0)
+
+          next(err, res)
+        })
+      })
+      tasks.push((next) => {
+        udaru.policies.list({ organizationId }, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res).to.exist()
+          expect(res.length).to.equal(defaultTeamAdminCount + defaultOrgAdminCount)
+
+          next(err, res)
+        })
+      })
+
+      async.series(tasks, done)
     })
   })
 })

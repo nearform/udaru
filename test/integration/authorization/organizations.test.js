@@ -275,5 +275,48 @@ lab.experiment('Routes Authorizations', () => {
         }])
         .shouldRespond(403)
     })
+
+    lab.experiment('PUT organization policies', () => {
+      const records = Factory(lab, {
+        users: {
+          caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
+        },
+        organizations: {
+        },
+        policies: {
+          testedPolicy: Policy(),
+          policyToAdd: {
+            id: 'policy-to-add',
+            version: '2016-07-01',
+            name: 'Policy To Add',
+            statements: {
+              Statement: [{
+                Effect: 'Allow',
+                Action: ['an-action'],
+                Resource: ['a-resource']
+              }]
+            },
+            organizationId
+          }
+        }
+      })
+
+      const endpoint = BuildFor(lab, records)
+        .server(server)
+        .endpoint({
+          method: 'PUT',
+          url: '/authorization/organizations/WONKA/policies',
+          payload: { policies: ['policy-to-add'] },
+          headers: { authorization: '{{caller.id}}' }
+        })
+
+      endpoint.test('should authorize caller with policy for specific organizations')
+        .withPolicy([{
+          Effect: 'Allow',
+          Action: ['authorization:organizations:policy:add'],
+          Resource: ['/authorization/organization/WONKA']
+        }])
+        .shouldRespond(200)
+    })
   })
 })

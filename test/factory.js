@@ -123,9 +123,32 @@ function Factory (lab, data) {
       })
     })
 
-    async.each(list, (user, next) => {
-      user.policies = _.uniq(user.policies)
-      udaru.teams.replacePolicies(user, next)
+    async.each(list, (team, next) => {
+      team.policies = _.uniq(team.policies)
+      udaru.teams.replacePolicies(team, next)
+    }, done)
+  }
+
+  function linkOrganizationPolicies (done) {
+    const list = {}
+
+    _.each(data.organizations, (organization, orgKey) => {
+      if (!organization.policies || !organization.policies.length) return
+      const orgId = records[orgKey].id
+      list[orgId] = {
+        id: orgId,
+        policies: []
+      }
+
+      _.each(organization.policies, (policyKey) => {
+        const policyId = records[policyKey].id
+        list[orgId].policies.push(policyId)
+      })
+    })
+
+    async.each(list, (org, next) => {
+      org.policies = _.uniq(org.policies)
+      udaru.organizations.replacePolicies({ id: org.id, policies: org.policies }, next)
     }, done)
   }
 
@@ -165,7 +188,7 @@ function Factory (lab, data) {
   }
 
   function createData (done) {
-    async.parallel([
+    async.series([
       createOrganizations,
       createUsers,
       createPolicies,
@@ -177,6 +200,7 @@ function Factory (lab, data) {
         linkTeamUsers,
         linkTeamPolicies,
         linkUserPolicies,
+        linkOrganizationPolicies,
         buildTeamTree
       ], done)
     })
@@ -236,7 +260,7 @@ function Factory (lab, data) {
   }
 
   function deleteData (done) {
-    async.parallel([
+    async.series([
       deleteUsers,
       deleteTeams,
       deletePolicies,
