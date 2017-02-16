@@ -60,6 +60,17 @@ lab.experiment('UserOps', () => {
     })
   })
 
+  lab.test('create a user with long name should fail', (done) => {
+    const userName = Array(52).join('a')
+    udaru.users.create({ organizationId: 'WONKA', name: userName, id: 'longtestid' }, (err, result) => {
+      expect(err).to.exist()
+      expect(err.output.statusCode).to.equal(400)
+      expect(err.message).to.match(/length must be less than/)
+
+      done()
+    })
+  })
+
   lab.test('create and delete a user without specifying an id', (done) => {
     const userData = {
       name: 'Mike Teavee',

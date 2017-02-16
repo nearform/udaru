@@ -249,6 +249,17 @@ lab.experiment('TeamOps', () => {
     })
   })
 
+  lab.test('create a team with long name should fail', (done) => {
+    const teamName = Array(32).join('a')
+    udaru.teams.create({ organizationId: 'WONKA', name: teamName, description: 'nearform description' }, (err, result) => {
+      expect(err).to.exist()
+      expect(err.output.statusCode).to.equal(400)
+      expect(err.message).to.match(/length must be less than/)
+
+      done()
+    })
+  })
+
   lab.test('create team support creation of default team admin user', (done) => {
     let teamId = randomId()
     let testTeam = {
