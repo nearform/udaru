@@ -249,6 +249,28 @@ lab.experiment('TeamOps', () => {
     })
   })
 
+  lab.test('creating a team with the same id should fail second time', (done) => {
+    let testTeam = {
+      id: 'nearForm',
+      name: 'nearForm',
+      description: 'description',
+      organizationId: 'WONKA'
+    }
+
+    udaru.teams.create(testTeam, {createOnly: true}, (err, result) => {
+      expect(err).to.not.exist()
+      expect(result).to.exist()
+
+      udaru.teams.create(testTeam, {createOnly: true}, (err, result) => {
+        expect(err).to.exist()
+        expect(err.output.statusCode).to.equal(400)
+        expect(err.message).to.match(/Team with id nearForm already present/)
+
+        udaru.teams.delete(testTeam, done)
+      })
+    })
+  })
+
   lab.test('create a team with long name should fail', (done) => {
     const teamName = Array(32).join('a')
     udaru.teams.create({ organizationId: 'WONKA', name: teamName, description: 'nearform description' }, (err, result) => {

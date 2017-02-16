@@ -60,6 +60,26 @@ lab.experiment('UserOps', () => {
     })
   })
 
+  lab.test('create an user with the same id should fail second time', (done) => {
+    const userData = {
+      id: 'testId',
+      name: 'Mike Teavee',
+      organizationId: 'WONKA'
+    }
+    udaru.users.create(userData, (err, result) => {
+      expect(err).to.not.exist()
+      expect(result).to.exist()
+
+      udaru.users.create(userData, (err, result) => {
+        expect(err).to.exist()
+        expect(err.output.statusCode).to.equal(400)
+        expect(err.message).to.match(/User with id testId already present/)
+
+        udaru.users.delete({ id: 'testId', organizationId: 'WONKA' }, done)
+      })
+    })
+  })
+
   lab.test('create a user with long name should fail', (done) => {
     const userName = Array(52).join('a')
     udaru.users.create({ organizationId: 'WONKA', name: userName, id: 'longtestid' }, (err, result) => {

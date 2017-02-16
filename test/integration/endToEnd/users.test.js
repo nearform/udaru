@@ -157,7 +157,7 @@ lab.experiment('Users - create', () => {
       expect(response.statusCode).to.equal(400)
       expect(result).to.equal({
         error: 'Bad Request',
-        message: `Organization 'DOES_NOT_EXISTS' does not exists`,
+        message: `Organization 'DOES_NOT_EXISTS' does not exist`,
         statusCode: 400
       })
 
