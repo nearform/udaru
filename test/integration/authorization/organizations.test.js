@@ -277,11 +277,13 @@ lab.experiment('Routes Authorizations', () => {
     })
 
     lab.experiment('PUT organization policies', () => {
+      const otherOrgId = 'OTHERORGID'
       const records = Factory(lab, {
         users: {
           caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
         },
         organizations: {
+          testedOrg: { id: otherOrgId, name: 'other org', description: 'other org' }
         },
         policies: {
           testedPolicy: Policy(),
@@ -305,7 +307,7 @@ lab.experiment('Routes Authorizations', () => {
         .server(server)
         .endpoint({
           method: 'PUT',
-          url: '/authorization/organizations/WONKA/policies',
+          url: `/authorization/organizations/${organizationId}/policies`,
           payload: { policies: ['policy-to-add'] },
           headers: { authorization: '{{caller.id}}' }
         })
@@ -314,9 +316,349 @@ lab.experiment('Routes Authorizations', () => {
         .withPolicy([{
           Effect: 'Allow',
           Action: ['authorization:organizations:policy:add'],
-          Resource: ['/authorization/organization/WONKA']
+          Resource: [`/authorization/organization/${organizationId}`]
         }])
         .shouldRespond(200)
+
+      endpoint.test('should not authorize caller with policy that has different organization scope')
+        .withPolicy([{
+          Effect: 'Allow',
+          Action: ['authorization:organizations:policy:add'],
+          Resource: [`/authorization/organizations/${otherOrgId}`]
+        }])
+        .shouldRespond(403)
+
+      endpoint.test('should not authorize caller with policy for organization wildcard')
+        .withPolicy([{
+          Effect: 'Allow',
+          Action: ['authorization:organizations:policy:add'],
+          Resource: [`/authorization/organization/${organizationId}/*`]
+        }])
+        .shouldRespond(403)
+
+      endpoint.test('should authorize caller with policy for all organizations')
+        .withPolicy([{
+          Effect: 'Allow',
+          Action: ['authorization:organizations:policy:add'],
+          Resource: ['/authorization/organization/*']
+        }])
+        .shouldRespond(200)
+
+      endpoint.test('should authorize caller with policy for all organization actions')
+        .withPolicy([{
+          Effect: 'Allow',
+          Action: ['authorization:organizations:*'],
+          Resource: [`/authorization/organization/${organizationId}`]
+        }])
+        .shouldRespond(200)
+
+      endpoint.test('should not authorize caller without a correct policy (action)')
+        .withPolicy([{
+          Effect: 'Allow',
+          Action: ['authorization:organizations:dummy'],
+          Resource: [`/authorization/organization/${organizationId}`]
+        }])
+        .shouldRespond(403)
+
+      endpoint.test('should not authorize caller without a correct policy (resource)')
+        .withPolicy([{
+          Effect: 'Allow',
+          Action: ['authorization:organizations:policy:add'],
+          Resource: [`/authorization/organization/${organizationId}/*/dummy`]
+        }])
+        .shouldRespond(403)
+    })
+
+    lab.experiment('POST organization policies', () => {
+      const otherOrgId = 'OTHERORGID'
+      const records = Factory(lab, {
+        users: {
+          caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
+        },
+        organizations: {
+          testedOrg: { id: otherOrgId, name: 'other org', description: 'other org' }
+        },
+        policies: {
+          testedPolicy: Policy(),
+          policyToAdd: {
+            id: 'policy-to-add',
+            version: '2016-07-01',
+            name: 'Policy To Add',
+            statements: {
+              Statement: [{
+                Effect: 'Allow',
+                Action: ['an-action'],
+                Resource: ['a-resource']
+              }]
+            },
+            organizationId
+          }
+        }
+      })
+
+      const endpoint = BuildFor(lab, records)
+        .server(server)
+        .endpoint({
+          method: 'POST',
+          url: `/authorization/organizations/${organizationId}/policies`,
+          payload: { policies: ['policy-to-add'] },
+          headers: { authorization: '{{caller.id}}' }
+        })
+
+      endpoint.test('should authorize caller with policy for specific organizations')
+        .withPolicy([{
+          Effect: 'Allow',
+          Action: ['authorization:organizations:policy:replace'],
+          Resource: [`/authorization/organization/${organizationId}`]
+        }])
+        .shouldRespond(200)
+
+      endpoint.test('should not authorize caller with policy that has different organization scope')
+        .withPolicy([{
+          Effect: 'Allow',
+          Action: ['authorization:organizations:policy:replace'],
+          Resource: [`/authorization/organizations/${otherOrgId}`]
+        }])
+        .shouldRespond(403)
+
+      endpoint.test('should not authorize caller with policy for organization wildcard')
+        .withPolicy([{
+          Effect: 'Allow',
+          Action: ['authorization:organizations:policy:replace'],
+          Resource: [`/authorization/organization/${organizationId}/*`]
+        }])
+        .shouldRespond(403)
+
+      endpoint.test('should authorize caller with policy for all organizations')
+        .withPolicy([{
+          Effect: 'Allow',
+          Action: ['authorization:organizations:policy:replace'],
+          Resource: ['/authorization/organization/*']
+        }])
+        .shouldRespond(200)
+
+      endpoint.test('should authorize caller with policy for all organization actions')
+        .withPolicy([{
+          Effect: 'Allow',
+          Action: ['authorization:organizations:*'],
+          Resource: [`/authorization/organization/${organizationId}`]
+        }])
+        .shouldRespond(200)
+
+      endpoint.test('should not authorize caller without a correct policy (action)')
+        .withPolicy([{
+          Effect: 'Allow',
+          Action: ['authorization:organizations:dummy'],
+          Resource: [`/authorization/organization/${organizationId}`]
+        }])
+        .shouldRespond(403)
+
+      endpoint.test('should not authorize caller without a correct policy (resource)')
+        .withPolicy([{
+          Effect: 'Allow',
+          Action: ['authorization:organizations:policy:replace'],
+          Resource: [`/authorization/organization/${organizationId}/*/dummy`]
+        }])
+        .shouldRespond(403)
+    })
+
+    lab.experiment('DELETE organization policies', () => {
+      const otherOrgId = 'OTHERORGID'
+      const records = Factory(lab, {
+        users: {
+          caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
+        },
+        organizations: {
+          testedOrg: { id: otherOrgId, name: 'other org', description: 'other org', policies: ['policyToAdd'] }
+        },
+        policies: {
+          testedPolicy: Policy(),
+          policyToAdd: {
+            id: 'org-policy',
+            version: '2016-07-01',
+            name: 'Policy To Add',
+            statements: {
+              Statement: [{
+                Effect: 'Allow',
+                Action: ['an-action'],
+                Resource: ['a-resource']
+              }]
+            },
+            organizationId: otherOrgId
+          }
+        }
+      })
+
+      const endpoint = BuildFor(lab, records)
+        .server(server)
+        .endpoint({
+          method: 'DELETE',
+          url: `/authorization/organizations/${organizationId}/policies`,
+          payload: { },
+          headers: { authorization: '{{caller.id}}' }
+        })
+
+      endpoint.test('should authorize caller with policy for specific organizations')
+        .withPolicy([{
+          Effect: 'Allow',
+          Action: ['authorization:organizations:policy:remove'],
+          Resource: [`/authorization/organization/${organizationId}`]
+        }])
+        .shouldRespond(204)
+
+      endpoint.test('should not authorize caller with policy that has different organization scope')
+        .withPolicy([{
+          Effect: 'Allow',
+          Action: ['authorization:organizations:policy:remove'],
+          Resource: [`/authorization/organizations/${otherOrgId}`]
+        }])
+        .shouldRespond(403)
+
+      endpoint.test('should not authorize caller with policy for organization wildcard')
+        .withPolicy([{
+          Effect: 'Allow',
+          Action: ['authorization:organizations:policy:remove'],
+          Resource: [`/authorization/organization/${organizationId}/*`]
+        }])
+        .shouldRespond(403)
+
+      endpoint.test('should authorize caller with policy for all organizations')
+        .withPolicy([{
+          Effect: 'Allow',
+          Action: ['authorization:organizations:policy:remove'],
+          Resource: ['/authorization/organization/*']
+        }])
+        .shouldRespond(204)
+
+      endpoint.test('should authorize caller with policy for all organization actions')
+        .withPolicy([{
+          Effect: 'Allow',
+          Action: ['authorization:organizations:*'],
+          Resource: [`/authorization/organization/${organizationId}`]
+        }])
+        .shouldRespond(204)
+
+      endpoint.test('should not authorize caller without a correct policy (action)')
+        .withPolicy([{
+          Effect: 'Allow',
+          Action: ['authorization:organizations:dummy'],
+          Resource: [`/authorization/organization/${organizationId}`]
+        }])
+        .shouldRespond(403)
+
+      endpoint.test('should not authorize caller without a correct policy (resource)')
+        .withPolicy([{
+          Effect: 'Allow',
+          Action: ['authorization:organizations:policy:remove'],
+          Resource: [`/authorization/organization/${organizationId}/*/dummy`]
+        }])
+        .shouldRespond(403)
+    })
+
+    lab.experiment('DELETE organization policy', () => {
+      const otherOrgId = 'OTHERORGID'
+      const policyId = 'policy-to-add'
+      const records = Factory(lab, {
+        users: {
+          caller: { name: 'caller', organizationId: otherOrgId, policies: ['testedPolicy'] }
+        },
+        organizations: {
+          testedOrg: { id: otherOrgId, name: 'other org', description: 'other org', policies: ['policyToAdd'] }
+        },
+        policies: {
+          testedPolicy: {
+            id: policyId + '2',
+            version: '2016-07-01',
+            name: 'Policy To Add',
+            statements: {
+              Statement: [{
+                Effect: 'Allow',
+                Action: ['an-action'],
+                Resource: ['a-resource']
+              }]
+            },
+            organizationId: otherOrgId
+          },
+          policyToAdd: {
+            id: policyId,
+            version: '2016-07-01',
+            name: 'Policy To Add',
+            statements: {
+              Statement: [{
+                Effect: 'Allow',
+                Action: ['an-action'],
+                Resource: ['a-resource']
+              }]
+            },
+            organizationId: otherOrgId
+          }
+        }
+      })
+
+      const endpoint = BuildFor(lab, records)
+        .server(server)
+        .endpoint({
+          method: 'DELETE',
+          url: `/authorization/organizations/${otherOrgId}/policies/${policyId}`,
+          payload: { },
+          headers: { authorization: '{{caller.id}}' }
+        })
+
+      endpoint.test('should authorize caller with policy for specific organizations')
+        .withPolicy([{
+          Effect: 'Allow',
+          Action: ['authorization:organizations:policy:remove'],
+          Resource: [`/authorization/organization/${otherOrgId}`]
+        }])
+        .shouldRespond(204)
+
+      endpoint.test('should not authorize caller with policy that has different organization scope')
+        .withPolicy([{
+          Effect: 'Allow',
+          Action: ['authorization:organizations:policy:remove'],
+          Resource: [`/authorization/organizations/${organizationId}`]
+        }])
+        .shouldRespond(403)
+
+      endpoint.test('should not authorize caller with policy for organization wildcard')
+        .withPolicy([{
+          Effect: 'Allow',
+          Action: ['authorization:organizations:policy:remove'],
+          Resource: [`/authorization/organization/${otherOrgId}/*`]
+        }])
+        .shouldRespond(403)
+
+      endpoint.test('should authorize caller with policy for all organizations')
+        .withPolicy([{
+          Effect: 'Allow',
+          Action: ['authorization:organizations:policy:remove'],
+          Resource: ['/authorization/organization/*']
+        }])
+        .shouldRespond(204)
+
+      endpoint.test('should authorize caller with policy for all organization actions')
+        .withPolicy([{
+          Effect: 'Allow',
+          Action: ['authorization:organizations:*'],
+          Resource: [`/authorization/organization/${otherOrgId}`]
+        }])
+        .shouldRespond(204)
+
+      endpoint.test('should not authorize caller without a correct policy (action)')
+        .withPolicy([{
+          Effect: 'Allow',
+          Action: ['authorization:organizations:dummy'],
+          Resource: [`/authorization/organization/${otherOrgId}`]
+        }])
+        .shouldRespond(403)
+
+      endpoint.test('should not authorize caller without a correct policy (resource)')
+        .withPolicy([{
+          Effect: 'Allow',
+          Action: ['authorization:organizations:policy:remove'],
+          Resource: [`/authorization/organization/${otherOrgId}/*/dummy`]
+        }])
+        .shouldRespond(403)
     })
   })
 })
