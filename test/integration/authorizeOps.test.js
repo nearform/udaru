@@ -9,6 +9,7 @@ const _ = require('lodash')
 const testUtils = require('../utils')
 const { udaru } = testUtils
 const authorize = udaru.authorize
+const Factory = require('../factory')
 
 const fs = require('fs')
 const path = require('path')
@@ -406,5 +407,117 @@ lab.experiment('AuthorizeOps - list and access with multiple policies', () => {
 
   lab.after((done) => {
     udaru.organizations.delete('nearForm', done)
+  })
+})
+
+lab.experiment('AuthorizeOps - test inherited policies', () => {
+  const orgId = 'orgId'
+  const userId = 'userId'
+  function Statements (action, resource) {
+    return {
+      Statement: [{
+        Effect: 'Allow',
+        Action: [action],
+        Resource: [resource]
+      }]
+    }
+  }
+
+  Factory(lab, {
+    organizations: {
+      org: {
+        id: orgId,
+        name: 'org name',
+        policies: ['organizationPolicy'],
+        description: 'org description'
+      }
+    },
+    teams: {
+      userTeam: {
+        name: 'user team',
+        description: 'user team',
+        organizationId: orgId,
+        users: ['called'],
+        policies: ['teamPolicy'],
+        parent: 'parentTeam'
+      },
+      parentTeam: {
+        name: 'parent team',
+        description: 'parent team',
+        organizationId: orgId,
+        policies: ['parentPolicy']
+      }
+    },
+    users: {
+      called: {
+        id: userId,
+        name: 'called',
+        description: 'called',
+        organizationId: orgId,
+        policies: ['userPolicy']
+      }
+    },
+    policies: {
+      userPolicy: {
+        name: 'userPolicy',
+        organizationId: orgId,
+        statements: Statements('action:user:read', 'resource:user')
+      },
+      teamPolicy: {
+        name: 'teamPolicy',
+        organizationId: orgId,
+        statements: Statements('action:team:read', 'resource:team')
+      },
+      organizationPolicy: {
+        name: 'organizationPolicy',
+        organizationId: orgId,
+        statements: Statements('action:organization:read', 'resource:organization')
+      },
+      parentPolicy: {
+        name: 'parentPolicy',
+        organizationId: orgId,
+        statements: Statements('action:parent:team:read', 'resource:parent:team')
+      }
+    }
+  })
+
+  lab.test('user has its own and inherited authorizations', (done) => {
+    const tasks = []
+
+    function check (action, resource, expectedResult, next) {
+      function checkAuthorization (action, resource, expectedResult, next) {
+        const authorizationData = {
+          userId: userId,
+          organizationId: orgId,
+          action: action,
+          resource: resource
+        }
+        authorize.isUserAuthorized(authorizationData, (err, result) => {
+          expect(err).to.not.exist()
+          expect(result).to.exist()
+          expect(result.access).to.equal(expectedResult)
+
+          next(err, result)
+        })
+      }
+
+      return function (next) {
+        checkAuthorization(action, resource, expectedResult, next)
+      }
+    }
+
+    tasks.push(check('action:user:read', 'resource:user', true))
+    tasks.push(check('action:team:read', 'resource:team', true))
+    tasks.push(check('action:team:write', 'resource:team', false))
+    tasks.push(check('action:parent:team:read', 'resource:parent:team', true))
+    tasks.push(check('action:parent:team:write', 'resource:parent:team', false))
+    tasks.push(check('action:organization:read', 'resource:organization', true))
+    tasks.push(check('action:organization:write', 'resource:organization', false))
+
+    tasks.push(check('action:user:read', 'resource:team', false))
+    tasks.push(check('action:user:read', 'resource:parent:team', false))
+    tasks.push(check('action:user:read', 'resource:organzation', false))
+
+    async.series(tasks, done)
   })
 })
