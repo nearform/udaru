@@ -8,8 +8,6 @@ const async = require('async')
 const policyOps = require('../../lib/core/lib/ops/policyOps')
 const uuid = require('uuid/v4')
 const Factory = require('../factory')
-const db = require('../../lib/core/lib/db/index')
-const SQL = require('../../lib/core/lib/db/SQL')
 const testUtils = require('../utils')
 const { udaru } = testUtils
 
@@ -142,12 +140,29 @@ lab.experiment('PolicyOps', () => {
   })
 
   lab.experiment('listAllUserPolicies', () => {
+    const orgId = 'orgId'
+    const alienOrgId = 'alienOrgId'
+
     const records = Factory(lab, {
+      organizations: {
+        org: {
+          id: orgId,
+          name: 'org name',
+          policies: ['organizationPolicy'],
+          description: 'org description'
+        },
+        alienOrg: {
+          id: alienOrgId,
+          name: 'alien org name',
+          policies: ['alienPolicy'],
+          description: 'org description'
+        }
+      },
       teams: {
         userTeam: {
           name: 'user team',
           description: 'user team',
-          organizationId: 'WONKA',
+          organizationId: orgId,
           users: ['called'],
           policies: ['teamPolicy'],
           parent: 'parentTeam'
@@ -155,7 +170,7 @@ lab.experiment('PolicyOps', () => {
         parentTeam: {
           name: 'parent team',
           description: 'parent team',
-          organizationId: 'WONKA',
+          organizationId: orgId,
           policies: ['parentPolicy']
         }
       },
@@ -163,21 +178,17 @@ lab.experiment('PolicyOps', () => {
         called: {
           name: 'called',
           description: 'called',
-          organizationId: 'WONKA',
+          organizationId: orgId,
           policies: ['userPolicy']
         }
       },
       policies: {
-        userPolicy: { name: 'userPolicy' },
-        teamPolicy: { name: 'teamPolicy' },
-        parentPolicy: { name: 'parentPolicy' },
-        alienPolicy: { name: 'alienPolicy', organizationId: 'OILCOEMEA' }
+        userPolicy: { name: 'userPolicy', organizationId: orgId },
+        teamPolicy: { name: 'teamPolicy', organizationId: orgId },
+        organizationPolicy: { name: 'organizationPolicy', organizationId: orgId },
+        parentPolicy: { name: 'parentPolicy', organizationId: orgId },
+        alienPolicy: { name: 'alienPolicy', organizationId: alienOrgId }
       }
-    })
-
-    lab.beforeEach((done) => {
-      // doing this directly because policyOps correctly return an error when adding a policy from another org
-      db.query(SQL`INSERT INTO team_policies (team_id, policy_id) VALUES (${records.userTeam.id}, ${records.alienPolicy.id})`, done)
     })
 
     function getName (policy) {
@@ -185,7 +196,7 @@ lab.experiment('PolicyOps', () => {
     }
 
     lab.test('loads policies from user', (done) => {
-      policyOps.listAllUserPolicies({ userId: records.called.id, organizationId: 'WONKA' }, (err, results) => {
+      policyOps.listAllUserPolicies({ userId: records.called.id, organizationId: orgId }, (err, results) => {
         if (err) return done(err)
 
         expect(results.map(getName)).to.include(records.userPolicy.name)
@@ -194,7 +205,7 @@ lab.experiment('PolicyOps', () => {
     })
 
     lab.test('loads policies from user team', (done) => {
-      policyOps.listAllUserPolicies({ userId: records.called.id, organizationId: 'WONKA' }, (err, results) => {
+      policyOps.listAllUserPolicies({ userId: records.called.id, organizationId: orgId }, (err, results) => {
         if (err) return done(err)
 
         expect(results.map(getName)).to.include(records.teamPolicy.name)
@@ -203,7 +214,7 @@ lab.experiment('PolicyOps', () => {
     })
 
     lab.test('loads policies from user team ancessor', (done) => {
-      policyOps.listAllUserPolicies({ userId: records.called.id, organizationId: 'WONKA' }, (err, results) => {
+      policyOps.listAllUserPolicies({ userId: records.called.id, organizationId: orgId }, (err, results) => {
         if (err) return done(err)
 
         expect(results.map(getName)).to.include(records.parentPolicy.name)
@@ -211,10 +222,17 @@ lab.experiment('PolicyOps', () => {
       })
     })
 
-    lab.test('loads policies from user organization')
+    lab.test('loads policies from user organization', (done) => {
+      policyOps.listAllUserPolicies({ userId: records.called.id, organizationId: orgId }, (err, results) => {
+        if (err) return done(err)
+
+        expect(results.map(getName)).to.include(records.organizationPolicy.name)
+        done()
+      })
+    })
 
     lab.test('scopes policies by organization', (done) => {
-      policyOps.listAllUserPolicies({ userId: records.called.id, organizationId: 'WONKA' }, (err, results) => {
+      policyOps.listAllUserPolicies({ userId: records.called.id, organizationId: orgId }, (err, results) => {
         if (err) return done(err)
 
         expect(results.map(getName)).to.not.include(records.alienPolicy.name)
