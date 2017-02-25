@@ -32,10 +32,31 @@ function deleteUserFromAllTeams (id, cb) {
   db.query(sqlQuery, cb)
 }
 
+function Statement (effect, action, resource) {
+  return {
+    Statement: [{
+      Effect: 'Allow',
+      Action: [action],
+      Resource: [resource]
+    }]
+  }
+}
+
+function DenyStatement (action, resource) {
+  return Statement('Allow', action, resource)
+}
+
+function AllowStatement (action, resource) {
+  return Statement('Deny', action, resource)
+}
+
 module.exports = {
   requestOptions,
   findPick,
   deleteUserFromAllTeams,
   udaru,
-  db
+  db,
+  Statement,
+  AllowStatement,
+  DenyStatement
 }
