@@ -9,7 +9,6 @@ const server = require('../../../lib/server')
 const Factory = require('../../factory')
 const utils = require('../../utils')
 const Action = config.get('AuthConfig.Action')
-const resources = config.get('AuthConfig.resources')
 
 lab.experiment('SuperUsers with limited access across organizations', () => {
   const defaultAdminPolicy = 'authorization.organizations.defaultPolicies.orgAdmin'
@@ -26,13 +25,9 @@ lab.experiment('SuperUsers with limited access across organizations', () => {
   const userId3 = 'userId3'
   const userId4 = 'userId4'
 
-  const records = Factory(lab, {
+  Factory(lab, {
     organizations: {
-      // rootOrg: {
-      //   id: rootOrgId,
-      //   name: 'root org',
-      //   description: 'root org'
-      // },
+      // ROOT org is created by default in the test DB by the test suite
       org1: {
         id: orgId1,
         name: 'org1',
@@ -56,7 +51,7 @@ lab.experiment('SuperUsers with limited access across organizations', () => {
         description: 'team1',
         organizationId: rootOrgId,
         users: ['user1', 'user2'],
-        policies: ['org1AdminPolicy', 'org2AdminPolicy']
+        policies: ['org1AdminPolicy', 'org2AdminPolicy', 'orgAuthPolicy', 'org1InternalPolicy', 'org2InternalPolicy']
       },
       team2: {
         id: teamId2,
@@ -64,7 +59,7 @@ lab.experiment('SuperUsers with limited access across organizations', () => {
         description: 'team2',
         organizationId: rootOrgId,
         users: ['user3'],
-        policies: ['org3AdminPolicy']
+        policies: ['org3AdminPolicy', 'orgAuthPolicy', 'org3InternalPolicy']
       }
     },
     users: {
@@ -105,20 +100,25 @@ lab.experiment('SuperUsers with limited access across organizations', () => {
         organizationId: rootOrgId,
         statements: config.get(defaultAdminPolicy, {organizationId: orgId3}).statements
       },
+      orgAuthPolicy: {
+        name: 'orgAuthPolicy',
+        organizationId: rootOrgId,
+        statements: utils.AllowStatement([Action.CheckAccess], ['authorization/access'])
+      },
       org1InternalPolicy: {
         name: 'org1InternalPolicy',
-        organizationId: orgId1,
-        statements: utils.AllowStatement([], [])
+        organizationId: rootOrgId,
+        statements: utils.AllowStatement(['org1:action:read'], ['org1:resource:res1'])
       },
       org2InternalPolicy: {
         name: 'org2InternalPolicy',
-        organizationId: orgId2,
-        statements: utils.AllowStatement([], [])
+        organizationId: rootOrgId,
+        statements: utils.AllowStatement(['org2:action:read'], ['org2:resource:res2'])
       },
       org3InternalPolicy: {
         name: 'org3InternalPolicy',
-        organizationId: orgId3,
-        statements: utils.AllowStatement([], [])
+        organizationId: rootOrgId,
+        statements: utils.AllowStatement(['org3:action:read'], ['org3::resource:res3'])
       }
     }
   })
@@ -219,6 +219,76 @@ lab.experiment('SuperUsers with limited access across organizations', () => {
     })
   })
 
-  lab.experiment('Check limited super users rights on accessing organization resources', () => {
+  lab.experiment('Limited SuperUser rights on accessing organization resources', () => {
+    lab.test('Access resource on which it has rights', (done) => {
+      const options = {
+        headers: {
+          authorization: userId1,
+          org: orgId1
+        },
+        method: 'GET',
+        url: `/authorization/access/${userId1}/org1:action:read/org1:resource:res1`
+      }
+
+      server.inject(options, (response) => {
+        expect(response.statusCode).to.equal(200)
+        expect(response.result.access).to.equal(true)
+
+        done()
+      })
+    })
+
+    lab.test('Do an invalid action on a resource on which it has rights', (done) => {
+      const options = {
+        headers: {
+          authorization: userId1,
+          org: orgId1
+        },
+        method: 'GET',
+        url: `/authorization/access/${userId1}/org1:action:dummy/org1:resource:res1`
+      }
+
+      server.inject(options, (response) => {
+        expect(response.statusCode).to.equal(200)
+        expect(response.result.access).to.equal(false)
+
+        done()
+      })
+    })
+
+    lab.test('Access resource on which it has no rights', (done) => {
+      const options = {
+        headers: {
+          authorization: userId1,
+          org: orgId3
+        },
+        method: 'GET',
+        url: `/authorization/access/${userId1}/org3:action:read/org3:resource:res3`
+      }
+
+      server.inject(options, (response) => {
+        expect(response.statusCode).to.equal(200)
+        expect(response.result.access).to.equal(false)
+
+        done()
+      })
+    })
+
+    lab.test('Access resource by user not registered in teams on which it has no rights', (done) => {
+      const options = {
+        headers: {
+          authorization: userId4,
+          org: orgId1
+        },
+        method: 'GET',
+        url: `/authorization/access/${userId4}/org1:action:read/org1:resource:res1`
+      }
+
+      server.inject(options, (response) => {
+        expect(response.statusCode).to.equal(403)
+
+        done()
+      })
+    })
   })
 })

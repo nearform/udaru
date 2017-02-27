@@ -20,7 +20,7 @@ Altough the [AWS IAM Policy][] is not the documentation for [node-pbac][] it can
 
 An access control model can be built using the **Organization**, **Team** and **User** entities. The Organizations can contain Teams or Users and the Teams can contain other Teams or Users. Note: only the Team elements can contain other Team elements (same type elements).
 
-**Policies** can be attached to Teams and Users. The policy engine evaluates all policies from all levels when establishing if an User can perform an Action over a Resource. Currently there is no functionality provided to attach Policies to Organizations although the current database structure supports it.
+**Policies** can be attached to Teams, Users and Organizations. The policy engine evaluates all policies from all levels when establishing if an User can perform an Action over a Resource.
 
 **Important note:** Teams, Users and Policies can't be shared across Organizations.
 
