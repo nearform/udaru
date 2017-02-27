@@ -8,8 +8,11 @@ const config = require('../../../lib/plugin/config')
 const server = require('../../../lib/server')
 const Factory = require('../../factory')
 const utils = require('../../utils')
+const Action = config.get('AuthConfig.Action')
+const resources = config.get('AuthConfig.resources')
 
 lab.experiment('SuperUsers with limited access across organizations', () => {
+  const defaultAdminPolicy = 'authorization.organizations.defaultPolicies.orgAdmin'
   const rootOrgId = config.get('authorization.superUser.organization.id')
   const orgId1 = 'orgId1'
   const orgId2 = 'orgId2'
@@ -90,64 +93,129 @@ lab.experiment('SuperUsers with limited access across organizations', () => {
       org1AdminPolicy: {
         name: 'org1AdminPolicy',
         organizationId: rootOrgId,
-        statements: utils.AllowStatement('action:user:read', 'resource:user')
+        statements: config.get(defaultAdminPolicy, {organizationId: orgId1}).statements
       },
       org2AdminPolicy: {
         name: 'org2AdminPolicy',
         organizationId: rootOrgId,
-        statements: utils.AllowStatement('action:team:read', 'resource:team')
+        statements: config.get(defaultAdminPolicy, {organizationId: orgId2}).statements
       },
       org3AdminPolicy: {
         name: 'org3AdminPolicy',
         organizationId: rootOrgId,
-        statements: utils.AllowStatement('action:team:read', 'resource:team')
+        statements: config.get(defaultAdminPolicy, {organizationId: orgId3}).statements
       },
       org1InternalPolicy: {
         name: 'org1InternalPolicy',
         organizationId: orgId1,
-        statements: utils.AllowStatement('action:organization1:read', 'resource:organization1')
+        statements: utils.AllowStatement([], [])
       },
       org2InternalPolicy: {
         name: 'org2InternalPolicy',
         organizationId: orgId2,
-        statements: utils.AllowStatement('action:organization2:read', 'resource:organization2')
+        statements: utils.AllowStatement([], [])
       },
       org3InternalPolicy: {
         name: 'org3InternalPolicy',
         organizationId: orgId3,
-        statements: utils.AllowStatement('action:organization3:read', 'resource:organization3')
+        statements: utils.AllowStatement([], [])
       }
     }
   })
 
   lab.experiment('Check limited super users organization management rights', () => {
-    lab.test('List teams and users on an org on which it has rights', (done) => {
-      done()
-      // const options = utils.requestOptions({
-      //   method: 'GET',
-      //   url: '/authorization/organizations'
-      // })
+    lab.test('Get org on an org endpoint on which it has rights', (done) => {
+      const options = {
+        headers: {
+          authorization: userId1,
+          org: orgId1
+        },
+        method: 'GET',
+        url: `/authorization/organizations/${orgId1}`
+      }
 
-      // server.inject(options, (response) => {
-      //   expect(response.statusCode).to.equal(200)
-      //   expect(response.result).to.exist()
-      //   expect(response.result.page).to.equal(1)
-      //   expect(response.result.total).greaterThan(1)
-      //   expect(response.result.limit).greaterThan(1)
-      //   done()
-      // })
+      server.inject(options, (response) => {
+        expect(response.statusCode).to.equal(200)
+        expect(response.result).to.exist()
+        expect(response.result.id).to.equal(orgId1)
+
+        done()
+      })
+    })
+
+    lab.test('Get org on an org endpoint on which it has no rights', (done) => {
+      const options = {
+        headers: {
+          authorization: userId1,
+          org: orgId3
+        },
+        method: 'GET',
+        url: `/authorization/organizations/${orgId3}`
+      }
+
+      server.inject(options, (response) => {
+        expect(response.statusCode).to.equal(403)
+
+        done()
+      })
+    })
+
+    lab.test('SuperUser not in team has no rights', (done) => {
+      const options = {
+        headers: {
+          authorization: userId4,
+          org: orgId1
+        },
+        method: 'GET',
+        url: `/authorization/organizations/${orgId1}`
+      }
+
+      server.inject(options, (response) => {
+        expect(response.statusCode).to.equal(403)
+
+        done()
+      })
+    })
+
+    lab.test('List teams and users on an org on which it has rights', (done) => {
+      const options = {
+        headers: {
+          authorization: userId1,
+          org: orgId1
+        },
+        method: 'GET',
+        url: '/authorization/teams'
+      }
+
+      server.inject(options, (response) => {
+        expect(response.statusCode).to.equal(200)
+        expect(response.result).to.exist()
+        expect(response.result.data).to.exist()
+
+        done()
+      })
     })
 
     lab.test('List teams and users on an org on which it has no rights', (done) => {
-      done()
-    })
+      const options = {
+        headers: {
+          authorization: userId1,
+          org: orgId3
+        },
+        method: 'GET',
+        url: '/authorization/teams'
+      }
 
-    lab.test('Add team and user on an org on which has rights', (done) => {
-      done()
-    })
+      server.inject(options, (response) => {
+        expect(response.statusCode).to.equal(403)
 
-    lab.test('Add team and user on an org on which it has no rights', (done) => {
-      done()
+        options.headers.authorization = userId4
+        server.inject(options, (response) => {
+          expect(response.statusCode).to.equal(403)
+
+          done()
+        })
+      })
     })
   })
 

@@ -35,19 +35,19 @@ function deleteUserFromAllTeams (id, cb) {
 function Statement (effect, action, resource) {
   return {
     Statement: [{
-      Effect: 'Allow',
-      Action: [action],
-      Resource: [resource]
+      Effect: effect,
+      Action: action,
+      Resource: resource
     }]
   }
 }
 
 function DenyStatement (action, resource) {
-  return Statement('Allow', action, resource)
+  return Statement('Deny', action, resource)
 }
 
 function AllowStatement (action, resource) {
-  return Statement('Deny', action, resource)
+  return Statement('Allow', action, resource)
 }
 
 module.exports = {
