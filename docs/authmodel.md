@@ -5,7 +5,7 @@ See more details in the [Authorization Introduction][]
 
 The usual modeling case is to build independent organizations, each organization having teams (or nested teams) attached to them and users attached to teams. Policies are attached to Organizations, Teams or Users.
 
-In the examples below in the **Cross organization access management** section it is described a particular case in which we need users that have access rights over several organizations, this corner case not matching exactly the Udary modeling architecture.
+In the examples below in the **Cross organization access management** section it is described a particular case in which we need users that have access rights over several organizations. This corner case is not the perfect match for the Udaru architecture but it can be achieved using the shallow impersonation feature.
 
 ## Cross organization access management
 
@@ -27,7 +27,7 @@ curl -X PUT --header 'Content-Type: application/json' --header 'Accept: applicat
 The structure to be modeled is the following:
 
 We have the default root organization on which we have two Teams. On the first team there are two users, on the 2nd team there is one user and the 4th user belongs to no team. All the 4 users belong to the root organization.
-We plan to add to Team1 a set of policies so ithat the User1 and User2 have access to resources from Org1 and Org2, then assign to Team2 a set of policies so that User3 has access to Org3. User4 has no policies attached and has no access to any of the Organizations.
+We plan to add to Team1 a set of policies so that the User1 and User2 have access to resources from Org1 and Org2, then assign to Team2 a set of policies so that User3 has access to Org3. User4 has no policies attached and has no access to any of the Organizations.
 
 A visual representation of the structure:
 ```
@@ -50,8 +50,8 @@ The organization endpoints access policies and organization resource access poli
 A fully working model sample can be seen in the [Full organization test file][] in the "SuperUsers with limited acces across organizations" Experiment.
 
 The policies built to configure access structure are of three types:
-- Access to organization management operations is given by attaching to the two root teams the default organization policies: `authorization:organizations:read`, `authorization:teams:*`, `authorization:users:*`, `authorization:policies:list`, `authorization:policies:read`,
-- Access to the authorization endpoints is given by attaching to teams a policy that gives `authorization:authn:access` to the `authorization/access` resource,
+- Access to organization management operations is given by attaching to the two root teams the default organization policies: `authorization:organizations:read` rights to be able to access the `/authorization/organizations/<orgId>` endpoint, `authorization:teams:*` rights to allow access to `/authorization/teams/*` endpoints, `authorization:users:*` rights to allow access to `/authorization/users/*` endpoints, `authorization:policies:list` rights to access the `/authorization/policies` endpoint, `authorization:policies:read` rights to access the `/authorization/policies/<policyId>` endpoint,
+- Access to the authorization check endpoint is given by attaching to teams a policy that gives `authorization:authn:access` rights to allow access on `/authorization/access/{userId}/{action}/{resource*}` endpoint,
 - Access to internal organization policies is given by defining specific internal organization actions and resources.
 
 [Authorization Introduction]: authorization-introduction.md
