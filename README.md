@@ -14,6 +14,8 @@ A detailed explanation on how the Udaru authorization system is structured and t
 
 A description on how the internals of the authorization system are implemented can be found in the [Authorization Technical Specs][]
 
+Examples on how to model an Udaru organization structure are documented in [Authorization Model][].
+
 ## Install
 To install via npm,
 
@@ -267,6 +269,7 @@ Copyright nearForm Ltd 2017. Licensed under [MIT][license]
 [swagger-link]: http://localhost:8080/documentation
 [Authorization Technical Specs]: docs/reference/spec.md
 [Authorization Introduction]: docs/authorization-introduction.md
+[Authorization Model]: docs/authmodel.md
 [SQL Injection]: docs/sqlinjection.md
 [sqlmap]: https://github.com/sqlmapproject/sqlmap
 [sqlmap config]: ./security/fixtures/injection-endpoints.json
