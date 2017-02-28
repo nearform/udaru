@@ -158,7 +158,7 @@ The init script needs to be run in order to setup the SuperUser: `node scripts/i
 If you want to specify a better SuperUser id (default is `SuperUserId`) you can prefix the script as follow:
 
 ```
-LABS_AUTH_SERVICE_authorization_superUser_id=myComplexId12345 node scripts/init
+UDARU_SERVICE_authorization_superUser_id=myComplexId12345 node scripts/init
 ```
 
 **Note:** if you have already ran some tests or loaded the test data, you will need to run `npm pg:init` again to reset the db.
@@ -233,7 +233,7 @@ To override those configuration settings you will have to specify your ENV varia
 
 **ENV variable override**
 ```
-LABS_AUTH_SERVICE_security_api_servicekeys_private_0=jerfkgfjdedfkg3j213i43u31jk2erwegjndf
+UDARU_SERVICE_security_api_servicekeys_private_0=jerfkgfjdedfkg3j213i43u31jk2erwegjndf
 ```
 
 To achieve this we use the [`reconfig`][reconfig] module
