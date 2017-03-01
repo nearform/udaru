@@ -10,7 +10,7 @@ sudo: required
 env:
   global:
   - NODE_ENV=test
-  - LABS_AUTH_SERVICE_pgdb_password=''
+  - UDARU_SERVICE_pgdb_password=''
 
 addons:
   postgresql: "9.5"

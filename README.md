@@ -14,6 +14,8 @@ A detailed explanation on how the Udaru authorization system is structured and t
 
 A description on how the internals of the authorization system are implemented can be found in the [Authorization Technical Specs][]
 
+Examples on how to model an Udaru organization structure are documented in [Authorization Model][].
+
 ## Install
 To install via npm,
 
@@ -158,7 +160,7 @@ The init script needs to be run in order to setup the SuperUser: `node scripts/i
 If you want to specify a better SuperUser id (default is `SuperUserId`) you can prefix the script as follow:
 
 ```
-LABS_AUTH_SERVICE_authorization_superUser_id=myComplexId12345 node scripts/init
+UDARU_SERVICE_authorization_superUser_id=myComplexId12345 node scripts/init
 ```
 
 **Note:** if you have already ran some tests or loaded the test data, you will need to run `npm pg:init` again to reset the db.
@@ -233,7 +235,7 @@ To override those configuration settings you will have to specify your ENV varia
 
 **ENV variable override**
 ```
-LABS_AUTH_SERVICE_security_api_servicekeys_private_0=jerfkgfjdedfkg3j213i43u31jk2erwegjndf
+UDARU_SERVICE_security_api_servicekeys_private_0=jerfkgfjdedfkg3j213i43u31jk2erwegjndf
 ```
 
 To achieve this we use the [`reconfig`][reconfig] module
@@ -267,6 +269,7 @@ Copyright nearForm Ltd 2017. Licensed under [MIT][license]
 [swagger-link]: http://localhost:8080/documentation
 [Authorization Technical Specs]: docs/reference/spec.md
 [Authorization Introduction]: docs/authorization-introduction.md
+[Authorization Model]: docs/authmodel.md
 [SQL Injection]: docs/sqlinjection.md
 [sqlmap]: https://github.com/sqlmapproject/sqlmap
 [sqlmap config]: ./security/fixtures/injection-endpoints.json
