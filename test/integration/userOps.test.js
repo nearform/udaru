@@ -81,7 +81,7 @@ lab.experiment('UserOps', () => {
   })
 
   lab.test('create a user with long name should fail', (done) => {
-    const userName = Array(52).join('a')
+    const userName = 'a'.repeat(256)
     udaru.users.create({ organizationId: 'WONKA', name: userName, id: 'longtestid' }, (err, result) => {
       expect(err).to.exist()
       expect(err.output.statusCode).to.equal(400)
