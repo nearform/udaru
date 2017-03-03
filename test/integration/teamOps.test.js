@@ -272,8 +272,19 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('create a team with long name should fail', (done) => {
-    const teamName = Array(32).join('a')
+    const teamName = 'a'.repeat(31)
     udaru.teams.create({ organizationId: 'WONKA', name: teamName, description: 'nearform description' }, (err, result) => {
+      expect(err).to.exist()
+      expect(err.output.statusCode).to.equal(400)
+      expect(err.message).to.match(/length must be less than/)
+
+      done()
+    })
+  })
+
+  lab.test('create a team with long id should fail', (done) => {
+    const longId = 'a'.repeat(129)
+    udaru.teams.create({ id: longId, organizationId: 'WONKA', name: 'team name', description: 'nearform description' }, (err, result) => {
       expect(err).to.exist()
       expect(err.output.statusCode).to.equal(400)
       expect(err.message).to.match(/length must be less than/)

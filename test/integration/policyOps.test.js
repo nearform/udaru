@@ -129,8 +129,19 @@ lab.experiment('PolicyOps', () => {
   })
 
   lab.test('create a policy with long name should fail', (done) => {
-    const policyName = Array(66).join('a')
+    const policyName = 'a'.repeat(65)
     udaru.policies.create({ organizationId: 'WONKA', name: policyName, id: 'longtestid', version: '1', statements }, (err, result) => {
+      expect(err).to.exist()
+      expect(err.output.statusCode).to.equal(400)
+      expect(err.message).to.match(/length must be less than/)
+
+      done()
+    })
+  })
+
+  lab.test('create a policy with long id should fail', (done) => {
+    const longId = 'a'.repeat(129)
+    udaru.policies.create({ organizationId: 'WONKA', name: 'policyName', id: longId, version: '1', statements }, (err, result) => {
       expect(err).to.exist()
       expect(err.output.statusCode).to.equal(400)
       expect(err.message).to.match(/length must be less than/)

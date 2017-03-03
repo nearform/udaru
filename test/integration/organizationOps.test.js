@@ -211,8 +211,19 @@ lab.experiment('OrganizationOps', () => {
   })
 
   lab.test('create an organization with long name should fail', (done) => {
-    const orgName = Array(66).join('a')
+    const orgName = 'a'.repeat(65)
     udaru.organizations.create({ id: 'nearForm', name: orgName, description: 'nearform description' }, (err, result) => {
+      expect(err).to.exist()
+      expect(err.output.statusCode).to.equal(400)
+      expect(err.message).to.match(/length must be less than/)
+
+      done()
+    })
+  })
+
+  lab.test('create an organization with long id should fail', (done) => {
+    const longId = 'a'.repeat(129)
+    udaru.organizations.create({ id: longId, name: 'nearform', description: 'nearform description' }, (err, result) => {
       expect(err).to.exist()
       expect(err.output.statusCode).to.equal(400)
       expect(err.message).to.match(/length must be less than/)
