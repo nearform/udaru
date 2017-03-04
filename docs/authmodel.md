@@ -1,7 +1,6 @@
 # Examples of organization structures modeled with Udaru
 
-Access to resources can be modeled in Udaru through the elements that it provides: Organizations, Teams, Users. Policies can be attached to any of these elements.
-See more details in the [Authorization Introduction][]
+Access to resources can be modeled in Udaru through the elements that it provides: Organizations, Teams, Users. Policies can be attached to any of these elements. For more details, see the [Udaru Introduction][].
 
 The usual modeling case is to build independent organizations, each organization having teams (or nested teams) attached to them and users attached to teams. Policies are attached to Organizations, Teams or Users.
 
@@ -47,12 +46,12 @@ One **limitation** of this modelling approach is that we have to build the route
 The structure is build like it is described in the previous section.
 The organization endpoints access policies and organization resource access policies are attached to the two teams.
 
-A fully working model sample can be seen in the [Full organization test file][] in the "SuperUsers with limited acces across organizations" Experiment.
+A fully working model sample can be seen in the [Full organization test file][] in the "SuperUsers with limited access across organizations" Experiment.
 
 The policies built to configure access structure are of three types:
 - Access to organization management operations is given by attaching to the two root teams the default organization policies: `authorization:organizations:read` rights to be able to access the `/authorization/organizations/<orgId>` endpoint, `authorization:teams:*` rights to allow access to `/authorization/teams/*` endpoints, `authorization:users:*` rights to allow access to `/authorization/users/*` endpoints, `authorization:policies:list` rights to access the `/authorization/policies` endpoint, `authorization:policies:read` rights to access the `/authorization/policies/<policyId>` endpoint,
 - Access to the authorization check endpoint is given by attaching to teams a policy that gives `authorization:authn:access` rights to allow access on `/authorization/access/{userId}/{action}/{resource*}` endpoint,
 - Access to internal organization policies is given by defining specific internal organization actions and resources.
 
-[Authorization Introduction]: authorization-introduction.md
+[Udaru Introduction]: authorization-introduction.md
 [Full organization test file]: ../test/integration/endToEnd/fullOrgStructure.test.js
