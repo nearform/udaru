@@ -4,61 +4,58 @@
 [![coveralls][coveralls-badge]][coveralls-url]
 [![snyk][snyk-badge]][snyk-url]
 
-Udaru is an authorization module that can be used as an Policy Based Acess Control mechanism.
-It supports Organizations, Teams and User entities that be used to build the access model. The policies attached to these entities define the 'Actions' that can be performed by an entity on various 'Resources'.
+Udaru is an authorization module that can be used as an Policy Based Access Control mechanism. It supports Organizations, Teams and User entities that are used to build the access model. The policies attached to these entities define the 'Actions' that can be performed by an entity on various 'Resources'.
 
-Udaru can be used as a stand-alone module, as a stand-alone server or as an
-Hapi plugin. This repository contains the code for all three running configurations.
+Udaru can be used as a stand-alone module, as a stand-alone server or as a Hapi plugin. This repository contains the code for all three running configurations.
 
-A detailed explanation on how the Udaru authorization system is structured and the terms and elements used to define the authorization system can be found in the [Authorization Introduction][] document.
+A detailed explanation on how the Udaru is structured and the terms and elements used to define the authorization system can be found in the [Udaru Introduction][] document.
 
-A description on how the internals of the authorization system are implemented can be found in the [Authorization Technical Specs][]
+A description on how the internals of the authorization system are implemented can be found in the [Udaru Technical Spec][].
 
 Examples on how to model an Udaru organization structure are documented in [Authorization Model][].
 
 ## Install
-To install via npm,
+To install via npm:
 
 ```
 npm install udaru
 ```
 
 ## Testing, benching & linting
-Before running tests, ensure a valid Postgres database is running. The simplest way to do this is
-via Docker. Assuming docker is installed on your machine, in the root folder, run,
+Before running tests, ensure a valid Postgres database is running. The simplest way to do this is via Docker. Assuming docker is installed on your machine, in the root folder, run:
 
 ```
 docker-compose up
 ```
 
-This will start a postgress database. Running test or coverage runs will automaticaly populate the
+This will start a postgress database. Running test or coverage runs will automatically populate the
 database with the information it needs.
 
-To run tests,
+To run tests:
 
 ```
 npm run test
 ```
 
-To lint the repository,
+To lint the repository:
 
 ```
 npm run lint
 ```
 
-To fix (most) linting issues,
+To fix (most) linting issues:
 
 ```
 npm run lint -- --fix
 ```
 
-To run a bench test on a given route,
+To run a bench test on a given route:
 
 ```
 npm run bench -- "METHOD swagger/route/template/path"
 ```
 
-To obtain a coverage report,
+To obtain a coverage report:
 
 ```
 npm run coverage
@@ -89,8 +86,7 @@ server.register({register: UdaruPlugin})
 ```
 
 ### Database support
-Udaru requires an instance of Postgres to function correctly. For simplicity, a preconfigured
-`docker-compose` file has been provided. To run,
+Udaru requires an instance of Postgres to function correctly. For simplicity, a preconfigured `docker-compose` file has been provided. To run:
 
 ```
 docker-compose up
@@ -100,7 +96,7 @@ docker-compose up
 - **Note:** Udaru needs PostgreSQL >= 9.5
 
 #### Populate the database
-The Authorization database, system user and initial tables can be created by executing,
+The Authorization database, system user and initial tables can be created by executing:
 
 ```
 npm run pg:init
@@ -115,16 +111,12 @@ npm run pg:load-test-data
 - **Note:** Running a test or coverage command will auto run these commands
 
 ### pgAdmin database access
-As the Postgresql docker container has its 5432 port forwarded on the local machine the database
-can be accessed with pgAdmin.
+As the Postgresql docker container has its 5432 port forwarded on the local machine the database can be accessed with pgAdmin.
 
-To access the database using the pgAdmin you have to fill in also the container IP beside the
-database names and access credentials. The container IP can be seen with `docker ps`.
+To access the database using the pgAdmin you have to fill in also the container IP beside the database names and access credentials. The container IP can be seen with `docker ps`.
 
 ### Migrations
-For testing and documentation purposes we have db migrations. We use [`postgrator`][postgrator];
-you can find the sql files in the [`database/migrations`](/database/migrations) folder. To run
-the migrations,
+We use [`postgrator`][postgrator] for database migrations. You can find the sql files in the [`database/migrations`](/database/migrations) folder. To run the migrations manually:
 
 ```
 node database/migrate.js --version=<version>`
@@ -134,7 +126,7 @@ node database/migrate.js --version=<version>`
 
 ## Service
 
-The service will respond http calls such as
+The service will respond http calls such as:
 
 ```
 GET /authorization/users
@@ -167,7 +159,7 @@ UDARU_SERVICE_authorization_superUser_id=myComplexId12345 node scripts/init
 
 ### Load policies from file
 
-Another script is available to load policies from a file
+Use the following script to load policies from a file:
 
 Usage: `node script/loadPolicies --org=FOO policies.json`
 
@@ -211,12 +203,9 @@ The Swagger documentation also gives the ability to execute calls to the API and
 ### ENV variables to set configuration options
 There is a default configuration file [`lib/config.js`][config].
 
-This configuration is the one used in dev environment and we are quite sure the production one will
-be different :) To override this configuration you can use ENV variables on the
-server/container/machine you will run udaru(s) on.
+This configuration is the one used in dev environment and we are quite sure the production one will be different :) To override this configuration you can use ENV variables on the server/container/machine you will run Udaru on.
 
-To override those configuration settings you will have to specify your ENV variables with a
-[prefix][prefix-link] and then the "path" to the property you want to override.
+To override those configuration settings you will have to specify your ENV variables with a [prefix][prefix-link] and then the "path" to the property you want to override.
 
 **Configuration**
 ```
@@ -238,11 +227,11 @@ To override those configuration settings you will have to specify your ENV varia
 UDARU_SERVICE_security_api_servicekeys_private_0=jerfkgfjdedfkg3j213i43u31jk2erwegjndf
 ```
 
-To achieve this we use the [`reconfig`][reconfig] module
+To achieve this we use the [`reconfig`][reconfig] module.
 
 ## Security
 
-Evaluated Udaru against SQL injection. More details can be found in the [SQL Injection][] document.
+Udaru has been thoroughly evaluated against SQL injection, a detailed description of this can be found in the [SQL Injection][] document.
 
 To automatically run [sqlmap][] injection tests run:
 ```
@@ -252,14 +241,14 @@ npm run test:security
 These tests are not included in the main test suite. The security test spawns a hapi.js server exposing the Udaru routes. It only needs the DB to be running and being initialized with data.
 
 The injection tests can be configured in the [sqlmap config][]. A few output configuration changes that can be made:
-- `level` can be set to 5 for more aggresive testing,
-- `risk` can be set to 3 for more testing options. Note: this level might alter the DB data,
-- `verbose` can be set to level 1-5. Level 1 displays info about the injections tried.
+- `level` can be set to 5 for more aggressive testing
+- `risk` can be set to 3 for more testing options. Note: this level might alter the DB data
+- `verbose` can be set to level 1-5. Level 1 displays info about the injections tried
 
-More detais on the [sqlmap][] repository.
+See the [sqlmap][] repository for more details.
 
 ## License
-Copyright nearForm Ltd 2017. Licensed under [MIT][license]
+Copyright nearForm Ltd 2017. Licensed under [MIT][license].
 
 [config]: https://github.com/nearform/labs-authorization/blob/master/lib/config.js
 [license]: ./LICENSE.md
@@ -267,8 +256,8 @@ Copyright nearForm Ltd 2017. Licensed under [MIT][license]
 [prefix-link]: https://github.com/nearform/labs-authorization/blob/master/lib/config.js#L29
 [reconfig]: https://github.com/namshi/reconfig
 [swagger-link]: http://localhost:8080/documentation
-[Authorization Technical Specs]: docs/reference/spec.md
-[Authorization Introduction]: docs/authorization-introduction.md
+[Udaru Technical Spec]: docs/reference/spec.md
+[Udaru Introduction]: docs/authorization-introduction.md
 [Authorization Model]: docs/authmodel.md
 [SQL Injection]: docs/sqlinjection.md
 [sqlmap]: https://github.com/sqlmapproject/sqlmap
