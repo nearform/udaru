@@ -10,8 +10,6 @@ Udaru can be used as a stand-alone module, as a stand-alone server or as a Hapi 
 
 A detailed explanation on how the Udaru is structured and the terms and elements used to define the authorization system can be found in the [Udaru Introduction][] document.
 
-A description on how the internals of the authorization system are implemented can be found in the [Udaru Technical Spec][].
-
 Examples on how to model an Udaru organization structure are documented in [Authorization Model][].
 
 ## Install
@@ -256,7 +254,6 @@ Copyright nearForm Ltd 2017. Licensed under [MIT][license].
 [prefix-link]: https://github.com/nearform/labs-authorization/blob/master/lib/config.js#L29
 [reconfig]: https://github.com/namshi/reconfig
 [swagger-link]: http://localhost:8080/documentation
-[Udaru Technical Spec]: docs/reference/spec.md
 [Udaru Introduction]: docs/authorization-introduction.md
 [Authorization Model]: docs/authmodel.md
 [SQL Injection]: docs/sqlinjection.md
