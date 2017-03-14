@@ -49,9 +49,9 @@ The main elements of a Statement are:
 -   The Resource on which the action is performed. A Resource name is effectively a URI for your resources. Example: `'FOO:orga:CLOUDCUCKOO:scenario:*:entity:north-america-id'`
 -   The Effect - has the value 'Allow' or 'Deny'.
 
-Note that wildcards can be used in Action and Resource names, as can certain variables, see [IAM Policy Variables Overview]() for more details.
+Note that wildcards can be used in Action and Resource names, as can certain variables, see [IAM Policy Variables Overview][] for more details.
 
-For a detailed description of Policies, see the [AWS Policy Elements Reference]().
+For a detailed description of Policies, see the [AWS Policy Elements Reference][].
 
 ## API
 
@@ -116,6 +116,8 @@ curl -X PUT --header 'Content-Type: application/json' --header 'Accept: applicat
 [node-pbac]: https://github.com/monken/node-pbac
 [AWS IAM]: https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies.html
 [AWS IAM Policy]: https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements.html
+[AWS Policy Elements Reference]: https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements.html
+[IAM Policy Variables Overview]: https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_variables.html
 [private routes]: ../lib/plugin/routes/private
 [public routes]: ../lib/plugin/routes/public
 [survey on access control models]: http://csrc.nist.gov/news_events/privilege-management-workshop/PvM-Model-Survey-Aug26-2009.pdf
