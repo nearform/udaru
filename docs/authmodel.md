@@ -49,9 +49,9 @@ The organization endpoints access policies and organization resource access poli
 A fully working model sample can be seen in the [Full organization test file][] in the "SuperUsers with limited access across organizations" Experiment.
 
 The policies built to configure access structure are of three types:
-- Access to organization management operations is given by attaching to the two root teams the default organization policies: `authorization:organizations:read` rights to be able to access the `/authorization/organizations/<orgId>` endpoint, `authorization:teams:*` rights to allow access to `/authorization/teams/*` endpoints, `authorization:users:*` rights to allow access to `/authorization/users/*` endpoints, `authorization:policies:list` rights to access the `/authorization/policies` endpoint, `authorization:policies:read` rights to access the `/authorization/policies/<policyId>` endpoint,
-- Access to the authorization check endpoint is given by attaching to teams a policy that gives `authorization:authn:access` rights to allow access on `/authorization/access/{userId}/{action}/{resource*}` endpoint,
-- Access to internal organization policies is given by defining specific internal organization actions and resources.
+-   Access to organization management operations is given by attaching to the two root teams the default organization policies: `authorization:organizations:read` rights to be able to access the `/authorization/organizations/<orgId>` endpoint, `authorization:teams:*` rights to allow access to `/authorization/teams/*` endpoints, `authorization:users:*` rights to allow access to `/authorization/users/*` endpoints, `authorization:policies:list` rights to access the `/authorization/policies` endpoint, `authorization:policies:read` rights to access the `/authorization/policies/<policyId>` endpoint,
+-   Access to the authorization check endpoint is given by attaching to teams a policy that gives `authorization:authn:access` rights to allow access on `/authorization/access/{userId}/{action}/{resource*}` endpoint,
+-   Access to internal organization policies is given by defining specific internal organization actions and resources.
 
 [Udaru Introduction]: authorization-introduction.md
 [Full organization test file]: ../test/integration/endToEnd/fullOrgStructure.test.js
