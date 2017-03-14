@@ -29,7 +29,7 @@ docker-compose up
 This will start a Postgres database. Running test or coverage runs will automatically populate the
 database with the information it needs.
 
-> Note: you can also run `docker-compose up -d` to run it in the background. You'll can then tail the Postgres logs if needed with `docker-compose logs --tail=100 -f` 
+-   **Note:** you can also run `docker-compose up -d` to run it in the background. You'll can then tail the Postgres logs if needed with `docker-compose logs --tail=100 -f`
 
 To run tests:
 
@@ -37,7 +37,7 @@ To run tests:
 npm run test
 ```
 
-> Note: running the tests will output duplicate keys errors in Postgres logs, this is expected, as the error handling of those cases is part of what is tested.
+-   **Note:** running the tests will output duplicate keys errors in Postgres logs, this is expected, as the error handling of those cases is part of what is tested.
 
 
 To lint the repository:
@@ -95,8 +95,8 @@ Udaru requires an instance of Postgres to function correctly. For simplicity, a 
 docker-compose up
 ```
 
-- **Note:** Ensure you are using the latest version of Docker for (Linux/OSX/Windows)
-- **Note:** Udaru needs PostgreSQL >= 9.5
+-   **Note:** Ensure you are using the latest version of Docker for (Linux/OSX/Windows)
+-   **Note:** Udaru needs PostgreSQL >= 9.5
 
 #### Populate the database
 The Authorization database, system user and initial tables can be created by executing:
@@ -111,7 +111,7 @@ Test data can be added with:
 npm run pg:load-test-data
 ```
 
-- **Note:** Running a test or coverage command will auto run these commands
+-   **Note:** Running a test or coverage command will auto run these commands
 
 ### pgAdmin database access
 As the Postgresql docker container has its 5432 port forwarded on the local machine the database can be accessed with pgAdmin.
@@ -125,7 +125,7 @@ We use [`postgrator`][postgrator] for database migrations. You can find the sql 
 node database/migrate.js --version=<version>`
 ```
 
-- **Note:** Running the tests or init commands will automaticaly bring the db to the latest version.
+-   **Note:** Running the tests or init commands will automaticaly bring the db to the latest version.
 
 ## Service
 
@@ -158,7 +158,7 @@ If you want to specify a better SuperUser id (default is `SuperUserId`) you can 
 UDARU_SERVICE_authorization_superUser_id=myComplexId12345 node scripts/init
 ```
 
-**Note:** if you have already ran some tests or loaded the test data, you will need to run `npm pg:init` again to reset the db.
+-   **Note:** if you have already ran some tests or loaded the test data, you will need to run `npm pg:init` again to reset the db.
 
 ### Load policies from file
 
@@ -244,9 +244,9 @@ npm run test:security
 These tests are not included in the main test suite. The security test spawns a hapi.js server exposing the Udaru routes. It only needs the DB to be running and being initialized with data.
 
 The injection tests can be configured in the [sqlmap config][]. A few output configuration changes that can be made:
-- `level` can be set to 5 for more aggressive testing
-- `risk` can be set to 3 for more testing options. Note: this level might alter the DB data
-- `verbose` can be set to level 1-5. Level 1 displays info about the injections tried
+-   `level` can be set to 5 for more aggressive testing
+-   `risk` can be set to 3 for more testing options. Note: this level might alter the DB data
+-   `verbose` can be set to level 1-5. Level 1 displays info about the injections tried
 
 See the [sqlmap][] repository for more details.
 
@@ -269,7 +269,7 @@ Copyright nearForm Ltd 2017. Licensed under [MIT][license].
 [travis-url]: https://travis-ci.org/nearform/labs-authorization
 [npm-badge]: https://badge.fury.io/js/labs-authorization.svg
 [npm-url]: https://npmjs.org/package/labs-authorization
-[logo-url]: https://raw.githubusercontent.com/nearform/labs-authorization/master/assets/labs-authorization.png
+
 [coveralls-badge]: https://coveralls.io/repos/nearform/labs-authorization/badge.svg?branch=master&service=github
 [coveralls-url]: https://coveralls.io/github/nearform/labs-authorization?branch=master
 [snyk-badge]: https://snyk.io/test/github/nearform/labs-authorization/badge.svg
