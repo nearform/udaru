@@ -2,6 +2,7 @@
 
 const jsonfile = require('jsonfile')
 const spawn = require('child_process').spawn
+const exec = require('child_process').exec
 const path = require('path')
 const source = path.join(__dirname, 'fixtures/injection-endpoints.json')
 const async = require('async')
@@ -14,9 +15,25 @@ if (!endpoints) {
   process.exit(1)
 }
 
-function executeMap (config, urlDescription, done) {
-  const command = './node_modules/sqlmap/sqlmap.py'
+function findPython2 (pythonCommand, done) {
+  return exec(`${pythonCommand} --version`, function (err, stdout, stderr) {
+    if (err) {
+      return done(err)
+    }
+
+    if (stderr.indexOf('Python 2.') >= 0) {
+      console.log(chalk.green(`'${pythonCommand}' is a valid Python2 ✔️`))
+      return done(null, pythonCommand)
+    }
+    return done(null, false)
+  })
+}
+
+function executeMap (command, config, urlDescription, done) {
+  console.log('Python command that will be used:', command)
+
   const params = [
+    `./node_modules/sqlmap/sqlmap.py`,
     `--url=${urlDescription.url}`,
     `--method=${urlDescription.method}`,
     `--headers=${urlDescription.headers}`,
@@ -36,7 +53,7 @@ function executeMap (config, urlDescription, done) {
     params.push(`--data=${urlDescription.data}`)
   }
 
-  console.log(chalk.green('executing sqlmap with: ', params.join(' ')))
+  console.log(chalk.green('executing sqlmap with: ', (['' + command].concat(params)).join(' ')))
 
   const sql = spawn(command, params)
   let vulnerabilities = false
@@ -67,40 +84,46 @@ function executeMap (config, urlDescription, done) {
 
 const hapi = spawn('node', ['lib/server/start.js'])
 
-hapi.stdout.once('data', (data) => {
-  console.log(chalk.green(`hapi: ${data}`))
+async.detect(['python2', 'python'], findPython2, function (err, python) {
+  if (err) {
+    return console.error(chalk.red(err))
+  }
 
-  async.everySeries(endpoints.urls, (urlDescription, done) => {
-    executeMap(endpoints, urlDescription, (err, vulnerabilities) => {
+  hapi.stdout.once('data', (data) => {
+    console.log(chalk.green(`hapi: ${data}`))
+
+    async.everySeries(endpoints.urls, (urlDescription, done) => {
+      executeMap(python, endpoints, urlDescription, (err, vulnerabilities) => {
+        if (err) {
+          console.log(chalk.red(err))
+          return done(err, false)
+        }
+
+        done(null, !vulnerabilities)
+      })
+    }, (err, result) => {
       if (err) {
         console.log(chalk.red(err))
-        return done(err, false)
+        return process.exit(1)
       }
 
-      done(null, !vulnerabilities)
+      console.log('\n\n')
+      hapi.kill()
+      if (result) {
+        console.log(chalk.green('no injection vulnerabilities found\n\n`'))
+        return process.exit(0)
+      } else {
+        console.log(chalk.red('[CRITICAL] FOUND injection vulnerabilities\n\n'))
+        return process.exit(1)
+      }
     })
-  }, (err, result) => {
-    if (err) {
-      console.log(chalk.red(err))
-      return process.exit(1)
-    }
-
-    console.log('\n\n')
-    hapi.kill()
-    if (result) {
-      console.log(chalk.green('no injection vulnerabilities found\n\n`'))
-      return process.exit(0)
-    } else {
-      console.log(chalk.red('[CRITICAL] FOUND injection vulnerabilities\n\n'))
-      return process.exit(1)
-    }
   })
-})
 
-hapi.stderr.on('data', (data) => {
-  console.log(chalk.red(`stderr: ${data}`))
-})
+  hapi.stderr.on('data', (data) => {
+    console.log(chalk.red(`stderr: ${data}`))
+  })
 
-hapi.on('close', (code) => {
-  console.log(chalk.green(`child process exited with code ${code}`))
+  hapi.on('close', (code) => {
+    console.log(chalk.green(`child process exited with code ${code}`))
+  })
 })
