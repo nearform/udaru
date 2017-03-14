@@ -29,11 +29,16 @@ docker-compose up
 This will start a Postgres database. Running test or coverage runs will automatically populate the
 database with the information it needs.
 
+> Note: you can also run `docker-compose up -d` to run it in the background. You'll can then tail the Postgres logs if needed with `docker-compose logs --tail=100 -f` 
+
 To run tests:
 
 ```
 npm run test
 ```
+
+> Note: running the tests will output duplicate keys errors in Postgres logs, this is expected, as the error handling of those cases is part of what is tested.
+
 
 To lint the repository:
 
