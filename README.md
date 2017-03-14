@@ -204,7 +204,7 @@ and then go to [`http://localhost:8080/documentation`][swagger-link]
 The Swagger documentation also gives the ability to execute calls to the API and see their results.
 
 ### ENV variables to set configuration options
-There is a default configuration file [`lib/config.js`][config].
+There is a default configuration file [`lib/core/config/index.js`][config].
 
 This configuration is the one used in dev environment and we are quite sure the production one will be different :) To override this configuration you can use ENV variables on the server/container/machine you will run Udaru on.
 
@@ -253,10 +253,10 @@ See the [sqlmap][] repository for more details.
 ## License
 Copyright nearForm Ltd 2017. Licensed under [MIT][license].
 
-[config]: https://github.com/nearform/labs-authorization/blob/master/lib/config.js
+[config]: https://github.com/nearform/labs-authorization/blob/master/lib/core/config/index.js
 [license]: ./LICENSE.md
 [postgrator]: https://github.com/rickbergfalk/postgrator
-[prefix-link]: https://github.com/nearform/labs-authorization/blob/master/lib/config.js#L29
+[prefix-link]: https://github.com/nearform/labs-authorization/blob/master/lib/core/config.js#L100
 [reconfig]: https://github.com/namshi/reconfig
 [swagger-link]: http://localhost:8080/documentation
 [Udaru Introduction]: docs/authorization-introduction.md
