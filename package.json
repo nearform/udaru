@@ -44,7 +44,7 @@
     "pg:migrate": "node database/migrate.js --version=3",
     "start": "node lib/server/start.js",
     "test": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -c -t 95",
-    "test:commit-check": "npm run lint && npm run test"
+    "test:commit-check": "npm run doc:lint && npm run lint && npm run test"
   },
   "remarkConfig": {
     "plugins": ["remark-preset-lint-recommended"]
