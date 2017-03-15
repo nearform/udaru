@@ -238,7 +238,7 @@ To automatically run [sqlmap][] injection tests run:
 npm run test:security
 ```
 
--**Note**: before running this, make sure you have a version of [`Python 2.x`](https://www.python.org) installed in your path. Both `python2` and `python` executables names are valid, but one of them _must_ be a python 2.x version.
+- **Note:** before running this, make sure you have a version of [`Python 2.x`](https://www.python.org) installed in your path.
 
 These tests are not included in the main test suite. The security test spawns a hapi.js server exposing the Udaru routes. It only needs the DB to be running and being initialized with data.
 
