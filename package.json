@@ -33,7 +33,7 @@
   "scripts": {
     "bench": "node ./bench/util/runner.js",
     "test:security": "node ./security/runner.js",
-    "postinstall": "napa sqlmapproject/sqlmap",
+    "pretest:security": "napa sqlmapproject/sqlmap",
     "coverage": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -c -t 95 -r html -o docs/coverage.html",
     "coveralls": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -c -t 95 -r lcov | coveralls",
     "lint": "standard",
