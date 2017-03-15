@@ -23,13 +23,12 @@ npm install udaru
 Before running tests, ensure a valid Postgres database is running. The simplest way to do this is via Docker. Assuming docker is installed on your machine, in the root folder, run:
 
 ```
-docker-compose up
+docker-compose up -d
 ```
 
-This will start a Postgres database. Running test or coverage runs will automatically populate the
-database with the information it needs.
+This will start a Postgres database. Running test or coverage runs will automatically populate the database with the information it needs.
 
--   **Note:** you can also run `docker-compose up -d` to run it in the background. You'll can then tail the Postgres logs if needed with `docker-compose logs --tail=100 -f`
+-   **Note:** you can tail the Postgres logs if needed with `docker-compose logs --tail=100 -f`
 
 To run tests:
 
