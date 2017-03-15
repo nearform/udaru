@@ -1,3 +1,4 @@
+
 # Authorization Introduction
 
 This document provides a general overview of the terms used in the Udaru authorization system, and also describes the structure and functionality of the authorization application.
@@ -12,7 +13,7 @@ Although the [AWS IAM Policy][] is not the documentation for [node-pbac][] it ca
 
 ## The Authorization model
 
-An access control model can be built using the **Organization**, **Team** and **User** entities. An Organization can contain Teams or Users, and Teams can contain other Teams or Users. 
+An access control model can be built using the **Organization**, **Team** and **User** entities. An Organization can contain Teams or Users, and Teams can contain other Teams or Users.
 
 **Policies** can be attached to Teams, Users and Organizations. The policy engine evaluates all policies from all levels when establishing if a User can perform an Action on a Resource.
 
@@ -38,33 +39,33 @@ A policy looks like:
 ```
 
 The main elements of a policy are:
-- The policy ID
-- The policy version
-- The policy name
-- The policy statements that contains an array of statements.
+-   The policy ID
+-   The policy version
+-   The policy name
+-   The policy statements that contains an array of statements.
 
 The main elements of a Statement are:
-- The Action to be performed. Example: `'authorization:teams:create'` or `'authorization:organizations:*'`
-- The Resource on which the action is performed. A Resource name is effectively a URI for your resources. Example: `'FOO:orga:CLOUDCUCKOO:scenario:*:entity:north-america-id'`
-- The Effect - has the value 'Allow' or 'Deny'.
+-   The Action to be performed. Example: `'authorization:teams:create'` or `'authorization:organizations:*'`
+-   The Resource on which the action is performed. A Resource name is effectively a URI for your resources. Example: `'FOO:orga:CLOUDCUCKOO:scenario:*:entity:north-america-id'`
+-   The Effect - has the value 'Allow' or 'Deny'.
 
-Note that wildcards can be used in Action and Resource names, as can certain variables, see [IAM Policy Variables Overview]() for more details.
+Note that wildcards can be used in Action and Resource names, as can certain variables, see [IAM Policy Variables Overview][] for more details.
 
-For a detailed description of Policies, see the [AWS Policy Elements Reference]().
+For a detailed description of Policies, see the [AWS Policy Elements Reference][].
 
 ## API
 
-The Udaru API can be used directly as a normal node module, but also has a REST API (a Hapi plugin is provided), and it can also be used out of the box as a standalone server. 
+The Udaru API can be used directly as a normal node module, but also has a REST API (a Hapi plugin is provided), and it can also be used out of the box as a standalone server.
 
 The API has a mix of public and private routes:
 
-- Routes that validate if actions on resources are authorized are exposed as [public routes][]
-- [private routes][] are routes that can be accessed only through a **Service Key**. These private routes provide functionality to create, update and delete policies.
-- Routes to access and manage the Organizations, Teams, Users and Policies hierarchies are exposed as [public routes][].
+-   Routes that validate if actions on resources are authorized are exposed as [public routes][]
+-   [private routes][] are routes that can be accessed only through a **Service Key**. These private routes provide functionality to create, update and delete policies.
+-   Routes to access and manage the Organizations, Teams, Users and Policies hierarchies are exposed as [public routes][].
 
-### REST API - Hapijs plugin 
+### REST API - Hapijs plugin
 
-TODO - this section needs work, or should we nuke this section? Seems a little complicated to belong in the introduction. 
+TODO - this section needs work, or should we nuke this section? Seems a little complicated to belong in the introduction.
 
 Each endpoint exposed by Udaru has an Action and a Resource associated with it. To perform a call to a certain endpoint the caller needs to have policies attached that allow them to perform that specific action on that specific resource. This is the middleware access control level.
 
@@ -115,9 +116,8 @@ curl -X PUT --header 'Content-Type: application/json' --header 'Accept: applicat
 [node-pbac]: https://github.com/monken/node-pbac
 [AWS IAM]: https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies.html
 [AWS IAM Policy]: https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements.html
-[Udaru Technical Specs]: reference/spec.md
+[AWS Policy Elements Reference]: https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements.html
+[IAM Policy Variables Overview]: https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_variables.html
 [private routes]: ../lib/plugin/routes/private
 [public routes]: ../lib/plugin/routes/public
 [survey on access control models]: http://csrc.nist.gov/news_events/privilege-management-workshop/PvM-Model-Survey-Aug26-2009.pdf
-[AWS Policy Elements Reference]: https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements.html
-[IAM Policy Variables Overview]: https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_variables.html

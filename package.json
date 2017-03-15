@@ -9,6 +9,7 @@
     "Damian Beresford (https://github.com/dberesford)",
     "Dean McDonnell (https://github.com/mcdonnelldean)",
     "Filippo De Santis (https://github.com/p16)",
+    "Florian Traverse (https://github.com/temsa)",
     "Mihai Dima (https://github.com/mihaidma)",
     "Paolo Chiodi (https://github.com/paolochiodi)",
     "Paul Negrutiu (https://github.com/floridemai)",
@@ -37,13 +38,17 @@
     "coverage": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -c -t 95 -r html -o docs/coverage.html",
     "coveralls": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -c -t 95 -r lcov | coveralls",
     "lint": "standard",
+    "doc:lint": "remark .",
     "pg:init": "UDARU_SERVICE_local=true node database/init.js && npm run pg:migrate",
     "pg:init-test-db": "npm run pg:init && npm run pg:load-test-data",
     "pg:load-test-data": "UDARU_SERVICE_local=true node database/loadTestData.js",
     "pg:migrate": "node database/migrate.js --version=3",
     "start": "node lib/server/start.js",
     "test": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -c -t 95",
-    "test:commit-check": "npm run lint && npm run test"
+    "test:commit-check": "npm run doc:lint && npm run lint && npm run test"
+  },
+  "remarkConfig": {
+    "plugins": ["remark-preset-lint-recommended"]
   },
   "pre-commit": [
     "test:commit-check"
@@ -77,6 +82,9 @@
     "postgrator": "2.8.2",
     "pre-commit": "1.2.2",
     "proxyquire": "1.7.10",
+    "remark-cli": "^3.0.0",
+    "remark-lint": "^6.0.0",
+    "remark-preset-lint-recommended": "^2.0.0",
     "standard": "^8.6.0"
   }
 }
