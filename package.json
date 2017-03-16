@@ -19,13 +19,13 @@
     "Nicolas Herment (https://github.com/nherment)",
     "Salman Mitha (https://github.com/salmanm)"
   ],
-  "homepage": "https://github.com/nearform/labs-authorization#readme",
+  "homepage": "https://github.com/nearform/udaru#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nearform/labs-authorization.git"
+    "url": "git+https://github.com/nearform/udaru.git"
   },
   "bugs": {
-    "url": "https://github.com/nearform/labs-authorization/issues"
+    "url": "https://github.com/nearform/udaru/issues"
   },
   "main": "lib/index.js",
   "engines": {

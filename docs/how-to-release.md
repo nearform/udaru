@@ -15,5 +15,5 @@
 13. Choose the tag version and a title matching the release and publish.
 14. Notify core maintainers of the release via email.
 
-[Test]: https://travis-ci.org/nearform/labs-authorization
-[Releases]: https://github.com/nearform/labs-authorization/releases
+[Test]: https://travis-ci.org/nearform/udaru
+[Releases]: https://github.com/nearform/udaru/releases

@@ -65,7 +65,7 @@ lab.experiment('Authorization', () => {
     const options = utils.requestOptions({
       method: 'GET',
       // TO BE DISCUSSED: We need double slashes "//" if we use a "/" at the beginning of a resource in the policies
-      // @see https://github.com/nearform/labs-authorization/issues/198
+      // @see https://github.com/nearform/udaru/issues/198
       url: '/authorization/list/ManyPoliciesId//myapp/users/filippo'
     })
 

@@ -254,10 +254,10 @@ See the [sqlmap][] repository for more details.
 ## License
 Copyright nearForm Ltd 2017. Licensed under [MIT][license].
 
-[config]: https://github.com/nearform/labs-authorization/blob/master/lib/core/config/index.js
+[config]: https://github.com/nearform/udaru/blob/master/lib/core/config/index.js
 [license]: ./LICENSE.md
 [postgrator]: https://github.com/rickbergfalk/postgrator
-[prefix-link]: https://github.com/nearform/labs-authorization/blob/master/lib/core/config.js#L100
+[prefix-link]: https://github.com/nearform/udaru/blob/master/lib/core/config.js#L100
 [reconfig]: https://github.com/namshi/reconfig
 [swagger-link]: http://localhost:8080/documentation
 [Udaru Introduction]: docs/authorization-introduction.md
@@ -266,12 +266,12 @@ Copyright nearForm Ltd 2017. Licensed under [MIT][license].
 [sqlmap]: https://github.com/sqlmapproject/sqlmap
 [sqlmap config]: ./security/fixtures/injection-endpoints.json
 
-[travis-badge]: https://travis-ci.org/nearform/labs-authorization.svg?branch=master
-[travis-url]: https://travis-ci.org/nearform/labs-authorization
-[npm-badge]: https://badge.fury.io/js/labs-authorization.svg
-[npm-url]: https://npmjs.org/package/labs-authorization
+[travis-badge]: https://travis-ci.org/nearform/udaru.svg?branch=master
+[travis-url]: https://travis-ci.org/nearform/udaru
+[npm-badge]: https://badge.fury.io/js/udaru.svg
+[npm-url]: https://npmjs.org/package/udaru
 
-[coveralls-badge]: https://coveralls.io/repos/nearform/labs-authorization/badge.svg?branch=master&service=github
-[coveralls-url]: https://coveralls.io/github/nearform/labs-authorization?branch=master
-[snyk-badge]: https://snyk.io/test/github/nearform/labs-authorization/badge.svg
-[snyk-url]: https://snyk.io/test/github/nearform/labs-authorization
+[coveralls-badge]: https://coveralls.io/repos/nearform/udaru/badge.svg?branch=master&service=github
+[coveralls-url]: https://coveralls.io/github/nearform/udaru?branch=master
+[snyk-badge]: https://snyk.io/test/github/nearform/udaru/badge.svg
+[snyk-url]: https://snyk.io/test/github/nearform/udaru
