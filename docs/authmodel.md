@@ -14,9 +14,9 @@ This section implements a practical example on how to model a very simple blog.
 
 The problem to be solved is:
 
-The blog named BlogX is a very simple one. It can be managed by an administrator, `Alice`, who can do pretty much anything on the blog, a writer,`Bob` who can both write and publish articles, and readers can read the articles.
+The blog named BlogX is a very simple one. It can be managed by an administrator, `Alice`, who can do pretty much anything on the blog, a writer,`Bob` who can both write and publish articles, and anonymous readers who can read the articles published on the blog.
 
-There are 2 kinds of articles, published ones, and drafts. Readers, which are anonymous, can only see published articles. Administrators and Writers can see both of published articles and drafts.
+There are 2 kinds of articles, published ones, and drafts. Anonymous readers, can only see and search published articles. Administrators and Writers can see and search articles in any given state.
 
 ### Model structure
 

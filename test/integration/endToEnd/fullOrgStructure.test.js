@@ -292,3 +292,303 @@ lab.experiment('SuperUsers with limited access across organizations', () => {
     })
   })
 })
+
+lab.experiment('BlogX simple blog platform', () => {
+  const defaultAdminPolicy = 'authorization.organizations.defaultPolicies.orgAdmin'
+  // const rootOrgId = config.get('authorization.superUser.organization.id')
+
+  // orgs
+  const blogXOrg = 'BlogX'
+  const blogXReadersOrg = 'BlogX Readers'
+
+  // teams
+  const adminsTeam = 'admins'
+  const writersTeam = 'writers'
+  const publishersTeam = 'publishers'
+
+  // BlogX individuals
+  const aliceUser = 'Alice'
+  const bobUser = 'Bob'
+
+  // consumers
+  const anonymousUser = 'Anonymous Reader'
+
+  Factory(lab, {
+    organizations: {
+      // ROOT org is created by default in the test DB by the test suite
+      blogXOrg: {
+        id: 'blogXOrg',
+        name: blogXOrg,
+        description: blogXOrg
+      },
+      blogXReadersOrg: {
+        id: 'blogXReadersOrg',
+        name: blogXReadersOrg,
+        description: blogXReadersOrg
+      }
+    },
+    teams: {
+      adminsTeam: {
+        id: 'adminsTeam',
+        name: adminsTeam,
+        description: adminsTeam,
+        organizationId: 'blogXOrg',
+        users: ['alice'],
+        policies: ['blogXAdminPolicy']
+      },
+      writersTeam: {
+        id: 'writersTeam',
+        name: writersTeam,
+        description: writersTeam,
+        organizationId: 'blogXOrg',
+        users: ['bob'],
+        policies: ['blogXWriterPolicy']
+      },
+      publishersTeam: {
+        id: 'publishersTeam',
+        name: publishersTeam,
+        description: publishersTeam,
+        organizationId: 'blogXOrg',
+        users: ['bob'],
+        policies: ['blogXPublisherPolicy']
+      }
+    },
+    users: {
+      aliceUser: {
+        id: 'aliceUser',
+        name: aliceUser,
+        organizationId: 'blogXOrg'
+      },
+      bobUser: {
+        id: 'bob',
+        name: bobUser,
+        organizationId: 'blogXOrg'
+      },
+      anonymousUser: {
+        id: 'anonymous',
+        name: anonymousUser,
+        organizationId: 'blogXReadersOrg',
+        policies: ['blogXReadersAnonymousPolicy']
+      }
+    },
+    policies: {
+      blogXAdminPolicy: {
+        name: 'blogXAdminPolicy',
+        organizationId: 'blogXOrg',
+        statements: config.get(defaultAdminPolicy, {organizationId: 'blogXOrg'}).statements
+      },
+      blogXWriterPolicy: {
+        name: 'blogXWriterPolicy',
+        organizationId: 'blogXOrg',
+        statements: {
+          Statement: [
+            {
+              Effect: 'Allow',
+              Action: ['authorization:article:draft:create'],
+              Resource: ['/blogX/drafts/*']
+            },
+            {
+              Effect: 'Allow',
+              Action: ['authorization:article:draft:update'],
+              Resource: ['/blogX/${org.team.user}/drafts/*']
+            },
+            {
+              Effect: 'Allow',
+              Action: [Action.AllUser],
+              Resource: [resources.users({ organizationId: ':organizationId' })]
+            },
+            {
+              Effect: 'Allow',
+              Action: [Action.ListPolicies],
+              Resource: [resources.policies({ organizationId: ':organizationId' })]
+            },
+            {
+              Effect: 'Allow',
+              Action: [Action.ReadPolicy],
+              Resource: [resources.policies({ organizationId: ':organizationId' })]
+            }
+          ]
+        }
+      },
+      blogXPublisherPolicy: {
+        name: 'blogXPublisherPolicy',
+        organizationId: 'blogXOrg',
+        statements: config.get(defaultAdminPolicy, {organizationId: 'blogXOrg'}).statements
+      },
+      blogXReadersAnonymousPolicy: {
+        name: 'blogXReadersAnonymousPolicy',
+        organizationId: 'blogXReadersOrg',
+        statements: utils.AllowStatement([Action.CheckAccess], ['authorization/access'])
+      }
+    }
+  })
+
+  lab.experiment('Check limited super users organization management rights', () => {
+    lab.test('Get org on an org endpoint on which it has rights', (done) => {
+      const options = {
+        headers: {
+          authorization: userId1,
+          org: blogXOrg
+        },
+        method: 'GET',
+        url: `/authorization/organizations/${blogXOrg}`
+      }
+
+      server.inject(options, (response) => {
+        expect(response.statusCode).to.equal(200)
+        expect(response.result).to.exist()
+        expect(response.result.id).to.equal(blogXOrg)
+
+        done()
+      })
+    })
+
+    lab.test('Get org on an org endpoint on which it has no rights', (done) => {
+      const options = {
+        headers: {
+          authorization: userId1,
+          org: orgId3
+        },
+        method: 'GET',
+        url: `/authorization/organizations/${orgId3}`
+      }
+
+      server.inject(options, (response) => {
+        expect(response.statusCode).to.equal(403)
+
+        done()
+      })
+    })
+
+    lab.test('SuperUser not in team has no rights', (done) => {
+      const options = {
+        headers: {
+          authorization: userId4,
+          org: blogXOrg
+        },
+        method: 'GET',
+        url: `/authorization/organizations/${blogXOrg}`
+      }
+
+      server.inject(options, (response) => {
+        expect(response.statusCode).to.equal(403)
+
+        done()
+      })
+    })
+
+    lab.test('List teams and users on an org on which it has rights', (done) => {
+      const options = {
+        headers: {
+          authorization: userId1,
+          org: blogXOrg
+        },
+        method: 'GET',
+        url: '/authorization/teams'
+      }
+
+      server.inject(options, (response) => {
+        expect(response.statusCode).to.equal(200)
+        expect(response.result).to.exist()
+        expect(response.result.data).to.exist()
+
+        done()
+      })
+    })
+
+    lab.test('List teams and users on an org on which it has no rights', (done) => {
+      const options = {
+        headers: {
+          authorization: userId1,
+          org: orgId3
+        },
+        method: 'GET',
+        url: '/authorization/teams'
+      }
+
+      server.inject(options, (response) => {
+        expect(response.statusCode).to.equal(403)
+
+        options.headers.authorization = userId4
+        server.inject(options, (response) => {
+          expect(response.statusCode).to.equal(403)
+
+          done()
+        })
+      })
+    })
+  })
+
+  lab.experiment('Limited SuperUser rights on accessing organization resources', () => {
+    lab.test('Access resource on which it has rights', (done) => {
+      const options = {
+        headers: {
+          authorization: userId1,
+          org: blogXOrg
+        },
+        method: 'GET',
+        url: `/authorization/access/${userId1}/org1:action:read/org1:resource:res1`
+      }
+
+      server.inject(options, (response) => {
+        expect(response.statusCode).to.equal(200)
+        expect(response.result.access).to.equal(true)
+
+        done()
+      })
+    })
+
+    lab.test('Do an invalid action on a resource on which it has rights', (done) => {
+      const options = {
+        headers: {
+          authorization: userId1,
+          org: blogXOrg
+        },
+        method: 'GET',
+        url: `/authorization/access/${userId1}/org1:action:dummy/org1:resource:res1`
+      }
+
+      server.inject(options, (response) => {
+        expect(response.statusCode).to.equal(200)
+        expect(response.result.access).to.equal(false)
+
+        done()
+      })
+    })
+
+    lab.test('Access resource on which it has no rights', (done) => {
+      const options = {
+        headers: {
+          authorization: userId1,
+          org: orgId3
+        },
+        method: 'GET',
+        url: `/authorization/access/${userId1}/org3:action:read/org3:resource:res3`
+      }
+
+      server.inject(options, (response) => {
+        expect(response.statusCode).to.equal(200)
+        expect(response.result.access).to.equal(false)
+
+        done()
+      })
+    })
+
+    lab.test('Access resource by user not registered in teams on which it has no rights', (done) => {
+      const options = {
+        headers: {
+          authorization: userId4,
+          org: blogXOrg
+        },
+        method: 'GET',
+        url: `/authorization/access/${userId4}/org1:action:read/org1:resource:res1`
+      }
+
+      server.inject(options, (response) => {
+        expect(response.statusCode).to.equal(403)
+
+        done()
+      })
+    })
+  })
+})
