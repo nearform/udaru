@@ -1,3 +1,9 @@
+
+## 2.0.2 - May 26, 2017
+Fixed service startup error handling: [commit](https://github.com/nearform/udaru/commit/7766f60872df8da78e2ebdaec9d1a792084d2e2c)
+
+## 2.0.1 - April 12, 2017
+
 ## 2.0.0 - March 6, 2017
 
 Features, enhancements, fixes:
