@@ -88,7 +88,7 @@ server.register({register: UdaruPlugin})
 ```
 
 ### Database support
-Udaru requires an instance of Postgres to function correctly. For simplicity, a preconfigured `docker-compose` file has been provided. To run:
+Udaru requires an instance of Postgres (version 9.5+) to function correctly. For simplicity, a preconfigured `docker-compose` file has been provided. To run:
 
 ```
 docker-compose up

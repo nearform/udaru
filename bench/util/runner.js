@@ -35,7 +35,7 @@ const tag = (Minimist(process.argv.slice(2))._ || '').toString()
 // If we don't have a matching tag we exit early
 const getParams = tests.lookup({tag: tag})
 if (typeof getParams !== 'function') {
-  console.log(`No test found for tag: ${tag}`)
+  console.error(`No test found for tag: ${tag}`)
   process.exit()
 }
 
@@ -54,7 +54,7 @@ const opts = {
 // Create the test and finish handler.
 const instance = Autocannon(opts, (err, result) => {
   if (err) {
-    console.log(err)
+    console.error(err)
     process.exit(-1)
   }
 

@@ -6,7 +6,7 @@ const fs = require('fs')
 const config = require('./../lib/plugin/config')
 
 if (!config.get('local')) {
-  console.log('ERROR: You are trying to load test data in the database while not in local environment.')
+  console.error('ERROR: You are trying to load test data in the database while not in local environment.')
   process.exit(1)
 }
 

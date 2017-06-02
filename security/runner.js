@@ -11,7 +11,7 @@ const chalk = require('chalk')
 const endpoints = jsonfile.readFileSync(source, { throws: false })
 
 if (!endpoints) {
-  console.log('Invalid JSON file.')
+  console.error('Invalid JSON file.')
   process.exit(1)
 }
 
@@ -72,7 +72,7 @@ function executeMap (command, config, urlDescription, done) {
   })
 
   sql.on('error', (error) => {
-    console.log(chalk.red(error))
+    console.error(chalk.red(error))
     done(new Error('failed to start child process'))
   })
 
@@ -95,7 +95,7 @@ async.detect(['python2', 'python'], findPython2, function (err, python) {
     async.everySeries(endpoints.urls, (urlDescription, done) => {
       executeMap(python, endpoints, urlDescription, (err, vulnerabilities) => {
         if (err) {
-          console.log(chalk.red(err))
+          console.error(chalk.red(err))
           return done(err, false)
         }
 
@@ -103,7 +103,7 @@ async.detect(['python2', 'python'], findPython2, function (err, python) {
       })
     }, (err, result) => {
       if (err) {
-        console.log(chalk.red(err))
+        console.error(chalk.red(err))
         return process.exit(1)
       }
 
@@ -113,14 +113,14 @@ async.detect(['python2', 'python'], findPython2, function (err, python) {
         console.log(chalk.green('no injection vulnerabilities found\n\n`'))
         return process.exit(0)
       } else {
-        console.log(chalk.red('[CRITICAL] FOUND injection vulnerabilities\n\n'))
+        console.error(chalk.red('[CRITICAL] FOUND injection vulnerabilities\n\n'))
         return process.exit(1)
       }
     })
   })
 
   hapi.stderr.on('data', (data) => {
-    console.log(chalk.red(`stderr: ${data}`))
+    console.error(chalk.red(`stderr: ${data}`))
   })
 
   hapi.on('close', (code) => {
