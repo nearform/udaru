@@ -43,10 +43,10 @@ A visual representation of the structure:
 
 One **limitation** of this modelling approach is that we have to build the route access policies and also the resource access policies in the root organization so that they can be attached to the SuperUser teams. The policy management is made at the root organization level.
 
-The structure is build like it is described in the previous section.
+The structure is built like it is described in the previous section.
 The organization endpoints access policies and organization resource access policies are attached to the two teams.
 
-A fully working model sample can be seen in the [Full organization test file][] in the "SuperUsers with limited access across organizations" Experiment.
+A fully working model sample can be seen in the [Full organization test file][] in "SuperUsers with limited access across organizations".
 
 The policies built to configure access structure are of three types:
 -   Access to organization management operations is given by attaching to the two root teams the default organization policies: `authorization:organizations:read` rights to be able to access the `/authorization/organizations/<orgId>` endpoint, `authorization:teams:*` rights to allow access to `/authorization/teams/*` endpoints, `authorization:users:*` rights to allow access to `/authorization/users/*` endpoints, `authorization:policies:list` rights to access the `/authorization/policies` endpoint, `authorization:policies:read` rights to access the `/authorization/policies/<policyId>` endpoint,

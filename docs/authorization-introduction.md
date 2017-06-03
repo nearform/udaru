@@ -65,8 +65,6 @@ The API has a mix of public and private routes:
 
 ### REST API - Hapijs plugin
 
-TODO - this section needs work, or should we nuke this section? Seems a little complicated to belong in the introduction.
-
 Each endpoint exposed by Udaru has an Action and a Resource associated with it. To perform a call to a certain endpoint the caller needs to have policies attached that allow them to perform that specific action on that specific resource. This is the middleware access control level.
 
 The endpoints that have no Resources explicitly written are detecting the associated Resource from the route structure.
