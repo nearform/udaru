@@ -6,7 +6,7 @@ const pg = require('pg')
 const config = require('./../lib/plugin/config')
 
 if (!config.get('local')) {
-  console.log('ERROR: You are trying to init the database while not in local environment.')
+  console.error('ERROR: You are trying to init the database while not in local environment.')
   process.exit(1)
 }
 
@@ -50,7 +50,7 @@ function init (cb) {
     createDb
   ],
   function (err1) {
-    if (err1) console.log(err1)
+    if (err1) console.error(err1)
     client.end(function (err2) {
       cb(err1 || err2)
       cb()

@@ -61,7 +61,7 @@ const tasks = [
 ]
 db.withTransaction(tasks, (error, x) => {
   if (error) {
-    console.log(error)
+    console.error(error)
     process.exit(1)
   }
 

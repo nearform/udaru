@@ -88,7 +88,7 @@ server.register({register: UdaruPlugin})
 ```
 
 ### Database support
-Udaru requires an instance of Postgres to function correctly. For simplicity, a preconfigured `docker-compose` file has been provided. To run:
+Udaru requires an instance of Postgres (version 9.5+) to function correctly. For simplicity, a preconfigured `docker-compose` file has been provided. To run:
 
 ```
 docker-compose up
@@ -163,7 +163,7 @@ UDARU_SERVICE_authorization_superUser_id=myComplexId12345 node scripts/init
 
 Use the following script to load policies from a file:
 
-Usage: `node script/loadPolicies --org=FOO policies.json`
+Usage: `node scripts/loadPolicies --org=FOO policies.json`
 
 JSON structure:
 
@@ -200,7 +200,7 @@ npm run start
 
 and then go to [`http://localhost:8080/documentation`][swagger-link]
 
-The Swagger documentation also gives the ability to execute calls to the API and see their results.
+The Swagger documentation also gives the ability to execute calls to the API and see their results. If you're using the test database, you can use 'ROOTid' as the required authorization parameter and 'WONKA' as the organisation. 
 
 ### ENV variables to set configuration options
 There is a default configuration file [`lib/core/config/index.js`][config].

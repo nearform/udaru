@@ -20,19 +20,19 @@ const argv = minimist(process.argv.slice(2))
 const version = argv.version || argv._[0]
 
 if (!version) {
-  console.log('Please provide the version to migrate to')
+  console.error('Please provide the version to migrate to')
   process.exit(1)
 }
 
 postgrator.migrate(version, function (err, migrations) {
   if (err) {
-    console.log(err)
+    console.error(err)
     process.exit(1)
   }
 
   postgrator.endConnection(function (err) {
     if (err) {
-      console.log(err)
+      console.error(err)
       process.exit(1)
     }
 
