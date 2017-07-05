@@ -260,7 +260,7 @@ Copyright nearForm Ltd 2017. Licensed under [MIT][license].
 [prefix-link]: https://github.com/nearform/udaru/blob/master/lib/core/config.js#L100
 [reconfig]: https://github.com/namshi/reconfig
 [swagger-link]: http://localhost:8080/documentation
-[Udaru Introduction]: docs/authorization-introduction.md
+[Udaru Introduction]: docs/overview.md
 [Authorization Model]: docs/authmodel.md
 [SQL Injection]: docs/sqlinjection.md
 [sqlmap]: https://github.com/sqlmapproject/sqlmap
