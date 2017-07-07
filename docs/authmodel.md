@@ -53,5 +53,5 @@ The policies built to configure access structure are of three types:
 -   Access to the authorization check endpoint is given by attaching to teams a policy that gives `authorization:authn:access` rights to allow access on `/authorization/access/{userId}/{action}/{resource*}` endpoint,
 -   Access to internal organization policies is given by defining specific internal organization actions and resources.
 
-[Udaru Introduction]: authorization-introduction.md
+[Udaru Introduction]: overview.md
 [Full organization test file]: ../test/integration/endToEnd/fullOrgStructure.test.js

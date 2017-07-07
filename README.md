@@ -4,6 +4,7 @@
 [![coveralls][coveralls-badge]][coveralls-url]
 [![snyk][snyk-badge]][snyk-url]
 
+![Udaru](./logo.jpg) 
 Udaru is an authorization module that can be used as an Policy Based Access Control mechanism. It supports Organizations, Teams and User entities that are used to build the access model. The policies attached to these entities define the 'Actions' that can be performed by an entity on various 'Resources'.
 
 Udaru can be used as a stand-alone module, as a stand-alone server or as a Hapi plugin. This repository contains the code for all three running configurations.
@@ -260,7 +261,7 @@ Copyright nearForm Ltd 2017. Licensed under [MIT][license].
 [prefix-link]: https://github.com/nearform/udaru/blob/master/lib/core/config.js#L100
 [reconfig]: https://github.com/namshi/reconfig
 [swagger-link]: http://localhost:8080/documentation
-[Udaru Introduction]: docs/authorization-introduction.md
+[Udaru Introduction]: docs/overview.md
 [Authorization Model]: docs/authmodel.md
 [SQL Injection]: docs/sqlinjection.md
 [sqlmap]: https://github.com/sqlmapproject/sqlmap
