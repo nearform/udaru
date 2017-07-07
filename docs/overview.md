@@ -1,6 +1,6 @@
 # Udaru - the Platform Authorization Service. 
 
-Access control management evolved from the need to mitigate the risk of unauthorized access to data. Several control models were built over time to approach the various access control needs: Access Control Lists, Role Based Access Control, Attribute Based Access Control, Policy Based Access Control, Risk Adaptive Access Control. A great summary of this evolution can be found is this [survey on access control models][]. 
+Access control management evolved from the need to mitigate the risk of unauthorized access to data. Several control models were built over time to approach the various access control needs: Access Control Lists, Role Based Access Control, Attribute Based Access Control, Policy Based Access Control, Risk Adaptive Access Control. A great summary of this evolution can be found is this [survey on access control models](http://csrc.nist.gov/news_events/privilege-management-workshop/PvM-Model-Survey-Aug26-2009.pdf). 
 
 This document offers a description of the Policy Based Access Control (PBAC) model that Udaru uses, as well as introducing the core concepts behind the Udaru API. 
 
@@ -42,15 +42,15 @@ The main elements of a Statement are:
 -   The Resource on which the action is performed. A Resource name is effectively a URI for your resources. Example: `'FOO:orga:CLOUDCUCKOO:scenario:*:entity:north-america-id'`
 -   The Effect - has the value 'Allow' or 'Deny'.
 
-Note that wildcards can be used in Action and Resource names, as can certain variables, see [IAM Policy Variables Overview][] for more details.
+Note that wildcards can be used in Action and Resource names, as can certain variables, see [IAM Policy Variables Overview](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_variables.html) for more details.
 
-For a detailed description of Policies, see the [AWS Policy Elements Reference][].
+For a detailed description of Policies, see the [AWS Policy Elements Reference](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements.html).
 
 ## Core API Concepts
 
 Udaru effectively has two interfaces:
-* A REST API for managing Organizations, Teams, Users, and associated Policies - this is called the _Management_ API
-* A REST API for managing Authorization access itself - this is called the _Authorization_ API
+*   A REST API for managing Organizations, Teams, Users, and associated Policies - this is called the _Management_ API
+*   A REST API for managing Authorization access itself - this is called the _Authorization_ API
 
 Both have different use cases and are used in a Platform in a fundamentally different manner. Note the Udaru API can be used directly as a normal node module, but also has a REST API (a Hapi plugin is provided), and it can also be used out of the box as a standalone server.
 
@@ -58,15 +58,15 @@ All requests to Udaru need to attach a User ID to all endpoint requests. The Use
 
 ## Management API 
 
-The Management API is used to build sophisticated Administrator Tools and Applications. It's used to manage Organization, Teams, Users and their associated Policies in a Platform. Its designed in such a way that the calls in the Management API can be easily proxied directly from the public API gateway straight through to Udaru:
+The Management API is used to build sophisticated Administration Tools and Applications. It's used to manage Organization, Teams, Users and their associated Policies in a Platform. Its designed in such a way that the calls in the Management API can be easily proxied directly from the public API gateway straight through to Udaru:
 
 
 ![Udaru Management API](./udaru/Management.png)
 
 In the example above:
-* An administration tool (or tools) are built to mange aspects of the platform. These can be user facing or internal platform configuration, and they are always solution specific. 
-* These admin tools typically manage Users; their account details, and optionally which Teams and Organizations they belong to - again this is always solution specific
-* These admin tools also typically manage a Users access rights and permissions, although typically not directly via policies, i.e. there might be an option to allow a user access to a specific part of the solution, this would be encapsulated in a high level api call (e.g. `allowFooAccessToBar`) which in its implementation attaches platform specific policies to the user under the hood.
+*   An administration tool (or tools) are built to mange aspects of the platform. These can be user facing or internal platform configuration, and they are always solution specific. 
+*   These admin tools typically manage Users; their account details, and optionally which Teams and Organizations they belong to - again this is always solution specific
+*   These admin tools also typically manage a Users access rights and permissions, although typically not directly via policies, i.e. there might be an option to allow a user access to a specific part of the solution, this would be encapsulated in a high level api call (e.g. `allowFooAccessToBar`) which in its implementation attaches platform specific policies to the user under the hood.
 
 A brief overview of the Management API calls are as follows, see the live [Swagger](../README.md) documentation for full details:
 
@@ -120,10 +120,10 @@ The Authorization API is used to check user permissions as they access Platform 
 
 In the example above:
 
-* User makes a request from a solution application
-* The REST API Gateway first checks if the User is Authenticated, for example, if Auth0 is used for Authentication, it checks the JWT token
-* If the User is authenticated ok, next check if the user is authorized to perform the operation. This is done by the Gateway making a call to the `access` endpoint.
-* If the User is authorized ok, proceed in making the original call
+*   User makes a request from a solution application
+*   The REST API Gateway first checks if the User is Authenticated, for example, if Auth0 is used for Authentication, it checks the JWT token
+*   If the User is authenticated ok, next check if the user is authorized to perform the operation. This is done by the Gateway making a call to the `access` endpoint.
+*   If the User is authorized ok, proceed in making the original call
 
 These trusted calls are made possible by the use of a _service key_, e.g. the Gateway in our example above is configured to pass a secret service key to Udaru; it's not possible to access any of the Authorization API without this service key. You must also use the special root user id when making these service calls, this is an additional security measure. 
 

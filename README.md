@@ -4,6 +4,7 @@
 [![coveralls][coveralls-badge]][coveralls-url]
 [![snyk][snyk-badge]][snyk-url]
 
+![Udaru](./logo.jpg) 
 Udaru is an authorization module that can be used as an Policy Based Access Control mechanism. It supports Organizations, Teams and User entities that are used to build the access model. The policies attached to these entities define the 'Actions' that can be performed by an entity on various 'Resources'.
 
 Udaru can be used as a stand-alone module, as a stand-alone server or as a Hapi plugin. This repository contains the code for all three running configurations.

@@ -14,7 +14,7 @@ Note that it's also possible to follow the example below using the live Swagger 
 
 # Wayne Manor Example
 
-* Create a 'Wayne Manor Organization' to manage authorization to Batmans stuff, with 'Bruce Wayne' as the root owner:
+*   Create a 'Wayne Manor Organization' to manage authorization to Batmans stuff, with 'Bruce Wayne' as the root owner:
 
 ```bash
 curl -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' --header 'authorization: ROOTid' -d '{"id":"WayneManor","name":"Wayne Manor","description":"Wayne Manor Organisation","user":{"id":"BruceWayne","name":"Bruce Wayne"}}' 'http://localhost:8080/authorization/organizations'
@@ -78,7 +78,7 @@ Note that 'WayneManor admin' is an internal Udaru policy, you can view it as fol
 curl -X GET --header 'Accept: application/json' --header 'authorization: BruceWayne'  'http://localhost:8080/authorization/policies'
 ```
 
-* Create users
+*   Create users
 
 As Bruce Wayne, let's create some more users:
 
@@ -105,7 +105,7 @@ curl -X GET --header 'Accept: application/json' --header 'authorization: BruceWa
 }
 ```
 
-* Create some policies:
+*   Create some policies:
 
 In Udaru you first create Policies and then attach does Policies to Users or Teams. 
 
@@ -117,8 +117,8 @@ curl -X GET --header 'Accept: application/json' --header 'authorization: BruceWa
 
 Let's create a Policy to allow entry to the Bat Cave. Note that this is for demo purposes only, Policies should not be created directly in this way! In a real system, creating policies must be done with extreme caution - static policies will be seeded in Udaru at creation time, and dynamically created policies will be created by trusted back end services. Users must never be able to create Policies directly themselves. So for this demo: 
 
-* calls to /authorization/policies are protected endpoints, we must pass the service key ('123456789' by default)
-* you must also be an Udaru super user to call this directly
+*   calls to /authorization/policies are protected endpoints, we must pass the service key ('123456789' by default)
+*   you must also be an Udaru super user to call this directly
 
 ```bash
 curl -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' --header 'authorization: ROOTid' --header 'org: WayneManor' -d '{"id":"AccessBatCave","name":"batcave","version":"1","statements":{"Statement":[{"Effect":"Allow","Action":["enter","exit"],"Resource":["/waynemanor/batcave"],"Sid":"1","Condition":{}}]}}' 'http://localhost:8080/authorization/policies?sig=123456789'
@@ -156,7 +156,7 @@ curl -X GET --header 'Accept: application/json' --header 'authorization: BruceWa
 ..
 ```
 
-* Associate our new Policy ('AccessBatCave') with a user (Alfred)
+*   Associate our new Policy ('AccessBatCave') with a user (Alfred)
 
 ```bash
 curl -X PUT --header 'Content-Type: application/json' --header 'Accept: application/json' --header 'authorization: BruceWayne'  -d '{"policies":["AccessBatCave"]}' 'http://localhost:8080/authorization/users/Alfred/policies'
@@ -184,7 +184,7 @@ curl -X GET --header 'Accept: application/json' --header 'authorization: BruceWa
 }
 ```
 
-* Verify that Alfred can enter the Bat Cave:
+*   Verify that Alfred can enter the Bat Cave:
 
 ```bash
 curl -X GET --header 'Accept: application/json' --header 'authorization: ROOTid' --header 'org: WayneManor' 'http://localhost:8080/authorization/access/Alfred/enter/{/waynemanor/batcave}'
@@ -196,10 +196,7 @@ curl -X GET --header 'Accept: application/json' --header 'authorization: ROOTid'
 }
 ```
 
-TODO - the swagger for the above doesn't work! - something odd about the {resource*}
-http://localhost:8080/documentation#!/authorization/getAuthorizationAccessUseridActionResource
-
-* List all the actions Alfred can do in the Bat Cave:
+*   List all the actions Alfred can do in the Bat Cave:
 
 ```bash
 curl -X GET --header 'Accept: application/json' --header 'authorization: ROOTid' --header 'org: WayneManor' 'http://localhost:8080/authorization/list/Alfred/{/waynemanor/batcave}'
@@ -211,4 +208,3 @@ curl -X GET --header 'Accept: application/json' --header 'authorization: ROOTid'
 }
 ```
 
-TODO - keep going with this example, create teams, etc.
