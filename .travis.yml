@@ -26,11 +26,3 @@ script:
 
 after_script:
   - npm run coveralls
-
-jobs:
-  include:
-    - stage: Publish Docs
-      script: ignore
-      node_js: "6"
-      script:
-        - scripts/deploy-gh-pages.sh

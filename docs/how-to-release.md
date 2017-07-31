@@ -16,14 +16,16 @@ We are currently supporting node 6 and testing on node versions 6 and 7.
 10. Create a github issue for any major update were appropriate.
 11. Run `npm run test` and ensure testing and linting passes.
 12. Run `npm shrinkwrap`.
-13. Run `git add` and `git commit` to commit any version changes if there are any.
-14. Run `npm version x.x.x -m "version x.x.x"` where `x.x.x` is the version.
-15. Run `git push upstream master --tags`
-16. Run `npm publish`
-17. Go to the [Github release page][Releases] and hit 'Draft a new release'.
-18. Paste the Changelog content for this release and add additional release notes.
-19. Choose the tag version and a title matching the release and publish.
-20. Notify core maintainers of the release via email.
+13. Run `npm run swagger-gen` to regenerate the Swagger documentation for the Udaru [documentation site][docs-site].
+14. Run `git add` and `git commit` to commit any version and documentation changes if there are any.
+15. Run `npm version x.x.x -m "version x.x.x"` where `x.x.x` is the version.
+16. Run `git push upstream master --tags`
+17. Run `npm publish`
+18. Go to the [Github release page][Releases] and hit 'Draft a new release'.
+19. Paste the Changelog content for this release and add additional release notes.
+20. Choose the tag version and a title matching the release and publish.
+21. Notify core maintainers of the release via email.
 
 [Test]: https://travis-ci.org/nearform/udaru
 [Releases]: https://github.com/nearform/udaru/releases
+[docs-site]: https://nearform.github.io/udaru/

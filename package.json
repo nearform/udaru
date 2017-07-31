@@ -46,7 +46,7 @@
     "start": "node lib/server/start.js",
     "test": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -c -t 95",
     "test:commit-check": "npm run doc:lint && npm run lint && npm run test",
-    "swagger-gen": "node scripts/getSwaggerJson.js | swagger-gen -d docs/udaru-swagger-site"
+    "swagger-gen": "node scripts/getSwaggerJson.js | swagger-gen -d docs/swagger"
   },
   "remarkConfig": {
     "plugins": [
