@@ -17,7 +17,7 @@ We are currently supporting node 6 and testing on node versions 6 and 7.
 11. Run `npm run test` and ensure testing and linting passes.
 12. Run `npm shrinkwrap`.
 13. Run `npm run swagger-gen` to regenerate the Swagger documentation for the Udaru [documentation site][docs-site].
-14. Run `git add` and `git commit` to commit any version and documnetation changes if there are any.
+14. Run `git add` and `git commit` to commit any version and documentation changes if there are any.
 15. Run `npm version x.x.x -m "version x.x.x"` where `x.x.x` is the version.
 16. Run `git push upstream master --tags`
 17. Run `npm publish`
