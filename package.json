@@ -46,7 +46,7 @@
     "start": "node lib/server/start.js",
     "test": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -c -t 95",
     "test:commit-check": "npm run doc:lint && npm run lint && npm run test",
-    "swagger-gen": "node scripts/getSwaggerJson.js | swagger-gen -d docs/swagger"
+    "swagger-gen": "node scripts/getSwaggerJson.js | swagger-gen -d docs/swagger --no-try-out"
   },
   "remarkConfig": {
     "plugins": [
@@ -89,7 +89,7 @@
     "remark-lint": "^6.0.0",
     "remark-preset-lint-recommended": "^2.0.0",
     "standard": "^8.6.0",
-    "swagger-gen": "^1.0.3"
+    "swagger-gen": "^1.1.3"
   },
   "standard": {
     "ignore": [
