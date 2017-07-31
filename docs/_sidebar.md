@@ -5,6 +5,6 @@
 
 -   API
     -   [Example Usage](example.md)
-    -   [Swagger Documentation](udaru-swagger-site/index.html ":ignore")
+    -   [Swagger Documentation](swagger/index.html ":ignore")
 
 -   [How to Release](how-to-release.md)
