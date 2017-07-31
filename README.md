@@ -190,10 +190,15 @@ JSON structure:
 }
 ```
 
-### Service API documentation
-The Swagger API documentation gives explanations on the exposed API.
+## Documentation
 
-To run Swagger:
+The Udaru documentation site can be found at [nearform.github.io/udaru][docs-site]. This site is is based off the documents in the `/docs` folder.
+
+### Swagger API Documentation
+
+The Swagger API documentation gives explanations on the exposed API. The documentation can be found at [nearform.github.io/udaru/swagger/][swagger-docs-url].
+
+It is also possible to access the Swagger documentation from Udaru itself. Simply start the server:
 
 ```
 npm run start
@@ -266,6 +271,8 @@ Copyright nearForm Ltd 2017. Licensed under [MIT][license].
 [SQL Injection]: docs/sqlinjection.md
 [sqlmap]: https://github.com/sqlmapproject/sqlmap
 [sqlmap config]: ./security/fixtures/injection-endpoints.json
+[docs-site]: https://nearform.github.io/udaru
+[swagger-docs-url]: https://nearform.github.io/udaru/swagger/
 
 [travis-badge]: https://travis-ci.org/nearform/udaru.svg?branch=master
 [travis-url]: https://travis-ci.org/nearform/udaru
