@@ -116,7 +116,7 @@ npm run pg:load-test-data
 ### pgAdmin database access
 As the Postgresql docker container has its 5432 port forwarded on the local machine the database can be accessed with pgAdmin.
 
-To access the database using the pgAdmin you have to fill in also the container IP beside the database names and access credentials. The container IP can be seen with `docker inspect $CID | grep IPAddress | cut -d '"' -f 4`.  Use postgres as Username/password.
+To access the database using the pgAdmin you have to fill in also the container IP beside the database names and access credentials. The container IP can be seen with `docker ps`.  Use IP 127.0.0.1 and use postgres as username/password to connect to database server.
 
 ### Migrations
 We use [`postgrator`][postgrator] for database migrations. You can find the sql files in the [`database/migrations`](/database/migrations) folder. To run the migrations manually:
