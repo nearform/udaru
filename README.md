@@ -4,64 +4,16 @@
 [![coveralls][coveralls-badge]][coveralls-url]
 [![snyk][snyk-badge]][snyk-url]
 
-![Udaru](./logo.jpg) 
-Udaru is an authorization module that can be used as an Policy Based Access Control mechanism. It supports Organizations, Teams and User entities that are used to build the access model. The policies attached to these entities define the 'Actions' that can be performed by an entity on various 'Resources'.
+![Udaru](./docs/logo.jpg) 
+Udaru is an Policy Based Access Control (PBAC) authorization module. It supports Organizations, Teams and User entities that are used to build the access model. The policies attached to these entities define the 'Actions' that can be performed by an entity on various 'Resources'.
 
-Udaru can be used as a stand-alone module, as a stand-alone server or as a Hapi plugin. This repository contains the code for all three running configurations.
-
-A detailed explanation on how the Udaru is structured and the terms and elements used to define the authorization system can be found in the [Udaru Introduction][] document.
-
-Examples on how to model an Udaru organization structure are documented in [Authorization Model][].
+See the Udaru [website](https://nearform.github.io/udaru/) for complete documentation on Udaru.
 
 ## Install
 To install via npm:
 
 ```
 npm install udaru
-```
-
-## Testing, benching & linting
-Before running tests, ensure a valid Postgres database is running. The simplest way to do this is via Docker. Assuming docker is installed on your machine, in the root folder, run:
-
-```
-docker-compose up -d
-```
-
-This will start a Postgres database. Running test or coverage runs will automatically populate the database with the information it needs.
-
--   **Note:** you can tail the Postgres logs if needed with `docker-compose logs --tail=100 -f`
-
-To run tests:
-
-```
-npm run test
-```
-
--   **Note:** running the tests will output duplicate keys errors in Postgres logs, this is expected, as the error handling of those cases is part of what is tested.
-
-
-To lint the repository:
-
-```
-npm run lint
-```
-
-To fix (most) linting issues:
-
-```
-npm run lint -- --fix
-```
-
-To run a bench test on a given route:
-
-```
-npm run bench -- "METHOD swagger/route/template/path"
-```
-
-To obtain a coverage report:
-
-```
-npm run coverage
 ```
 
 ## Usage
@@ -126,25 +78,6 @@ node database/migrate.js --version=<version>`
 ```
 
 -   **Note:** Running the tests or init commands will automaticaly bring the db to the latest version.
-
-## Service
-
-The service will respond http calls such as:
-
-```
-GET /authorization/users
-```
-
-with data in the form:
-
-```
-[
-  { id: 'CharlieId', name: 'Charlie Bucket' },
-  { id: 'GrandpaId', name: 'Grandpa Joe' },
-  { id: 'VerucaId', name: 'Veruca Salt' },
-  { id: 'WillyId', name: 'Willy Wonka' }
-]
-```
 
 To get more information see [Service Api documentation](#service-api-documentation)
 
@@ -237,6 +170,51 @@ UDARU_SERVICE_security_api_servicekeys_private_0=jerfkgfjdedfkg3j213i43u31jk2erw
 
 To achieve this we use the [`reconfig`][reconfig] module.
 
+## Testing, benching & linting
+
+Before running tests, ensure a valid Postgres database is running. The simplest way to do this is via Docker. Assuming docker is installed on your machine, in the root folder, run:
+
+```
+docker-compose up -d
+```
+
+This will start a Postgres database. Running test or coverage runs will automatically populate the database with the information it needs.
+
+-   **Note:** you can tail the Postgres logs if needed with `docker-compose logs --tail=100 -f`
+
+To run tests:
+
+```
+npm run test
+```
+
+-   **Note:** running the tests will output duplicate keys errors in Postgres logs, this is expected, as the error handling of those cases is part of what is tested.
+
+
+To lint the repository:
+
+```
+npm run lint
+```
+
+To fix (most) linting issues:
+
+```
+npm run lint -- --fix
+```
+
+To run a bench test on a given route:
+
+```
+npm run bench -- "METHOD swagger/route/template/path"
+```
+
+To obtain a coverage report:
+
+```
+npm run coverage
+```
+
 ## Security
 
 Udaru has been thoroughly evaluated against SQL injection, a detailed description of this can be found in the [SQL Injection][] document.
@@ -258,6 +236,7 @@ The injection tests can be configured in the [sqlmap config][]. A few output con
 See the [sqlmap][] repository for more details.
 
 ## License
+
 Copyright nearForm Ltd 2017. Licensed under [MIT][license].
 
 [config]: https://github.com/nearform/udaru/blob/master/lib/core/config/index.js
@@ -266,8 +245,6 @@ Copyright nearForm Ltd 2017. Licensed under [MIT][license].
 [prefix-link]: https://github.com/nearform/udaru/blob/master/lib/core/config.js#L100
 [reconfig]: https://github.com/namshi/reconfig
 [swagger-link]: http://localhost:8080/documentation
-[Udaru Introduction]: docs/overview.md
-[Authorization Model]: docs/authmodel.md
 [SQL Injection]: docs/sqlinjection.md
 [sqlmap]: https://github.com/sqlmapproject/sqlmap
 [sqlmap config]: ./security/fixtures/injection-endpoints.json
