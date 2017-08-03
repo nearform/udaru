@@ -116,7 +116,7 @@ npm run pg:load-test-data
 ### pgAdmin database access
 As the Postgresql docker container has its 5432 port forwarded on the local machine the database can be accessed with pgAdmin.
 
-To access the database using the pgAdmin you have to fill in also the container IP beside the database names and access credentials. The container IP can be seen with `docker ps`.
+To access the database using the pgAdmin you have to fill in also the container IP beside the database names and access credentials. The container IP can be seen with `docker ps`.  Use IP 127.0.0.1 and use postgres as username/password to connect to database server.
 
 ### Migrations
 We use [`postgrator`][postgrator] for database migrations. You can find the sql files in the [`database/migrations`](/database/migrations) folder. To run the migrations manually:
@@ -158,7 +158,7 @@ If you want to specify a better SuperUser id (default is `SuperUserId`) you can 
 UDARU_SERVICE_authorization_superUser_id=myComplexId12345 node scripts/init
 ```
 
--   **Note:** if you have already ran some tests or loaded the test data, you will need to run `npm pg:init` again to reset the db.
+-   **Note:** if you have already ran some tests or loaded the test data, you will need to run `npm run pg:init` again to reset the db.
 
 ### Load policies from file
 
