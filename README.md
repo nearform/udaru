@@ -71,7 +71,7 @@ As the Postgresql docker container has its 5432 port forwarded on the local mach
 To access the database using the pgAdmin you have to fill in also the container IP beside the database names and access credentials. The container IP can be seen with `docker ps`.  Use IP 127.0.0.1 and use postgres as username/password to connect to database server.
 
 ### Migrations
-We use [`postgrator`][postgrator] for database migrations. You can find the sql files in the [`database/migrations`](/database/migrations) folder. To run the migrations manually:
+We use [`postgrator`][postgrator] for database migrations. You can find the sql files in the [`database/migrations`](https://github.com/nearform/udaru/tree/master/database/migrations) folder. To run the migrations manually:
 
 ```
 node database/migrate.js --version=<version>`
@@ -247,7 +247,7 @@ Copyright nearForm Ltd 2017. Licensed under [MIT][license].
 [swagger-link]: http://localhost:8080/documentation
 [SQL Injection]: docs/sqlinjection.md
 [sqlmap]: https://github.com/sqlmapproject/sqlmap
-[sqlmap config]: ./security/fixtures/injection-endpoints.json
+[sqlmap config]: https://github.com/nearform/udaru/blob/master/security/fixtures/injection-endpoints.json
 [docs-site]: https://nearform.github.io/udaru
 [swagger-docs-url]: https://nearform.github.io/udaru/swagger/
 
