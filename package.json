@@ -85,9 +85,9 @@
     "pg-copy-streams": "^1.2.0",
     "pre-commit": "^1.2.2",
     "proxyquire": "^1.7.10",
-    "remark-cli": "^3.0.0",
+    "remark-cli": "^4.0.0",
     "remark-lint": "^6.0.0",
-    "remark-preset-lint-recommended": "^2.0.0",
+    "remark-preset-lint-recommended": "^3.0.0",
     "standard": "^8.6.0",
     "swagger-gen": "^1.1.3"
   },
