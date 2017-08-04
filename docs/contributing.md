@@ -1,8 +1,16 @@
-# How to release
+# Contributing to Udaru
+
+Udaru is open source (MIT License) sponsored by [nearForm](https://www.nearform.com).
+
+Please see the [README](<https://github.com/nearform/udaru>) for how to get started, running Udaru, testing Udaru, etc. Use [GitHub](<https://github.com/nearform/udaru/issues>) for any bugs, issues, or feature requests.
+
+For general documentation, see the [Udaru Website](<https://nearform.github.io/udaru/>). If you have any feedback on Udaru, [please get in touch](<https://github.com/nearform/udaru/issues>). 
+
+## Core committers - how to release
 
 It's a good idea to check that you have the latest version of npm installed before creating a new release. We are using npm shrinkwrap for releases and its behavior has been evolving. `npm install npm -g`
 
-We are currently supporting node 6 and testing on node versions 6 and 7.
+We are currently supporting node 6.
 
 1.  Review github issues, triage, close and merge issues related to the release.
 2.  Update the CHANGES.md file.
@@ -29,3 +37,7 @@ We are currently supporting node 6 and testing on node versions 6 and 7.
 [Test]: https://travis-ci.org/nearform/udaru
 [Releases]: https://github.com/nearform/udaru/releases
 [docs-site]: https://nearform.github.io/udaru/
+
+# Security testing of Udaru
+
+Udaru has been extensively tested for SQL injections, please see [sqlinjection.md](./sqlinjection.md) for more information.

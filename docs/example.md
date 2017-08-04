@@ -2,7 +2,7 @@
 
 The following is a highly contrived example usage of the Udaru Management and Authorizations APIs. The curl commands below are provided as examples only; we do not recommend you do this in any real world platform :-)
 
-To follow along below, start by running Udaru locally as described in the [ReadMe](../README.md), and seed Udaru by running 
+To follow along below, start by running Udaru locally as described in the [ReadMe](https://github.com/nearform/udaru/), and seed Udaru by running:
 
 ```
 npm run pg:init
@@ -10,9 +10,9 @@ npm run pg:init
 
 That will create the initial tables and ROOTid user used in the examples below.
 
-Note that it's also possible to follow the example below using the live Swagger UI, also as described in the [ReadMe](../README.md).
+Note that it's also possible to follow the example below using the live Swagger UI, also as described in the [ReadMe](https://github.com/nearform/udaru).
 
-# Wayne Manor Example
+## Wayne Manor Example
 
 *   Create a 'Wayne Manor Organization' to manage authorization to Batmans stuff, with 'Bruce Wayne' as the root owner:
 
