@@ -108,5 +108,48 @@ lab.experiment('Routes Authorizations', () => {
         }])
         .shouldRespond(403)
     })
+
+    lab.experiment('GET /authorization/list/{userId}', () => {
+      const records = Factory(lab, {
+        users: {
+          caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
+        },
+        policies: {
+          testedPolicy: Policy()
+        }
+      })
+
+      const endpoint = BuildFor(lab, records)
+        .server(server)
+        .endpoint({
+          method: 'GET',
+          url: '/authorization/list/ModifyId?resources=not/my/resource',
+          headers: { authorization: '{{caller.id}}' }
+        })
+
+      endpoint.test('should authorize user with correct policy')
+        .withPolicy([{
+          Effect: 'Allow',
+          Action: ['authorization:authn:resources:actions'],
+          Resource: ['authorization/actions/resources']
+        }])
+        .shouldRespond(200)
+
+      endpoint.test('should not authorize user with incorrect policy (action)')
+        .withPolicy([{
+          Effect: 'Allow',
+          Action: ['authorization:authn:dummy'],
+          Resource: ['authorization/actions']
+        }])
+        .shouldRespond(403)
+
+      endpoint.test('should not authorize user with incorrect policy (resource)')
+        .withPolicy([{
+          Effect: 'Allow',
+          Action: ['authorization:authn:actions:resources'],
+          Resource: ['authorization/dummy']
+        }])
+        .shouldRespond(403)
+    })
   })
 })
