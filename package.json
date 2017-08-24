@@ -1,6 +1,6 @@
 {
   "name": "udaru",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "A policy based authorization module",
   "license": "MIT",
   "author": "nearForm Ltd",
@@ -70,7 +70,7 @@
     "pg": "^6.1.1",
     "pino": "^4.1.2",
     "postgrator": "^2.10.0",
-    "reconfig": "^3.3.0",
+    "reconfig": "3.2.0",
     "uuid": "^3.0.1",
     "vision": "^4.1.1"
   },
