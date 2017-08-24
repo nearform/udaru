@@ -10,13 +10,13 @@ We've seen a minefield of different problems:
 *   mix ups between identity roles (e.g. 'Fireman') vs authorization roles (e.g. 'CanDriveFireTruck')
 *   it's generally intertwined with business logic, sometimes deeply so (i.e. permission logic spread throughout code and database)
 *   this leads to monolithic systems as the authorization is impossible to decouple
-*   the large the system gets, the more brittle the authorization, the more risky changes get
+*   the larger the system gets, the more brittle the authorization, the more risky changes get
 *   roles and permissions being put in identity tokens - it may seem like a good idea at the start but it leads to a lot of problems!
 *   governance is next to impossible
 
 ## Udaru Features
 
-We developed Udaru in an attempt to fix these problems. Udaru is first an foremost a standalone Authorization service, which is architected for use in modern day distributed, microservice based systems. It's fully decoupled from Authentication - after all they are two distinct things - and is designed to be flexible and comprehensive enough to be dropped in to any solution.
+We developed Udaru in an attempt to fix these problems. Udaru is first and foremost a standalone Authorization service, which is architected for use in modern day distributed, microservice based systems. It's fully decoupled from Authentication - after all they are two distinct things - and is designed to be flexible and comprehensive enough to be dropped in to any solution.
 
 Here are its high level features:
 
@@ -45,4 +45,4 @@ Now that we've proven it's fit for use, there are several new features we'd like
 *   Fraud detection; using Machine Learning (Naive Bayes) to analyse the Audit Trail for possible fraud anomalies, e.g. Spiderman is accessing the platform on the weekend and is accessing data he doesn’t normally access, raise an alert. 
 *   Automatic enforcement of system of least privilege - use profiling data to remove permissions that are demonstrably not used. This idea totally stolen from Netflix's Repokid: <https://medium.com/netflix-techblog/introducing-aardvark-and-repokid-53b081bf3a7e>. 
 
-If you're interesting in being involved in Udaru, please see the [contributing](contributing.md) guidelines.
+If you're interested in being involved in Udaru, please see the [contributing](contributing.md) guidelines.
