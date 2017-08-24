@@ -38,7 +38,7 @@ lab.experiment('Authorization', () => {
     server.inject(options, (response) => {
       const result = response.result
       expect(response.statusCode).to.equal(500)
-      expect(result).to.be.undefined
+      expect(result).to.be.undefined()
 
       done()
     })
@@ -62,7 +62,7 @@ lab.experiment('Authorization', () => {
       const result = response.result
 
       expect(response.statusCode).to.equal(500)
-      expect(result).to.be.undefined
+      expect(result).to.be.undefined()
 
       done()
     })

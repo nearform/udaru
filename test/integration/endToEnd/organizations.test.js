@@ -367,7 +367,7 @@ lab.experiment('Organizations', () => {
         const result = response.result
 
         expect(response.statusCode).to.equal(204)
-        expect(result).to.be.undefined
+        expect(result).to.not.exist()
 
         done()
       })
