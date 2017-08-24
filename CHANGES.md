@@ -1,7 +1,7 @@
 
 ## 2.0.3 - August 24, 2017
 Fixed Udaru plugin registration [commit](https://github.com/nearform/udaru/commit/c893346c026d6f87873685b70b2e0e63f475978a)
-Fixed issue with reconfig package [commit]()
+Fixed issue with reconfig package, update deps, replaced shrink wrap with package lock [commit](https://github.com/nearform/udaru/commit/8bbc13ae5ac1eeda4481a0334753683ddf858a44)
 
 ## 2.0.2 - May 26, 2017
 Fixed service startup error handling: [commit](https://github.com/nearform/udaru/commit/7766f60872df8da78e2ebdaec9d1a792084d2e2c)
