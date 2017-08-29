@@ -101,6 +101,7 @@ A brief overview of the Authorization API calls are as follows, see the live [Sw
 |delete|/authorization/policies/{id}|Delete a policy|
 |put|/authorization/policies/{id}|Update a policy of the current user organization|
 |get|/authorization/list/{userId}/{resource*}|List all the actions a user can perform on a resource|
+|get|/authorization/list/{userId}|List all the actions a user can perform on a given list of resources|
 
 
 ## How the Authorization model works
