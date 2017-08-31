@@ -21,20 +21,14 @@ lab.describe('Ownership', () => {
   let iam = Iam(policies)
 
   lab.test('should allow', done => {
-    iam.isAuthorized({ resource: 'resources/bob/something', action: 'foo:bar:list', variables: { req: { UserName: 'bob' } } }, (err, result) => {
-      expect(err).to.not.exist()
-      expect(result).to.be.true()
-
-      done()
-    })
+    let access = iam.isAuthorized({ resource: 'resources/bob/something', action: 'foo:bar:list', variables: { req: { UserName: 'bob' } } })
+    expect(access).to.be.true()
+    done()
   })
 
   lab.test('should not allow', done => {
-    iam.isAuthorized({ resource: 'resources/fred/anotherthing', action: 'foo:bar:list' }, (err, result) => {
-      expect(err).to.not.exist()
-      expect(result).to.be.false()
-
-      done()
-    })
+    let access = iam.isAuthorized({ resource: 'resources/fred/anotherthing', action: 'foo:bar:list' })
+    expect(access).to.be.false()
+    done()
   })
 })

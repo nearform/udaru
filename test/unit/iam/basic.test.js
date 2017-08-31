@@ -20,20 +20,14 @@ lab.describe('Basic access tests', () => {
   let iam = Iam(policies)
 
   lab.test('should allow', done => {
-    iam.isAuthorized({ resource: 'resources/thing1/something', action: 'foo:bar:list' }, (err, result) => {
-      expect(err).to.not.exist()
-      expect(result).to.be.true()
-
-      done()
-    })
+    let access = iam.isAuthorized({ resource: 'resources/thing1/something', action: 'foo:bar:list' })
+    expect(access).to.be.true()
+    done()
   })
 
   lab.test('should not allow', done => {
-    iam.isAuthorized({ resource: 'resources/thing2', action: 'foo:bar:list' }, (err, result) => {
-      expect(err).to.not.exist()
-      expect(result).to.be.false()
-
-      done()
-    })
+    let access = iam.isAuthorized({ resource: 'resources/thing2', action: 'foo:bar:list' })
+    expect(access).to.be.false()
+    done()
   })
 })
