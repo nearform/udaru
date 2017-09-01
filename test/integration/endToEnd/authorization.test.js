@@ -78,4 +78,30 @@ lab.experiment('Authorization', () => {
       done()
     })
   })
+
+  lab.test('list authorizations should return actions allowed for the user', (done) => {
+    const actionList = [
+      {
+        resource: '/myapp/users/filippo',
+        actions: ['Read']
+      },
+      {
+        resource: '/myapp/documents/no_access',
+        actions: []
+      }
+    ]
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: '/authorization/list/ManyPoliciesId?resources=/myapp/users/filippo&resources=/myapp/documents/no_access'
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(200)
+      expect(result).to.equal(actionList)
+
+      done()
+    })
+  })
 })

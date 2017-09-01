@@ -67,4 +67,28 @@ lab.experiment('Authorization', () => {
       done()
     })
   })
+
+  lab.test.skip('list authorizations for resources should return 500 for error case', (done) => {
+    udaru.authorize = {
+      listAuthorizationsOnResources: (params, cb) => {
+        process.nextTick(() => {
+          cb(Boom.badImplementation())
+        })
+      }
+    }
+
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: '/authorization/list/1/?resources=resource_a'
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(500)
+      expect(result).to.be.undefined
+
+      done()
+    })
+  })
 })

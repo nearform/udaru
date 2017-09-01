@@ -208,3 +208,82 @@ curl -X GET --header 'Accept: application/json' --header 'authorization: ROOTid'
 }
 ```
 
+Let's list the actions Alfred can perform on a number of resources. First we'll need to create some extra policies.
+
+*   Create a policy that allows the `Drive` action on the `batmobile`
+
+```bash
+curl -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' --header 'authorization: ROOTid' --header 'org: WayneManor' -d '{"id":"DriveBatmobile","name":"batmobile","version":"1","statements":{"Statement":[{"Effect":"Allow","Action":["drive"],"Resource":["/waynemanor/batmobile"],"Sid":"1","Condition":{}}]}}' 'http://localhost:8080/authorization/policies?sig=123456789'
+```
+
+*   Create a policy that explicitly denies the `login` action on the `batcomputer`
+
+```bash
+curl -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' --header 'authorization: ROOTid' --header 'org: WayneManor' -d '{"id":"DenyBatcomputer","name":"batcomputer","version":"1","statements":{"Statement":[{"Effect":"Deny","Action":["login"],"Resource":["/waynemanor/batcomputer"],"Sid":"1","Condition":{}}]}}' 'http://localhost:8080/authorization/policies?sig=123456789'
+```
+
+*   Associate these new policies with Alfred:
+
+```bash
+curl -X PUT --header 'Content-Type: application/json' --header 'Accept: application/json' --header 'authorization: BruceWayne'  -d '{"policies":["DriveBatmobile", "DenyBatcomputer"]}' 'http://localhost:8080/authorization/users/Alfred/policies'
+```
+
+*   Once more, verify the policies are associated with Alfred:
+
+```bash
+curl -X GET --header 'Accept: application/json' --header 'authorization: BruceWayne'  'http://localhost:8080/authorization/users/Alfred'
+```
+
+```js
+{
+  "id": "Alfred",
+  "name": "Alfred the butler",
+  "organizationId": "WayneManor",
+  "teams": [],
+  "policies": [
+    {
+      "id": "AccessBatCave",
+      "name": "batcave",
+      "version": "1"
+    },
+    {
+      "id": "DenyBatcomputer",
+      "name": "batcomputer",
+      "version": "1"
+    },
+    {
+      "id": "DriveBatmobile",
+      "name": "batmobile",
+      "version": "1"
+    }
+  ]
+}
+```
+
+*   Now, let's list the actions Alfred can perform on the `batcave`, the `batmobile` and the `batcomputer` resources.
+
+```bash
+curl -X GET --header 'Accept: application/json' --header 'authorization: ROOTid' --header 'org: WayneManor' 'http://localhost:8080/authorization/list/Alfred?resources=/waynemanor/batcave&resources=/waynemanor/batmobile&resources=/waynemanor/batcomputer'
+```
+
+```js
+[
+  {
+    "resource": "/waynemanor/batcave",
+    "actions": [
+      "enter",
+      "exit"
+    ]
+  },
+  {
+    "resource": "/waynemanor/batmobile",
+    "actions": [
+      "drive"
+    ]
+  },
+  {
+    "resource": "/waynemanor/batcomputer",
+    "actions": []
+  }
+]
+```
