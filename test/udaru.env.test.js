@@ -12,7 +12,7 @@ lab.experiment('test config env variable', () => {
     const options = {
       env: Object.assign({}, process.env, { UDARU_SERVICE_pgdb_password: testPass })
     }
-    const jsCode = 'node -e \'const config = require("./lib/core/config"); console.log(config.get("pgdb.password"))\''
+    const jsCode = 'node -e \'const config = require("./lib/config/build-all")(); console.log(config.get("pgdb.password"))\''
 
     exec(jsCode, options, (error, stdout, stderr) => {
       expect(error).to.not.exist()
@@ -27,7 +27,7 @@ lab.experiment('test config env variable', () => {
     const options = {
       env: Object.assign({}, process.env, { UDARU_RESOURCES_templates_organizations: testTemplate })
     }
-    const jsCode = 'node -e \'const config = require("./lib/core/config/config.auth.js"); console.log(config.resources.organizations({organizationId: 1}))\''
+    const jsCode = 'node -e \'const config = require("./lib/config/auth"); console.log(config.resources.organizations({organizationId: 1}))\''
 
     exec(jsCode, options, (error, stdout, stderr) => {
       expect(error).to.not.exist()

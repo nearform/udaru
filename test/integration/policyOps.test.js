@@ -5,11 +5,14 @@ const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 
 const async = require('async')
-const policyOps = require('../../lib/core/lib/ops/policyOps')
 const uuid = require('uuid/v4')
 const Factory = require('../factory')
 const testUtils = require('../utils')
 const { udaru } = testUtils
+
+const config = require('../../lib/config/build-all')()
+const db = require('../../lib/core/lib/db')(null, config)
+const policyOps = require('../../lib/core/lib/ops/policyOps')(db, config)
 
 const statements = { Statement: [{ Effect: 'Allow', Action: ['documents:Read'], Resource: ['wonka:documents:/public/*'] }] }
 

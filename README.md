@@ -20,9 +20,11 @@ npm install udaru
 
 ### Stand-alone module
 ```js
-const udaru = require('udaru')
-...
+const buildUdaru = require('udaru')
+const udaru = buildUdaru(dbPool, config)
 ```
+
+Both the dbPool and config are optional and are initialised with default values if not provided
 
 ### Stand alone server
 ```
@@ -142,9 +144,46 @@ and then go to [`http://localhost:8080/documentation`][swagger-link]
 The Swagger documentation also gives the ability to execute calls to the API and see their results. If you're using the test database, you can use 'ROOTid' as the required authorization parameter and 'WONKA' as the organisation. 
 
 ### ENV variables to set configuration options
-There is a default configuration file [`lib/core/config/index.js`][config].
+There are three default configuration files, one per "level": [`lib/config/default.core.js`][core-config], [`lib/config/default.plugin.js`][plugin-config] and [`lib/config/default.server.js`][server-config].
 
-This configuration is the one used in dev environment and we are quite sure the production one will be different :) To override this configuration you can use ENV variables on the server/container/machine you will run Udaru on.
+They are cumulative: when running udaru as a standalone server all the three files will be loaded; when using it as an Hapi plugin, plugin and core will be loaded.
+
+This configuration is the one used in dev environment and we are quite sure the production one will be different :) To override this configuration you can:
+
+- provide a config object when using it as a standalone module or hapi server 
+- ENV variables on the server/container/machine you will run Udaru on.
+
+### Config object
+
+**Standalone module**
+```js
+const buildUdaru = require('udaru')
+const udaru = buildUdaru(dbPool, {
+  api: {
+    servicekeys: {
+      private: ['123456789']
+    }
+  }
+}})
+```
+
+**Hapi plugin**
+```js
+const Hapi = require('hapi')
+const UdaruPlugin = require('udaru/plugin')
+const server = new Hapi.server()
+server.register({
+  register: UdaruPlugin,
+  options: {dbPool, config: {
+    api: {
+      servicekeys: {
+        private: ['123456789']
+      }
+    }
+}}})
+```
+
+### Env variables
 
 To override those configuration settings you will have to specify your ENV variables with a [prefix][prefix-link] and then the "path" to the property you want to override.
 
@@ -239,7 +278,9 @@ See the [sqlmap][] repository for more details.
 
 Copyright nearForm Ltd 2017. Licensed under [MIT][license].
 
-[config]: https://github.com/nearform/udaru/blob/master/lib/core/config/index.js
+[core-config]: https://github.com/nearform/udaru/blob/master/lib/config/default.core.js
+[plugin-config]: https://github.com/nearform/udaru/blob/master/lib/config/default.plugin.js
+[server-config]: https://github.com/nearform/udaru/blob/master/lib/config/default.server.js
 [license]: ./LICENSE.md
 [postgrator]: https://github.com/rickbergfalk/postgrator
 [prefix-link]: https://github.com/nearform/udaru/blob/master/lib/core/config.js#L100

@@ -4,7 +4,7 @@ const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 
-const config = require('../../../lib/plugin/config')
+const config = require('../../../lib/config/build-all')()
 const server = require('../../../lib/server')
 const Factory = require('../../factory')
 const utils = require('../../utils')

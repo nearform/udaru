@@ -4,7 +4,6 @@ const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 
-var proxyquire = require('proxyquire')
 const logs = []
 
 var client = {
@@ -30,11 +29,8 @@ const tasks = [
   }
 ]
 
-const db = proxyquire('../../lib/core/lib/db', {'pg': {
-  Pool: function () {
-    return client
-  }
-}})
+const buildDb = require('../../lib/core/lib/db')
+const db = buildDb(client)
 
 lab.experiment('bd', () => {
   lab.beforeEach((done) => {

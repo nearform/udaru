@@ -9,7 +9,7 @@ const async = require('async')
 const testUtils = require('../utils')
 const { udaru } = testUtils
 
-const config = require('../../lib/plugin/config')
+const config = require('../../lib/config/build-all')()
 const defaultPolicies = config.get('authorization.organizations.defaultPolicies', { 'organizationId': 'nearForm' })
 const defaultPoliciesNames = Object.keys(defaultPolicies).map((pName) => {
   let policy = defaultPolicies[pName]
