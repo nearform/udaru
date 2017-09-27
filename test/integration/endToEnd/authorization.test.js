@@ -5,6 +5,7 @@ const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 const utils = require('../../utils')
 const server = require('../../../lib/server')
+const Factory = require('../../factory')
 
 lab.experiment('Authorization', () => {
   lab.test('check authorization should return access true for allowed', (done) => {
@@ -100,6 +101,89 @@ lab.experiment('Authorization', () => {
 
       expect(response.statusCode).to.equal(200)
       expect(result).to.equal(actionList)
+
+      done()
+    })
+  })
+})
+
+lab.experiment('Authorization not given to a non existing user', () => {
+  const newOrgPolicyId = 'newOrgPolicyId'
+  const newOrgId = 'newOrgId'
+  const testUserId = 'testUserId'
+
+  Factory(lab, {
+    organizations: {
+      org1: {
+        id: newOrgId,
+        name: 'Test Organization',
+        description: 'Test Organization',
+        policies: ['testPolicy'],
+        users: ['TestUser']
+      }
+    },
+    users: {
+      TestUser: {
+        id: testUserId,
+        name: 'Test User',
+        organizationId: newOrgId
+      }
+    },
+    policies: {
+      testPolicy: {
+        id: newOrgPolicyId,
+        name: 'newOrgPolicyId',
+        organizationId: newOrgId,
+        statements: {
+          Statement: [
+            {
+              Effect: 'Allow',
+              Action: ['read'],
+              Resource: ['org:documents']
+            }
+          ]
+        }
+      }
+    }
+  })
+
+  lab.test('An existing user has the access policies given to him', (done) => {
+    const userId = testUserId
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: `/authorization/access/${userId}/read/org:documents`,
+      headers: {
+        authorization: 'ROOTid',
+        org: newOrgId
+      }
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(200)
+      expect(result.access).to.equal(true)
+
+      done()
+    })
+  })
+
+  lab.test('A not existing user has no access to existing policies from an organization', (done) => {
+    const userId = 'abcd1234'
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: `/authorization/access/${userId}/read/org:documents`,
+      headers: {
+        authorization: 'ROOTid',
+        org: newOrgId
+      }
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(200)
+      expect(result.access).to.equal(false)
 
       done()
     })
