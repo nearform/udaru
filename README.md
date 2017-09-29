@@ -4,7 +4,7 @@
 [![coveralls][coveralls-badge]][coveralls-url]
 [![snyk][snyk-badge]][snyk-url]
 
-![Udaru](./docs/logo.jpg) 
+![Udaru](./docs/logo.jpg)
 Udaru is an Policy Based Access Control (PBAC) authorization module. It supports Organizations, Teams and User entities that are used to build the access model. The policies attached to these entities define the 'Actions' that can be performed by an entity on various 'Resources'.
 
 See the Udaru [website](https://nearform.github.io/udaru/) for complete documentation on Udaru.
@@ -20,11 +20,10 @@ npm install udaru
 
 ### Stand-alone module
 ```js
-const buildUdaru = require('udaru')
-const udaru = buildUdaru(dbPool, config)
+const buildUdaru = require('udaru')(dbPool, config)
 ```
 
-Both the dbPool and config are optional and are initialised with default values if not provided
+Both the dbPool and config are optional and are initialised with default values if not provided, see below for details on both.
 
 ### Stand alone server
 ```
@@ -141,7 +140,7 @@ npm run start
 
 and then go to [`http://localhost:8080/documentation`][swagger-link]
 
-The Swagger documentation also gives the ability to execute calls to the API and see their results. If you're using the test database, you can use 'ROOTid' as the required authorization parameter and 'WONKA' as the organisation. 
+The Swagger documentation also gives the ability to execute calls to the API and see their results. If you're using the test database, you can use 'ROOTid' as the required authorization parameter and 'WONKA' as the organisation.
 
 ### ENV variables to set configuration options
 There are three default configuration files, one per "level": [`lib/config/default.core.js`][core-config], [`lib/config/default.plugin.js`][plugin-config] and [`lib/config/default.server.js`][server-config].
@@ -150,8 +149,8 @@ They are cumulative: when running udaru as a standalone server all the three fil
 
 This configuration is the one used in dev environment and we are quite sure the production one will be different :) To override this configuration you can:
 
-- provide a config object when using it as a standalone module or hapi server 
-- ENV variables on the server/container/machine you will run Udaru on.
+-   provide a config object when using it as a standalone module or hapi server
+-   ENV variables on the server/container/machine you will run Udaru on.
 
 ### Config object
 
@@ -159,9 +158,9 @@ This configuration is the one used in dev environment and we are quite sure the 
 ```js
 const buildUdaru = require('udaru')
 const udaru = buildUdaru(dbPool, {
-  api: {
-    servicekeys: {
-      private: ['123456789']
+  logger: {
+    pino: {
+      level: 'warn'
     }
   }
 }})
