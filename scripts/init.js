@@ -3,7 +3,7 @@
 const SQL = require('./../lib/core/lib/db/SQL')
 const udaru = require('./../lib/core')
 const db = require('./../lib/core/lib/db')
-const config = require('./../lib/plugin/config')
+const config = require('../lib/config/build-all')()
 
 function createOrganization (job, next) {
   const superOrganizationData = config.get('authorization.superUser.organization')

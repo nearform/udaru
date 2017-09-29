@@ -3,7 +3,7 @@
 const _ = require('lodash')
 const async = require('async')
 const pg = require('pg')
-const config = require('./../lib/plugin/config')
+const config = require('../lib/config/build-all')()
 
 if (!config.get('local')) {
   console.error('ERROR: You are trying to init the database while not in local environment.')
