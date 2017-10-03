@@ -107,7 +107,7 @@ lab.experiment('Authorization', () => {
   })
 })
 
-lab.experiment('Authorization not given to a non existing user', () => {
+lab.experiment('Authorization inherited org policies', () => {
   const newOrgPolicyId = 'newOrgPolicyId'
   const newOrgId = 'newOrgId'
   const testUserId = 'testUserId'
@@ -147,7 +147,7 @@ lab.experiment('Authorization not given to a non existing user', () => {
     }
   })
 
-  lab.test('An existing user has the access policies given to him', (done) => {
+  lab.test('User authorized against policies inherited from organization', (done) => {
     const userId = testUserId
     const options = utils.requestOptions({
       method: 'GET',
@@ -168,7 +168,7 @@ lab.experiment('Authorization not given to a non existing user', () => {
     })
   })
 
-  lab.test('A not existing user has no access to existing policies from an organization', (done) => {
+  lab.test('Non-existing user has no access to existing organization policies', (done) => {
     const userId = 'abcd1234'
     const options = utils.requestOptions({
       method: 'GET',
