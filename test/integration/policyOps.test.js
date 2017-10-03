@@ -547,7 +547,6 @@ lab.experiment('PolicyOps', () => {
 lab.experiment('Policies - inheritance', () => {
   const newOrgPolicyId = 'newOrgPolicyId'
   const newOrgId = 'newOrgId'
-  const testUserId = 'testUserId'
   const rootUserId = 'rootUserId'
   const rootOrgId = 'ROOT'
 
@@ -584,7 +583,7 @@ lab.experiment('Policies - inheritance', () => {
     }
   })
 
-  function getName(policy) {
+  function getName (policy) {
     return policy.Name
   }
 
