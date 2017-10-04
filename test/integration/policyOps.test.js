@@ -544,7 +544,7 @@ lab.experiment('PolicyOps', () => {
   })
 })
 
-lab.experiment('Policies - inheritance', () => {
+lab.experiment('Policies - root user impersonating', () => {
   const newOrgPolicyId = 'newOrgPolicyId'
   const newOrgId = 'newOrgId'
   const rootUserId = 'rootUserId'
@@ -588,6 +588,36 @@ lab.experiment('Policies - inheritance', () => {
   }
 
   lab.test('load invalid user policies', (done) => {
+    policyOps.listAllUserPolicies({ userId: 'invalid_user_id', organizationId: newOrgId }, (err, results) => {
+      if (err) return done(err)
+
+      expect(results.length).to.equal(0)
+
+      done()
+    })
+  })
+
+  lab.test('load invalid org policies', (done) => {
+    policyOps.listAllUserPolicies({ userId: 'CharlieId', organizationId: rootOrgId }, (err, results) => {
+      if (err) return done(err)
+
+      expect(results.length).to.equal(0)
+
+      done()
+    })
+  })
+
+  lab.test('load invalid org policies', (done) => {
+    policyOps.listAllUserPolicies({ userId: 'CharlieId', organizationId: newOrgId }, (err, results) => {
+      if (err) return done(err)
+
+      expect(results.length).to.equal(0)
+
+      done()
+    })
+  })
+
+  lab.test('load invalid user and invalid org policies', (done) => {
     policyOps.listAllUserPolicies({ userId: 'invalid_user_id', organizationId: newOrgId }, (err, results) => {
       if (err) return done(err)
 
