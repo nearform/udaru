@@ -1,9 +1,14 @@
 'use strict'
 
 const SQL = require('./../lib/core/lib/db/SQL')
-const udaru = require('./../lib/core')
-const db = require('./../lib/core/lib/db')
+const buildUdaru = require('./../lib/core')
+const buildDb = require('./../lib/core/lib/db')
 const config = require('../lib/config/build-all')()
+const buildConfig = require('../lib/config')
+
+const fullConfig = buildConfig({}, config)
+const db = buildDb(null, fullConfig)
+const udaru = buildUdaru(fullConfig)
 
 function createOrganization (job, next) {
   const superOrganizationData = config.get('authorization.superUser.organization')
@@ -59,6 +64,7 @@ const tasks = [
   createPolicy,
   attachPolicy
 ]
+
 db.withTransaction(tasks, (error, x) => {
   if (error) {
     console.error(error)
@@ -67,5 +73,6 @@ db.withTransaction(tasks, (error, x) => {
 
   db.shutdown(() => {
     console.log('done')
+    process.exit(0)
   })
 })
