@@ -543,3 +543,109 @@ lab.experiment('PolicyOps', () => {
     })
   })
 })
+
+lab.experiment('Policies - root user impersonating', () => {
+  const newOrgPolicyId = 'newOrgPolicyId'
+  const newOrgId = 'newOrgId'
+  const rootUserId = 'rootUserId'
+  const rootOrgId = 'ROOT'
+
+  const records = Factory(lab, {
+    organizations: {
+      org1: {
+        id: newOrgId,
+        name: 'Test Organization',
+        description: 'Test Organization',
+        policies: ['testPolicy']
+      }
+    },
+    users: {
+      RootUser: {
+        id: rootUserId,
+        name: 'Root User',
+        organizationId: rootOrgId,
+        policies: ['rootUserPolicy']
+      }
+    },
+    policies: {
+      testPolicy: {
+        id: newOrgPolicyId,
+        name: 'newOrgPolicyId',
+        organizationId: newOrgId,
+        statements: testUtils.AllowStatement(['read'], ['org:documents'])
+      },
+      rootUserPolicy: {
+        id: 'rootUserPolicy',
+        name: 'rootUserPolicy',
+        organizationId: 'ROOT',
+        statements: testUtils.AllowStatement(['*'], ['*'])
+      }
+    }
+  })
+
+  function getName (policy) {
+    return policy.Name
+  }
+
+  lab.test('load invalid user policies', (done) => {
+    policyOps.listAllUserPolicies({ userId: 'invalid_user_id', organizationId: newOrgId }, (err, results) => {
+      if (err) return done(err)
+
+      expect(results.length).to.equal(0)
+
+      done()
+    })
+  })
+
+  lab.test('load invalid org policies', (done) => {
+    policyOps.listAllUserPolicies({ userId: 'CharlieId', organizationId: rootOrgId }, (err, results) => {
+      if (err) return done(err)
+
+      expect(results.length).to.equal(0)
+
+      done()
+    })
+  })
+
+  lab.test('load invalid org policies', (done) => {
+    policyOps.listAllUserPolicies({ userId: 'CharlieId', organizationId: newOrgId }, (err, results) => {
+      if (err) return done(err)
+
+      expect(results.length).to.equal(0)
+
+      done()
+    })
+  })
+
+  lab.test('load invalid user and invalid org policies', (done) => {
+    policyOps.listAllUserPolicies({ userId: 'invalid_user_id', organizationId: newOrgId }, (err, results) => {
+      if (err) return done(err)
+
+      expect(results.length).to.equal(0)
+
+      done()
+    })
+  })
+
+  lab.test('load root user policies', (done) => {
+    policyOps.listAllUserPolicies({ userId: records.RootUser.id, organizationId: rootOrgId }, (err, results) => {
+      if (err) return done(err)
+
+      expect(results.length).to.equal(1)
+      expect(results.map(getName)).to.include(records.rootUserPolicy.name)
+
+      done()
+    })
+  })
+
+  lab.test('load root user policies when impersonating organization', (done) => {
+    policyOps.listAllUserPolicies({ userId: records.RootUser.id, organizationId: newOrgId }, (err, results) => {
+      if (err) return done(err)
+
+      expect(results.length).to.equal(1)
+      expect(results.map(getName)).to.include(records.rootUserPolicy.name)
+
+      done()
+    })
+  })
+})
