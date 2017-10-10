@@ -8,7 +8,7 @@ const buildConfig = require('../lib/config')
 
 const fullConfig = buildConfig({}, config)
 const db = buildDb(null, fullConfig)
-const udaru = buildUdaru(fullConfig)
+const udaru = buildUdaru(null, fullConfig)
 
 function createOrganization (job, next) {
   const superOrganizationData = config.get('authorization.superUser.organization')
