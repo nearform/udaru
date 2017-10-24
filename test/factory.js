@@ -4,7 +4,6 @@ const async = require('async')
 const _ = require('lodash')
 
 const utils = require('./utils')
-const { udaru } = utils
 
 const DEFAULT_POLICY = {
   version: '2016-07-01',
@@ -19,7 +18,8 @@ const DEFAULT_POLICY = {
   organizationId: 'WONKA'
 }
 
-function Factory (lab, data) {
+function Factory (lab, data, udaruCore) {
+  const udaru = udaruCore || utils.udaru
   const records = {}
 
   function createUsers (done) {

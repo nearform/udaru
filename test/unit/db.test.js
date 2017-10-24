@@ -2,6 +2,7 @@
 
 const expect = require('code').expect
 const Lab = require('lab')
+const Sinon = require('sinon')
 const lab = exports.lab = Lab.script()
 
 const logs = []
@@ -11,7 +12,8 @@ var client = {
   query: function (sql, callback) {
     logs.push(sql)
     callback()
-  }
+  },
+  end: () => {}
 }
 
 const tasks = [
@@ -37,6 +39,14 @@ lab.experiment('bd', () => {
     logs.length = 0
 
     done()
+  })
+
+  lab.test('pool passed from outside is not ended when shutdown called', (done) => {
+    const endSpy = Sinon.spy(client, 'end')
+    db.shutdown(() => {
+      expect(endSpy.callCount).to.equal(0)
+      done()
+    })
   })
 
   lab.test('run simple query will call the pool.query helper method', (done) => {
