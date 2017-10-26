@@ -540,10 +540,46 @@ lab.experiment('TeamOps', () => {
       expect(err).to.not.exist()
       expect(team).to.exist()
       expect(team.policies).to.have.length(2)
-      expect(team.policies).to.only.include([
-        _.pick(policies[0], 'id', 'name', 'version'),
-        _.pick(policies[1], 'id', 'name', 'version')
-      ])
+      expect(team.policies).to.only.include([{
+        id: policies[0].id,
+        name: policies[0].name,
+        version: policies[0].version,
+        variables: {}
+      }, {
+        id: policies[1].id,
+        name: policies[1].name,
+        version: policies[1].version,
+        variables: {}
+      }])
+
+      done()
+    })
+  })
+
+  lab.test('add policies with variables to team', (done) => {
+    const policiesParam = [{
+      id: policies[0].id,
+      variables: {var1: 'value1'}
+    }, {
+      id: policies[1].id,
+      variables: {var2: 'value2'}
+    }]
+
+    udaru.teams.addPolicies({ id: testTeam.id, policies: policiesParam, organizationId: 'WONKA' }, (err, team) => {
+      expect(err).to.not.exist()
+      expect(team).to.exist()
+      expect(team.policies).to.have.length(2)
+      expect(team.policies).to.only.include([{
+        id: policies[0].id,
+        name: policies[0].name,
+        version: policies[0].version,
+        variables: {var1: 'value1'}
+      }, {
+        id: policies[1].id,
+        name: policies[1].name,
+        version: policies[1].version,
+        variables: {var2: 'value2'}
+      }])
 
       done()
     })
@@ -562,7 +598,44 @@ lab.experiment('TeamOps', () => {
         expect(err).to.not.exist()
         expect(team).to.exist()
         expect(team.policies).to.have.length(1)
-        expect(team.policies).to.only.include([_.pick(policies[1], 'id', 'name', 'version')])
+        expect(team.policies).to.only.include([{
+          id: policies[1].id,
+          name: policies[1].name,
+          version: policies[1].version,
+          variables: {}
+        }])
+        done()
+      })
+    })
+  })
+
+  lab.test('replace team policies with variables', (done) => {
+    udaru.teams.addPolicies({
+      id: testTeam.id,
+      organizationId: 'WONKA',
+      policies: [{
+        id: policies[0].id,
+        variables: {var1: 'value1'}
+      }]
+    }, (err, team) => {
+      expect(err).to.not.exist()
+      expect(team).to.exist()
+
+      const policiesParam = [{
+        id: policies[1].id,
+        variables: {var1: 'value2'}
+      }]
+
+      udaru.teams.replacePolicies({ id: team.id, policies: policiesParam, organizationId: 'WONKA' }, (err, team) => {
+        expect(err).to.not.exist()
+        expect(team).to.exist()
+        expect(team.policies).to.have.length(1)
+        expect(team.policies).to.only.include([{
+          id: policies[1].id,
+          name: policies[1].name,
+          version: policies[1].version,
+          variables: {var1: 'value2'}
+        }])
         done()
       })
     })
@@ -573,19 +646,83 @@ lab.experiment('TeamOps', () => {
       expect(err).to.not.exist()
       expect(team).to.exist()
       expect(team.policies).to.have.length(2)
-      expect(team.policies).to.only.include([
-        _.pick(policies[0], 'id', 'name', 'version'),
-        _.pick(policies[1], 'id', 'name', 'version')
-      ])
+      expect(team.policies).to.only.include([{
+        id: policies[0].id,
+        name: policies[0].name,
+        version: policies[0].version,
+        variables: {}
+      }, {
+        id: policies[1].id,
+        name: policies[1].name,
+        version: policies[1].version,
+        variables: {}
+      }])
 
       udaru.teams.addPolicies({ id: team.id, policies: [policies[1].id], organizationId: 'WONKA' }, (err, team) => {
         expect(err).to.not.exist()
         expect(team).to.exist()
         expect(team.policies).to.have.length(2)
-        expect(team.policies).to.only.include([
-          _.pick(policies[0], 'id', 'name', 'version'),
-          _.pick(policies[1], 'id', 'name', 'version')
-        ])
+        expect(team.policies).to.only.include([{
+          id: policies[0].id,
+          name: policies[0].name,
+          version: policies[0].version,
+          variables: {}
+        }, {
+          id: policies[1].id,
+          name: policies[1].name,
+          version: policies[1].version,
+          variables: {}
+        }])
+        done()
+      })
+    })
+  })
+
+  lab.test('add the same policy with variables twice to a team (variables updated)', (done) => {
+    const policiesParam = [{
+      id: policies[0].id,
+      variables: {var1: 'value1'}
+    }, {
+      id: policies[1].id,
+      variables: {var2: 'value2'}
+    }]
+
+    udaru.teams.addPolicies({ id: testTeam.id, policies: policiesParam, organizationId: 'WONKA' }, (err, team) => {
+      expect(err).to.not.exist()
+      expect(team).to.exist()
+      expect(team.policies).to.have.length(2)
+      expect(team.policies).to.only.include([{
+        id: policies[0].id,
+        name: policies[0].name,
+        version: policies[0].version,
+        variables: {var1: 'value1'}
+      }, {
+        id: policies[1].id,
+        name: policies[1].name,
+        version: policies[1].version,
+        variables: {var2: 'value2'}
+      }])
+
+      const policiesParam = [{
+        id: policies[1].id,
+        variables: {var2: 'value3'}
+      }]
+
+      udaru.teams.addPolicies({ id: team.id, policies: policiesParam, organizationId: 'WONKA' }, (err, team) => {
+        expect(err).to.not.exist()
+        expect(team).to.exist()
+        expect(team.policies).to.have.length(2)
+        expect(team.policies).to.only.include([{
+          id: policies[0].id,
+          name: policies[0].name,
+          version: policies[0].version,
+          variables: {var1: 'value1'}
+        }, {
+          id: policies[1].id,
+          name: policies[1].name,
+          version: policies[1].version,
+          variables: {var2: 'value3'}
+        }])
         done()
       })
     })
@@ -615,7 +752,12 @@ lab.experiment('TeamOps', () => {
       udaru.teams.deletePolicy({ teamId: team.id, policyId: policies[0].id, organizationId: 'WONKA' }, (err, team) => {
         expect(err).to.not.exist()
         expect(team).to.exist()
-        expect(team.policies).to.equal([_.pick(policies[1], 'id', 'name', 'version')])
+        expect(team.policies).to.equal([{
+          id: policies[1].id,
+          name: policies[1].name,
+          version: policies[1].version,
+          variables: {}
+        }])
 
         done()
       })

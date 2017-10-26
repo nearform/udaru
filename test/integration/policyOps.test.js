@@ -1,9 +1,12 @@
 'use strict'
 
+/* eslint no-template-curly-in-string: 0 */
+
 const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 
+const _ = require('lodash')
 const async = require('async')
 const uuid = require('uuid/v4')
 const Factory = require('../factory')
@@ -178,7 +181,12 @@ lab.experiment('PolicyOps', () => {
           description: 'user team',
           organizationId: orgId,
           users: ['called'],
-          policies: ['teamPolicy'],
+          policies: [{
+            key: 'teamPolicy'
+          }, {
+            key: 'policyWithVariablesMulti',
+            variables: {var2: 'value3'}
+          }],
           parent: 'parentTeam'
         },
         parentTeam: {
@@ -193,7 +201,17 @@ lab.experiment('PolicyOps', () => {
           name: 'called',
           description: 'called',
           organizationId: orgId,
-          policies: ['userPolicy']
+          policies: [{
+            key: 'userPolicy'
+          }, {
+            key: 'policyWithoutVariables'
+          }, {
+            key: 'policyWithVariables',
+            variables: {var1: 'value1'}
+          }, {
+            key: 'policyWithVariablesMulti',
+            variables: {var2: 'value2'}
+          }]
         }
       },
       policies: {
@@ -201,7 +219,40 @@ lab.experiment('PolicyOps', () => {
         teamPolicy: { name: 'teamPolicy', organizationId: orgId },
         organizationPolicy: { name: 'organizationPolicy', organizationId: orgId },
         parentPolicy: { name: 'parentPolicy', organizationId: orgId },
-        alienPolicy: { name: 'alienPolicy', organizationId: alienOrgId }
+        alienPolicy: { name: 'alienPolicy', organizationId: alienOrgId },
+        policyWithVariables: {
+          name: 'policyWithVariables',
+          organizationId: orgId,
+          statements: {
+            Statement: [{
+              Effect: 'Allow',
+              Action: ['dummy'],
+              Resource: ['${var1}']
+            }]
+          }
+        },
+        policyWithVariablesMulti: {
+          name: 'policyWithVariablesMulti',
+          organizationId: orgId,
+          statements: {
+            Statement: [{
+              Effect: 'Allow',
+              Action: ['dummy'],
+              Resource: ['${var2}']
+            }]
+          }
+        },
+        policyWithoutVariables: {
+          name: 'policyWithoutVariables',
+          organizationId: orgId,
+          statements: {
+            Statement: [{
+              Effect: 'Allow',
+              Action: ['dummy'],
+              Resource: ['${noVar}']
+            }]
+          }
+        }
       }
     })
 
@@ -250,6 +301,57 @@ lab.experiment('PolicyOps', () => {
         if (err) return done(err)
 
         expect(results.map(getName)).to.not.include(records.alienPolicy.name)
+        done()
+      })
+    })
+
+    lab.test('should interpolate variables provided on policy assignment', (done) => {
+      policyOps.listAllUserPolicies({ userId: records.called.id, organizationId: orgId }, (err, results) => {
+        if (err) return done(err)
+
+        expect(results.map(getName)).to.include(records.policyWithVariables.name)
+
+        const policy = _.find(results, {Name: records.policyWithVariables.name})
+        expect(policy.Statement).to.equal([{
+          Effect: 'Allow',
+          Action: ['dummy'],
+          Resource: ['value1']
+        }])
+
+        done()
+      })
+    })
+
+    lab.test('should prefer variables in user policy over team policy for interpolation', (done) => {
+      policyOps.listAllUserPolicies({ userId: records.called.id, organizationId: orgId }, (err, results) => {
+        if (err) return done(err)
+
+        expect(results.map(getName)).to.include(records.policyWithVariablesMulti.name)
+
+        const policy = _.find(results, {Name: records.policyWithVariablesMulti.name})
+        expect(policy.Statement).to.equal([{
+          Effect: 'Allow',
+          Action: ['dummy'],
+          Resource: ['value2']
+        }])
+
+        done()
+      })
+    })
+
+    lab.test('should keep variables in resources if no value found for interpolation', (done) => {
+      policyOps.listAllUserPolicies({ userId: records.called.id, organizationId: orgId }, (err, results) => {
+        if (err) return done(err)
+
+        expect(results.map(getName)).to.include(records.policyWithoutVariables.name)
+
+        const policy = _.find(results, {Name: records.policyWithoutVariables.name})
+        expect(policy.Statement).to.equal([{
+          Effect: 'Allow',
+          Action: ['dummy'],
+          Resource: ['${noVar}']
+        }])
+
         done()
       })
     })

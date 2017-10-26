@@ -390,6 +390,37 @@ lab.experiment('Users - manage policies', () => {
     })
   })
 
+  lab.test('add policies with variables to a user', (done) => {
+    udaru.policies.create(policyCreateData, (err, p) => {
+      expect(err).to.not.exist()
+
+      const options = utils.requestOptions({
+        method: 'PUT',
+        url: '/authorization/users/ModifyId/policies',
+        payload: {
+          policies: [{
+            id: p.id,
+            variables: {var1: 'value1'}
+          }]
+        }
+      })
+
+      server.inject(options, (response) => {
+        const result = response.result
+
+        expect(response.statusCode).to.equal(200)
+        expect(result.policies[0].id).to.equal(p.id)
+        expect(result.policies[0].variables).to.equal({var1: 'value1'})
+
+        udaru.users.deletePolicies({ id: 'ModifyId', organizationId: 'WONKA' }, (err, res) => {
+          expect(err).to.not.exist()
+
+          udaru.policies.delete({ id: p.id, organizationId: 'WONKA' }, done)
+        })
+      })
+    })
+  })
+
   lab.test('add policy with invalid ID to a user', (done) => {
     const options = utils.requestOptions({
       method: 'PUT',

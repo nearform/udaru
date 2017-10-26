@@ -425,6 +425,31 @@ lab.experiment('Organizations', () => {
     })
   })
 
+  lab.test('add policies with variables to an organization', (done) => {
+    const options = utils.requestOptions({
+      method: 'PUT',
+      url: `/authorization/organizations/${organizationId}/policies`,
+      payload: {
+        policies: [{
+          id: testPolicy.id,
+          variables: {var1: 'value1'}
+        }]
+      }
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(200)
+      expect(result.policies).to.exist()
+      expect(result.policies.length).to.equal(1)
+      expect(result.policies[0].id).to.equal(testPolicy.id)
+      expect(result.policies[0].variables).to.equal({var1: 'value1'})
+
+      done()
+    })
+  })
+
   lab.test('add policy with invalid ID to an organization', (done) => {
     const options = utils.requestOptions({
       method: 'PUT',

@@ -777,8 +777,33 @@ lab.experiment('Teams - manage policies', () => {
 
       expect(response.statusCode).to.equal(200)
       expect(result.policies).to.equal([
-        { id: 'policyId2', name: 'Accountant', version: '0.1' },
-        { id: 'policyId1', name: 'Director', version: '0.1' }
+        { id: 'policyId2', name: 'Accountant', version: '0.1', variables: {} },
+        { id: 'policyId1', name: 'Director', version: '0.1', variables: {} }
+      ])
+
+      udaru.teams.replacePolicies({ id: result.id, policies: ['policyId1'], organizationId: result.organizationId }, done)
+    })
+  })
+
+  lab.test('Add one policy with variables to a team', (done) => {
+    const options = utils.requestOptions({
+      method: 'PUT',
+      url: '/authorization/teams/1/policies',
+      payload: {
+        policies: [{
+          id: 'policyId2',
+          variables: {var1: 'value1'}
+        }]
+      }
+    })
+
+    server.inject(options, (response) => {
+      const { result } = response
+
+      expect(response.statusCode).to.equal(200)
+      expect(result.policies).to.equal([
+        { id: 'policyId2', name: 'Accountant', version: '0.1', variables: {var1: 'value1'} },
+        { id: 'policyId1', name: 'Director', version: '0.1', variables: {} }
       ])
 
       udaru.teams.replacePolicies({ id: result.id, policies: ['policyId1'], organizationId: result.organizationId }, done)
@@ -829,10 +854,10 @@ lab.experiment('Teams - manage policies', () => {
 
       expect(response.statusCode).to.equal(200)
       expect(result.policies).to.equal([
-        { id: 'policyId5', name: 'DB Admin', version: '0.1' },
-        { id: 'policyId6', name: 'DB Only Read', version: '0.1' },
-        { id: 'policyId1', name: 'Director', version: '0.1' },
-        { id: 'policyId4', name: 'Finance Director', version: '0.1' }
+        { id: 'policyId5', name: 'DB Admin', version: '0.1', variables: {} },
+        { id: 'policyId6', name: 'DB Only Read', version: '0.1', variables: {} },
+        { id: 'policyId1', name: 'Director', version: '0.1', variables: {} },
+        { id: 'policyId4', name: 'Finance Director', version: '0.1', variables: {} }
       ])
 
       udaru.teams.replacePolicies({ id: result.id, policies: ['policyId1'], organizationId: result.organizationId }, done)
@@ -852,7 +877,12 @@ lab.experiment('Teams - manage policies', () => {
       const { result } = response
 
       expect(response.statusCode).to.equal(200)
-      expect(result.policies).to.equal([{ id: 'policyId6', name: 'DB Only Read', version: '0.1' }])
+      expect(result.policies).to.equal([{
+        id: 'policyId6',
+        name: 'DB Only Read',
+        version: '0.1',
+        variables: {}
+      }])
 
       udaru.teams.replacePolicies({ id: result.id, policies: ['policyId1'], organizationId: result.organizationId }, done)
     })
