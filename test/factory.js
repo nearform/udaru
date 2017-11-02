@@ -117,9 +117,13 @@ function Factory (lab, data, udaruCore) {
         policies: []
       }
 
-      _.each(team.policies, (policyKey) => {
+      _.each(team.policies, (policy) => {
+        const policyKey = policy.key || policy
         const policyId = records[policyKey].id
-        list[teamId].policies.push(policyId)
+        list[teamId].policies.push({
+          id: policyId,
+          variables: policy.variables || {}
+        })
       })
     })
 
@@ -175,9 +179,13 @@ function Factory (lab, data, udaruCore) {
         policies: []
       }
 
-      _.each(user.policies, (policyKey) => {
+      _.each(user.policies, (policy) => {
+        const policyKey = policy.key || policy
         const policyId = records[policyKey].id
-        list[userId].policies.push(policyId)
+        list[userId].policies.push({
+          id: policyId,
+          variables: policy.variables || {}
+        })
       })
     })
 

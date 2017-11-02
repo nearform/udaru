@@ -440,6 +440,58 @@ lab.experiment('OrganizationOps', () => {
     async.series(tasks, done)
   })
 
+  lab.test('add policies with variables to an organization', (done) => {
+    const tasks = []
+
+    tasks.push((next) => {
+      udaru.policies.list({organizationId}, (err, res) => {
+        expect(err).to.not.exist()
+        expect(res).to.exist()
+        expect(res.length).to.equal(defaultPoliciesNames.length + 2)
+        next(err, res)
+      })
+    })
+    tasks.push((next) => {
+      udaru.organizations.read(organizationId, (err, res) => {
+        expect(err).to.not.exist()
+        expect(res).to.exist()
+        expect(res.policies.length).to.equal(0)
+        next(err, res)
+      })
+    })
+    tasks.push((next) => {
+      const policies = [{
+        id: testPolicy.id,
+        variables: {var1: 'value1'}
+      }]
+      udaru.organizations.addPolicies({id: organizationId, policies}, (err, res) => {
+        expect(err).to.not.exist()
+        expect(res).to.exist()
+        expect(res.id).to.equal(organizationId)
+        expect(res.policies.length).to.equal(1)
+        expect(res.policies[0].id).to.equal(testPolicy.id)
+        expect(res.policies[0].name).to.equal(testPolicy.name)
+        expect(res.policies[0].version).to.equal(testPolicy.version)
+        expect(res.policies[0].variables).to.equal({var1: 'value1'})
+        next(err, res)
+      })
+    })
+    tasks.push((next) => {
+      udaru.organizations.read(organizationId, (err, res) => {
+        expect(err).to.not.exist()
+        expect(res).to.exist()
+        expect(res.policies.length).to.equal(1)
+        expect(res.policies[0].id).to.equal(testPolicy.id)
+        expect(res.policies[0].name).to.equal(testPolicy.name)
+        expect(res.policies[0].version).to.equal(testPolicy.version)
+        expect(res.policies[0].variables).to.equal({var1: 'value1'})
+        next(err, res)
+      })
+    })
+
+    async.series(tasks, done)
+  })
+
   lab.test('add empty policy array to an organization that has default policies', (done) => {
     const tasks = []
 
@@ -518,6 +570,80 @@ lab.experiment('OrganizationOps', () => {
         expect(res.policies[0].id).to.equal(testPolicy2.id)
         expect(res.policies[0].name).to.equal(testPolicy2.name)
         expect(res.policies[0].version).to.equal(testPolicy2.version)
+        next(err, res)
+      })
+    })
+
+    async.series(tasks, done)
+  })
+
+  lab.test('replace organization policies with variables', (done) => {
+    const tasks = []
+
+    tasks.push((next) => {
+      udaru.policies.list({organizationId}, (err, res) => {
+        expect(err).to.not.exist()
+        expect(res).to.exist()
+        expect(res.length).to.equal(defaultPoliciesNames.length + 2)
+        next(err, res)
+      })
+    })
+    tasks.push((next) => {
+      const policies = [{
+        id: testPolicy.id,
+        variables: {var1: 'value1'}
+      }]
+
+      udaru.organizations.addPolicies({id: organizationId, policies}, (err, res) => {
+        expect(err).to.not.exist()
+        expect(res).to.exist()
+        expect(res.id).to.equal(organizationId)
+        expect(res.policies.length).to.equal(1)
+        expect(res.policies[0].id).to.equal(testPolicy.id)
+        expect(res.policies[0].name).to.equal(testPolicy.name)
+        expect(res.policies[0].version).to.equal(testPolicy.version)
+        expect(res.policies[0].variables).to.equal({var1: 'value1'})
+        next(err, res)
+      })
+    })
+    tasks.push((next) => {
+      udaru.organizations.read(organizationId, (err, res) => {
+        expect(err).to.not.exist()
+        expect(res).to.exist()
+        expect(res.policies.length).to.equal(1)
+        expect(res.policies[0].id).to.equal(testPolicy.id)
+        expect(res.policies[0].name).to.equal(testPolicy.name)
+        expect(res.policies[0].version).to.equal(testPolicy.version)
+        expect(res.policies[0].variables).to.equal({var1: 'value1'})
+        next(err, res)
+      })
+    })
+    tasks.push((next) => {
+      const policies = [{
+        id: testPolicy2.id,
+        variables: {var1: 'value2'}
+      }]
+      udaru.organizations.replacePolicies({id: organizationId, policies}, (err, res) => {
+        expect(err).to.not.exist()
+        expect(res).to.exist()
+        expect(res.id).to.equal(organizationId)
+        expect(res.policies.length).to.equal(1)
+        expect(res.policies[0].id).to.equal(testPolicy2.id)
+        expect(res.policies[0].name).to.equal(testPolicy2.name)
+        expect(res.policies[0].version).to.equal(testPolicy2.version)
+        expect(res.policies[0].variables).to.equal({var1: 'value2'})
+        next(err, res)
+      })
+    })
+    tasks.push((next) => {
+      udaru.organizations.read(organizationId, (err, res) => {
+        expect(err).to.not.exist()
+        expect(res).to.exist()
+        expect(res.policies.length).to.equal(1)
+        expect(res.policies[0].id).to.equal(testPolicy2.id)
+        expect(res.policies[0].name).to.equal(testPolicy2.name)
+        expect(res.policies[0].version).to.equal(testPolicy2.version)
+        expect(res.policies[0].variables).to.equal({var1: 'value2'})
         next(err, res)
       })
     })
@@ -671,5 +797,253 @@ lab.experiment('OrganizationOps', () => {
     })
 
     async.series(tasks, done)
+  })
+
+  lab.experiment('add policies twice', () => {
+    lab.test('without variables do nothing', (done) => {
+      const tasks = []
+
+      tasks.push((next) => {
+        udaru.policies.list({organizationId}, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res).to.exist()
+          expect(res.length).to.equal(defaultPoliciesNames.length + 2)
+          next(err, res)
+        })
+      })
+      tasks.push((next) => {
+        udaru.organizations.read(organizationId, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res).to.exist()
+          expect(res.policies.length).to.equal(0)
+          next(err, res)
+        })
+      })
+      tasks.push((next) => {
+        udaru.organizations.addPolicies({id: organizationId, policies: [testPolicy.id]}, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res).to.exist()
+          expect(res.id).to.equal(organizationId)
+          expect(res.policies.length).to.equal(1)
+          expect(res.policies[0].id).to.equal(testPolicy.id)
+          expect(res.policies[0].name).to.equal(testPolicy.name)
+          expect(res.policies[0].version).to.equal(testPolicy.version)
+          next(err, res)
+        })
+      })
+      tasks.push((next) => {
+        udaru.organizations.read(organizationId, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res).to.exist()
+          expect(res.policies.length).to.equal(1)
+          expect(res.policies[0].id).to.equal(testPolicy.id)
+          expect(res.policies[0].name).to.equal(testPolicy.name)
+          expect(res.policies[0].version).to.equal(testPolicy.version)
+          next(err, res)
+        })
+      })
+      tasks.push((next) => {
+        udaru.organizations.addPolicies({id: organizationId, policies: [testPolicy.id]}, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res).to.exist()
+          expect(res.id).to.equal(organizationId)
+          expect(res.policies.length).to.equal(1)
+          expect(res.policies[0].id).to.equal(testPolicy.id)
+          expect(res.policies[0].name).to.equal(testPolicy.name)
+          expect(res.policies[0].version).to.equal(testPolicy.version)
+          next(err, res)
+        })
+      })
+      tasks.push((next) => {
+        udaru.organizations.read(organizationId, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res).to.exist()
+          expect(res.policies.length).to.equal(1)
+          expect(res.policies[0].id).to.equal(testPolicy.id)
+          expect(res.policies[0].name).to.equal(testPolicy.name)
+          expect(res.policies[0].version).to.equal(testPolicy.version)
+          next(err, res)
+        })
+      })
+
+      async.series(tasks, done)
+    })
+
+    lab.test('with different variables add twice', (done) => {
+      const tasks = []
+
+      tasks.push((next) => {
+        udaru.policies.list({organizationId}, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res).to.exist()
+          expect(res.length).to.equal(defaultPoliciesNames.length + 2)
+          next(err, res)
+        })
+      })
+      tasks.push((next) => {
+        udaru.organizations.read(organizationId, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res).to.exist()
+          expect(res.policies.length).to.equal(0)
+          next(err, res)
+        })
+      })
+      tasks.push((next) => {
+        const policies = [{
+          id: testPolicy.id,
+          variables: {var1: 'value1'}
+        }]
+        udaru.organizations.addPolicies({id: organizationId, policies}, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res).to.exist()
+          expect(res.id).to.equal(organizationId)
+          expect(res.policies.length).to.equal(1)
+          expect(res.policies[0].id).to.equal(testPolicy.id)
+          expect(res.policies[0].name).to.equal(testPolicy.name)
+          expect(res.policies[0].version).to.equal(testPolicy.version)
+          expect(res.policies[0].variables).to.equal({var1: 'value1'})
+          next(err, res)
+        })
+      })
+      tasks.push((next) => {
+        udaru.organizations.read(organizationId, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res).to.exist()
+          expect(res.policies.length).to.equal(1)
+          expect(res.policies[0].id).to.equal(testPolicy.id)
+          expect(res.policies[0].name).to.equal(testPolicy.name)
+          expect(res.policies[0].version).to.equal(testPolicy.version)
+          expect(res.policies[0].variables).to.equal({var1: 'value1'})
+          next(err, res)
+        })
+      })
+      tasks.push((next) => {
+        const policies = [{
+          id: testPolicy.id,
+          variables: {var1: 'value2'}
+        }]
+        udaru.organizations.addPolicies({id: organizationId, policies}, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res).to.exist()
+          expect(res.id).to.equal(organizationId)
+          expect(res.policies.length).to.equal(2)
+          expect(res.policies).to.include([{
+            id: testPolicy.id,
+            name: testPolicy.name,
+            version: testPolicy.version,
+            variables: {var1: 'value2'}
+          }])
+          next(err, res)
+        })
+      })
+      tasks.push((next) => {
+        udaru.organizations.read(organizationId, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res).to.exist()
+          expect(res.policies.length).to.equal(2)
+          expect(res.policies).to.include([{
+            id: testPolicy.id,
+            name: testPolicy.name,
+            version: testPolicy.version,
+            variables: {var1: 'value1'}
+          }, {
+            id: testPolicy.id,
+            name: testPolicy.name,
+            version: testPolicy.version,
+            variables: {var1: 'value2'}
+          }])
+
+          next(err, res)
+        })
+      })
+
+      async.series(tasks, done)
+    })
+
+    lab.test('with same variables do nothing', (done) => {
+      const tasks = []
+
+      tasks.push((next) => {
+        udaru.policies.list({organizationId}, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res).to.exist()
+          expect(res.length).to.equal(defaultPoliciesNames.length + 2)
+          next(err, res)
+        })
+      })
+      tasks.push((next) => {
+        udaru.organizations.read(organizationId, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res).to.exist()
+          expect(res.policies.length).to.equal(0)
+          next(err, res)
+        })
+      })
+      tasks.push((next) => {
+        const policies = [{
+          id: testPolicy.id,
+          variables: {var1: 'value1'}
+        }]
+        udaru.organizations.addPolicies({id: organizationId, policies}, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res).to.exist()
+          expect(res.id).to.equal(organizationId)
+          expect(res.policies.length).to.equal(1)
+          expect(res.policies[0].id).to.equal(testPolicy.id)
+          expect(res.policies[0].name).to.equal(testPolicy.name)
+          expect(res.policies[0].version).to.equal(testPolicy.version)
+          expect(res.policies[0].variables).to.equal({var1: 'value1'})
+          next(err, res)
+        })
+      })
+      tasks.push((next) => {
+        udaru.organizations.read(organizationId, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res).to.exist()
+          expect(res.policies.length).to.equal(1)
+          expect(res.policies[0].id).to.equal(testPolicy.id)
+          expect(res.policies[0].name).to.equal(testPolicy.name)
+          expect(res.policies[0].version).to.equal(testPolicy.version)
+          expect(res.policies[0].variables).to.equal({var1: 'value1'})
+          next(err, res)
+        })
+      })
+      tasks.push((next) => {
+        const policies = [{
+          id: testPolicy.id,
+          variables: {var1: 'value1'}
+        }]
+        udaru.organizations.addPolicies({id: organizationId, policies}, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res).to.exist()
+          expect(res.id).to.equal(organizationId)
+          expect(res.policies.length).to.equal(1)
+          expect(res.policies).to.include([{
+            id: testPolicy.id,
+            name: testPolicy.name,
+            version: testPolicy.version,
+            variables: {var1: 'value1'}
+          }])
+          next(err, res)
+        })
+      })
+      tasks.push((next) => {
+        udaru.organizations.read(organizationId, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res).to.exist()
+          expect(res.policies.length).to.equal(1)
+          expect(res.policies).to.include([{
+            id: testPolicy.id,
+            name: testPolicy.name,
+            version: testPolicy.version,
+            variables: {var1: 'value1'}
+          }])
+
+          next(err, res)
+        })
+      })
+
+      async.series(tasks, done)
+    })
   })
 })

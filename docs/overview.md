@@ -146,6 +146,62 @@ Note that wildcards can be used in Action and Resource names, as can certain var
 
 For a detailed description of Policies, see the [AWS Policy Elements Reference](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements.html).
 
+## Template Policies
+
+In order to reduce complexity and duplication Udaru introduces template policies.
+
+For an example let's assume we want to create a generic policy "can read document".
+
+The regular way to do it would be with something like
+
+```javascript
+{
+  id: 'Policy ID',
+  version: '2016-07-01',
+  name: 'Read document 1',
+  statements: { Statement: [{
+    Effect: 'Allow',
+    Action: ['Documents:Read'],
+    Resource: ['wonka:documents:/public/document-1']
+  }] }
+}
+```
+
+This will work, but is fixed to "document-1".
+
+With policy templates you could create
+
+```javascript
+{
+  id: 'Policy ID',
+  version: '2016-07-01',
+  name: 'Read generic document',
+  statements: { Statement: [{
+    Effect: 'Allow',
+    Action: ['Documents:Read'],
+    Resource: ['wonka:documents:/public/${documentId}']
+  }] }
+}
+```
+
+And then provide the value for `documentId` when assigning the policy to a user with
+
+```javascript
+{
+  id: 'Policy ID',
+  variables: {documentId: 'document-1'}
+}
+```
+
+This will reduce the number of policies required, while still being specific on the documents a user can read.
+
+
+Template policies are actually regular policies that use variables. The difference is that the value of the variables, rather than being obtained from context at run time, is defined on policy assignment.
+
+When a policy is assigned to a user (or a team) an additional object can be provided whose properties will be used as the value for the variables in the policy itself.
+
+Currently we support variables in the Resource part of the policy statement (similar to what PBAC already does)
+
 ## Super User
 
 In Udaru all operations are performed in the organization context: for each user request Udaru finds the organization to which the user belongs to and from there all middleware checks and element queries are made in the organization context. One user can't perform operations outside the organization to which it belongs to. The user identifier is passed in the Http headers as the `authorization` field.

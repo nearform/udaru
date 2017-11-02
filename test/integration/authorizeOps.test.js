@@ -301,7 +301,8 @@ lab.experiment('AuthorizeOps', () => {
       }, (err, result) => {
         expect(err).to.not.exist()
         expect(result).to.exist()
-        expect(result.actions).to.equal(['finance:ReadBalanceSheet', 'finance:EditBalanceSheet'])
+        expect(result.actions).to.have.length(2)
+        expect(result.actions).to.only.include(['finance:ReadBalanceSheet', 'finance:EditBalanceSheet'])
 
         cb(err, result)
       })

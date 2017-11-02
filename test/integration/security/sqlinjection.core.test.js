@@ -75,15 +75,27 @@ lab.experiment('UserOps injection tests', () => {
     udaru.users.read({ id: 'VerucaId', organizationId: 'WONKA' }, (err, user) => {
       expect(err).to.not.exist()
       expect(user).to.exist()
-      expect(user.policies).to.equal([accountantPolicy])
+      expect(user.policies).to.equal([{
+        id: accountantPolicy.id,
+        name: accountantPolicy.name,
+        version: accountantPolicy.version,
+        variables: {}
+      }])
 
       udaru.users.addPolicies({ id: 'VerucaId', policies: [directorPolicy.id], organizationId: 'WONKA' }, (err, user) => {
         expect(err).to.not.exist()
         expect(user).to.exist()
-        expect(user.policies).to.equal([
-          accountantPolicy,
-          directorPolicy
-        ])
+        expect(user.policies).to.equal([{
+          id: accountantPolicy.id,
+          name: accountantPolicy.name,
+          version: accountantPolicy.version,
+          variables: {}
+        }, {
+          id: directorPolicy.id,
+          name: directorPolicy.name,
+          version: directorPolicy.version,
+          variables: {}
+        }])
 
         udaru.users.replacePolicies({ id: 'VerucaId', policies: [accountantPolicy.id], organizationId: 'WONKA' }, (err, user) => {
           expect(err).to.not.exist()
@@ -100,7 +112,12 @@ lab.experiment('UserOps injection tests', () => {
     udaru.users.read({ id: 'VerucaId', organizationId: 'WONKA' }, (err, user) => {
       expect(err).to.not.exist()
       expect(user).to.exist()
-      expect(user.policies).to.equal([accountantPolicy])
+      expect(user.policies).to.equal([{
+        id: accountantPolicy.id,
+        name: accountantPolicy.name,
+        version: accountantPolicy.version,
+        variables: {}
+      }])
 
       udaru.users.addPolicies({ id: '\'VerucaId\' AND 1=1', policies: [directorPolicy.id], organizationId: 'WONKA' }, (err, user) => {
         expect(err).to.exist()
@@ -123,7 +140,12 @@ lab.experiment('UserOps injection tests', () => {
     udaru.users.read({ id: 'VerucaId', organizationId: 'WONKA' }, (err, user) => {
       expect(err).to.not.exist()
       expect(user).to.exist()
-      expect(user.policies).to.equal([accountantPolicy])
+      expect(user.policies).to.equal([{
+        id: accountantPolicy.id,
+        name: accountantPolicy.name,
+        version: accountantPolicy.version,
+        variables: {}
+      }])
 
       udaru.users.addPolicies({ id: 'VerucaId', policies: ['1 OR 1=1'], organizationId: 'WONKA' }, (err, user) => {
         expect(err).to.exist()
