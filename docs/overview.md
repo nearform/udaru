@@ -200,7 +200,7 @@ Template policies are actually regular policies that use variables. The differen
 
 When a policy is assigned to a user (or a team) an additional object can be provided whose properties will be used as the value for the variables in the policy itself.
 
-Currently we support variables in the Resource part of the policy statement (similar o what PBAC already does)
+Currently we support variables in the Resource part of the policy statement (similar to what PBAC already does)
 
 ## Super User
 
