@@ -371,106 +371,6 @@ lab.experiment('UserOps', () => {
     })
   })
 
-  lab.test('add twice the same policy to a user', (done) => {
-    let accountantPolicy = u.findPick(wonkaPolicies, {name: 'Accountant'}, ['id', 'name', 'version'])
-    let directorPolicy = u.findPick(wonkaPolicies, {name: 'Director'}, ['id', 'name', 'version'])
-    let sysadminPolicy = u.findPick(wonkaPolicies, {name: 'Sys admin'}, ['id', 'name', 'version'])
-
-    udaru.users.read({ id: 'VerucaId', organizationId: 'WONKA' }, (err, user) => {
-      expect(err).to.not.exist()
-      expect(user).to.exist()
-      expect(user.policies).to.equal([{
-        id: accountantPolicy.id,
-        name: accountantPolicy.name,
-        version: accountantPolicy.version,
-        variables: {}
-      }])
-
-      udaru.users.addPolicies({
-        id: 'VerucaId',
-        policies: [
-          accountantPolicy.id,
-          directorPolicy.id,
-          sysadminPolicy.id
-        ],
-        organizationId: 'WONKA'
-      }, (err, user) => {
-        expect(err).to.not.exist()
-        expect(user).to.exist()
-        expect(user.policies).to.equal([{
-          id: accountantPolicy.id,
-          name: accountantPolicy.name,
-          version: accountantPolicy.version,
-          variables: {}
-        }, {
-          id: directorPolicy.id,
-          name: directorPolicy.name,
-          version: directorPolicy.version,
-          variables: {}
-        }, {
-          id: sysadminPolicy.id,
-          name: sysadminPolicy.name,
-          version: sysadminPolicy.version,
-          variables: {}
-        }])
-
-        udaru.users.replacePolicies({ id: 'VerucaId', policies: [accountantPolicy.id], organizationId: 'WONKA' }, (err, user) => {
-          expect(err).to.not.exist()
-          done()
-        })
-      })
-    })
-  })
-
-  lab.test('add twice the same policy with variables to a user (update variables)', (done) => {
-    const accountantPolicy = u.findPick(wonkaPolicies, {name: 'Accountant'}, ['id', 'name', 'version'])
-    const directorPolicy = u.findPick(wonkaPolicies, {name: 'Director'}, ['id', 'name', 'version'])
-
-    udaru.users.read({ id: 'VerucaId', organizationId: 'WONKA' }, (err, user) => {
-      expect(err).to.not.exist()
-      expect(user).to.exist()
-      expect(user.policies).to.equal([{
-        id: accountantPolicy.id,
-        name: accountantPolicy.name,
-        version: accountantPolicy.version,
-        variables: {}
-      }])
-
-      const policies = [{
-        id: accountantPolicy.id,
-        variables: {var1: 'value1'}
-      }, {
-        id: directorPolicy.id,
-        variables: {var2: 'value2'}
-      }]
-
-      udaru.users.addPolicies({
-        id: 'VerucaId',
-        policies,
-        organizationId: 'WONKA'
-      }, (err, user) => {
-        expect(err).to.not.exist()
-        expect(user).to.exist()
-        expect(user.policies).to.equal([{
-          id: accountantPolicy.id,
-          name: accountantPolicy.name,
-          version: accountantPolicy.version,
-          variables: {var1: 'value1'}
-        }, {
-          id: directorPolicy.id,
-          name: directorPolicy.name,
-          version: directorPolicy.version,
-          variables: {var2: 'value2'}
-        }])
-
-        udaru.users.replacePolicies({ id: 'VerucaId', policies: [accountantPolicy.id], organizationId: 'WONKA' }, (err, user) => {
-          expect(err).to.not.exist()
-          done()
-        })
-      })
-    })
-  })
-
   lab.test('delete user\'s policies', (done) => {
     let accountantPolicy = u.findPick(wonkaPolicies, {name: 'Accountant'}, ['id', 'name', 'version'])
 
@@ -518,6 +418,178 @@ lab.experiment('UserOps', () => {
         udaru.users.replacePolicies({ id: 'VerucaId', policies: [accountantPolicy.id], organizationId: 'WONKA' }, (err, user) => {
           expect(err).to.not.exist()
           done()
+        })
+      })
+    })
+  })
+
+  lab.experiment('add policies twice', () => {
+    lab.test('without variables should do nothing', (done) => {
+      let accountantPolicy = u.findPick(wonkaPolicies, {name: 'Accountant'}, ['id', 'name', 'version'])
+      let directorPolicy = u.findPick(wonkaPolicies, {name: 'Director'}, ['id', 'name', 'version'])
+      let sysadminPolicy = u.findPick(wonkaPolicies, {name: 'Sys admin'}, ['id', 'name', 'version'])
+
+      udaru.users.read({ id: 'VerucaId', organizationId: 'WONKA' }, (err, user) => {
+        expect(err).to.not.exist()
+        expect(user).to.exist()
+        expect(user.policies).to.equal([{
+          id: accountantPolicy.id,
+          name: accountantPolicy.name,
+          version: accountantPolicy.version,
+          variables: {}
+        }])
+
+        udaru.users.addPolicies({
+          id: 'VerucaId',
+          policies: [
+            accountantPolicy.id,
+            directorPolicy.id,
+            sysadminPolicy.id
+          ],
+          organizationId: 'WONKA'
+        }, (err, user) => {
+          expect(err).to.not.exist()
+          expect(user).to.exist()
+          expect(user.policies).to.equal([{
+            id: accountantPolicy.id,
+            name: accountantPolicy.name,
+            version: accountantPolicy.version,
+            variables: {}
+          }, {
+            id: directorPolicy.id,
+            name: directorPolicy.name,
+            version: directorPolicy.version,
+            variables: {}
+          }, {
+            id: sysadminPolicy.id,
+            name: sysadminPolicy.name,
+            version: sysadminPolicy.version,
+            variables: {}
+          }])
+
+          udaru.users.replacePolicies({ id: 'VerucaId', policies: [accountantPolicy.id], organizationId: 'WONKA' }, (err, user) => {
+            expect(err).to.not.exist()
+            done()
+          })
+        })
+      })
+    })
+
+    lab.test('with different variables should add twice', (done) => {
+      const accountantPolicy = u.findPick(wonkaPolicies, {name: 'Accountant'}, ['id', 'name', 'version'])
+      const directorPolicy = u.findPick(wonkaPolicies, {name: 'Director'}, ['id', 'name', 'version'])
+
+      udaru.users.read({ id: 'VerucaId', organizationId: 'WONKA' }, (err, user) => {
+        expect(err).to.not.exist()
+        expect(user).to.exist()
+        expect(user.policies).to.equal([{
+          id: accountantPolicy.id,
+          name: accountantPolicy.name,
+          version: accountantPolicy.version,
+          variables: {}
+        }])
+
+        const policies = [{
+          id: accountantPolicy.id,
+          variables: {var1: 'value1'}
+        }, {
+          id: directorPolicy.id,
+          variables: {var2: 'value2'}
+        }]
+
+        udaru.users.addPolicies({
+          id: 'VerucaId',
+          policies,
+          organizationId: 'WONKA'
+        }, (err, user) => {
+          expect(err).to.not.exist()
+          expect(user).to.exist()
+          expect(user.policies).to.equal([{
+            id: accountantPolicy.id,
+            name: accountantPolicy.name,
+            version: accountantPolicy.version,
+            variables: {}
+          }, {
+            id: accountantPolicy.id,
+            name: accountantPolicy.name,
+            version: accountantPolicy.version,
+            variables: {var1: 'value1'}
+          }, {
+            id: directorPolicy.id,
+            name: directorPolicy.name,
+            version: directorPolicy.version,
+            variables: {var2: 'value2'}
+          }])
+
+          udaru.users.replacePolicies({ id: 'VerucaId', policies: [accountantPolicy.id], organizationId: 'WONKA' }, (err, user) => {
+            expect(err).to.not.exist()
+            done()
+          })
+        })
+      })
+    })
+
+    lab.test('with same variables should do nothing', (done) => {
+      const accountantPolicy = u.findPick(wonkaPolicies, {name: 'Accountant'}, ['id', 'name', 'version'])
+
+      udaru.users.read({ id: 'VerucaId', organizationId: 'WONKA' }, (err, user) => {
+        expect(err).to.not.exist()
+        expect(user).to.exist()
+        expect(user.policies).to.equal([{
+          id: accountantPolicy.id,
+          name: accountantPolicy.name,
+          version: accountantPolicy.version,
+          variables: {}
+        }])
+
+        const policies = [{
+          id: accountantPolicy.id,
+          variables: {var1: 'value1'}
+        }]
+
+        udaru.users.addPolicies({
+          id: 'VerucaId',
+          policies,
+          organizationId: 'WONKA'
+        }, (err, user) => {
+          expect(err).to.not.exist()
+          expect(user).to.exist()
+          expect(user.policies).to.equal([{
+            id: accountantPolicy.id,
+            name: accountantPolicy.name,
+            version: accountantPolicy.version,
+            variables: {}
+          }, {
+            id: accountantPolicy.id,
+            name: accountantPolicy.name,
+            version: accountantPolicy.version,
+            variables: {var1: 'value1'}
+          }])
+
+          udaru.users.addPolicies({
+            id: 'VerucaId',
+            policies,
+            organizationId: 'WONKA'
+          }, (err, user) => {
+            expect(err).to.not.exist()
+            expect(user).to.exist()
+            expect(user.policies).to.equal([{
+              id: accountantPolicy.id,
+              name: accountantPolicy.name,
+              version: accountantPolicy.version,
+              variables: {}
+            }, {
+              id: accountantPolicy.id,
+              name: accountantPolicy.name,
+              version: accountantPolicy.version,
+              variables: {var1: 'value1'}
+            }])
+
+            udaru.users.replacePolicies({ id: 'VerucaId', policies: [accountantPolicy.id], organizationId: 'WONKA' }, (err, user) => {
+              expect(err).to.not.exist()
+              done()
+            })
+          })
         })
       })
     })

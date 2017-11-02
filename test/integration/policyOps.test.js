@@ -322,17 +322,26 @@ lab.experiment('PolicyOps', () => {
       })
     })
 
-    lab.test('should prefer variables in user policy over team policy for interpolation', (done) => {
+    lab.test('should support multiple instances of the same policy with different variables', (done) => {
       policyOps.listAllUserPolicies({ userId: records.called.id, organizationId: orgId }, (err, results) => {
         if (err) return done(err)
 
         expect(results.map(getName)).to.include(records.policyWithVariablesMulti.name)
 
-        const policy = _.find(results, {Name: records.policyWithVariablesMulti.name})
-        expect(policy.Statement).to.equal([{
+        const statements = _.chain(results)
+          .filter({Name: records.policyWithVariablesMulti.name})
+          .map('Statement')
+          .flatten()
+          .value()
+
+        expect(statements).to.include([{
           Effect: 'Allow',
           Action: ['dummy'],
           Resource: ['value2']
+        }, {
+          Effect: 'Allow',
+          Action: ['dummy'],
+          Resource: ['value3']
         }])
 
         done()

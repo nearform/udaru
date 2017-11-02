@@ -442,9 +442,14 @@ lab.experiment('Organizations', () => {
 
       expect(response.statusCode).to.equal(200)
       expect(result.policies).to.exist()
-      expect(result.policies.length).to.equal(1)
-      expect(result.policies[0].id).to.equal(testPolicy.id)
-      expect(result.policies[0].variables).to.equal({var1: 'value1'})
+      // it's 2 because the previous tests insert one policy, this inserts the second
+      expect(result.policies.length).to.equal(2)
+      expect(result.policies).to.include({
+        id: testPolicy.id,
+        name: testPolicy.name,
+        version: testPolicy.version,
+        variables: {var1: 'value1'}
+      })
 
       done()
     })
