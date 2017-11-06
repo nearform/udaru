@@ -202,6 +202,18 @@ When a policy is assigned to a user (or a team) an additional object can be prov
 
 Currently we support variables in the Resource part of the policy statement (similar o what PBAC already does)
 
+## Shared Policies
+
+Everything in Udaru is scoped by policies and can't be any interaction between two entities that belongs to different organizations.
+
+However, in the case you are offering the same structure to all organizations in your deployment and need to reduce complexity and duplication, Udaru offers the concept of "Shared Policies".
+
+Shared Policy are equal in concept to regular policy, but are visibile to every organization. A shared policy can be assigned to a user or a team of any organization - but can't be used to give visibility of other organizations entities.
+
+They can also be template policies. In fact, they are designed to work together so that the shared policies can be customized for the need of a specific organization.
+
+Shared Policies work exactly as regular policies, they just can be created (or updated, deleted) once for every organizations.
+
 ## Super User
 
 In Udaru all operations are performed in the organization context: for each user request Udaru finds the organization to which the user belongs to and from there all middleware checks and element queries are made in the organization context. One user can't perform operations outside the organization to which it belongs to. The user identifier is passed in the Http headers as the `authorization` field.
