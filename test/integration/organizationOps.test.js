@@ -516,6 +516,44 @@ lab.experiment('OrganizationOps', () => {
     async.series(tasks, done)
   })
 
+  lab.test('add shared policies to an organization', (done) => {
+    const tasks = []
+
+    tasks.push((next) => {
+      udaru.organizations.read(organizationId, (err, res) => {
+        expect(err).to.not.exist()
+        expect(res).to.exist()
+        expect(res.policies.length).to.equal(0)
+        next(err, res)
+      })
+    })
+    tasks.push((next) => {
+      udaru.organizations.addPolicies({id: organizationId, policies: ['sharedPolicyId1']}, (err, res) => {
+        expect(err).to.not.exist()
+        expect(res).to.exist()
+        expect(res.id).to.equal(organizationId)
+        expect(res.policies.length).to.equal(1)
+        expect(res.policies[0].id).to.equal('sharedPolicyId1')
+        expect(res.policies[0].name).to.equal('Shared policy from fixtures')
+        expect(res.policies[0].version).to.equal('0.1')
+        next(err, res)
+      })
+    })
+    tasks.push((next) => {
+      udaru.organizations.read(organizationId, (err, res) => {
+        expect(err).to.not.exist()
+        expect(res).to.exist()
+        expect(res.policies.length).to.equal(1)
+        expect(res.policies[0].id).to.equal('sharedPolicyId1')
+        expect(res.policies[0].name).to.equal('Shared policy from fixtures')
+        expect(res.policies[0].version).to.equal('0.1')
+        next(err, res)
+      })
+    })
+
+    async.series(tasks, done)
+  })
+
   lab.test('replace organization policies', (done) => {
     const tasks = []
 
@@ -666,6 +704,67 @@ lab.experiment('OrganizationOps', () => {
       expect(err).to.exist()
       done()
     })
+  })
+
+  lab.test('replace organization policies with shared policies', (done) => {
+    const tasks = []
+
+    tasks.push((next) => {
+      udaru.policies.list({organizationId}, (err, res) => {
+        expect(err).to.not.exist()
+        expect(res).to.exist()
+        expect(res.length).to.equal(defaultPoliciesNames.length + 2)
+        next(err, res)
+      })
+    })
+    tasks.push((next) => {
+      udaru.organizations.addPolicies({id: organizationId, policies: [testPolicy.id]}, (err, res) => {
+        expect(err).to.not.exist()
+        expect(res).to.exist()
+        expect(res.id).to.equal(organizationId)
+        expect(res.policies.length).to.equal(1)
+        expect(res.policies[0].id).to.equal(testPolicy.id)
+        expect(res.policies[0].name).to.equal(testPolicy.name)
+        expect(res.policies[0].version).to.equal(testPolicy.version)
+        next(err, res)
+      })
+    })
+    tasks.push((next) => {
+      udaru.organizations.read(organizationId, (err, res) => {
+        expect(err).to.not.exist()
+        expect(res).to.exist()
+        expect(res.policies.length).to.equal(1)
+        expect(res.policies[0].id).to.equal(testPolicy.id)
+        expect(res.policies[0].name).to.equal(testPolicy.name)
+        expect(res.policies[0].version).to.equal(testPolicy.version)
+        next(err, res)
+      })
+    })
+    tasks.push((next) => {
+      udaru.organizations.replacePolicies({id: organizationId, policies: ['sharedPolicyId1']}, (err, res) => {
+        expect(err).to.not.exist()
+        expect(res).to.exist()
+        expect(res.id).to.equal(organizationId)
+        expect(res.policies.length).to.equal(1)
+        expect(res.policies[0].id).to.equal('sharedPolicyId1')
+        expect(res.policies[0].name).to.equal('Shared policy from fixtures')
+        expect(res.policies[0].version).to.equal('0.1')
+        next(err, res)
+      })
+    })
+    tasks.push((next) => {
+      udaru.organizations.read(organizationId, (err, res) => {
+        expect(err).to.not.exist()
+        expect(res).to.exist()
+        expect(res.policies.length).to.equal(1)
+        expect(res.policies[0].id).to.equal('sharedPolicyId1')
+        expect(res.policies[0].name).to.equal('Shared policy from fixtures')
+        expect(res.policies[0].version).to.equal('0.1')
+        next(err, res)
+      })
+    })
+
+    async.series(tasks, done)
   })
 
   lab.test('replace organization policies with invalid policy ID', (done) => {

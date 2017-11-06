@@ -1,0 +1,2 @@
+
+ALTER TABLE policies ALTER COLUMN org_id SET NOT NULL;

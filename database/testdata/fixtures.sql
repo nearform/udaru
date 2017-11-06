@@ -193,6 +193,12 @@ VALUES
           "Resource": ["/myapp/documents/no_access"]
         }]}'::JSONB);
 
+INSERT INTO policies (id, version, name, statements)
+VALUES ('sharedPolicyId1', 0.1, 'Shared policy from fixtures', '{ "Statement": [{
+          "Effect": "Allow",
+          "Action": ["Read"],
+          "Resource": ["/myapp/documents/*"]
+        }]}'::JSONB);
 
 INSERT INTO user_policies (user_id, policy_id)
   SELECT 'ROOTid', id FROM policies WHERE name = 'SuperAdmin'
