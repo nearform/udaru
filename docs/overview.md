@@ -204,11 +204,11 @@ Currently we support variables in the Resource part of the policy statement (sim
 
 ## Shared Policies
 
-Everything in Udaru is scoped by policies and can't be any interaction between two entities that belongs to different organizations.
+Everything in Udaru is scoped by policies and there can't be any interaction between two entities that belongs to different organizations.
 
-However, in the case you are offering the same structure to all organizations in your deployment and need to reduce complexity and duplication, Udaru offers the concept of "Shared Policies".
+However, if you are offering the same structure to all organizations in your deployment and need to reduce complexity and duplication, Udaru offers the concept of "Shared Policies".
 
-Shared Policy are equal in concept to regular policy, but are visibile to every organization. A shared policy can be assigned to a user or a team of any organization - but can't be used to give visibility of other organizations entities.
+A Shared Policy is equal in concept to a regular policy, but is visibile to every organization. A shared policy can be assigned to a user or a team of any organization - but can't be used to give visibility of other organizations entities.
 
 They can also be template policies. In fact, they are designed to work together so that the shared policies can be customized for the need of a specific organization.
 
