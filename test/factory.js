@@ -68,10 +68,11 @@ function Factory (lab, data, udaruCore) {
     if (!data.sharedPolicies) return done()
 
     async.mapValues(data.sharedPolicies, (policy, key, next) => {
-      udaru.policies.createShared(Object.assign({}, DEFAULT_SHARED_POLICY, _.pick(policy, 'id', 'name', 'version', 'statements')), (err, res) => {
-        if (err) return next(err)
-        next(null, res)
-      })
+      udaru.policies.createShared(Object.assign(
+        {},
+        DEFAULT_SHARED_POLICY,
+        _.pick(policy, 'id', 'name', 'version', 'statements')
+      ), next)
     }, (err, policies) => {
       if (err) return done(err)
 
