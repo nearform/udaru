@@ -277,6 +277,41 @@ lab.experiment('UserOps', () => {
     })
   })
 
+  lab.test('replace with shared policies', (done) => {
+    const accountantPolicy = u.findPick(wonkaPolicies, {name: 'Accountant'}, ['id', 'name', 'version'])
+
+    udaru.users.read({ id: 'VerucaId', organizationId: 'WONKA' }, (err, user) => {
+      expect(err).to.not.exist()
+      expect(user).to.exist()
+      expect(user.policies).to.equal([{
+        id: accountantPolicy.id,
+        name: accountantPolicy.name,
+        version: accountantPolicy.version,
+        variables: {}
+      }])
+
+      udaru.users.replacePolicies({
+        id: 'VerucaId',
+        policies: ['sharedPolicyId1'],
+        organizationId: 'WONKA'
+      }, (err, user) => {
+        expect(err).to.not.exist()
+        expect(user).to.exist()
+        expect(user.policies).to.equal([{
+          id: 'sharedPolicyId1',
+          name: 'Shared policy from fixtures',
+          version: '0.1',
+          variables: {}
+        }])
+
+        udaru.users.replacePolicies({ id: 'VerucaId', policies: [accountantPolicy.id], organizationId: 'WONKA' }, (err, user) => {
+          expect(err).to.not.exist()
+          done()
+        })
+      })
+    })
+  })
+
   lab.test('add policies to user', (done) => {
     let accountantPolicy = u.findPick(wonkaPolicies, {name: 'Accountant'}, ['id', 'name', 'version'])
     let directorPolicy = u.findPick(wonkaPolicies, {name: 'Director'}, ['id', 'name', 'version'])
@@ -361,6 +396,42 @@ lab.experiment('UserOps', () => {
           name: sysadminPolicy.name,
           version: sysadminPolicy.version,
           variables: {var2: 'value2'}
+        }])
+
+        udaru.users.replacePolicies({ id: 'VerucaId', policies: [accountantPolicy.id], organizationId: 'WONKA' }, (err, user) => {
+          expect(err).to.not.exist()
+          done()
+        })
+      })
+    })
+  })
+
+  lab.test('add shared policies to user', (done) => {
+    const accountantPolicy = u.findPick(wonkaPolicies, {name: 'Accountant'}, ['id', 'name', 'version'])
+
+    udaru.users.read({ id: 'VerucaId', organizationId: 'WONKA' }, (err, user) => {
+      expect(err).to.not.exist()
+      expect(user).to.exist()
+      expect(user.policies).to.equal([{
+        id: accountantPolicy.id,
+        name: accountantPolicy.name,
+        version: accountantPolicy.version,
+        variables: {}
+      }])
+
+      udaru.users.addPolicies({ id: 'VerucaId', policies: ['sharedPolicyId1'], organizationId: 'WONKA' }, (err, user) => {
+        expect(err).to.not.exist()
+        expect(user).to.exist()
+        expect(user.policies).to.equal([{
+          id: accountantPolicy.id,
+          name: accountantPolicy.name,
+          version: accountantPolicy.version,
+          variables: {}
+        }, {
+          id: 'sharedPolicyId1',
+          name: 'Shared policy from fixtures',
+          version: '0.1',
+          variables: {}
         }])
 
         udaru.users.replacePolicies({ id: 'VerucaId', policies: [accountantPolicy.id], organizationId: 'WONKA' }, (err, user) => {

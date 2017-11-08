@@ -211,6 +211,8 @@ lab.experiment('PolicyOps', () => {
           }, {
             key: 'policyWithVariablesMulti',
             variables: {var2: 'value2'}
+          }, {
+            key: 'sharedPolicy'
           }]
         }
       },
@@ -253,12 +255,25 @@ lab.experiment('PolicyOps', () => {
             }]
           }
         }
+      },
+      sharedPolicies: {
+        sharedPolicy: { name: 'sharedPolicy1' },
+        unusedPolicy: { name: 'unusedPolicy1' }
       }
     })
 
     function getName (policy) {
       return policy.Name
     }
+
+    lab.test('loads correct number of policies', (done) => {
+      policyOps.listAllUserPolicies({ userId: records.called.id, organizationId: orgId }, (err, results) => {
+        if (err) return done(err)
+
+        expect(results).to.have.length(9)
+        done()
+      })
+    })
 
     lab.test('loads policies from user', (done) => {
       policyOps.listAllUserPolicies({ userId: records.called.id, organizationId: orgId }, (err, results) => {
@@ -292,6 +307,15 @@ lab.experiment('PolicyOps', () => {
         if (err) return done(err)
 
         expect(results.map(getName)).to.include(records.organizationPolicy.name)
+        done()
+      })
+    })
+
+    lab.test('loads shared policies', (done) => {
+      policyOps.listAllUserPolicies({ userId: records.called.id, organizationId: orgId }, (err, results) => {
+        if (err) return done(err)
+
+        expect(results.map(getName)).to.include(records.sharedPolicy.name)
         done()
       })
     })
@@ -651,6 +675,161 @@ lab.experiment('PolicyOps', () => {
       })
 
       async.series(tasks, done)
+    })
+  })
+
+  lab.experiment('shared policies', () => {
+    lab.beforeEach(function deleteExistingPolicies (done) {
+      udaru.policies.listShared({}, (err, result) => {
+        if (err) return done(err)
+
+        const ids = _.chain(result)
+          .reject(policy => policy.id === 'sharedPolicyId1') // ignore fixture policy
+          .map((policy) => _.pick(policy, 'id'))
+          .value()
+
+        async.each(ids, udaru.policies.deleteShared, done)
+      })
+    })
+
+    lab.test('list', done => {
+      const policyData = [{
+        version: '1',
+        name: 'Shared Policy (test)',
+        statements
+      }, {
+        version: '1',
+        name: 'Shared Policy (test 2)',
+        statements
+      }]
+
+      async.each(policyData, udaru.policies.createShared, (err) => {
+        expect(err).to.not.exist()
+
+        udaru.policies.listShared({}, (err, result) => {
+          expect(err).to.not.exist()
+          expect(result).to.exist()
+          expect(result.length).to.equal(3) // 3 = 2 created + 1 from fixtures
+
+          const policy = result[0]
+          expect(policy.id).to.exist()
+          expect(policy.name).to.exist()
+          expect(policy.version).to.exist()
+          expect(policy.statements).to.exist()
+
+          done()
+        })
+      })
+    })
+
+    lab.test('create', done => {
+      const policyData = {
+        version: '1',
+        name: 'Shared Policy (test)',
+        statements
+      }
+
+      udaru.policies.createShared(policyData, (err, policy) => {
+        expect(err).to.not.exist()
+        expect(policy).to.exist()
+        expect(policy.name).to.equal('Shared Policy (test)')
+        expect(policy.version).to.equal('1')
+        expect(policy.statements).to.equal(statements)
+
+        done()
+      })
+    })
+
+    lab.test('read', done => {
+      const policyData = {
+        version: '1',
+        name: 'Shared Policy (test 2)',
+        statements
+      }
+
+      udaru.policies.createShared(policyData, (err, policy) => {
+        expect(err).to.not.exist()
+        expect(policy).to.exist()
+
+        const policyId = policy.id
+
+        udaru.policies.readShared({id: policyId}, (err, policy) => {
+          expect(err).to.not.exist()
+          expect(policy).to.exist()
+
+          expect(policy.name).to.equal('Shared Policy (test 2)')
+          expect(policy.version).to.equal('1')
+          expect(policy.statements).to.equal(statements)
+
+          done()
+        })
+      })
+    })
+
+    lab.test('delete', (done) => {
+      const policyData = {
+        version: '1',
+        name: 'Documents Admin',
+        statements
+      }
+
+      udaru.policies.createShared(policyData, (err, policy) => {
+        expect(err).to.not.exist()
+        expect(policy).to.exist()
+
+        const policyId = policy.id
+
+        expect(policy.name).to.equal('Documents Admin')
+        expect(policy.version).to.equal('1')
+        expect(policy.statements).to.equal(statements)
+
+        udaru.policies.deleteShared({ id: policyId }, (err) => {
+          expect(err).to.not.exist()
+
+          udaru.policies.readShared({ id: policyId }, (err) => {
+            expect(err).to.exist()
+
+            done()
+          })
+        })
+      })
+    })
+
+    lab.test('update', (done) => {
+      const policyData = {
+        version: '1',
+        name: 'Documents Admin',
+        statements
+      }
+
+      udaru.policies.createShared(policyData, (err, policy) => {
+        expect(err).to.not.exist()
+        expect(policy).to.exist()
+
+        const policyId = policy.id
+
+        expect(policy.name).to.equal('Documents Admin')
+        expect(policy.version).to.equal('1')
+        expect(policy.statements).to.equal(statements)
+
+        const updateData = {
+          id: policyId,
+          version: '2',
+          name: 'Documents Admin v2',
+          statements: { Statement: [{ Effect: 'Deny', Action: ['documents:Read'], Resource: ['wonka:documents:/public/*'] }] }
+        }
+
+        udaru.policies.updateShared(updateData, (err, policy) => {
+          expect(err).to.not.exist()
+          expect(policy).to.exist()
+
+          expect(policy.name).to.equal('Documents Admin v2')
+          expect(policy.version).to.equal('2')
+          expect(policy.statements).to.equal({ Statement: [{ Effect: 'Deny', Action: ['documents:Read'], Resource: ['wonka:documents:/public/*'] }] })
+
+          udaru.policies.deleteShared({ id: policyId }, done)
+        })
+      })
     })
   })
 })

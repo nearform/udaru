@@ -18,6 +18,18 @@ const DEFAULT_POLICY = {
   organizationId: 'WONKA'
 }
 
+const DEFAULT_SHARED_POLICY = {
+  version: '2016-07-01',
+  name: 'Shared Policy',
+  statements: {
+    Statement: [{
+      Effect: 'Allow',
+      Action: ['dummy'],
+      Resource: ['dummy']
+    }]
+  }
+}
+
 function Factory (lab, data, udaruCore) {
   const udaru = udaruCore || utils.udaru
   const records = {}
@@ -44,6 +56,23 @@ function Factory (lab, data, udaruCore) {
         res.organizationId = policy.organizationId || DEFAULT_POLICY.organizationId
         next(null, res)
       })
+    }, (err, policies) => {
+      if (err) return done(err)
+
+      Object.assign(records, policies)
+      done()
+    })
+  }
+
+  function createSharedPolicies (done) {
+    if (!data.sharedPolicies) return done()
+
+    async.mapValues(data.sharedPolicies, (policy, key, next) => {
+      udaru.policies.createShared(Object.assign(
+        {},
+        DEFAULT_SHARED_POLICY,
+        _.pick(policy, 'id', 'name', 'version', 'statements')
+      ), next)
     }, (err, policies) => {
       if (err) return done(err)
 
@@ -200,6 +229,7 @@ function Factory (lab, data, udaruCore) {
       createOrganizations,
       createUsers,
       createPolicies,
+      createSharedPolicies,
       createTeams
     ], (err) => {
       if (err) return done(err)
@@ -256,6 +286,19 @@ function Factory (lab, data, udaruCore) {
     }, done)
   }
 
+  function deleteSharedPolicies (done) {
+    if (!data.sharedPolicies) return done()
+
+    async.eachOf(data.sharedPolicies, (policy, key, next) => {
+      udaru.policies.deleteShared({
+        id: records[key].id
+      }, (err) => {
+        if (err && err.output.payload.error !== 'Not Found') return next(err)
+        next()
+      })
+    }, done)
+  }
+
   function deleteOrganizations (done) {
     if (!data.organizations) return done()
 
@@ -272,6 +315,7 @@ function Factory (lab, data, udaruCore) {
       deleteUsers,
       deleteTeams,
       deletePolicies,
+      deleteSharedPolicies,
       deleteOrganizations
     ], done)
   }

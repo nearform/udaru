@@ -116,7 +116,7 @@ class CustomTest {
 
       const policyData = Policy(interpolate(statement, records))
       policyData.id = testedPolicy.id
-      policyData.organizationId = testedPolicy.organizationId
+      policyData.organizationId = testedPolicy.organizationId || 'WONKA'
 
       udaru.policies.update(policyData, (err, policy) => {
         if (err) return done(err)

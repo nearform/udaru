@@ -585,6 +585,22 @@ lab.experiment('TeamOps', () => {
     })
   })
 
+  lab.test('add shared policies to team', (done) => {
+    udaru.teams.addPolicies({ id: testTeam.id, policies: ['sharedPolicyId1'], organizationId: 'WONKA' }, (err, team) => {
+      expect(err).to.not.exist()
+      expect(team).to.exist()
+      expect(team.policies).to.have.length(1)
+      expect(team.policies).to.only.include([{
+        id: 'sharedPolicyId1',
+        name: 'Shared policy from fixtures',
+        version: '0.1',
+        variables: {}
+      }])
+
+      done()
+    })
+  })
+
   lab.test('replace team policies', (done) => {
     udaru.teams.addPolicies({
       id: testTeam.id,
@@ -635,6 +651,30 @@ lab.experiment('TeamOps', () => {
           name: policies[1].name,
           version: policies[1].version,
           variables: {var1: 'value2'}
+        }])
+        done()
+      })
+    })
+  })
+
+  lab.test('replace with shared policies', (done) => {
+    udaru.teams.addPolicies({
+      id: testTeam.id,
+      organizationId: 'WONKA',
+      policies: [policies[0].id]
+    }, (err, team) => {
+      expect(err).to.not.exist()
+      expect(team).to.exist()
+
+      udaru.teams.replacePolicies({ id: team.id, policies: ['sharedPolicyId1'], organizationId: 'WONKA' }, (err, team) => {
+        expect(err).to.not.exist()
+        expect(team).to.exist()
+        expect(team.policies).to.have.length(1)
+        expect(team.policies).to.only.include([{
+          id: 'sharedPolicyId1',
+          name: 'Shared policy from fixtures',
+          version: '0.1',
+          variables: {}
         }])
         done()
       })
