@@ -1,5 +1,5 @@
 
-CREATE EXTENSION ltree;
+CREATE EXTENSION IF NOT EXISTS ltree;
 
 /* TODO: consider using unique non-sequential ids, for security
   (less predictabiity)
