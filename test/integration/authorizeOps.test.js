@@ -9,7 +9,7 @@ const _ = require('lodash')
 const testUtils = require('../utils')
 const { udaru } = testUtils
 const authorize = udaru.authorize
-const Factory = require('../factory')
+const Factory = require('../../scripts/factory')
 
 const fs = require('fs')
 const path = require('path')

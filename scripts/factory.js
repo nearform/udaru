@@ -2,8 +2,7 @@
 
 const async = require('async')
 const _ = require('lodash')
-
-const utils = require('./utils')
+const defaultUdaru = require('./../lib/core')()
 
 const DEFAULT_POLICY = {
   version: '2016-07-01',
@@ -31,7 +30,7 @@ const DEFAULT_SHARED_POLICY = {
 }
 
 function Factory (lab, data, udaruCore) {
-  const udaru = udaruCore || utils.udaru
+  const udaru = udaruCore || defaultUdaru
   const records = {}
 
   function createUsers (done) {

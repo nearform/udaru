@@ -6,7 +6,7 @@ const lab = exports.lab = Lab.script()
 
 const config = require('../../../lib/config/build-all')()
 const server = require('../../../lib/server')
-const Factory = require('../../factory')
+const Factory = require('../../../scripts/factory')
 const utils = require('../../utils')
 const Action = config.get('AuthConfig.Action')
 

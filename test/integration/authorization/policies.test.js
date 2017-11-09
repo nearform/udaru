@@ -4,7 +4,7 @@ const lab = exports.lab = Lab.script()
 const server = require('../../../lib/server')
 const config = require('../../../lib/config/build-all')()
 
-const Factory = require('../../factory')
+const Factory = require('../../../scripts/factory')
 const BuildFor = require('./testBuilder')
 
 const utils = require('../../utils')

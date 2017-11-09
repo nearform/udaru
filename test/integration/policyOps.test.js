@@ -9,7 +9,7 @@ const lab = exports.lab = Lab.script()
 const _ = require('lodash')
 const async = require('async')
 const uuid = require('uuid/v4')
-const Factory = require('../factory')
+const Factory = require('../../scripts/factory')
 const testUtils = require('../utils')
 const { udaru } = testUtils
 
