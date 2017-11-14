@@ -1,14 +1,12 @@
 'use strict'
 
-const SQL = require('./../lib/core/lib/db/SQL')
-const buildUdaru = require('./../lib/core')
-const buildDb = require('./../lib/core/lib/db')
-const config = require('../lib/config/build-all')()
-const buildConfig = require('../lib/config')
+const SQL = require('../packages/udaru/lib/db/SQL')
+const buildUdaru = require('../packages/udaru')
+const buildDb = require('../packages/udaru/lib/db')
+const config = require('../packages/udaru/config')()
 
-const fullConfig = buildConfig({}, config)
-const db = buildDb(null, fullConfig)
-const udaru = buildUdaru(null, fullConfig)
+const db = buildDb(null, config)
+const udaru = buildUdaru(null, config)
 
 function createOrganization (job, next) {
   const superOrganizationData = config.get('authorization.superUser.organization')
