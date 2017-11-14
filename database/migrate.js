@@ -3,7 +3,7 @@
 const postgrator = require('postgrator')
 const path = require('path')
 const minimist = require('minimist')
-const config = require('../lib/config/build-all')()
+const config = require('../packages/udaru/config')()
 
 postgrator.setConfig({
   migrationDirectory: path.join(__dirname, '/migrations'),

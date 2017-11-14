@@ -5,7 +5,7 @@
 [![snyk][snyk-badge]][snyk-url]
 
 ![Udaru](./docs/logo.jpg)
-Udaru is an Policy Based Access Control (PBAC) authorization module. It supports Organizations, Teams and User entities that are used to build the access model. The policies attached to these entities define the 'Actions' that can be performed by an entity on various 'Resources'.
+Udaru is a Policy Based Access Control (PBAC) authorization module. It supports Organizations, Teams and User entities that are used to build the access model. The policies attached to these entities define the 'Actions' that can be performed by an entity on various 'Resources'.
 
 See the Udaru [website](https://nearform.github.io/udaru/) for complete documentation on Udaru.
 
@@ -33,7 +33,7 @@ npm run start
 ### Hapi plugin
 ```js
 const Hapi = require('hapi')
-const UdaruPlugin = require('udaru/plugin')
+const UdaruPlugin = require('udaru-hapi-plugin')
 
 ...
 
@@ -143,7 +143,7 @@ and then go to [`http://localhost:8080/documentation`][swagger-link]
 The Swagger documentation also gives the ability to execute calls to the API and see their results. If you're using the test database, you can use 'ROOTid' as the required authorization parameter and 'WONKA' as the organisation.
 
 ### ENV variables to set configuration options
-There are three default configuration files, one per "level": [`lib/config/default.core.js`][core-config], [`lib/config/default.plugin.js`][plugin-config] and [`lib/config/default.server.js`][server-config].
+There are three default configuration files, one per "level": [`packages/udaru/config.js`][core-config], [`packages/udaru-hapi-plugin/config.js`][plugin-config] and [`packages/udaru-server/config.js`][server-config].
 
 They are cumulative: when running udaru as a standalone server all the three files will be loaded; when using it as an Hapi plugin, plugin and core will be loaded.
 
@@ -169,7 +169,7 @@ const udaru = buildUdaru(dbPool, {
 **Hapi plugin**
 ```js
 const Hapi = require('hapi')
-const UdaruPlugin = require('udaru/plugin')
+const UdaruPlugin = require('udaru-hapi-plugin')
 const server = new Hapi.server()
 server.register({
   register: UdaruPlugin,
@@ -247,7 +247,7 @@ To run a bench test on a given route:
 npm run bench -- "METHOD swagger/route/template/path"
 ```
 
-To obtain a coverage report:
+To create coverage reports:
 
 ```
 npm run coverage
@@ -289,9 +289,9 @@ See the [sqlmap][] repository for more details.
 
 Copyright nearForm Ltd 2017. Licensed under [MIT][license].
 
-[core-config]: https://github.com/nearform/udaru/blob/master/lib/config/default.core.js
-[plugin-config]: https://github.com/nearform/udaru/blob/master/lib/config/default.plugin.js
-[server-config]: https://github.com/nearform/udaru/blob/master/lib/config/default.server.js
+[core-config]: https://github.com/nearform/udaru/blob/master/packages/udaru/config.js
+[plugin-config]: https://github.com/nearform/udaru/blob/master/packages/udaru-hapi-plugin/config.js
+[server-config]: https://github.com/nearform/udaru/blob/master/packages/udaru-server/config.js
 [license]: ./LICENSE.md
 [postgrator]: https://github.com/rickbergfalk/postgrator
 [prefix-link]: https://github.com/nearform/udaru/blob/master/lib/core/config.js#L100
