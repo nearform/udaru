@@ -5,7 +5,7 @@ const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 const utils = require('../../utils')
 const server = require('../../../lib/server')
-const Factory = require('../../factory')
+const Factory = require('../../../scripts/factory')
 
 lab.experiment('Authorization', () => {
   lab.test('check authorization should return access true for allowed', (done) => {

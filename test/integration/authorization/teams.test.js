@@ -6,7 +6,7 @@ const server = require('../../../lib/server')
 const utils = require('../../utils')
 const { udaru } = utils
 
-const Factory = require('../../factory')
+const Factory = require('../../../scripts/factory')
 const BuildFor = require('./testBuilder')
 
 const organizationId = 'WONKA'
