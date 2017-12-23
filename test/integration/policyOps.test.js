@@ -201,19 +201,28 @@ lab.experiment('PolicyOps', () => {
           name: 'called',
           description: 'called',
           organizationId: orgId,
-          policies: [{
-            key: 'userPolicy'
-          }, {
-            key: 'policyWithoutVariables'
-          }, {
-            key: 'policyWithVariables',
-            variables: {var1: 'value1'}
-          }, {
-            key: 'policyWithVariablesMulti',
-            variables: {var2: 'value2'}
-          }, {
-            key: 'sharedPolicy'
-          }]
+          policies: [
+            {
+              key: 'userPolicy'
+            },
+            {
+              key: 'policyWithoutVariables'
+            },
+            {
+              key: 'policyWithVariables',
+              variables: { var1: 'value1' }
+            },
+            {
+              key: 'policyWithVariablesMulti',
+              variables: { var2: 'value2' }
+            },
+            {
+              key: 'policyWithVariablesMulti',
+              variables: { var2: 'value4' }
+            },
+            {
+              key: 'sharedPolicy'
+            }]
         }
       },
       policies: {
@@ -270,7 +279,7 @@ lab.experiment('PolicyOps', () => {
       policyOps.listAllUserPolicies({ userId: records.called.id, organizationId: orgId }, (err, results) => {
         if (err) return done(err)
 
-        expect(results).to.have.length(9)
+        expect(results).to.have.length(10)
         done()
       })
     })
@@ -362,11 +371,18 @@ lab.experiment('PolicyOps', () => {
           Effect: 'Allow',
           Action: ['dummy'],
           Resource: ['value2']
-        }, {
+        },
+        {
           Effect: 'Allow',
           Action: ['dummy'],
           Resource: ['value3']
-        }])
+        },
+        {
+          Effect: 'Allow',
+          Action: ['dummy'],
+          Resource: ['value4']
+        }
+        ])
 
         done()
       })
