@@ -185,7 +185,7 @@ lab.experiment('PolicyOps', () => {
             key: 'teamPolicy'
           }, {
             key: 'policyWithVariablesMulti',
-            variables: {var2: 'value3'}
+            variables: { var21: 'value21', var22: 'value22' }
           }],
           parent: 'parentTeam'
         },
@@ -201,19 +201,28 @@ lab.experiment('PolicyOps', () => {
           name: 'called',
           description: 'called',
           organizationId: orgId,
-          policies: [{
-            key: 'userPolicy'
-          }, {
-            key: 'policyWithoutVariables'
-          }, {
-            key: 'policyWithVariables',
-            variables: {var1: 'value1'}
-          }, {
-            key: 'policyWithVariablesMulti',
-            variables: {var2: 'value2'}
-          }, {
-            key: 'sharedPolicy'
-          }]
+          policies: [
+            {
+              key: 'userPolicy'
+            },
+            {
+              key: 'policyWithoutVariables'
+            },
+            {
+              key: 'policyWithVariables',
+              variables: { var1: 'value1' }
+            },
+            {
+              key: 'policyWithVariables',
+              variables: { var1: 'value11' }
+            },
+            {
+              key: 'policyWithVariablesMulti',
+              variables: { var21: 'value21', var22: 'value22' }
+            },
+            {
+              key: 'sharedPolicy'
+            }]
         }
       },
       policies: {
@@ -240,7 +249,7 @@ lab.experiment('PolicyOps', () => {
             Statement: [{
               Effect: 'Allow',
               Action: ['dummy'],
-              Resource: ['${var2}']
+              Resource: ['${var21}', '${var22}']
             }]
           }
         },
@@ -269,7 +278,6 @@ lab.experiment('PolicyOps', () => {
     lab.test('loads correct number of policies', (done) => {
       policyOps.listAllUserPolicies({ userId: records.called.id, organizationId: orgId }, (err, results) => {
         if (err) return done(err)
-
         expect(results).to.have.length(9)
         done()
       })
@@ -329,24 +337,35 @@ lab.experiment('PolicyOps', () => {
       })
     })
 
-    lab.test('should interpolate variables provided on policy assignment', (done) => {
+    lab.test('should support multiple instances of the same policy with different variables', (done) => {
       policyOps.listAllUserPolicies({ userId: records.called.id, organizationId: orgId }, (err, results) => {
         if (err) return done(err)
 
         expect(results.map(getName)).to.include(records.policyWithVariables.name)
 
-        const policy = _.find(results, {Name: records.policyWithVariables.name})
-        expect(policy.Statement).to.equal([{
+        const statements = _.chain(results)
+          .filter({Name: records.policyWithVariables.name})
+          .map('Statement')
+          .flatten()
+          .value()
+
+        expect(statements).to.include([{
           Effect: 'Allow',
           Action: ['dummy'],
           Resource: ['value1']
-        }])
+        },
+        {
+          Effect: 'Allow',
+          Action: ['dummy'],
+          Resource: ['value11']
+        }
+        ])
 
         done()
       })
     })
 
-    lab.test('should support multiple instances of the same policy with different variables', (done) => {
+    lab.test('should support multiple variables on the same policy instance', (done) => {
       policyOps.listAllUserPolicies({ userId: records.called.id, organizationId: orgId }, (err, results) => {
         if (err) return done(err)
 
@@ -361,12 +380,9 @@ lab.experiment('PolicyOps', () => {
         expect(statements).to.include([{
           Effect: 'Allow',
           Action: ['dummy'],
-          Resource: ['value2']
-        }, {
-          Effect: 'Allow',
-          Action: ['dummy'],
-          Resource: ['value3']
-        }])
+          Resource: ['value21', 'value22']
+        }
+        ])
 
         done()
       })
