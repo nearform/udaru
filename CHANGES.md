@@ -1,21 +1,21 @@
 
 ## 3.0.0 - January 22, 2018
 Features, enhancements:
-- Shared policies [commit](https://github.com/nearform/udaru/pull/437)
-- Policy templates [commit](https://github.com/nearform/udaru/pull/435)
-- Multi variable policies [commit](https://github.com/nearform/udaru/pull/441)
-- Create Udaru instance only on demand [commit](https://github.com/nearform/udaru/pull/440)
-- Explicitely add org header for CORS [commit](https://github.com/nearform/udaru/pull/434)
-- Remove core instance dependency at plugin level [commit](https://github.com/nearform/udaru/pull/433)
-- Enhanced configuring, extract DB pool creation [commit](https://github.com/nearform/udaru/pull/427)
-- Endpoint for listing allowed actions on multiple resources [commit](https://github.com/nearform/udaru/pull/418)
-- Updated dependencies
-- Documentation udpates
+-   Shared policies [commit](https://github.com/nearform/udaru/pull/437)
+-   Policy templates [commit](https://github.com/nearform/udaru/pull/435)
+-   Multi variable policies [commit](https://github.com/nearform/udaru/pull/441)
+-   Create Udaru instance only on demand [commit](https://github.com/nearform/udaru/pull/440)
+-   Explicitely add org header for CORS [commit](https://github.com/nearform/udaru/pull/434)
+-   Remove core instance dependency at plugin level [commit](https://github.com/nearform/udaru/pull/433)
+-   Enhanced configuring, extract DB pool creation [commit](https://github.com/nearform/udaru/pull/427)
+-   Endpoint for listing allowed actions on multiple resources [commit](https://github.com/nearform/udaru/pull/418)
+-   Updated dependencies
+-   Documentation udpates
 
 Fixes:
-- **Breaking change: solutions using 2.0 can't migrate DB to 3.0**: Fix migration issue [commit](https://github.com/nearform/udaru/pull/438)
-- Fix not existing user got authorized [commit](https://github.com/nearform/udaru/pull/429)
-- Fix db init script [commit](https://github.com/nearform/udaru/pull/432)
+-   **Breaking change: solutions using 2.0 can't migrate DB to 3.0**: Fix migration issue [commit](https://github.com/nearform/udaru/pull/438)
+-   Fix not existing user got authorized [commit](https://github.com/nearform/udaru/pull/429)
+-   Fix db init script [commit](https://github.com/nearform/udaru/pull/432)
 
 ## 2.0.3 - August 24, 2017
 Fixed Udaru plugin registration [commit](https://github.com/nearform/udaru/commit/c893346c026d6f87873685b70b2e0e63f475978a)
