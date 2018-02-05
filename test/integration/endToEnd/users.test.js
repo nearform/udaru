@@ -1,5 +1,6 @@
 'use strict'
 
+const _ = require('lodash')
 const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
@@ -609,6 +610,55 @@ lab.experiment('Users - checking org_id scoping', () => {
 })
 
 lab.experiment('Users - manage teams', () => {
+  lab.test('get user teams', (done) => {
+    const userId = 'VerucaId'
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: `/authorization/users/${userId}/teams`
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(200)
+      expect(result.total).to.equal(2)
+      expect(result.page).to.equal(1)
+      expect(result.limit).to.equal(2)
+      expect(result.data.length).to.equal(2)
+      let expectedTeams = [
+        'Authors',
+        'Readers'
+      ]
+      expect(_.map(result.data, 'name')).to.only.contain(expectedTeams)
+
+      done()
+    })
+  })
+
+  lab.test('get user teams, paginated', (done) => {
+    const userId = 'VerucaId'
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: `/authorization/users/${userId}/teams?page=2&limit=1`
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(200)
+      expect(result.total).to.equal(2)
+      expect(result.page).to.equal(2)
+      expect(result.limit).to.equal(1)
+      expect(result.data.length).to.equal(1)
+      let expectedTeams = [
+        'Readers'
+      ]
+      expect(_.map(result.data, 'name')).contains(expectedTeams)
+
+      done()
+    })
+  })
+
   lab.test('replace users teams', (done) => {
     const options = utils.requestOptions({
       method: 'POST',
