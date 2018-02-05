@@ -1,4 +1,7 @@
 
+## 3.1.0 - February 5, 2018
+-  Added get user teams [commit](https://github.com/nearform/udaru/pull/451)
+
 ## 3.0.0 - January 22, 2018
 Features, enhancements:
 -   Shared policies [commit](https://github.com/nearform/udaru/pull/437)
