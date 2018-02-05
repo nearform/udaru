@@ -626,10 +626,10 @@ lab.experiment('Users - manage teams', () => {
       expect(result.limit).to.equal(2)
       expect(result.data.length).to.equal(2)
       let expectedTeams = [
-        'Readers',
-        'Authors'
+        'Authors',
+        'Readers'
       ]
-      expect(_.map(result.data, 'name')).contains(expectedTeams)
+      expect(_.map(result.data, 'name')).to.only.contain(expectedTeams)
 
       done()
     })
