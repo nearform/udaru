@@ -1,6 +1,6 @@
 
 ## 3.1.0 - February 5, 2018
--  Added get user teams [commit](https://github.com/nearform/udaru/pull/451)
+-   Added get user teams [commit](https://github.com/nearform/udaru/pull/451)
 
 ## 3.0.0 - January 22, 2018
 Features, enhancements:
@@ -16,7 +16,7 @@ Features, enhancements:
 -   Documentation udpates
 
 Fixes:
-- **Breaking change: solutions using 2.0 can't migrate DB to 3.0**: Fix migration issue [commit](https://github.com/nearform/udaru/pull/438)
+-   **Breaking change: solutions using 2.0 can't migrate DB to 3.0**: Fix migration issue [commit](https://github.com/nearform/udaru/pull/438)
 -   Fix not existing user got authorized [commit](https://github.com/nearform/udaru/pull/429)
 -   Fix db init script [commit](https://github.com/nearform/udaru/pull/432)
 
