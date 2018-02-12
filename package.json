@@ -33,6 +33,7 @@
   },
   "scripts": {
     "bench": "node ./bench/util/runner.js",
+    "bench-volume": "node ./bench/util/volumeRunner.js",
     "test:security": "node ./security/runner.js",
     "pretest:security": "napa sqlmapproject/sqlmap",
     "coverage": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -c -t 95 -r html -o docs/coverage.html",
@@ -42,6 +43,8 @@
     "pg:init": "UDARU_SERVICE_local=true node database/init.js && npm run pg:migrate",
     "pg:init-test-db": "npm run pg:init && npm run pg:load-test-data",
     "pg:load-test-data": "UDARU_SERVICE_local=true node database/loadTestData.js",
+    "pg:init-volume-db": "npm run pg:init && npm run pg:load-volume-data",
+    "pg:load-volume-data": "UDARU_SERVICE_local=true node database/loadVolumeData.js",
     "pg:migrate": "node database/migrate.js --version=5",
     "start": "node lib/server/start.js",
     "test": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -c -t 95",
