@@ -1,7 +1,7 @@
 'use strict'
 
 /* /bench/util/volumeRunner.js needs to have same values as here for teams, users etc. */
-const NUM_TEAMS = 10000 // total number of teams
+const NUM_TEAMS = 500 // total number of teams
 
 const USER_START_ID = 1 // user start id, we may want a few super users
 const TEAM_START_ID = 7 // user start id, so as not to interfere with other test data
