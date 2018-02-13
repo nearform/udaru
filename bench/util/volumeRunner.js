@@ -1,7 +1,7 @@
 'use strict'
 // run this AFTER /database/loadVolumeData.js has populated db successfully
 const DEBUG = false // prints request/response details
-const START_SERVER = false // true = start udaru
+const START_SERVER = true // true = start udaru
 
 // ensure variables same as /database/loadVolumeData.js
 const NUM_TEAMS = 500 // total number of teams
@@ -15,10 +15,10 @@ const autocannon = require('autocannon')
 // part of initial route, this changes for second run
 var partialRoute = '/authorization/access/'
 
-const Server = null
+var Server = null
 if (START_SERVER) {
   // start udaru server
-  require('../../lib/server/index')
+  Server = require('../../lib/server/index')
   Server.start((err) => {
     if (err) {
       return console.error(`Failed to start server: ${err.message}`)
@@ -39,6 +39,7 @@ function startBench () {
     title: 'Random requests to ' + partialRoute,
     url: 'http://localhost:8080',
     duration: DURATION,
+    connections: 10,
     headers: {
       authorization: 'ROOTid',
       org: 'CONCH'

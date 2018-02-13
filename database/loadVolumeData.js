@@ -1,13 +1,14 @@
 'use strict'
 
 /* /bench/util/volumeRunner.js needs to have same values as here for teams, users etc. */
-const NUM_TEAMS = 500 // total number of teams
+const NUM_TEAMS = 10000 // total number of teams
 
 const USER_START_ID = 1 // user start id, we may want a few super users
 const TEAM_START_ID = 7 // user start id, so as not to interfere with other test data
 const SUB_TEAM_MOD = 100 // 1 parent for every X-1 teams
 const NUM_USERS_PER_TEAM = 100 // put this many users in each team
 const NUM_POLICIES_PER_TEAM = 10 // :-|
+// const CREATE_INDEX = true
 
 const path = require('path')
 const pg = require('pg')
@@ -201,6 +202,31 @@ function logInColour (message, level = 'success') {
 }
 
 function loadVolumeDataEnd (callback) {
+  /* moved to migration scripts
+  if (CREATE_INDEX === true) {
+    console.log('Creating index, please wait...')
+    var sql = 'CREATE INDEX "team_members#user_id"\n' +
+      'ON public.team_members USING btree\n' +
+      '(user_id COLLATE pg_catalog."default" varchar_ops)\n' +
+      'TABLESPACE pg_default;\n\n' +
+      'ALTER TABLE public.team_members\n' +
+    'CLUSTER ON "team_members#user_id;"\n'
+
+    console.log(sql)
+
+    // creating index doesn't seem to want to call back...
+    client.query(sql, function (err, result) {
+      if (err) {
+        logInColour('Error creating index: ' + err + ', result:' + result, 'error')
+        callback(err)
+      } else {
+        logInColour('success creating index' + result)
+        callback(null)
+        return
+      }
+    })
+  }
+  */
   endTime = Date.now()
   logInColour('loadVolumeData completed in ' + (endTime - startTime) + 'ms')
 
@@ -211,7 +237,7 @@ module.exports = loadVolumeDataBegin
 
 if (require.main === module) {
   loadVolumeDataBegin((err) => {
-    if (err) console.error(err)
+    if (err) logInColour(err, 'error')
     process.exit(err ? 1 : 0)
   })
 }
