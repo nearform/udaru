@@ -11,22 +11,39 @@ const NUM_POLICIES_PER_TEAM = 10
 const DURATION = 15 // how long to run tests for in seconds
 
 const autocannon = require('autocannon')
+const path = require('path')
 
 // part of initial route, this changes for second run
 var partialRoute = '/authorization/access/'
 
-var Server = null
+var child = null
 if (START_SERVER) {
+  const spawn = require('child_process')
   // start udaru server
-  Server = require('../../lib/server/index')
-  Server.start((err) => {
-    if (err) {
-      return console.error(`Failed to start server: ${err.message}`)
+  console.log('Starting UDARU server...')
+  // need stdin to determine when server starts
+  child = spawn.fork(path.join(__dirname, '../../lib/server/start'), [], { silent: true })
+
+  child.stdout.on('data', (m) => {
+    var s = m.toString('utf8')
+    if (s.indexOf('Server started on:') !== -1) {
+      console.log(s)
+      startBench()
     }
+  })
 
-    console.log('Server started on: ' + Server.info.uri.toLowerCase())
+  child.stderr.on('data', (m) => {
+    var s = m.toString('utf8')
+    // child should send close event, no need to kill on error
+    // useful output if port being used for example
+    console.log('\x1b[31m', s, '\x1b[0m')
+  })
 
-    startBench()
+  child.on('close', (code, signal) => {
+    console.log('Server received close event, shutting down')
+    // as part of graceful exit after bench run, child.kill will cause this
+    // might as well kill here if the server isn't running for any reason
+    process.exit(0)
   })
 } else {
   startBench()
@@ -53,15 +70,22 @@ function startBench () {
     setupClient: setupClient
   }, onComplete)
 
-  // allows for ctrl+c safely shut down
-  process.once('SIGINT', () => {
-    instance.stop()
-  })
-
   autocannon.track(instance, {renderProgressBar: !DEBUG})
 
   instance.on('response', onResponse)
 }
+
+// allows for ctrl+c safely shut down
+process.once('SIGINT', () => {
+  // this will be called if we haven't kicked off a child process for UDARU
+  console.log('\nStopping instance of autocannon...')
+  instance.stop()
+
+  if (child != null) {
+    console.log('Kill server child process...')
+    child.kill()
+  }
+})
 
 function getRandomIntInclusive (min, max) {
   min = Math.ceil(min)
@@ -160,12 +184,10 @@ function onComplete (err, res) {
   }
 
   if (shutDown) {
-    if (Server != null) {
+    if (child != null) {
       debug('Stopping UDARU server')
-      Server.stop().then(function (msg) {
-        debug('Stopped, bye!')
-        process.exit(0)
-      })
+      child.kill()
+      // process.exit will be called by close event handler for child process
     } else {
       process.exit(0)
     }
