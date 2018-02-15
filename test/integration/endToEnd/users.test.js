@@ -7,7 +7,9 @@ const lab = exports.lab = Lab.script()
 const utils = require('../../utils')
 const server = require('../../../lib/server')
 const { udaru } = utils
+const config = require('../../../lib/config/build-all')()
 
+const defaultPageSize = config.get('authorization.defaultPageSize')
 const statements = { Statement: [{ Effect: 'Allow', Action: ['documents:Read'], Resource: ['wonka:documents:/public/*'] }] }
 
 const policyCreateData = {
@@ -56,6 +58,29 @@ lab.experiment('Users: read - delete - update', () => {
         name: 'Augustus Gloop',
         organizationId: 'WONKA'
       })
+
+      done()
+    })
+  })
+
+  lab.test('no users list', (done) => {
+    const options = {
+      headers: {
+        authorization: 'ROOTid',
+        org: 'OILCOEMEA'
+      },
+      method: 'GET',
+      url: '/authorization/users'
+    }
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(200)
+      expect(result.page).to.equal(1)
+      expect(result.limit).to.equal(defaultPageSize)
+      expect(result.total).to.equal(0)
+      expect(result.data.length).to.equal(0)
 
       done()
     })
@@ -623,13 +648,53 @@ lab.experiment('Users - manage teams', () => {
       expect(response.statusCode).to.equal(200)
       expect(result.total).to.equal(2)
       expect(result.page).to.equal(1)
-      expect(result.limit).to.equal(2)
+      expect(result.limit).to.equal(defaultPageSize)
       expect(result.data.length).to.equal(2)
       let expectedTeams = [
         'Authors',
         'Readers'
       ]
       expect(_.map(result.data, 'name')).to.only.contain(expectedTeams)
+
+      done()
+    })
+  })
+
+  lab.test('get user teams, invalid userId', (done) => {
+    const userId = 'InvalidId'
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: `/authorization/users/${userId}/teams`
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(200)
+      expect(result.total).to.equal(0)
+      expect(result.page).to.equal(1)
+      expect(result.limit).to.equal(defaultPageSize)
+      expect(result.data.length).to.equal(0)
+
+      done()
+    })
+  })
+
+  lab.test('get user teams, user in no teams', (done) => {
+    const userId = 'ModifyId'
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: `/authorization/users/${userId}/teams`
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(200)
+      expect(result.total).to.equal(0)
+      expect(result.page).to.equal(1)
+      expect(result.limit).to.equal(defaultPageSize)
+      expect(result.data.length).to.equal(0)
 
       done()
     })
