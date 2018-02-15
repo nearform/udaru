@@ -1,7 +1,7 @@
 'use strict'
 
 /* /bench/util/volumeRunner.js needs to have same values as here for teams, users etc. */
-const NUM_TEAMS = 10000 // total number of teams
+const NUM_TEAMS = 500 // total number of teams
 
 const USER_START_ID = 1 // user start id, we may want a few super users
 const TEAM_START_ID = 7 // user start id, so as not to interfere with other test data
@@ -12,6 +12,7 @@ const NUM_POLICIES_PER_TEAM = 10 // :-|
 const path = require('path')
 const pg = require('pg')
 const fs = require('fs')
+const chalk = require('chalk')
 const config = require('../lib/config/build-all')()
 
 if (!config.get('local')) {
@@ -38,7 +39,7 @@ function loadVolumeDataBegin (callback) {
         callback(err)
       } else {
         endTime = Date.now()
-        logInColour('successfully loaded original fixtures')
+        console.log(chalk.green('successfully loaded original fixtures'))
         loadTeams('CONCH', callback) // loads load everything into WONKA org
       }
     })
@@ -72,7 +73,7 @@ function loadTeams (orgId, callback) {
     if (err) {
       callback(err)
     } else {
-      logInColour('success inserting teams')
+      console.log(chalk.green('success inserting teams'))
       loadPolicies(1, orgId, TEAM_START_ID, callback)
     }
   })
@@ -134,7 +135,7 @@ function loadPolicies (startId, orgId, teamId, callback) {
     if (err) {
       callback(err)
     } else {
-      logInColour('success inserting policies for team ' + teamId)
+      console.log(chalk.green('success inserting policies for team ' + teamId))
 
       if (teamId < NUM_TEAMS + TEAM_START_ID - 1) {
         // load policies for next team
@@ -176,7 +177,8 @@ function loadUsers (startId, orgId, teamId, callback) {
     if (err) {
       callback(err)
     } else {
-      logInColour('success inserting users ' + startId + ' to ' + (startId + NUM_USERS_PER_TEAM - 1))
+      console.log(chalk.green('success inserting users ' + startId +
+        ' to ' + (startId + NUM_USERS_PER_TEAM - 1)))
       if (teamId < NUM_TEAMS + TEAM_START_ID - 1) {
         loadUsers(id, orgId, teamId + 1, callback)
       } else {
@@ -186,20 +188,9 @@ function loadUsers (startId, orgId, teamId, callback) {
   })
 }
 
-function logInColour (message, level = 'success') {
-  var colour = '\x1b[0m'
-  var reset = '\x1b[0m'
-  if (level === 'success') {
-    colour = '\x1b[32m'
-  } else if (level === 'error') {
-    colour = '\x1b[31m'
-  }
-  console.log(colour, message, reset)
-}
-
 function loadVolumeDataEnd (callback) {
   endTime = Date.now()
-  logInColour('loadVolumeData completed in ' + (endTime - startTime) + 'ms')
+  console.log(chalk.green('loadVolumeData completed in ' + (endTime - startTime) + 'ms'))
 
   callback() // done
 }
@@ -208,7 +199,7 @@ module.exports = loadVolumeDataBegin
 
 if (require.main === module) {
   loadVolumeDataBegin((err) => {
-    if (err) logInColour(err, 'error')
+    if (err) console.log(chalk.red(err, 'error'))
     process.exit(err ? 1 : 0)
   })
 }

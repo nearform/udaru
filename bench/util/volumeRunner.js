@@ -1,17 +1,21 @@
 'use strict'
 // run this AFTER /database/loadVolumeData.js has populated db successfully
 const DEBUG = false // prints request/response details
-const START_SERVER = true // true = start udaru
+const START_SERVER = true // true = fork udaru server
 
 // ensure variables same as /database/loadVolumeData.js
 const NUM_TEAMS = 500 // total number of teams
 const TEAM_START_ID = 7 // user start id offset
 const NUM_USERS_PER_TEAM = 100
 const NUM_POLICIES_PER_TEAM = 10
+
+// autocannon settings
 const DURATION = 15 // how long to run tests for in seconds
+const CONNECTIONS = 10 // number of concurrent connections
 
 const autocannon = require('autocannon')
 const path = require('path')
+const chalk = require('chalk')
 
 // part of initial route, this changes for second run
 var partialRoute = '/authorization/access/'
@@ -22,21 +26,16 @@ if (START_SERVER) {
   // start udaru server
   console.log('Starting UDARU server...')
   // need stdin to determine when server starts
-  child = spawn.fork(path.join(__dirname, '../../lib/server/start'), [], { silent: true })
+  child = spawn.fork(path.join(__dirname, '../../lib/server/start'), [], ['ignore', 'ignore', 'ignore', 'ipc'])
 
-  child.stdout.on('data', (m) => {
-    var s = m.toString('utf8')
-    if (s.indexOf('Server started on:') !== -1) {
-      console.log(s)
+  child.on('message', (m) => {
+    if (m.indexOf('Server started on:') !== -1) {
+      console.log(chalk.green(m))
       startBench()
+    } else {
+      console.log(chalk.red(m))
+      process.exit(0)
     }
-  })
-
-  child.stderr.on('data', (m) => {
-    var s = m.toString('utf8')
-    // child should send close event, no need to kill on error
-    // useful output if port being used for example
-    console.log('\x1b[31m', s, '\x1b[0m')
   })
 
   child.on('close', (code, signal) => {
@@ -56,7 +55,7 @@ function startBench () {
     title: 'Random requests to ' + partialRoute,
     url: 'http://localhost:8080',
     duration: DURATION,
-    connections: 100,
+    connections: CONNECTIONS,
     headers: {
       authorization: 'ROOTid',
       org: 'CONCH'
@@ -165,10 +164,9 @@ function onBodyReceived (buffer) {
 function onComplete (err, res) {
   var shutDown = false
   if (err) {
-    console.log('\x1b[31m',
+    console.log(chalk.red(
       '\nExiting due to invalid response, ensure database loaded with correct number of teams etc. ' +
-      '(see /database/loadVolumeData.js)',
-      '\x1b[0m')
+      '(see /database/loadVolumeData.js)'))
     console.error(err)
     shutDown = true
   } else {
