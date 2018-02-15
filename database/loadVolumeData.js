@@ -1,14 +1,13 @@
 'use strict'
 
 /* /bench/util/volumeRunner.js needs to have same values as here for teams, users etc. */
-const NUM_TEAMS = 500 // total number of teams
+const NUM_TEAMS = 10000 // total number of teams
 
 const USER_START_ID = 1 // user start id, we may want a few super users
 const TEAM_START_ID = 7 // user start id, so as not to interfere with other test data
 const SUB_TEAM_MOD = 100 // 1 parent for every X-1 teams
 const NUM_USERS_PER_TEAM = 100 // put this many users in each team
 const NUM_POLICIES_PER_TEAM = 10 // :-|
-// const CREATE_INDEX = true
 
 const path = require('path')
 const pg = require('pg')
@@ -40,13 +39,13 @@ function loadVolumeDataBegin (callback) {
       } else {
         endTime = Date.now()
         logInColour('successfully loaded original fixtures')
-        loadTeams(callback, 'CONCH') // loads load everything into WONKA org
+        loadTeams('CONCH', callback) // loads load everything into WONKA org
       }
     })
   })
 }
 
-function loadTeams (callback, orgId) {
+function loadTeams (orgId, callback) {
   // insert teams
   console.log('inserting teams')
   let fixturesSQL = 'INSERT INTO teams (id, name, description, team_parent_id, org_id, path)\nVALUES\n'
@@ -74,7 +73,7 @@ function loadTeams (callback, orgId) {
       callback(err)
     } else {
       logInColour('success inserting teams')
-      loadPolicies(callback, 1, orgId, TEAM_START_ID)
+      loadPolicies(1, orgId, TEAM_START_ID, callback)
     }
   })
 }
@@ -94,7 +93,7 @@ function getPolicyTemplate () {
   return policyTemplate
 }
 
-function loadPolicies (callback, startId, orgId, teamId) {
+function loadPolicies (startId, orgId, teamId, callback) {
   // insert policies, for each team we need 10 per team
   console.log('inserting policies for team ' + teamId)
 
@@ -102,7 +101,6 @@ function loadPolicies (callback, startId, orgId, teamId) {
 
   let policiesSql = 'INSERT INTO policies (id, version, name, org_id, statements)\nVALUES\n'
   let teamPoliciesSql = 'INSERT INTO team_policies(team_id, policy_id)\nVALUES\n'
-  // console.log(JSON.stringify(policyTemplate, null, 4));
 
   // 10 policies per team
   var count = 1
@@ -127,8 +125,6 @@ function loadPolicies (callback, startId, orgId, teamId) {
     count++
   }
 
-  // console.log(policiesSql);
-
   var fixturesSQL = 'BEGIN;\n'
   fixturesSQL += policiesSql + '\n'
   fixturesSQL += teamPoliciesSql + '\n'
@@ -142,17 +138,17 @@ function loadPolicies (callback, startId, orgId, teamId) {
 
       if (teamId < NUM_TEAMS + TEAM_START_ID - 1) {
         // load policies for next team
-        loadPolicies(callback, id, orgId, teamId + 1)
+        loadPolicies(id, orgId, teamId + 1, callback)
       } else {
         // move on to loading users
-        loadUsers(callback, USER_START_ID, orgId, TEAM_START_ID)
+        loadUsers(USER_START_ID, orgId, TEAM_START_ID, callback)
       }
     }
   })
 }
 
 // insert users and add them to teams in batches
-function loadUsers (callback, startId, orgId, teamId) {
+function loadUsers (startId, orgId, teamId, callback) {
   // insert users
   console.log('inserting users ' + startId + ' to ' + (startId + NUM_USERS_PER_TEAM - 1) + ' into team: ' + teamId)
 
@@ -182,7 +178,7 @@ function loadUsers (callback, startId, orgId, teamId) {
     } else {
       logInColour('success inserting users ' + startId + ' to ' + (startId + NUM_USERS_PER_TEAM - 1))
       if (teamId < NUM_TEAMS + TEAM_START_ID - 1) {
-        loadUsers(callback, id, orgId, teamId + 1)
+        loadUsers(id, orgId, teamId + 1, callback)
       } else {
         loadVolumeDataEnd(callback)
       }
@@ -202,35 +198,10 @@ function logInColour (message, level = 'success') {
 }
 
 function loadVolumeDataEnd (callback) {
-  /* moved to migration scripts
-  if (CREATE_INDEX === true) {
-    console.log('Creating index, please wait...')
-    var sql = 'CREATE INDEX "team_members#user_id"\n' +
-      'ON public.team_members USING btree\n' +
-      '(user_id COLLATE pg_catalog."default" varchar_ops)\n' +
-      'TABLESPACE pg_default;\n\n' +
-      'ALTER TABLE public.team_members\n' +
-    'CLUSTER ON "team_members#user_id;"\n'
-
-    console.log(sql)
-
-    // creating index doesn't seem to want to call back...
-    client.query(sql, function (err, result) {
-      if (err) {
-        logInColour('Error creating index: ' + err + ', result:' + result, 'error')
-        callback(err)
-      } else {
-        logInColour('success creating index' + result)
-        callback(null)
-        return
-      }
-    })
-  }
-  */
   endTime = Date.now()
   logInColour('loadVolumeData completed in ' + (endTime - startTime) + 'ms')
 
-  callback(null) // done
+  callback() // done
 }
 
 module.exports = loadVolumeDataBegin

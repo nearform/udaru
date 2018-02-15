@@ -1,6 +1,6 @@
 {
   "name": "udaru",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "description": "A policy based authorization module",
   "license": "MIT",
   "author": "nearForm Ltd",
@@ -68,7 +68,7 @@
     "inert": "^4.2.1",
     "joi": "^10.6.0",
     "jsonfile": "^3.0.1",
-    "lodash": "^4.17.4",
+    "lodash": "^4.17.5",
     "minimist": "^1.2.0",
     "pbac": "^0.1.3",
     "pg": "^7.4.1",

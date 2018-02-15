@@ -56,7 +56,7 @@ function startBench () {
     title: 'Random requests to ' + partialRoute,
     url: 'http://localhost:8080',
     duration: DURATION,
-    connections: 10,
+    connections: 100,
     headers: {
       authorization: 'ROOTid',
       org: 'CONCH'
@@ -81,7 +81,7 @@ process.once('SIGINT', () => {
   console.log('\nStopping instance of autocannon...')
   instance.stop()
 
-  if (child != null) {
+  if (child) {
     console.log('Kill server child process...')
     child.kill()
   }
@@ -164,7 +164,7 @@ function onBodyReceived (buffer) {
 
 function onComplete (err, res) {
   var shutDown = false
-  if (err != null) {
+  if (err) {
     console.log('\x1b[31m',
       '\nExiting due to invalid response, ensure database loaded with correct number of teams etc. ' +
       '(see /database/loadVolumeData.js)',
@@ -184,7 +184,7 @@ function onComplete (err, res) {
   }
 
   if (shutDown) {
-    if (child != null) {
+    if (child) {
       debug('Stopping UDARU server')
       child.kill()
       // process.exit will be called by close event handler for child process
