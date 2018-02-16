@@ -1,3 +1,9 @@
+## 3.2.0 - February 15, 2018
+-   Added /database/loadVolumeData.js to populate test database with large volume of data [commit](https://github.com/nearform/udaru/pull/456)
+-   Added /bench/ulil/volumeRunner.js to perform autocannon tests against volume db [commit](https://github.com/nearform/udaru/pull/451)
+-   Added database migration script 006, adds index to team_members table (performance improvements) [commit](https://github.com/nearform/udaru/pull/451)
+-   Updated Lodash dependecy to 4.17.5
+-   Updated chalk dependency (dev) for volume test output
 
 ## 3.1.0 - February 5, 2018
 -   Added get user teams [commit](https://github.com/nearform/udaru/pull/451)

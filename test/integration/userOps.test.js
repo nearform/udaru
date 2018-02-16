@@ -210,7 +210,8 @@ lab.experiment('UserOps', () => {
       }, (err, user) => {
         expect(err).to.not.exist()
         expect(user).to.exist()
-        expect(user.policies).to.equal([{
+        expect(user.policies.length).to.equal(2)
+        expect(user.policies).to.contain([{
           id: directorPolicy.id,
           name: directorPolicy.name,
           version: directorPolicy.version,
@@ -257,7 +258,8 @@ lab.experiment('UserOps', () => {
       }, (err, user) => {
         expect(err).to.not.exist()
         expect(user).to.exist()
-        expect(user.policies).to.equal([{
+        expect(user.policies.length).to.equal(2)
+        expect(user.policies).to.contain([{
           id: directorPolicy.id,
           name: directorPolicy.name,
           version: directorPolicy.version,
@@ -381,7 +383,8 @@ lab.experiment('UserOps', () => {
       udaru.users.addPolicies({ id: 'VerucaId', policies, organizationId: 'WONKA' }, (err, user) => {
         expect(err).to.not.exist()
         expect(user).to.exist()
-        expect(user.policies).to.equal([{
+        expect(user.policies.length).to.equal(3)
+        expect(user.policies).to.contain([{
           id: accountantPolicy.id,
           name: accountantPolicy.name,
           version: accountantPolicy.version,
@@ -422,7 +425,8 @@ lab.experiment('UserOps', () => {
       udaru.users.addPolicies({ id: 'VerucaId', policies: ['sharedPolicyId1'], organizationId: 'WONKA' }, (err, user) => {
         expect(err).to.not.exist()
         expect(user).to.exist()
-        expect(user.policies).to.equal([{
+        expect(user.policies.length).to.equal(2)
+        expect(user.policies).to.contain([{
           id: accountantPolicy.id,
           name: accountantPolicy.name,
           version: accountantPolicy.version,
@@ -521,7 +525,8 @@ lab.experiment('UserOps', () => {
         }, (err, user) => {
           expect(err).to.not.exist()
           expect(user).to.exist()
-          expect(user.policies).to.equal([{
+          expect(user.policies.length).to.equal(3)
+          expect(user.policies).to.contain([{
             id: accountantPolicy.id,
             name: accountantPolicy.name,
             version: accountantPolicy.version,
@@ -575,7 +580,8 @@ lab.experiment('UserOps', () => {
         }, (err, user) => {
           expect(err).to.not.exist()
           expect(user).to.exist()
-          expect(user.policies).to.equal([{
+          expect(user.policies.length).to.equal(3)
+          expect(user.policies).to.contain([{
             id: accountantPolicy.id,
             name: accountantPolicy.name,
             version: accountantPolicy.version,
@@ -625,7 +631,8 @@ lab.experiment('UserOps', () => {
         }, (err, user) => {
           expect(err).to.not.exist()
           expect(user).to.exist()
-          expect(user.policies).to.equal([{
+          expect(user.policies.length).to.equal(2)
+          expect(user.policies).to.contain([{
             id: accountantPolicy.id,
             name: accountantPolicy.name,
             version: accountantPolicy.version,
@@ -644,7 +651,8 @@ lab.experiment('UserOps', () => {
           }, (err, user) => {
             expect(err).to.not.exist()
             expect(user).to.exist()
-            expect(user.policies).to.equal([{
+            expect(user.policies.length).to.equal(2)
+            expect(user.policies).to.contain([{
               id: accountantPolicy.id,
               name: accountantPolicy.name,
               version: accountantPolicy.version,
