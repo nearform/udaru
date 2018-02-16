@@ -706,71 +706,77 @@ lab.experiment('UserOps structure', () => {
   })
 
   lab.test('Test user exists in two teams, no pagination', (done) => {
-    udaru.users.listUserTeams({ id: 'VerucaId', organizationId: 'WONKA' }, (err, result) => {
+    udaru.users.listUserTeams({ id: 'VerucaId', organizationId: 'WONKA' }, (err, data, total) => {
       expect(err).to.not.exist()
-      expect(result).to.exist()
+      expect(data).to.exist()
       let expectedTeams = [
         'Readers',
         'Authors'
       ]
-      expect(_.map(result.data, 'name')).contains(expectedTeams)
-      expect(result.page).to.equal(1)
-      expect(result.limit).to.equal(2)
-      expect(result.total).to.equal(2)
-      expect(result.data.length).to.equal(2)
+      expect(_.map(data, 'name')).contains(expectedTeams)
+      expect(total).to.equal(2)
+      expect(data.length).to.equal(2)
 
       done()
     })
   })
 
   lab.test('Test incorrect pagination', (done) => {
-    udaru.users.listUserTeams({ id: 'VerucaId', organizationId: 'WONKA', page: 0 }, (err, result) => {
+    udaru.users.listUserTeams({ id: 'VerucaId', organizationId: 'WONKA', page: 0 }, (err, data, total) => {
       expect(err).to.exist()
       expect(err.message.indexOf('page')).to.be.at.least(0)
       expect(err.message.indexOf('limit')).to.be.below(0)
-      expect(result).to.not.exist()
+      expect(data).to.not.exist()
+      expect(total).to.not.exist()
 
       done()
     })
   })
 
   lab.test('Test incorrect limit', (done) => {
-    udaru.users.listUserTeams({ id: 'VerucaId', organizationId: 'WONKA', page: 1, limit: 0 }, (err, result) => {
+    udaru.users.listUserTeams({ id: 'VerucaId', organizationId: 'WONKA', page: 1, limit: 0 }, (err, data, total) => {
       expect(err).to.exist()
       expect(err.message.indexOf('page')).to.be.below(0)
       expect(err.message.indexOf('limit')).to.be.at.least(0)
-      expect(result).to.not.exist()
+      expect(data).to.not.exist()
+      expect(total).to.not.exist()
 
       done()
     })
   })
 
   lab.test('Test user exists in two teams, pagination', (done) => {
-    udaru.users.listUserTeams({ id: 'VerucaId', organizationId: 'WONKA', page: 2, limit: 1 }, (err, result) => {
+    udaru.users.listUserTeams({ id: 'VerucaId', organizationId: 'WONKA', page: 2, limit: 1 }, (err, data, total) => {
       expect(err).to.not.exist()
-      expect(result).to.exist()
+      expect(data).to.exist()
       let expectedTeams = [
         'Readers'
       ]
-      expect(_.map(result.data, 'name')).contains(expectedTeams)
-      expect(result.page).to.equal(2)
-      expect(result.limit).to.equal(1)
-      expect(result.total).to.equal(2)
-      expect(result.data.length).to.equal(1)
+      expect(_.map(data, 'name')).contains(expectedTeams)
+      expect(total).to.equal(2)
+      expect(data.length).to.equal(1)
 
       done()
     })
   })
 
   lab.test('Test user exists in two teams, pagination', (done) => {
-    udaru.users.listUserTeams({ id: 'VerucaId', organizationId: 'WONKA', page: 2, limit: 10 }, (err, result) => {
+    udaru.users.listUserTeams({ id: 'VerucaId', organizationId: 'WONKA', page: 2, limit: 10 }, (err, data, total) => {
       expect(err).to.not.exist()
-      expect(result).to.exist()
+      expect(data).to.exist()
+      expect(total).to.equal(2)
+      expect(data.length).to.equal(0)
 
-      expect(result.page).to.equal(2)
-      expect(result.limit).to.equal(0)
-      expect(result.total).to.equal(2)
-      expect(result.data.length).to.equal(0)
+      done()
+    })
+  })
+
+  lab.test('Test no teams', (done) => {
+    udaru.users.listUserTeams({ id: 'InvalidId', organizationId: 'WONKA' }, (err, data, total) => {
+      expect(err).to.not.exist()
+      expect(total).to.exist()
+      expect(total).to.equal(0)
+      expect(data.length).to.equal(0)
 
       done()
     })
