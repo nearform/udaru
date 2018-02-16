@@ -1,3 +1,8 @@
+## 3.2.1 - February 15, 2018
+Updates:
+-   Updated PBAC to version 0.2.0 (lodash vulnerability update)
+-   Updated iam.js (StringLike param order reversed)
+
 ## 3.2.0 - February 15, 2018
 -   Added /database/loadVolumeData.js to populate test database with large volume of data [commit](https://github.com/nearform/udaru/pull/456)
 -   Added /bench/ulil/volumeRunner.js to perform autocannon tests against volume db [commit](https://github.com/nearform/udaru/pull/451)
