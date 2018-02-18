@@ -773,4 +773,46 @@ lab.experiment('UserOps structure', () => {
       done()
     })
   })
+
+  lab.test('Search for Charlie', (done) => {
+    udaru.users.search({ query: 'Charlie', organizationId: 'WONKA' }, (err, data, total) => {
+      expect(err).to.not.exist()
+      expect(total).to.exist()
+      expect(total).to.equal(1)
+      expect(data.length).to.equal(1)
+
+      done()
+    })
+  })
+
+  // Lot's of options, see https://www.postgresql.org/docs/current/static/textsearch-controls.html
+  lab.test('Wildcard search for Charlie', (done) => {
+    udaru.users.search({ query: 'Charli:*', organizationId: 'WONKA' }, (err, data, total) => {
+      expect(err).to.not.exist()
+      expect(total).to.exist()
+      expect(total).to.equal(1)
+      expect(data.length).to.equal(1)
+
+      done()
+    })
+  })
+
+  lab.test('Search with bad org id', (done) => {
+    udaru.users.search({ query: 'Charlie', organizationId: 'IDONTEXIST' }, (err, data, total) => {
+      expect(err).to.not.exist()
+      expect(total).to.exist()
+      expect(total).to.equal(0)
+      expect(data.length).to.equal(0)
+
+      done()
+    })
+  })
+
+  lab.test('Search expect error with bad params', (done) => {
+    udaru.users.search({ querty: 'Bad query param', orId: 'Bad organizationId param' }, (err, data, total) => {
+      expect(err).to.exist()
+      done()
+    })
+  })
+
 })
