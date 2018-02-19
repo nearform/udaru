@@ -113,6 +113,29 @@ lab.experiment('Users: read - delete - update', () => {
     })
   })
 
+  lab.test('get single user with metadata', (done) => {
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: '/authorization/users/MikeId'
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(200)
+      expect(result).to.equal({
+        id: 'MikeId',
+        name: 'Mike Teavee',
+        organizationId: 'WONKA',
+        metadata: {key1: 'val1', key2: 'val2'},
+        policies: [],
+        teams: []
+      })
+
+      done()
+    })
+  })
+
   lab.test('delete user should return 204 if success', (done) => {
     udaru.users.create({name: 'test', id: 'testId', organizationId: 'ROOT'}, (err, user) => {
       expect(err).to.not.exist()
@@ -153,6 +176,34 @@ lab.experiment('Users: read - delete - update', () => {
         id: 'ModifyId',
         name: 'Modify you',
         organizationId: 'WONKA',
+        teams: [],
+        policies: []
+      })
+
+      udaru.users.update({ name: 'Modify Me', id: 'ModifyId', organizationId: 'WONKA' }, done)
+    })
+  })
+
+  lab.test('update user with metadata field and 200ok response', (done) => {
+    const metadata = {key1: 1, key2: 'y'}
+    const options = utils.requestOptions({
+      method: 'PUT',
+      url: '/authorization/users/ModifyId',
+      payload: {
+        name: 'Modify you',
+        metadata: metadata
+      }
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(200)
+      expect(result).to.equal({
+        id: 'ModifyId',
+        name: 'Modify you',
+        organizationId: 'WONKA',
+        metadata: metadata,
         teams: [],
         policies: []
       })
@@ -212,6 +263,35 @@ lab.experiment('Users - create', () => {
       expect(result.id).to.equal('testId')
       expect(result.name).to.equal('Salman')
       expect(result.organizationId).to.equal('OILCOUSA')
+
+      udaru.users.delete({ id: 'testId', organizationId: 'OILCOUSA' }, done)
+    })
+  })
+
+  lab.test('create user for a specific organization being a SuperUser with some metadata', (done) => {
+    const metadata = {key1: 1, key2: 'y'}
+    const options = utils.requestOptions({
+      method: 'POST',
+      url: '/authorization/users',
+      payload: {
+        name: 'Salman',
+        id: 'testId',
+        metadata: metadata
+      },
+      headers: {
+        authorization: 'ROOTid',
+        org: 'OILCOUSA'
+      }
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(201)
+      expect(result.id).to.equal('testId')
+      expect(result.name).to.equal('Salman')
+      expect(result.organizationId).to.equal('OILCOUSA')
+      expect(result.metadata).to.equal(metadata)
 
       udaru.users.delete({ id: 'testId', organizationId: 'OILCOUSA' }, done)
     })

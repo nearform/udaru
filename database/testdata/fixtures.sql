@@ -21,16 +21,16 @@ VALUES
   ('WONKA','Wonka Inc','Scrumpalicious Chocolate');
 
 
-INSERT INTO users (id, name, org_id)
+INSERT INTO users (id, name, org_id, metadata)
 VALUES
-  ('ROOTid','Super User','ROOT'),
-  ('CharlieId','Charlie Bucket','WONKA'),
-  ('MikeId','Mike Teavee','WONKA'),
-  ('VerucaId','Veruca Salt','WONKA'),
-  ('AugustusId','Augustus Gloop','WONKA'),
-  ('WillyId','Willy Wonka','WONKA'),
-  ('ModifyId','Modify Me','WONKA'),
-  ('ManyPoliciesId','Many Polices','WONKA');
+  ('ROOTid','Super User','ROOT', null),
+  ('CharlieId','Charlie Bucket','WONKA', null),
+  ('MikeId','Mike Teavee','WONKA', '{ "key1": "val1","key2": "val2" }'::JSONB),
+  ('VerucaId','Veruca Salt','WONKA', null),
+  ('AugustusId','Augustus Gloop','WONKA', null),
+  ('WillyId','Willy Wonka','WONKA', null),
+  ('ModifyId','Modify Me','WONKA', null),
+  ('ManyPoliciesId','Many Polices','WONKA', null);
 
 
 INSERT INTO teams (id, name, description, team_parent_id, org_id, path)
