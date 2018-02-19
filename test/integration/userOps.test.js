@@ -60,6 +60,52 @@ lab.experiment('UserOps', () => {
     })
   })
 
+  lab.test('create, update and read user with meta', (done) => {
+    const meta1 = {keya: 'vala', keyb: 'valb'}
+    const meta2 = {keyx: 'valx', keyy: 'valy'}
+
+    const userData = {
+      id: 'testMeta',
+      name: 'Meta Name',
+      organizationId: 'WONKA',
+      metadata: meta1
+    }
+
+    udaru.users.create(userData, (err, result) => {
+      expect(err).to.not.exist()
+      expect(result).to.exist()
+      expect(result).to.equal({ id: userData.id,
+        name: userData.name,
+        organizationId: userData.organizationId,
+        metadata: meta1,
+        teams: [],
+        policies: []})
+
+      udaru.users.update({id: userData.id,
+        organizationId: userData.organizationId,
+        name: 'Meta 2',
+        metadata: meta2}
+        , (err, result) => {
+        expect(err).to.not.exist()
+
+        udaru.users.read({id: userData.id,
+          organizationId: userData.organizationId},
+          (err, result) => {
+            expect(err).to.not.exist()
+            expect(result).to.exist()
+            expect(result).to.equal({ id: userData.id,
+              name: 'Meta 2',
+              organizationId: userData.organizationId,
+              metadata: meta2,
+              teams: [],
+              policies: []
+            })
+            udaru.users.delete({ id: userData.id, organizationId: userData.organizationId }, done)
+          })
+      })
+    })
+  })
+
   lab.test('create an user with the same id should fail second time', (done) => {
     const userData = {
       id: 'testId',

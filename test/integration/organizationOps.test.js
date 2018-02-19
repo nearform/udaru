@@ -251,6 +251,31 @@ lab.experiment('OrganizationOps', () => {
     })
   })
 
+  lab.test('create and update organization with meta', (done) => {
+    const metadata1 = {keya: 'vala', keyb: 'valb'}
+    const metadata2 = {keyx: 'valx', keyy: 'valy'}
+    const createData = { id: 'nearForm1', name: 'nearForm', description: 'nearform description', metadata: metadata1 }
+    const updateData = { id: 'nearForm1', name: 'nearFormUp', description: 'nearFormUp desc up', metadata: metadata2, policies: [] }
+
+    udaru.organizations.create(createData, (err, result) => {
+      expect(err).to.not.exist()
+      expect(result).to.exist()
+      expect(result.organization.name).to.equal('nearForm')
+      expect(result.organization.metadata).to.equal(metadata1)
+
+      udaru.organizations.update(updateData, (err, res) => {
+        expect(err).to.not.exist()
+
+        udaru.organizations.read(updateData.id, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res).to.exist()
+          expect(res).to.equal(updateData)
+          udaru.organizations.delete(result.organization.id, done)
+        })
+      })
+    })
+  })
+
   lab.test('get a specific organization', (done) => {
     const expected = { id: 'CONCH', name: 'Conch Plc', description: 'Global fuel distributors', policies: [] }
     udaru.organizations.read('CONCH', (err, result) => {
