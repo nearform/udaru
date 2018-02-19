@@ -811,12 +811,13 @@ lab.experiment('UserOps structure', () => {
   lab.test('Search expect error with bad params', (done) => {
     udaru.users.search({ querty: 'Bad query param', orId: 'Bad organizationId param' }, (err, data, total) => {
       expect(err).to.exist()
+
       done()
     })
   })
 
   lab.test('Search sql injection org_id sanity check', (done) => {
-    udaru.users.search({ query: 'Charlie', organizationId: 'WONKA||org_id<>-1'}, (err, data, total) => {
+    udaru.users.search({ query: 'Charlie', organizationId: 'WONKA||org_id<>-1' }, (err, data, total) => {
       expect(err).to.not.exist()
       expect(total).to.equal(0)
       expect(data.length).to.equal(0)
@@ -826,8 +827,9 @@ lab.experiment('UserOps structure', () => {
   })
 
   lab.test('Search sql injection query sanity check', (done) => {
-    udaru.users.search({ query: 'Charlie\');drop database authorization;', organizationId: 'WONKA'}, (err, data, total) => {
+    udaru.users.search({ query: 'Charlie\');drop database authorization;', organizationId: 'WONKA' }, (err, data, total) => {
       expect(err).to.exist()
+
       done()
     })
   })
