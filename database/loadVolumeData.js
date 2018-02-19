@@ -8,6 +8,7 @@ const TEAM_START_ID = 7 // user start id, so as not to interfere with other test
 const SUB_TEAM_MOD = 100 // 1 parent for every X-1 teams
 const NUM_USERS_PER_TEAM = 100 // put this many users in each team
 const NUM_POLICIES_PER_TEAM = 10 // :-|
+const ADD_METADATA = true
 
 const path = require('path')
 const pg = require('pg')
@@ -148,15 +149,27 @@ function loadPolicies (startId, orgId, teamId, callback) {
   })
 }
 
+function getMetaData (val1, val2) {
+  if (ADD_METADATA) {
+    var obj = {
+      key1: val1,
+      key2: val2
+    }
+    return "'" + JSON.stringify(obj) + "'::JSONB"
+  }
+
+  return null
+}
+
 // insert users and add them to teams in batches
 function loadUsers (startId, orgId, teamId, callback) {
   // insert users
   console.log('inserting users ' + startId + ' to ' + (startId + NUM_USERS_PER_TEAM - 1) + ' into team: ' + teamId)
 
-  var userSql = 'INSERT INTO users (id, name, org_id)\nVALUES\n'
+  var userSql = 'INSERT INTO users (id, name, org_id, metadata)\nVALUES\n'
   var userTeamSql = 'INSERT INTO team_members (user_id, team_id)\nVALUES\n'
   for (var id = startId; id < (startId + NUM_USERS_PER_TEAM); id++) {
-    userSql += "('" + id + "', 'USER_" + id + "', '" + orgId + "')"
+    userSql += "('" + id + "', 'USER_" + id + "', '" + orgId + "'," + getMetaData(id, orgId) + ')'
     userTeamSql += "('" + id + "', '" + teamId + "')"
 
     if (id === startId + NUM_USERS_PER_TEAM - 1) {
