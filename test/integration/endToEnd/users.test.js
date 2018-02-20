@@ -824,6 +824,36 @@ lab.experiment('Users - manage teams', () => {
     })
   })
 
+  lab.test('replace users teams for non-existent user', (done) => {
+    const options = utils.requestOptions({
+      method: 'POST',
+      url: '/authorization/users/xyz/teams',
+      payload: {
+        teams: ['2', '3']
+      }
+    })
+
+    server.inject(options, (response) => {
+      expect(response.statusCode).to.equal(400)
+      expect(response.result.message).to.equal('User xyz not found')
+      done()
+    })
+  })
+
+  lab.test('replace users teams for non-existent user (bad format)', (done) => {
+    const options = utils.requestOptions({
+      method: 'POST',
+      url: '/authorization/users/xyz/teams',
+      payload: ['1']
+    })
+
+    server.inject(options, (response) => {
+      expect(response.statusCode).to.equal(400)
+      expect(response.result.message).to.equal('No teams found in payload')
+      done()
+    })
+  })
+
   lab.test('Delete user from her teams', (done) => {
     udaru.users.replaceTeams({ id: 'ModifyId', organizationId: 'WONKA', teams: ['2', '3'] }, (err, user) => {
       if (err) return done(err)
