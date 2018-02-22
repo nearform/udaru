@@ -1026,26 +1026,67 @@ lab.experiment('TeamOps', () => {
     udaru.teams.search({ query: 'Authors', organizationId: 'WONKA' }, (err, data, total) => {
       expect(err).to.not.exist()
       expect(total).to.exist()
-      expect(total).to.equal(1)
-      expect(data.length).to.equal(1)
+      expect(total).to.equal(3)
+      expect(data.length).to.equal(3)
 
       done()
     })
   })
 
   lab.test('Wildcard search for Authors', (done) => {
-    udaru.teams.search({ query: 'Auth:*', organizationId: 'WONKA' }, (err, data, total) => {
+    udaru.teams.search({ query: 'Auth', organizationId: 'WONKA' }, (err, data, total) => {
+      expect(err).to.not.exist()
+      expect(total).to.exist()
+      expect(total).to.equal(3)
+      expect(data.length).to.equal(3)
+
+      done()
+    })
+  })
+
+  lab.test('Search for common words phrase', (done) => {
+    udaru.teams.search({ query: 'Managers', organizationId: 'WONKA' }, (err, data, total) => {
+      expect(err).to.not.exist()
+      expect(total).to.exist()
+      expect(total).to.equal(2)
+      expect(data.length).to.equal(2)
+    })
+
+    done()
+  })
+
+  lab.test('Search for multiple words phrase', (done) => {
+    udaru.teams.search({ query: 'Personnel Managers', organizationId: 'WONKA' }, (err, data, total) => {
       expect(err).to.not.exist()
       expect(total).to.exist()
       expect(total).to.equal(1)
       expect(data.length).to.equal(1)
+    })
+
+    done()
+  })
+
+  lab.test('Search with empty query', (done) => {
+    udaru.teams.search({ query: '', organizationId: 'WONKA' }, (err, data, total) => {
+      expect(err).to.exist()
+
+      done()
+    })
+  })
+
+  lab.test('Search with no match', (done) => {
+    udaru.teams.search({ query: 'idontexist', organizationId: 'WONKA' }, (err, data, total) => {
+      expect(err).to.not.exist()
+      expect(total).to.exist()
+      expect(total).to.equal(0)
+      expect(data.length).to.equal(0)
 
       done()
     })
   })
 
   lab.test('Search with bad org id', (done) => {
-    udaru.teams.search({ query: 'Auth:*', organizationId: 'IDONTEXIST' }, (err, data, total) => {
+    udaru.teams.search({ query: 'Auth', organizationId: 'IDONTEXIST' }, (err, data, total) => {
       expect(err).to.not.exist()
       expect(total).to.exist()
       expect(total).to.equal(0)
