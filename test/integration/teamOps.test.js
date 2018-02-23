@@ -1035,6 +1035,34 @@ lab.experiment('TeamOps', () => {
       })
     })
 
+    lab.test('list an existing nested team with paging', (done) => {
+      udaru.teams.listNestedTeams({ organizationId: 'WONKA', id: '4', page: 1, limit: 1 }, (err, result, total) => {
+        expect(err).to.not.exist()
+        expect(result).to.exist()
+        expect(total).to.exist()
+        expect(total).to.equal(1)
+
+        expect(_.map(result, 'name')).contains(['Personnel Managers'])
+        done()
+      })
+    })
+
+    lab.test('nested team with bad page param', (done) => {
+      udaru.teams.listNestedTeams({ organizationId: 'WONKA', id: '4', page: 0, limit: 1 }, (err, result, total) => {
+        expect(err).to.exist()
+
+        done()
+      })
+    })
+
+    lab.test('nested team with bad limit param', (done) => {
+      udaru.teams.listNestedTeams({ organizationId: 'WONKA', id: '4', page: 1, limit: 0 }, (err, result, total) => {
+        expect(err).to.exist()
+
+        done()
+      })
+    })
+
     lab.test('nested team not found', (done) => {
       udaru.teams.listNestedTeams({ organizationId: 'WONKA', id: 'IDONTEXIST' }, (err, result, total) => {
         expect(err).to.not.exist()
