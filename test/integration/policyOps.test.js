@@ -126,8 +126,8 @@ lab.experiment('PolicyOps', () => {
 
       udaru.policies.create(policyData, (err, policy) => {
         expect(err).to.exist()
-        expect(err.output.statusCode).to.equal(400)
-        expect(err.message).to.match(/Policy with id MyDuplicateId already present/)
+        expect(err.output.statusCode).to.equal(409)
+        expect(err.message).to.equal('Key (id)=(MyDuplicateId) already exists.')
 
         udaru.policies.delete({ id: policyData.id, organizationId: 'WONKA' }, done)
       })

@@ -299,8 +299,8 @@ lab.experiment('TeamOps', () => {
 
       udaru.teams.create(testTeam, {createOnly: true}, (err, result) => {
         expect(err).to.exist()
-        expect(err.output.statusCode).to.equal(400)
-        expect(err.message).to.match(/Team with id nearForm already present/)
+        expect(err.output.statusCode).to.equal(409)
+        expect(err.message).to.equal('Key (id)=(nearForm) already exists.')
 
         udaru.teams.delete(testTeam, done)
       })

@@ -171,8 +171,8 @@ lab.experiment('Policies - create/update/delete (need service key)', () => {
     })
 
     server.inject(options, (response) => {
-      expect(response.statusCode).to.equal(400)
-      expect(response.result.message).to.equal('Policy with id policyId1 already present')
+      expect(response.statusCode).to.equal(409)
+      expect(response.result.message).to.equal('Key (id)=(policyId1) already exists.')
 
       done()
     })
@@ -421,8 +421,8 @@ lab.experiment('Shared Policies - create/update/delete (need service key)', () =
     })
 
     server.inject(options, (response) => {
-      expect(response.statusCode).to.equal(400)
-      expect(response.result.message).to.equal('Policy with id policyId1 already present')
+      expect(response.statusCode).to.equal(409)
+      expect(response.result.message).to.equal('Key (id)=(policyId1) already exists.')
 
       done()
     })

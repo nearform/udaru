@@ -415,8 +415,8 @@ lab.experiment('Users - create', () => {
     server.inject(options, (response) => {
       const result = response.result
 
-      expect(response.statusCode).to.equal(400)
-      expect(result.message).to.equal('User with id ROOTid already present')
+      expect(response.statusCode).to.equal(409)
+      expect(result.message).to.equal('Key (id)=(ROOTid) already exists.')
 
       done()
     })

@@ -117,8 +117,8 @@ lab.experiment('OrganizationOps', () => {
 
       udaru.organizations.create(organizationData, { createOnly: true }, (err, result) => {
         expect(err).to.exist()
-        expect(err.output.statusCode).to.equal(400)
-        expect(err.message).to.match(/Organization with id nearForm already present/)
+        expect(err.output.statusCode).to.equal(409)
+        expect(err.message).to.equal('Key (id)=(nearForm) already exists.')
 
         udaru.organizations.delete(organizationData.id, done)
       })

@@ -118,8 +118,8 @@ lab.experiment('UserOps', () => {
 
       udaru.users.create(userData, (err, result) => {
         expect(err).to.exist()
-        expect(err.output.statusCode).to.equal(400)
-        expect(err.message).to.match(/User with id testId already present/)
+        expect(err.output.statusCode).to.equal(409)
+        expect(err.message).to.equal('Key (id)=(testId) already exists.')
 
         udaru.users.delete({ id: 'testId', organizationId: 'WONKA' }, done)
       })
