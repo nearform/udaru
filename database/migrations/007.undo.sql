@@ -1,6 +1,6 @@
 ALTER TABLE public.organizations
-    DROP COLUMN meta;
+    DROP COLUMN metadata;
 ALTER TABLE public.teams
-    DROP COLUMN meta;
+    DROP COLUMN metadata;
 ALTER TABLE public.users
-    DROP COLUMN meta;
+    DROP COLUMN metadata;
