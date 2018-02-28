@@ -1218,4 +1218,22 @@ lab.experiment('Teams - checking org_id scoping', () => {
       done()
     })
   })
+
+  lab.test('get nested team list with bad limit param', (done) => {
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: '/authorization/teams/3/nested?limit=0&page=1'
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(400)
+      expect(result.error).to.equal('Bad Request')
+      expect(result.message).to.exist()
+      expect(result.data).to.not.exist()
+
+      done()
+    })
+  })
 })
