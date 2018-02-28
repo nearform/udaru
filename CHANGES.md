@@ -4,6 +4,9 @@
 -   Added database migration script 006, adds index to team_members table (performance improvements) [commit](https://github.com/nearform/udaru/pull/451)
 -   Updated Lodash dependecy to 4.17.5
 -   Updated chalk dependency (dev) for volume test output
+-   Updated PBAC to version 0.2.0 (lodash vulnerability update)
+-   Updated iam.js (StringLike param order reversed)
+
 
 ## 3.1.0 - February 5, 2018
 -   Added get user teams [commit](https://github.com/nearform/udaru/pull/451)
