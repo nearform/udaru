@@ -3,13 +3,20 @@ Features, enhancements:
 -   Added /database/loadVolumeData.js to populate test database with large volume of data [commit](https://github.com/nearform/udaru/pull/456)
 -   Added /bench/ulil/volumeRunner.js to perform Autocannon tests against volume db [commit](https://github.com/nearform/udaru/pull/451)
 -   Added database migration script 006, adds index to team_members table (performance improvements) [commit](https://github.com/nearform/udaru/pull/451)
+-   Added metadata support for orgs, teams and users [commit] (https://github.com/nearform/udaru/pull/466)
+-   Added database migration script 007, adds to add metadata field [commit](https://github.com/nearform/udaru/pull/466)
 -   Updated Lodash dependecy to 4.17.5
 -   Updated chalk dependency (dev) for volume test output
 -   Updated PBAC to version 0.2.0 (lodash vulnerability update)
 -   Updated iam.js (StringLike param order reversed)
+-   Updated unique constraint violation to return code 409 conflict for users, policies, orgs and teams
+-   Enhanced swagger documentation (better definition of models and other tidy ups)
 
 Fixes:
 -   Added fixes on the get user teams endpoint [commit](https://github.com/nearform/udaru/pull/478 and https://github.com/nearform/udaru/pull/454)
+-   Added fix for policy validation (enforce allow|deny on effect)
+-   Added fix for issue 450 (invalid teams payload)
+
 
 ## 3.1.0 - February 5, 2018
 -   Added get user teams [commit](https://github.com/nearform/udaru/pull/451)
