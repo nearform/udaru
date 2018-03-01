@@ -213,6 +213,7 @@ module.exports = loadVolumeDataBegin
 if (require.main === module) {
   loadVolumeDataBegin((err) => {
     if (err) console.log(chalk.red(err, 'error'))
+    try { client.end() } catch (e) { }
     process.exit(err ? 1 : 0)
   })
 }
