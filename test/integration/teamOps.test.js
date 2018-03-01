@@ -160,6 +160,42 @@ lab.experiment('TeamOps', () => {
     })
   })
 
+  lab.test('create team and update meta', (done) => {
+    const meta1 = {keya: 'vala', keyb: 'valb'}
+    const meta2 = {keyx: 'valx', keyy: 'valy'}
+    let testTeam = {
+      id: 'nearForm',
+      name: 'nearForm Meta1',
+      description: 'description',
+      metadata: meta1,
+      organizationId: 'WONKA'
+    }
+
+    udaru.teams.create(testTeam, {createOnly: true}, (err, result) => {
+      expect(err).to.not.exist()
+      expect(result).to.exist()
+      expect(result.name).to.equal(testTeam.name)
+      expect(result.metadata).to.equal(meta1)
+
+      testTeam.name = 'nearForm Meta2'
+      testTeam.metadata = meta2
+
+      udaru.teams.update(testTeam, (err, result) => {
+        expect(err).to.not.exist()
+
+        // might aswell read correctly for completeness
+        udaru.teams.read({id: testTeam.id, organizationId: testTeam.organizationId}, (err, result) => {
+          expect(err).to.not.exist()
+          expect(result).to.exist()
+          expect(result.name).to.equal(testTeam.name)
+          expect(result.metadata).to.equal(meta2)
+
+          udaru.teams.delete(testTeam, done)
+        })
+      })
+    })
+  })
+
   // TODO: Needs review
   lab.test('read a specific team', (done) => {
     udaru.teams.read({ id: '2', organizationId: 'WONKA' }, (err, result) => {
@@ -263,8 +299,8 @@ lab.experiment('TeamOps', () => {
 
       udaru.teams.create(testTeam, {createOnly: true}, (err, result) => {
         expect(err).to.exist()
-        expect(err.output.statusCode).to.equal(400)
-        expect(err.message).to.match(/Team with id nearForm already present/)
+        expect(err.output.statusCode).to.equal(409)
+        expect(err.message).to.equal('Key (id)=(nearForm) already exists.')
 
         udaru.teams.delete(testTeam, done)
       })

@@ -117,8 +117,8 @@ lab.experiment('OrganizationOps', () => {
 
       udaru.organizations.create(organizationData, { createOnly: true }, (err, result) => {
         expect(err).to.exist()
-        expect(err.output.statusCode).to.equal(400)
-        expect(err.message).to.match(/Organization with id nearForm already present/)
+        expect(err.output.statusCode).to.equal(409)
+        expect(err.message).to.equal('Key (id)=(nearForm) already exists.')
 
         udaru.organizations.delete(organizationData.id, done)
       })
@@ -247,6 +247,31 @@ lab.experiment('OrganizationOps', () => {
         expect(res).to.equal(updateData)
 
         udaru.organizations.delete(result.organization.id, done)
+      })
+    })
+  })
+
+  lab.test('create and update organization with meta', (done) => {
+    const metadata1 = {keya: 'vala', keyb: 'valb'}
+    const metadata2 = {keyx: 'valx', keyy: 'valy'}
+    const createData = { id: 'nearForm1', name: 'nearForm', description: 'nearform description', metadata: metadata1 }
+    const updateData = { id: 'nearForm1', name: 'nearFormUp', description: 'nearFormUp desc up', metadata: metadata2, policies: [] }
+
+    udaru.organizations.create(createData, (err, result) => {
+      expect(err).to.not.exist()
+      expect(result).to.exist()
+      expect(result.organization.name).to.equal('nearForm')
+      expect(result.organization.metadata).to.equal(metadata1)
+
+      udaru.organizations.update(updateData, (err, res) => {
+        expect(err).to.not.exist()
+
+        udaru.organizations.read(updateData.id, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res).to.exist()
+          expect(res).to.equal(updateData)
+          udaru.organizations.delete(result.organization.id, done)
+        })
       })
     })
   })

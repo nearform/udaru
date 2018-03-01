@@ -25,6 +25,8 @@ const testPolicy2 = {
   statements: statementsTest
 }
 
+const metadata = {key1: 'val1', key2: 'val2'}
+
 lab.experiment('Organizations', () => {
   lab.before((done) => {
     udaru.policies.create(testPolicy, (err, p) => {
@@ -188,6 +190,57 @@ lab.experiment('Organizations', () => {
     })
   })
 
+  lab.test('get a single org with meta', (done) => {
+    udaru.organizations.create({ id: 'nearForm_Meta2',
+      name: 'nearForm Meta2',
+      description: 'nearForm org with Meta2',
+      metadata: metadata},
+      (err, res) => {
+        expect(err).to.not.exist()
+
+        const options = utils.requestOptions({
+          method: 'GET',
+          url: '/authorization/organizations/nearForm_Meta2'
+        })
+
+        server.inject(options, (response) => {
+          const result = response.result
+
+          expect(response.statusCode).to.equal(200)
+          expect(result).to.equal({
+            id: 'nearForm_Meta2',
+            name: 'nearForm Meta2',
+            description: 'nearForm org with Meta2',
+            metadata: metadata,
+            policies: []
+          })
+
+          udaru.organizations.delete('nearForm_Meta2', done)
+        })
+      })
+  })
+
+  lab.test('get single organization with meta', (done) => {
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: '/authorization/organizations/CONCH'
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(200)
+      expect(result).to.equal({
+        id: 'CONCH',
+        name: 'Conch Plc',
+        description: 'Global fuel distributors',
+        policies: []
+      })
+
+      done()
+    })
+  })
+
   lab.test('create organization should return 201 for success', (done) => {
     const organization = {
       id: 'nearForm',
@@ -216,6 +269,39 @@ lab.experiment('Organizations', () => {
       })
 
       udaru.organizations.delete('nearForm', done)
+    })
+  })
+
+  lab.test('create organization with metadata, return 201 for success', (done) => {
+    const organization = {
+      id: 'nearForm_Meta',
+      name: 'nearForm_Meta',
+      description: 'nearForm org with meta',
+      metadata: metadata
+    }
+
+    const options = utils.requestOptions({
+      method: 'POST',
+      url: '/authorization/organizations',
+      payload: organization
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(201)
+      expect(result).to.equal({
+        organization: {
+          id: 'nearForm_Meta',
+          name: 'nearForm_Meta',
+          description: 'nearForm org with meta',
+          metadata: metadata,
+          policies: []
+        },
+        user: undefined
+      })
+
+      udaru.organizations.delete('nearForm_Meta', done)
     })
   })
 
@@ -400,6 +486,35 @@ lab.experiment('Organizations', () => {
         expect(result).to.equal({ id: 'nearForm', name: 'new name', description: 'new desc', policies: [] })
 
         udaru.organizations.delete('nearForm', done)
+      })
+    })
+  })
+
+  lab.test('update organization with metadata should return 200 for success', (done) => {
+    udaru.organizations.create({ id: 'nearForm_Meta2', name: 'nearForm Meta2', description: 'nearForm org with Meta2' }, (err, res) => {
+      expect(err).to.not.exist()
+
+      const options = utils.requestOptions({
+        method: 'PUT',
+        url: `/authorization/organizations/${res.organization.id}`,
+        payload: {
+          name: 'nearForm Meta2',
+          description: 'nearForm org with Meta2',
+          metadata: metadata
+        }
+      })
+
+      server.inject(options, (response) => {
+        const result = response.result
+
+        expect(response.statusCode).to.equal(200)
+        expect(result).to.equal({ id: 'nearForm_Meta2',
+          name: 'nearForm Meta2',
+          description: 'nearForm org with Meta2',
+          metadata: metadata,
+          policies: [] })
+
+        udaru.organizations.delete('nearForm_Meta2', done)
       })
     })
   })

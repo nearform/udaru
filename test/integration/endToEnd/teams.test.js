@@ -14,6 +14,15 @@ const teamData = {
   organizationId: 'WONKA'
 }
 
+const metadata = {key1: 'val1', key2: 'val2'}
+const teamDataMeta = {
+  name: 'testTeamMeta',
+  description: 'This is a test team with metadata',
+  parentId: null,
+  organizationId: 'WONKA',
+  metadata: metadata
+}
+
 lab.experiment('Teams - get/list', () => {
   lab.test('get team list: with pagination params', (done) => {
     const options = utils.requestOptions({
@@ -223,6 +232,30 @@ lab.experiment('Teams - get/list', () => {
     })
   })
 
+  lab.test('get single team with metadata', (done) => {
+    udaru.teams.create(teamDataMeta, (err, team) => {
+      expect(err).to.not.exist()
+
+      const options = utils.requestOptions({
+        method: 'GET',
+        url: `/authorization/teams/${team.id}`
+      })
+
+      server.inject(options, (response) => {
+        const result = response.result
+
+        expect(response.statusCode).to.equal(200)
+        expect(result.usersCount).to.exist()
+        expect(result.usersCount).to.equal(0)
+        expect(result.id).to.equal(team.id)
+        expect(result.name).to.equal(team.name)
+        expect(result.metadata).to.equal(team.metadata)
+
+        udaru.teams.delete({ id: team.id, organizationId: team.organizationId }, done)
+      })
+    })
+  })
+
   lab.test('get users for a single team', (done) => {
     udaru.teams.create(teamData, (err, team) => {
       if (err) return done(err)
@@ -419,10 +452,37 @@ lab.experiment('Teams - create', () => {
     server.inject(options, (response) => {
       const result = response.result
 
-      expect(response.statusCode).to.equal(400)
-      expect(result.message).to.equal('Team with id 1 already present')
+      expect(response.statusCode).to.equal(409)
+      expect(result.message).to.equal('Key (id)=(1) already exists.')
 
       done()
+    })
+  })
+
+  lab.test('Create a team with metadata', (done) => {
+    const options = utils.requestOptions({
+      method: 'POST',
+      url: '/authorization/teams',
+      payload: {
+        id: 'test_meta_id',
+        name: 'Team Meta',
+        description: 'This is Team Meta',
+        metadata: metadata
+      }
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(201)
+      expect(result).to.contain({
+        id: 'test_meta_id',
+        path: 'test_meta_id',
+        description: 'This is Team Meta',
+        metadata: metadata
+      })
+
+      udaru.teams.delete({ id: result.id, organizationId: result.organizationId }, done)
     })
   })
 
@@ -543,6 +603,34 @@ lab.experiment('Teams - update', () => {
         expect(result.id).to.equal(team.id)
         expect(result.name).to.equal('Team C')
         expect(result.description).to.equal('Team B is now Team C')
+
+        udaru.teams.delete({ id: team.id, organizationId: team.organizationId }, done)
+      })
+    })
+  })
+
+  lab.test('update team with metadata', (done) => {
+    udaru.teams.create(teamData, (err, team) => {
+      expect(err).to.not.exist()
+
+      const options = utils.requestOptions({
+        method: 'PUT',
+        url: `/authorization/teams/${team.id}`,
+        payload: {
+          name: 'Team Meta',
+          description: 'Team B is now Team Meta',
+          metadata: metadata
+        }
+      })
+
+      server.inject(options, (response) => {
+        const result = response.result
+
+        expect(response.statusCode).to.equal(200)
+        expect(result.id).to.equal(team.id)
+        expect(result.name).to.equal('Team Meta')
+        expect(result.description).to.equal('Team B is now Team Meta')
+        expect(result.metadata).to.equal(metadata)
 
         udaru.teams.delete({ id: team.id, organizationId: team.organizationId }, done)
       })

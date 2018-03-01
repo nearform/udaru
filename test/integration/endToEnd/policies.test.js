@@ -171,8 +171,8 @@ lab.experiment('Policies - create/update/delete (need service key)', () => {
     })
 
     server.inject(options, (response) => {
-      expect(response.statusCode).to.equal(400)
-      expect(response.result.message).to.equal('Policy with id policyId1 already present')
+      expect(response.statusCode).to.equal(409)
+      expect(response.result.message).to.equal('Key (id)=(policyId1) already exists.')
 
       done()
     })
@@ -197,6 +197,25 @@ lab.experiment('Policies - create/update/delete (need service key)', () => {
       expect(result.statements).to.equal(statements)
 
       udaru.policies.delete({ id: result.id, organizationId: 'WONKA' }, done)
+    })
+  })
+
+  lab.test('create new policy with invalid effect data - should return a 400', (done) => {
+    const badStatement = { Statement: [{ Effect: 'Groot', Action: ['documents:Read'], Resource: ['wonka:documents:/public/*'] }] }
+    const options = utils.requestOptions({
+      method: 'POST',
+      url: '/authorization/policies?sig=123456789',
+      payload: {
+        id: 'badPolicy',
+        version: '2016-07-01',
+        name: 'Documents Admin',
+        badStatement
+      }
+    })
+
+    server.inject(options, (response) => {
+      expect(response.statusCode).to.equal(400)
+      done()
     })
   })
 
@@ -402,8 +421,8 @@ lab.experiment('Shared Policies - create/update/delete (need service key)', () =
     })
 
     server.inject(options, (response) => {
-      expect(response.statusCode).to.equal(400)
-      expect(response.result.message).to.equal('Policy with id policyId1 already present')
+      expect(response.statusCode).to.equal(409)
+      expect(response.result.message).to.equal('Key (id)=(policyId1) already exists.')
 
       done()
     })
