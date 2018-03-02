@@ -1,7 +1,7 @@
-ALTER TABLE public.organizations
+ALTER TABLE organizations
     ADD COLUMN metadata jsonb;
-ALTER TABLE public.teams
+ALTER TABLE teams
     ADD COLUMN metadata jsonb;
-ALTER TABLE public.users
+ALTER TABLE users
     ADD COLUMN metadata jsonb;
     
