@@ -1,3 +1,7 @@
+## 4.0.1 - February 15, 2018
+Fixes:
+-   Migration scripts 006 & 007 (removed public schema)
+
 ## 4.0.0 - February 15, 2018
 Features, enhancements:
 -   Added /database/loadVolumeData.js to populate test database with large volume of data [commit](https://github.com/nearform/udaru/pull/456)
@@ -9,7 +13,7 @@ Features, enhancements:
 -   Updated chalk dependency (dev) for volume test output
 -   Updated PBAC to version 0.2.0 (lodash vulnerability update)
 -   Updated iam.js (StringLike param order reversed)
--   Updated unique constraint violation to return code 409 conflict for users, policies, orgs and teams
+-   Breaking Change: Updated unique constraint violation to return code 409 conflict for users, policies, orgs and teams
 -   Enhanced swagger documentation (better definition of models and other tidy ups)
 
 Fixes:
