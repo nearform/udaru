@@ -287,3 +287,182 @@ curl -X GET --header 'Accept: application/json' --header 'authorization: ROOTid'
   }
 ]
 ```
+
+## Teams
+
+Now let's add some teams; lets create a `Justice Leage` team that has the following sub teams: `Amazons`, `Aliens`, `Atlantis` (yep, they do exist: https://en.wikipedia.org/wiki/Justice_Leagues)
+
+Frist, let's list teams to make sure we don't already have any:
+
+```bash
+curl -X GET --header 'Accept: application/json' --header 'authorization: BruceWayne' --header 'org: WayneManor' 'http://localhost:8080/authorization/teams'
+
+```
+
+```js
+{
+  "page": 1,
+  "limit": 100,
+  "total": 0,
+  "data": []
+}
+```
+
+Create our `Justice League` team:
+
+```bash
+curl -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' --header 'authorization: ROOTid' --header 'org: WayneManor' -d '{"id":"justice_league","name":"Justice League","description":"The Justice League"' 'http://localhost:8080/authorization/teams'
+```
+
+Confirm it exists:
+
+```bash
+curl -X GET --header 'Accept: application/json' --header 'authorization: BruceWayne' --header 'org: WayneManor' 'http://localhost:8080/authorization/teams'
+
+```
+
+```js
+{
+  "page": 1,
+  "limit": 100,
+  "total": 1,
+  "data": [
+    {
+      "id": "justice_league",
+      "name": "Justice League",
+      "description": "The Justice League",
+      "path": "justice_league",
+      "organizationId": "WayneManor",
+      "usersCount": 0
+    }
+  ]
+}
+```
+
+Let's create our team of `Amazons`:
+
+```bash
+curl -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' --header 'authorization: ROOTid' --header 'org: WayneManor' -d '{"id":"amazons","name":"Amazons", "description":"The Justice League Amazons","metadata":{}}' 'http://localhost:8080/authorization/teams'
+```
+
+And nest it under the `Justice League` team:
+
+```bash
+curl -X PUT --header 'Content-Type: application/json' --header 'Accept: application/json' --header 'authorization: ROOTid' --header 'org: WayneManor' -d '{"parentId":"justice_league"}' 'http://localhost:8080/authorization/teams/amazons/nest'
+
+```
+
+Verify that `Amazons` is a nested team of `Justice League`:
+
+```bash
+curl -X GET --header 'Accept: application/json' --header 'authorization: BruceWayne' --header 'org: WayneManor' 'http://localhost:8080/authorization/teams/justice_league/nested'
+```
+
+```js
+{
+  "data": [
+    {
+      "id": "amazons",
+      "name": "Amazons",
+      "description": "The Justice League Amazons",
+      "parentId": "justice_league",
+      "path": "justice_league.amazons",
+      "organizationId": "WayneManor",
+      "usersCount": 0
+    }
+  ],
+  "total": 1,
+  "page": 1,
+  "limit": 100
+}
+```
+
+Next, let's create a new user, `Wonder Woman`:
+
+```bash
+curl -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' --header 'authorization: BruceWayne' -d '{"id":"wonder_woman","name":"Wonder Woman","metadata":{}}' 'http://localhost:8080/authorization/users'
+```
+
+And add her to the `Amazons` team:
+
+```bash
+curl -X PUT --header 'Content-Type: application/json' --header 'Accept: application/json' --header 'authorization: BruceWayne' -d '{"users":["wonder_woman"]}' 'http://localhost:8080/authorization/teams/amazons/users'
+```
+
+Let's verify `Wonder Woman` is in the `Amazons` team:
+
+```bash
+curl -X GET --header 'Accept: application/json' --header 'authorization: BruceWayne' --header 'org: WayneManor' 'http://localhost:8080/authorization/users/wonder_woman'
+```
+
+```js
+{
+  "id": "wonder_woman",
+  "name": "Wonder Woman",
+  "organizationId": "WayneManor",
+  "metadata": {},
+  "teams": [
+    {
+      "id": "amazons",
+      "name": "Amazons"
+    }
+  ],
+  "policies": []
+}
+```
+
+Now let's create a policy that will allow access to the Amazons meeting room in the BatCave - note again as above, this is not the recommended way of creating policies!
+
+```bash
+curl -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' --header 'authorization: ROOTid' --header 'org: WayneManor' -d '{"id":"AccessAmazonMeetingRoom","name":"amazon meeting room","version":"1","statements":{"Statement":[{"Effect":"Allow","Action":["enter","exit"],"Resource":["/waynemanor/batcave/amazon_meeting_room"],"Sid":"1","Condition":{}}]}}' 'http://localhost:8080/authorization/policies?sig=123456789'
+```
+
+And let's add this policy to the `Amazons` team:
+
+```bash
+curl -X PUT --header 'Content-Type: application/json' --header 'Accept: application/json' --header 'authorization: BruceWayne' -d '{"policies":["AccessAmazonMeetingRoom"]}' 'http://localhost:8080/authorization/teams/amazons/policies'
+```
+
+```js
+{
+  "id": "amazons",
+  "name": "Amazons",
+  "description": "The Justice League Amazons",
+  "path": "justice_league.amazons",
+  "organizationId": "WayneManor",
+  "metadata": {},
+  "users": [
+    {
+      "id": "wonder_woman",
+      "name": "Wonder Woman"
+    }
+  ],
+  "policies": [
+    {
+      "id": "AccessAmazonMeetingRoom",
+      "name": "amazon meeting room",
+      "version": "1",
+      "variables": {}
+    }
+  ],
+  "usersCount": 1
+}
+```
+
+Let's see what Actions `Wonder Woman` can perform on `/waynemanor/batcave/amazon_meeting_room`:
+
+```bash
+curl -X GET --header 'Accept: application/json' --header 'authorization: ROOTid' --header 'org: WayneManor' 'http://localhost:8080/authorization/list/wonder_woman?resources=%2Fwaynemanor%2Fbatcave%2Famazon_meeting_room'
+```
+
+```js
+[
+  {
+    "resource": "/waynemanor/batcave/amazon_meeting_room",
+    "actions": [
+      "enter",
+      "exit"
+    ]
+  }
+]
+```
