@@ -21,7 +21,7 @@ lab.experiment('TeamOps', () => {
   let users
   let policies = []
   lab.before(done => {
-    udaru.users.list({organizationId: 'WONKA'}, (err, fetchedUsers) => {
+    udaru.users.list({ organizationId: 'WONKA' }, (err, fetchedUsers) => {
       expect(err).to.not.exist()
       expect(fetchedUsers).to.exist()
       expect(fetchedUsers.length).to.be.at.least(2)
@@ -82,7 +82,7 @@ lab.experiment('TeamOps', () => {
   lab.afterEach(done => {
     // always cleanup test data
     if (testTeam && testTeam.id) {
-      udaru.teams.delete({id: testTeam.id, organizationId: 'WONKA'}, done)
+      udaru.teams.delete({ id: testTeam.id, organizationId: 'WONKA' }, done)
       testTeam = null
     } else {
       done()
@@ -90,7 +90,7 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('list of org teams', (done) => {
-    udaru.teams.list({organizationId: 'WONKA'}, (err, result) => {
+    udaru.teams.list({ organizationId: 'WONKA' }, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
 
@@ -109,12 +109,12 @@ lab.experiment('TeamOps', () => {
 
   lab.test('Add twice the same user to a team', (done) => {
     let userIds = [users[0].id]
-    udaru.teams.addUsers({id: testTeam.id, organizationId: 'WONKA', users: userIds}, (err, result) => {
+    udaru.teams.addUsers({ id: testTeam.id, organizationId: 'WONKA', users: userIds }, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
 
       userIds = [users[0].id, users[1].id]
-      udaru.teams.addUsers({id: testTeam.id, organizationId: 'WONKA', users: userIds}, (err, result) => {
+      udaru.teams.addUsers({ id: testTeam.id, organizationId: 'WONKA', users: userIds }, (err, result) => {
         expect(err).to.not.exist()
         expect(result).to.exist()
         expect(result.users.length).to.equal(2)
@@ -157,6 +157,42 @@ lab.experiment('TeamOps', () => {
       expect(result.description).to.equal(testTeam.description)
 
       done()
+    })
+  })
+
+  lab.test('create team and update meta', (done) => {
+    const meta1 = {keya: 'vala', keyb: 'valb'}
+    const meta2 = {keyx: 'valx', keyy: 'valy'}
+    let testTeam = {
+      id: 'nearForm',
+      name: 'nearForm Meta1',
+      description: 'description',
+      metadata: meta1,
+      organizationId: 'WONKA'
+    }
+
+    udaru.teams.create(testTeam, {createOnly: true}, (err, result) => {
+      expect(err).to.not.exist()
+      expect(result).to.exist()
+      expect(result.name).to.equal(testTeam.name)
+      expect(result.metadata).to.equal(meta1)
+
+      testTeam.name = 'nearForm Meta2'
+      testTeam.metadata = meta2
+
+      udaru.teams.update(testTeam, (err, result) => {
+        expect(err).to.not.exist()
+
+        // might aswell read correctly for completeness
+        udaru.teams.read({id: testTeam.id, organizationId: testTeam.organizationId}, (err, result) => {
+          expect(err).to.not.exist()
+          expect(result).to.exist()
+          expect(result.name).to.equal(testTeam.name)
+          expect(result.metadata).to.equal(meta2)
+
+          udaru.teams.delete(testTeam, done)
+        })
+      })
     })
   })
 
@@ -210,7 +246,7 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('creating a team should create a default admin policy', (done) => {
-    udaru.policies.list({organizationId: 'WONKA'}, (err, policies) => {
+    udaru.policies.list({ organizationId: 'WONKA' }, (err, policies) => {
       expect(err).to.not.exist()
 
       const defaultPolicy = policies.find((p) => { return p.name === 'Default Team Admin for ' + testTeam.id })
@@ -230,13 +266,13 @@ lab.experiment('TeamOps', () => {
       organizationId: 'WONKA'
     }
 
-    udaru.teams.create(testTeam, {createOnly: true}, (err, result) => {
+    udaru.teams.create(testTeam, { createOnly: true }, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
       expect(result.id).to.exist()
       testTeam.id = result.id // afterEach will cleanup based on the ID
 
-      udaru.policies.list({organizationId: 'WONKA'}, (err, policies) => {
+      udaru.policies.list({ organizationId: 'WONKA' }, (err, policies) => {
         udaru.teams.delete(testTeam, (err) => { if (err) throw err })
         expect(err).to.not.exist()
 
@@ -257,14 +293,14 @@ lab.experiment('TeamOps', () => {
       organizationId: 'WONKA'
     }
 
-    udaru.teams.create(testTeam, {createOnly: true}, (err, result) => {
+    udaru.teams.create(testTeam, { createOnly: true }, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
 
-      udaru.teams.create(testTeam, {createOnly: true}, (err, result) => {
+      udaru.teams.create(testTeam, { createOnly: true }, (err, result) => {
         expect(err).to.exist()
-        expect(err.output.statusCode).to.equal(400)
-        expect(err.message).to.match(/Team with id nearForm already present/)
+        expect(err.output.statusCode).to.equal(409)
+        expect(err.message).to.equal('Key (id)=(nearForm) already exists.')
 
         udaru.teams.delete(testTeam, done)
       })
@@ -303,7 +339,7 @@ lab.experiment('TeamOps', () => {
     }
     setTimeout(() => {
       // TODO: delete team
-      udaru.teams.delete(testTeam, () => {})
+      udaru.teams.delete(testTeam, () => { })
     }, 5000)
 
     udaru.teams.create(testTeam, function (err, team) {
@@ -341,7 +377,7 @@ lab.experiment('TeamOps', () => {
     }
     setTimeout(() => {
       // TODO: delete team
-      udaru.teams.delete(testTeam, () => {})
+      udaru.teams.delete(testTeam, () => { })
     }, 5000)
 
     udaru.teams.create(testTeam, function (err, team) {
@@ -489,12 +525,12 @@ lab.experiment('TeamOps', () => {
           expect(result).to.exist()
           expect(result.path).to.equal(testTeam2.id + '.' + childTeam.id)
 
-          udaru.teams.read({id: childTeam.id, organizationId: 'WONKA'}, (err, result) => {
+          udaru.teams.read({ id: childTeam.id, organizationId: 'WONKA' }, (err, result) => {
             expect(err).to.not.exist()
             expect(result).to.exist()
             expect(result.path).to.equal(testTeam2.id + '.' + childTeam.id)
 
-            udaru.teams.delete({id: testTeam2.id, organizationId: 'WONKA'}, done)
+            udaru.teams.delete({ id: testTeam2.id, organizationId: 'WONKA' }, done)
           })
         })
       })
@@ -521,7 +557,7 @@ lab.experiment('TeamOps', () => {
         expect(result).to.exist()
         expect(result.path).to.equal(teamId.toString())
 
-        udaru.teams.delete({id: teamId, organizationId: 'WONKA'}, done)
+        udaru.teams.delete({ id: teamId, organizationId: 'WONKA' }, done)
       })
     })
   })
@@ -559,10 +595,10 @@ lab.experiment('TeamOps', () => {
   lab.test('add policies with variables to team', (done) => {
     const policiesParam = [{
       id: policies[0].id,
-      variables: {var1: 'value1'}
+      variables: { var1: 'value1' }
     }, {
       id: policies[1].id,
-      variables: {var2: 'value2'}
+      variables: { var2: 'value2' }
     }]
 
     udaru.teams.addPolicies({ id: testTeam.id, policies: policiesParam, organizationId: 'WONKA' }, (err, team) => {
@@ -573,12 +609,12 @@ lab.experiment('TeamOps', () => {
         id: policies[0].id,
         name: policies[0].name,
         version: policies[0].version,
-        variables: {var1: 'value1'}
+        variables: { var1: 'value1' }
       }, {
         id: policies[1].id,
         name: policies[1].name,
         version: policies[1].version,
-        variables: {var2: 'value2'}
+        variables: { var2: 'value2' }
       }])
 
       done()
@@ -631,7 +667,7 @@ lab.experiment('TeamOps', () => {
       organizationId: 'WONKA',
       policies: [{
         id: policies[0].id,
-        variables: {var1: 'value1'}
+        variables: { var1: 'value1' }
       }]
     }, (err, team) => {
       expect(err).to.not.exist()
@@ -639,7 +675,7 @@ lab.experiment('TeamOps', () => {
 
       const policiesParam = [{
         id: policies[1].id,
-        variables: {var1: 'value2'}
+        variables: { var1: 'value2' }
       }]
 
       udaru.teams.replacePolicies({ id: team.id, policies: policiesParam, organizationId: 'WONKA' }, (err, team) => {
@@ -650,7 +686,7 @@ lab.experiment('TeamOps', () => {
           id: policies[1].id,
           name: policies[1].name,
           version: policies[1].version,
-          variables: {var1: 'value2'}
+          variables: { var1: 'value2' }
         }])
         done()
       })
@@ -883,10 +919,10 @@ lab.experiment('TeamOps', () => {
     lab.test('with different variables add twice', (done) => {
       const policiesParam = [{
         id: policies[0].id,
-        variables: {var1: 'value1'}
+        variables: { var1: 'value1' }
       }, {
         id: policies[1].id,
-        variables: {var2: 'value2'}
+        variables: { var2: 'value2' }
       }]
 
       udaru.teams.addPolicies({ id: testTeam.id, policies: policiesParam, organizationId: 'WONKA' }, (err, team) => {
@@ -897,17 +933,17 @@ lab.experiment('TeamOps', () => {
           id: policies[0].id,
           name: policies[0].name,
           version: policies[0].version,
-          variables: {var1: 'value1'}
+          variables: { var1: 'value1' }
         }, {
           id: policies[1].id,
           name: policies[1].name,
           version: policies[1].version,
-          variables: {var2: 'value2'}
+          variables: { var2: 'value2' }
         }])
 
         const policiesParam = [{
           id: policies[1].id,
-          variables: {var2: 'value3'}
+          variables: { var2: 'value3' }
         }]
 
         udaru.teams.addPolicies({ id: team.id, policies: policiesParam, organizationId: 'WONKA' }, (err, team) => {
@@ -918,17 +954,17 @@ lab.experiment('TeamOps', () => {
             id: policies[0].id,
             name: policies[0].name,
             version: policies[0].version,
-            variables: {var1: 'value1'}
+            variables: { var1: 'value1' }
           }, {
             id: policies[1].id,
             name: policies[1].name,
             version: policies[1].version,
-            variables: {var2: 'value2'}
+            variables: { var2: 'value2' }
           }, {
             id: policies[1].id,
             name: policies[1].name,
             version: policies[1].version,
-            variables: {var2: 'value3'}
+            variables: { var2: 'value3' }
           }])
           done()
         })
@@ -938,10 +974,10 @@ lab.experiment('TeamOps', () => {
     lab.test('with same variables do nothing', (done) => {
       const policiesParam = [{
         id: policies[0].id,
-        variables: {var1: 'value1'}
+        variables: { var1: 'value1' }
       }, {
         id: policies[1].id,
-        variables: {var2: 'value2'}
+        variables: { var2: 'value2' }
       }]
 
       udaru.teams.addPolicies({ id: testTeam.id, policies: policiesParam, organizationId: 'WONKA' }, (err, team) => {
@@ -952,17 +988,17 @@ lab.experiment('TeamOps', () => {
           id: policies[0].id,
           name: policies[0].name,
           version: policies[0].version,
-          variables: {var1: 'value1'}
+          variables: { var1: 'value1' }
         }, {
           id: policies[1].id,
           name: policies[1].name,
           version: policies[1].version,
-          variables: {var2: 'value2'}
+          variables: { var2: 'value2' }
         }])
 
         const policiesParam = [{
           id: policies[1].id,
-          variables: {var2: 'value2'}
+          variables: { var2: 'value2' }
         }]
 
         udaru.teams.addPolicies({ id: team.id, policies: policiesParam, organizationId: 'WONKA' }, (err, team) => {
@@ -973,16 +1009,116 @@ lab.experiment('TeamOps', () => {
             id: policies[0].id,
             name: policies[0].name,
             version: policies[0].version,
-            variables: {var1: 'value1'}
+            variables: { var1: 'value1' }
           }, {
             id: policies[1].id,
             name: policies[1].name,
             version: policies[1].version,
-            variables: {var2: 'value2'}
+            variables: { var2: 'value2' }
           }])
           done()
         })
       })
+    })
+  })
+
+  lab.test('Search for Authors', (done) => {
+    udaru.teams.search({ query: 'Authors', organizationId: 'WONKA' }, (err, data, total) => {
+      expect(err).to.not.exist()
+      expect(total).to.exist()
+      expect(total).to.equal(3)
+      expect(data.length).to.equal(3)
+
+      done()
+    })
+  })
+
+  lab.test('Wildcard search for Authors', (done) => {
+    udaru.teams.search({ query: 'Auth', organizationId: 'WONKA' }, (err, data, total) => {
+      expect(err).to.not.exist()
+      expect(total).to.exist()
+      expect(total).to.equal(3)
+      expect(data.length).to.equal(3)
+
+      done()
+    })
+  })
+
+  lab.test('Search for common words phrase', (done) => {
+    udaru.teams.search({ query: 'Managers', organizationId: 'WONKA' }, (err, data, total) => {
+      expect(err).to.not.exist()
+      expect(total).to.exist()
+      expect(total).to.equal(2)
+      expect(data.length).to.equal(2)
+    })
+
+    done()
+  })
+
+  lab.test('Search for multiple words phrase', (done) => {
+    udaru.teams.search({ query: 'Personnel Managers', organizationId: 'WONKA' }, (err, data, total) => {
+      expect(err).to.not.exist()
+      expect(total).to.exist()
+      expect(total).to.equal(1)
+      expect(data.length).to.equal(1)
+    })
+
+    done()
+  })
+
+  lab.test('Search with empty query', (done) => {
+    udaru.teams.search({ query: '', organizationId: 'WONKA' }, (err, data, total) => {
+      expect(err).to.exist()
+
+      done()
+    })
+  })
+
+  lab.test('Search with no match', (done) => {
+    udaru.teams.search({ query: 'idontexist', organizationId: 'WONKA' }, (err, data, total) => {
+      expect(err).to.not.exist()
+      expect(total).to.exist()
+      expect(total).to.equal(0)
+      expect(data.length).to.equal(0)
+
+      done()
+    })
+  })
+
+  lab.test('Search with bad org id', (done) => {
+    udaru.teams.search({ query: 'Auth', organizationId: 'IDONTEXIST' }, (err, data, total) => {
+      expect(err).to.not.exist()
+      expect(total).to.exist()
+      expect(total).to.equal(0)
+      expect(data.length).to.equal(0)
+
+      done()
+    })
+  })
+
+  lab.test('Search expect error with bad params', (done) => {
+    udaru.teams.search({ querty: 'Bad query param', orId: 'Bad organizationId param' }, (err, data, total) => {
+      expect(err).to.exist()
+
+      done()
+    })
+  })
+
+  lab.test('Search sql injection org_id sanity check', (done) => {
+    udaru.teams.search({ query: 'Authors', organizationId: 'WONKA||org_id<>-1' }, (err, data, total) => {
+      expect(err).to.not.exist()
+      expect(total).to.equal(0)
+      expect(data.length).to.equal(0)
+
+      done()
+    })
+  })
+
+  lab.test('Search sql injection query sanity check', (done) => {
+    udaru.teams.search({ query: 'Authors\'); drop database authorization;', organizationId: 'WONKA' }, (err, data, total) => {
+      expect(err).to.exist()
+
+      done()
     })
   })
 })

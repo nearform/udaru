@@ -253,6 +253,18 @@ To obtain a coverage report:
 npm run coverage
 ```
 
+To populate the database with large volume of data:
+
+```
+npm run pg:init-volume-db
+```
+
+To run bench test against populated volume data (2 endpoints)
+
+```
+npm run bench-volume
+```
+
 ## Security
 
 Udaru has been thoroughly evaluated against SQL injection, a detailed description of this can be found in the [SQL Injection][] document.
