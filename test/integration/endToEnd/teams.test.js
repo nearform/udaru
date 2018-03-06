@@ -1143,6 +1143,23 @@ lab.experiment('Teams - checking org_id scoping', () => {
     })
   })
 
+  lab.test('get error if team does not exist', (done) => {
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: `/authorization/teams/IDONTEXIST/nested`
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(result.statusCode).to.equal(404)
+      expect(result.error).to.exist()
+      expect(result.message).to.include('not').include('found')
+
+      done()
+    })
+  })
+
   lab.test('get nested team list with default paging', (done) => {
     const options = utils.requestOptions({
       method: 'GET',
