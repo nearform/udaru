@@ -841,7 +841,7 @@ lab.experiment('UserOps structure', () => {
 
   // Lot's of options, see https://www.postgresql.org/docs/current/static/textsearch-controls.html
   lab.test('Wildcard search for Charlie', (done) => {
-    udaru.users.search({ query: 'Charli:*', organizationId: 'WONKA' }, (err, data, total) => {
+    udaru.users.search({ query: 'Charli', organizationId: 'WONKA' }, (err, data, total) => {
       expect(err).to.not.exist()
       expect(total).to.exist()
       expect(total).to.equal(1)
