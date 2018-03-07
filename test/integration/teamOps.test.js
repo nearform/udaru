@@ -1022,6 +1022,103 @@ lab.experiment('TeamOps', () => {
     })
   })
 
+  lab.experiment('nested teams', () => {
+    lab.test('list an existing nested team', (done) => {
+      udaru.teams.listNestedTeams({ organizationId: 'WONKA', id: '4' }, (err, result, total) => {
+        expect(err).to.not.exist()
+        expect(result).to.exist()
+        expect(total).to.exist()
+        expect(total).to.equal(1)
+
+        expect(_.map(result, 'name')).contains(['Personnel Managers'])
+        done()
+      })
+    })
+
+    lab.test('list an existing nested team with paging', (done) => {
+      udaru.teams.listNestedTeams({ organizationId: 'WONKA', id: '4', page: 1, limit: 1 }, (err, result, total) => {
+        expect(err).to.not.exist()
+        expect(result).to.exist()
+        expect(total).to.exist()
+        expect(total).to.equal(1)
+
+        expect(_.map(result, 'name')).contains(['Personnel Managers'])
+        done()
+      })
+    })
+
+    lab.test('nested team with bad page param', (done) => {
+      udaru.teams.listNestedTeams({ organizationId: 'WONKA', id: '4', page: 0, limit: 1 }, (err, result, total) => {
+        expect(err).to.exist()
+
+        done()
+      })
+    })
+
+    lab.test('nested team with bad limit param', (done) => {
+      udaru.teams.listNestedTeams({ organizationId: 'WONKA', id: '4', page: 1, limit: 0 }, (err, result, total) => {
+        expect(err).to.exist()
+
+        done()
+      })
+    })
+
+    lab.test('nested team not found', (done) => {
+      udaru.teams.listNestedTeams({ organizationId: 'WONKA', id: 'IDONTEXIST' }, (err, result, total) => {
+        expect(err).to.not.exist()
+        expect(result).to.exist()
+        expect(total).to.exist()
+        expect(total).to.equal(0)
+        expect(result.length).to.equal(0)
+
+        done()
+      })
+    })
+
+    lab.test('nested team with bad organization', (done) => {
+      udaru.teams.listNestedTeams({ organizationId: 'IDONTEXIST', id: '4' }, (err, result, total) => {
+        expect(err).to.not.exist()
+        expect(result).to.exist()
+        expect(total).to.exist()
+        expect(total).to.equal(0)
+        expect(result.length).to.equal(0)
+
+        done()
+      })
+    })
+
+    lab.test('nested team with bad team id', (done) => {
+      udaru.teams.listNestedTeams({ organizationId: 'WONKA', id: 4 }, (err, result, total) => {
+        expect(err).to.exist()
+
+        done()
+      })
+    })
+
+    lab.test('nested team sql injection org_id sanity check', (done) => {
+      udaru.teams.listNestedTeams({ organizationId: 'WONKA||org_id<>-1', id: '4' }, (err, result, total) => {
+        expect(err).to.not.exist()
+        expect(total).to.exist()
+        expect(result).to.exist()
+        expect(total).to.equal(0)
+        expect(result.length).to.equal(0)
+
+        done()
+      })
+    })
+
+    lab.test('Search sql injection query sanity check', (done) => {
+      udaru.teams.listNestedTeams({ id: '4\'); drop database authorization;', organizationId: 'WONKA' }, (err, result, total) => {
+        expect(err).to.not.exist()
+        expect(total).to.exist()
+        expect(result).to.exist()
+        expect(total).to.equal(0)
+        expect(result.length).to.equal(0)
+
+        done()
+      })
+    })
+  })
   lab.test('Search for Authors', (done) => {
     udaru.teams.search({ query: 'Authors', organizationId: 'WONKA' }, (err, data, total) => {
       expect(err).to.not.exist()
