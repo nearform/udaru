@@ -876,3 +876,68 @@ lab.experiment('Users - manage teams', () => {
   })
 })
 
+lab.experiment('Users - search for user', () => {
+  lab.test(`search with empty query`, (done) => {
+    const query = ''
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: `/authorization/users/search?query=${query}`
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(400)
+      expect(result.error).to.exist()
+      expect(result.validation).to.exist()
+      expect(result.error.toLowerCase()).to.include('bad').include('request')
+
+      done()
+    })
+  })
+
+  lab.test(`search with query value 'm'`, (done) => {
+    const query = 'm'
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: `/authorization/users/search?query=${query}`
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+      const expectedUsers = [
+        'Many Polices',
+        'Mike Teavee',
+        'Modify Me'
+      ]
+
+      expect(response.statusCode).to.equal(200)
+      expect(result.total).to.equal(3)
+      expect(result.data.length).to.equal(3)
+
+      expect(_.map(result.data, 'name')).to.only.contain(expectedUsers)
+      expect(result.data.every(d => d.organizationId === 'WONKA')).to.be.true()
+
+      done()
+    })
+  })
+
+  lab.test(`search with query value 'IDONTEXIST'`, (done) => {
+    const query = 'IDONTEXIST'
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: `/authorization/users/search?query=${query}`
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(200)
+      expect(result.total).to.equal(0)
+      expect(result.data.length).to.equal(0)
+
+      done()
+    })
+  })
+})
+
