@@ -1,3 +1,9 @@
+## 4.2.0 - February 15, 2018
+Features, enhancements:
+-   Nested teams endpoint [commit] (https://github.com/nearform/udaru/pull/477)
+-   Team search endpoint [commit] (https://github.com/nearform/udaru/pull/473)
+-   Updated PBAC to version 0.3.0 (lodash vulnerability)
+
 ## 4.0.1 - February 15, 2018
 Fixes:
 -   Migration scripts 006 & 007 (removed public schema)

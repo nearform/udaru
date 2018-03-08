@@ -1143,71 +1143,114 @@ lab.experiment('Teams - checking org_id scoping', () => {
     })
   })
 
-  lab.experiment('Teams Search', () => {
-    lab.test('search for an existing team', (done) => {
-      const query = 'man'
+  lab.test('get error if team does not exist', (done) => {
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: `/authorization/teams/IDONTEXIST/nested`
+    })
 
-      const options = utils.requestOptions({
-        method: 'GET',
-        url: `/authorization/teams/search?query=${query}`
-      })
+    server.inject(options, (response) => {
+      const result = response.result
 
-      server.inject(options, (response) => {
-        const result = response.result
+      expect(result.statusCode).to.equal(404)
+      expect(result.error).to.exist()
+      expect(result.message).to.include('not').include('found')
 
-        expect(response.statusCode).to.equal(200)
-        expect(result.data).to.exist()
-        expect(result.total).to.exist()
+      done()
+    })
+  })
 
-        expect(result.data.length).to.equal(2)
-        expect(result.total).to.equal(2)
+  lab.test('get nested team list with default paging', (done) => {
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: '/authorization/teams/3/nested'
+    })
 
-        done()
-      })
+    server.inject(options, (response) => {
+      const result = response.result
 
-      lab.test('search for a non-existing team', (done) => {
-        const query = 'IDONTEXIST'
+      expect(response.statusCode).to.equal(200)
+      expect(result.page).to.equal(1)
+      expect(result.limit).to.greaterThan(1)
+      expect(result.total).to.equal(1)
+      expect(result.data).to.equal([
+        {
+          id: '6',
+          name: 'Company Lawyer',
+          description: 'Author of legal documents',
+          parentId: '3',
+          path: '6',
+          organizationId: 'WONKA',
+          usersCount: 0
+        }
+      ])
 
-        const options = utils.requestOptions({
-          method: 'GET',
-          url: `/authorization/teams/search?query=${query}`
-        })
+      done()
+    })
+  })
 
-        server.inject(options, (response) => {
-          const result = response.result
+  lab.test('get nested team list with paging', (done) => {
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: '/authorization/teams/3/nested?limit=1&page=1'
+    })
 
-          expect(response.statusCode).to.equal(200)
-          expect(result.data).to.exist()
-          expect(result.total).to.exist()
+    server.inject(options, (response) => {
+      const result = response.result
 
-          expect(result.data.length).to.equal(0)
-          expect(result.total).to.equal(0)
+      expect(response.statusCode).to.equal(200)
+      expect(result.page).to.equal(1)
+      expect(result.limit).to.equal(1)
+      expect(result.total).to.equal(1)
+      expect(result.data).to.equal([
+        {
+          id: '6',
+          name: 'Company Lawyer',
+          description: 'Author of legal documents',
+          parentId: '3',
+          path: '6',
+          organizationId: 'WONKA',
+          usersCount: 0
+        }
+      ])
 
-          done()
-        })
-      })
+      done()
+    })
+  })
 
-      lab.test('search with invalid query set', (done) => {
-        const query = ''
+  lab.test('get nested team list with bad paging param', (done) => {
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: '/authorization/teams/3/nested?limit=1&page=0'
+    })
 
-        const options = utils.requestOptions({
-          method: 'GET',
-          url: `/authorization/teams/search?query=${query}`
-        })
+    server.inject(options, (response) => {
+      const result = response.result
 
-        server.inject(options, (response) => {
-          const result = response.result
+      expect(response.statusCode).to.equal(400)
+      expect(result.error).to.equal('Bad Request')
+      expect(result.message).to.exist()
+      expect(result.data).to.not.exist()
 
-          expect(response.statusCode).to.equal(400)
-          expect(result.data).to.not.exist()
-          expect(result.total).to.not.exist()
+      done()
+    })
+  })
 
-          expect(result.error).to.exist()
-          expect(result.error.toLowerCase()).to.include('bad').include('request')
+  lab.test('get nested team list with bad limit param', (done) => {
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: '/authorization/teams/3/nested?limit=0&page=1'
+    })
 
-          done()
-        })
-      })
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(400)
+      expect(result.error).to.equal('Bad Request')
+      expect(result.message).to.exist()
+      expect(result.data).to.not.exist()
+
+      done()
     })
   })
 
