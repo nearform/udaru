@@ -315,7 +315,7 @@ lab.experiment('Teams - get/list', () => {
     const teamId = 'idontexist'
     const options = utils.requestOptions({
       method: 'GET',
-      url: `/authorization/teams/$${teamId}/users`
+      url: `/authorization/teams/${teamId}/users`
     })
 
     server.inject(options, (response) => {
