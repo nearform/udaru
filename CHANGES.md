@@ -1,4 +1,4 @@
-## 4.1.0 - February 15, 2018
+## 4.1.0 - March 12, 2018
 Features, enhancements:
 -   Nested teams endpoint [commit] (https://github.com/nearform/udaru/pull/477)
 -   Team search endpoint [commit] (https://github.com/nearform/udaru/pull/473)
