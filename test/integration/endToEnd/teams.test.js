@@ -1253,4 +1253,113 @@ lab.experiment('Teams - checking org_id scoping', () => {
       done()
     })
   })
+
+  lab.experiment('Teams User Search', () => {
+    lab.test('searching for a real user in an existing team', (done) => {
+      const teamId = '4'
+      const query = 'Will'
+
+      const options = utils.requestOptions({
+        method: 'GET',
+        url: `/authorization/teams/${teamId}/users/search?query=${query}`
+      })
+
+      server.inject(options, (response) => {
+        const result = response.result
+
+        expect(response.statusCode).to.equal(200)
+        expect(result.data).to.exist()
+        expect(result.total).to.exist()
+
+        expect(result.data.length).to.equal(1)
+        expect(result.total).to.equal(1)
+
+        done()
+      })
+    })
+
+    lab.test('searching for a user that does not exist in an existing team', (done) => {
+      const teamId = '4'
+      const query = 'IDONTEXIST'
+
+      const options = utils.requestOptions({
+        method: 'GET',
+        url: `/authorization/teams/${teamId}/users/search?query=${query}`
+      })
+
+      server.inject(options, (response) => {
+        const result = response.result
+
+        expect(response.statusCode).to.equal(200)
+        expect(result.data).to.exist()
+        expect(result.total).to.exist()
+
+        expect(result.data.length).to.equal(0)
+        expect(result.total).to.equal(0)
+
+        done()
+      })
+    })
+
+    lab.test('searching for a real user in a non-existing team', (done) => {
+      const teamId = 'IDONTEXIST'
+      const query = 'Will'
+
+      const options = utils.requestOptions({
+        method: 'GET',
+        url: `/authorization/teams/${teamId}/users/search?query=${query}`
+      })
+
+      server.inject(options, (response) => {
+        const result = response.result
+
+        expect(response.statusCode).to.equal(404)
+        expect(result.data).to.not.exist()
+        expect(result.total).to.not.exist()
+
+        expect(result.error).to.exist()
+        expect(result.message).to.include('not').include('found')
+
+        done()
+      })
+    })
+
+    lab.test('missing query string', (done) => {
+      const teamId = 'IDONTEXIST'
+
+      const options = utils.requestOptions({
+        method: 'GET',
+        url: `/authorization/teams/${teamId}/users/search?query=`
+      })
+
+      server.inject(options, (response) => {
+        const result = response.result
+
+        expect(response.statusCode).to.equal(400)
+
+        expect(result.error).to.exist()
+        expect(result.error.toLowerCase()).to.include('bad').include('request')
+
+        done()
+      })
+    })
+
+    lab.test('missing team id param string', (done) => {
+      const options = utils.requestOptions({
+        method: 'GET',
+        url: `/authorization/teams//users/search?query='query'`
+      })
+
+      server.inject(options, (response) => {
+        const result = response.result
+
+        expect(response.statusCode).to.equal(404)
+
+        expect(result.error).to.exist()
+        expect(result.message.toLowerCase()).to.include('not').include('found')
+
+        done()
+      })
+    })
+  })
 })

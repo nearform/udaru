@@ -1218,4 +1218,147 @@ lab.experiment('TeamOps', () => {
       done()
     })
   })
+
+  lab.experiment('Team: search for users', () => {
+    lab.test('Search for Wonka', (done) => {
+      udaru.teams.searchUsers({ id: '4', query: 'wonka', organizationId: 'WONKA' }, (err, data, total) => {
+        expect(err).to.not.exist()
+        expect(total).to.exist()
+        expect(data).to.exist()
+        expect(total).to.equal(1)
+        expect(data.length).to.equal(1)
+
+        done()
+      })
+    })
+
+    lab.test('Wildcard search for Willy Wonka', (done) => {
+      udaru.teams.searchUsers({ id: '4', query: 'will', organizationId: 'WONKA' }, (err, data, total) => {
+        expect(err).to.not.exist()
+        expect(total).to.exist()
+        expect(data).to.exist()
+        expect(total).to.equal(1)
+        expect(data.length).to.equal(1)
+
+        done()
+      })
+    })
+
+    lab.test('Search for common phrase', (done) => {
+      udaru.teams.searchUsers({ id: '2', query: 'id', organizationId: 'WONKA' }, (err, data, total) => {
+        expect(err).to.not.exist()
+        expect(total).to.exist()
+        expect(data).to.exist()
+        expect(total).to.equal(2)
+        expect(data.length).to.equal(2)
+
+        done()
+      })
+    })
+
+    lab.test('Search with empty query', (done) => {
+      udaru.teams.searchUsers({ id: '1', query: '', organizationId: 'WONKA' }, (err, data, total) => {
+        expect(err).to.exist()
+        expect(err.name).to.exist()
+        expect(err.name).include('ValidationError')
+
+        done()
+      })
+    })
+
+    lab.test('Search with no match', (done) => {
+      udaru.teams.searchUsers({ id: '1', query: 'idontexist', organizationId: 'WONKA' }, (err, data, total) => {
+        expect(err).to.not.exist()
+        expect(total).to.exist()
+        expect(data).to.exist()
+
+        expect(total).to.equal(0)
+        expect(data.length).to.equal(0)
+
+        done()
+      })
+    })
+
+    lab.test('Search with bad org id', (done) => {
+      udaru.teams.searchUsers({
+        id: '1',
+        query: 'Auth',
+        organizationId: 'IDONTEXIST'
+      }, (err, data, total) => {
+        expect(err).to.not.exist()
+        expect(total).to.exist()
+        expect(data).to.exist()
+
+        expect(total).to.equal(0)
+        expect(data.length).to.equal(0)
+
+        done()
+      })
+    })
+
+    lab.test('Search expect error with bad params', (done) => {
+      udaru.teams.searchUsers({
+        ib: '1',
+        querty: 'Bad query param',
+        orId: 'Bad organizationId param'
+      }, (err, data, total) => {
+        expect(err).to.exist()
+
+        done()
+      })
+    })
+
+    lab.test('Search expect error with missing id', (done) => {
+      udaru.teams.searchUsers({
+        querty: 'Bad query param',
+        orgId: 'Bad organizationId param'
+      }, (err, data, total) => {
+        expect(err).to.exist()
+
+        done()
+      })
+    })
+
+    lab.test('Search sql injection org_id sanity check', (done) => {
+      udaru.teams.searchUsers({
+        id: '1',
+        query: 'wonka',
+        organizationId: 'WONKA||org_id<>-1'
+      }, (err, data, total) => {
+        expect(err).to.not.exist()
+
+        expect(total).to.equal(0)
+        expect(data.length).to.equal(0)
+
+        done()
+      })
+    })
+
+    lab.test('Search sql injection query sanity check', (done) => {
+      udaru.teams.searchUsers({
+        id: '1',
+        query: 'Wonka\'); drop database authorization;',
+        organizationId: 'WONKA'
+      }, (err, data, total) => {
+        expect(err).to.exist()
+
+        done()
+      })
+    })
+
+    lab.test('Search sql injection id sanity check', (done) => {
+      udaru.teams.searchUsers({
+        id: '1\'); drop database authorization;',
+        query: 'Willy Wonka',
+        organizationId: 'WONKA'
+      }, (err, data, total) => {
+        expect(err).to.not.exist()
+
+        expect(total).to.equal(0)
+        expect(data.length).to.equal(0)
+
+        done()
+      })
+    })
+  })
 })
