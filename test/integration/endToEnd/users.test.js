@@ -741,7 +741,7 @@ lab.experiment('Users - manage teams', () => {
   })
 
   lab.test('get user teams, invalid userId', (done) => {
-    const userId = 'InvalidId'
+    const userId = 'invalidid'
     const options = utils.requestOptions({
       method: 'GET',
       url: `/authorization/users/${userId}/teams`
@@ -750,11 +750,12 @@ lab.experiment('Users - manage teams', () => {
     server.inject(options, (response) => {
       const result = response.result
 
-      expect(response.statusCode).to.equal(200)
-      expect(result.total).to.equal(0)
-      expect(result.page).to.equal(1)
-      expect(result.limit).to.equal(defaultPageSize)
-      expect(result.data.length).to.equal(0)
+      expect(result.statusCode).to.equal(404)
+      expect(result.data).to.not.exist()
+      expect(result.total).to.not.exist()
+      expect(result.error).to.exist()
+      expect(result.message).to.exist()
+      expect(result.message.toLowerCase()).to.include(userId).include('not').include('found')
 
       done()
     })
