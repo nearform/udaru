@@ -61,6 +61,7 @@
     "test:commit-check"
   ],
   "dependencies": {
+    "@nearform/sql": "^1.0.0",
     "async": "^2.6.0",
     "hapi": "^16.6.2",
     "hapi-pino": "^1.7.0",
@@ -87,6 +88,7 @@
     "lab": "^14.2.0",
     "napa": "^2.3.0",
     "pg-copy-streams": "^1.2.0",
+    "postgrator": "^2.10.3",
     "pre-commit": "^1.2.2",
     "proxyquire": "^1.7.10",
     "remark-cli": "^4.0.0",

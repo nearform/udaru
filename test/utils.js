@@ -3,7 +3,7 @@
 const _ = require('lodash')
 const config = require('../lib/config/build-all')()
 const db = require('./../lib/core/lib/db')(null, config)
-const SQL = require('./../lib/core/lib/db/SQL')
+const SQL = require('@nearform/sql')
 
 const udaru = require('./../lib/core')()
 
