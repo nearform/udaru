@@ -61,6 +61,7 @@
     "test:commit-check"
   ],
   "dependencies": {
+    "@nearform/sql": "^1.0.0",
     "async": "^2.6.0",
     "hapi": "^16.6.2",
     "hapi-pino": "^1.7.0",
