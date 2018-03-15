@@ -310,6 +310,27 @@ lab.experiment('Teams - get/list', () => {
       })
     })
   })
+
+  lab.test('return 404 if team does not exist when requesting users', (done) => {
+    const teamId = 'idontexist'
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: `/authorization/teams/${teamId}/users`
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(result.statusCode).to.equal(404)
+      expect(result.data).to.not.exist()
+      expect(result.total).to.not.exist()
+      expect(result.error).to.exist()
+      expect(result.message).to.exist()
+      expect(result.message.toLowerCase()).to.include(teamId).include('not').include('found')
+
+      done()
+    })
+  })
 })
 
 lab.experiment('Teams - create', () => {
