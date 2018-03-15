@@ -1,6 +1,6 @@
 'use strict'
 
-const SQL = require('../packages/udaru/lib/db/SQL')
+const SQL = require('@nearform/sql')
 const buildUdaru = require('../packages/udaru')
 const buildDb = require('../packages/udaru/lib/db')
 const config = require('../packages/udaru/config')()

@@ -2,7 +2,7 @@
 
 const _ = require('lodash')
 const Boom = require('boom')
-const SQL = require('../../lib/db/SQL')
+const SQL = require('@nearform/sql')
 
 function boomErrorWrapper (next) {
   return function wrapAsBadImplementation (err, result) {

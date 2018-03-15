@@ -7,7 +7,7 @@ const lab = exports.lab = Lab.script()
 const async = require('async')
 const _ = require('lodash')
 const db = require('../../lib/db')(null, config)
-const SQL = require('../../lib/db/SQL')
+const SQL = require('@nearform/sql')
 
 const udaru = require('../..')()
 const authorize = udaru.authorize
