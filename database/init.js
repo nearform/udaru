@@ -3,7 +3,7 @@
 const _ = require('lodash')
 const async = require('async')
 const pg = require('pg')
-const config = require('../packages/udaru/config')()
+const config = require('../packages/udaru-core/config')()
 
 if (!config.get('local')) {
   console.error('ERROR: You are trying to init the database while not in local environment.')
