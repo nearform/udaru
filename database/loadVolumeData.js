@@ -14,7 +14,7 @@ const path = require('path')
 const pg = require('pg')
 const fs = require('fs')
 const chalk = require('chalk')
-const config = require('../lib/config/build-all')()
+const config = require('../packages/udaru-core/config')()
 
 if (!config.get('local')) {
   console.error('ERROR: You are trying to load test data in the database while not in local environment.')

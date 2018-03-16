@@ -1,4 +1,4 @@
-const Server = require('../lib/server')
+const Server = require('../packages/udaru-server')
 const Joi = require('joi')
 
 const swaggerSchema = Joi.object({

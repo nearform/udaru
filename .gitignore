@@ -3,7 +3,7 @@
 .DS_Store
 
 *.log
-docs/coverage.html
+coverage.html
 sqlmap
 
 node_modules

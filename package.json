@@ -1,6 +1,6 @@
 {
   "name": "udaru",
-  "version": "4.1.0",
+  "version": "5.0.0",
   "description": "A policy based authorization module",
   "license": "MIT",
   "author": "nearForm Ltd",
@@ -17,7 +17,8 @@
     "Michael O'Brien (https://github.com/mobri3n)",
     "Michele Capra (https://github.com/piccoloaiutante)",
     "Nicolas Herment (https://github.com/nherment)",
-    "Salman Mitha (https://github.com/salmanm)"
+    "Salman Mitha (https://github.com/salmanm)",
+    "William Riley-Land (https://github.com/wprl)"
   ],
   "homepage": "https://github.com/nearform/udaru#readme",
   "repository": {
@@ -27,7 +28,7 @@
   "bugs": {
     "url": "https://github.com/nearform/udaru/issues"
   },
-  "main": "lib/index.js",
+  "main": "packages/udaru-core/index.js",
   "engines": {
     "node": ">=6.0.0"
   },
@@ -36,10 +37,12 @@
     "bench-volume": "node ./bench/util/volumeRunner.js",
     "test:security": "node ./security/runner.js",
     "pretest:security": "napa sqlmapproject/sqlmap",
-    "coverage": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -c -t 95 -r html -o docs/coverage.html",
-    "coverage-volume": "npm run pg:init-volume-db && UDARU_SERVICE_logger_pino_level=silent lab -c -t 95 -r html -o docs/coverage-volume.html",
-    "coveralls": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -c -t 95 -r lcov | coveralls",
+    "coverage": "npm run pg:init-test-db && lerna run coverage",
+    "coveralls": "npm run pg:init-test-db && lerna run coveralls",
+    "outdated:all": "npm outdated || echo 'Outdated packages found.'; lerna exec \"npm outdated || echo 'Outdated packages found.'\"",
+    "update:all": "npm update && lerna exec npm update",
     "lint": "standard",
+    "postinstall": "lerna bootstrap",
     "doc:lint": "remark .",
     "pg:init": "UDARU_SERVICE_local=true node database/init.js && npm run pg:migrate",
     "pg:init-test-db": "npm run pg:init && npm run pg:load-test-data",
@@ -47,8 +50,8 @@
     "pg:init-volume-db": "npm run pg:init && npm run pg:load-volume-data",
     "pg:load-volume-data": "UDARU_SERVICE_local=true node database/loadVolumeData.js",
     "pg:migrate": "node database/migrate.js --version=7",
-    "start": "node lib/server/start.js",
-    "test": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -c -t 95",
+    "start": "node packages/udaru-server/start.js",
+    "test": "npm run pg:init-test-db && lerna run test",
     "test:commit-check": "npm run doc:lint && npm run lint && npm run test",
     "swagger-gen": "node scripts/getSwaggerJson.js | swagger-gen -d docs/swagger && node scripts/injectUdaruSwaggerCss.js"
   },
@@ -61,6 +64,7 @@
     "test:commit-check"
   ],
   "dependencies": {
+    "@nearform/sql": "^1.0.0",
     "async": "^2.6.0",
     "hapi": "^16.6.2",
     "hapi-pino": "^1.7.0",
@@ -79,24 +83,25 @@
     "vision": "^4.1.1"
   },
   "devDependencies": {
-    "autocannon": "^0.16.0",
+    "autocannon": "^2.0.1",
     "bloomrun": "^3.0.3",
     "chalk": "^2.3.1",
     "code": "^4.0.0",
     "coveralls": "^2.11.15",
-    "lab": "^14.2.0",
+    "csvtojson": "^1.1.9",
+    "eslint": "^3.8.1",
+    "lab": "^14.3.2",
+    "lerna": "^2.5.1",
+    "lodash-addons": "^2.0.1",
     "napa": "^2.3.0",
-    "pg-copy-streams": "^1.2.0",
+    "native-hdr-histogram": "^0.4.6",
+    "nopt": "^4.0.1",
     "pre-commit": "^1.2.2",
-    "proxyquire": "^1.7.10",
     "remark-cli": "^4.0.0",
     "remark-lint": "^6.0.0",
     "remark-preset-lint-recommended": "^3.0.0",
-    "sinon": "^4.0.1",
     "standard": "^8.6.0",
-    "swagger-gen": "^1.1.3",
-    "csvtojson": "^1.1.9",
-    "lodash-addons": "^2.0.1"
+    "swagger-gen": "^1.1.3"
   },
   "standard": {
     "ignore": [
