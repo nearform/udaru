@@ -1,6 +1,6 @@
 {
   "name": "udaru-test",
-  "version": "4.1.0",
+  "version": "5.0.0",
   "description": "Shared test utilities used by udaru",
   "author": "nearForm Ltd",
   "license": "MIT",

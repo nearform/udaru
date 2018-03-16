@@ -1,9 +1,16 @@
+## 5.0.0 - March 16, 2018
+Features, enhancements:
+-   Lerna package split, udaru-core, udaru-plugin and udaru-server now in separate npm packages [commit](https://github.com/nearform/udaru/pull/444) 
+-   **Breaking change**: 404 not found on endpoint GET /authorization/teams/${teamId}/users if team does not exist [commit](https://github.com/nearform/udaru/pull/444)
+-   **Breaking change**: 404 not found on endpoint /authorization/users/${userId}/teams if user does not exist [commit](https://github.com/nearform/udaru/pull/444)
+-   SQL module extracted and placed in own npm module (https://www.npmjs.com/package/@nearform/sql)  
+
 ## 4.1.0 - March 12, 2018
 Features, enhancements:
--   Nested teams endpoint [commit] (https://github.com/nearform/udaru/pull/477)
--   Team search endpoint [commit] (https://github.com/nearform/udaru/pull/473)
--   User search endpoint [commit] (https://github.com/nearform/udaru/pull/463)
--   Team user search endpoint [commit] (https://github.com/nearform/udaru/pull/463)
+-   Nested teams endpoint [commit](https://github.com/nearform/udaru/pull/477)
+-   Team search endpoint [commit](https://github.com/nearform/udaru/pull/473)
+-   User search endpoint [commit](https://github.com/nearform/udaru/pull/463)
+-   Team user search endpoint [commit](https://github.com/nearform/udaru/pull/463)
 -   Updated PBAC to version 0.3.0 (lodash vulnerability)
 
 ## 4.0.1 - February 15, 2018
@@ -21,14 +28,13 @@ Features, enhancements:
 -   Updated chalk dependency (dev) for volume test output
 -   Updated PBAC to version 0.2.0 (lodash vulnerability update)
 -   Updated iam.js (StringLike param order reversed)
--   Breaking Change: Updated unique constraint violation to return code 409 conflict for users, policies, orgs and teams
+-   **Breaking Change**: Updated unique constraint violation to return code 409 conflict for users, policies, orgs and teams
 -   Enhanced swagger documentation (better definition of models and other tidy ups)
 
 Fixes:
 -   Added fixes on the get user teams endpoint [commit](https://github.com/nearform/udaru/pull/478 and https://github.com/nearform/udaru/pull/454)
 -   Added fix for policy validation (enforce allow|deny on effect)
 -   Added fix for issue 450 (invalid teams payload)
-
 
 ## 3.1.0 - February 5, 2018
 -   Added get user teams [commit](https://github.com/nearform/udaru/pull/451)

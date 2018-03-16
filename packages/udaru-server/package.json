@@ -1,6 +1,6 @@
 {
   "name": "udaru-server",
-  "version": "4.1.0",
+  "version": "5.0.0",
   "description": "Hapi server that uses udaru for policy based authorization",
   "author": "nearForm Ltd",
   "license": "MIT",
@@ -46,7 +46,7 @@
     "hapi-swagger": "^7.10.0",
     "inert": "^4.0.3",
     "lodash": "^4.17.5",
-    "udaru-hapi-plugin": "^4.1.0",
+    "udaru-hapi-plugin": "^5.0.0",
     "uuid": "^3.0.1",
     "vision": "^4.1.1"
   },
@@ -54,7 +54,7 @@
     "code": "^4.0.0",
     "coveralls": "^2.11.15",
     "lab": "^14.3.2",
-    "udaru": "^4.1.0",
-    "udaru-test": "^4.1.0"
+    "udaru": "^5.0.0",
+    "udaru-test": "^5.0.0"
   }
 }

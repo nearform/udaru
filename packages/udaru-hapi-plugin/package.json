@@ -1,6 +1,6 @@
 {
   "name": "udaru-hapi-plugin",
-  "version": "4.1.0",
+  "version": "5.0.0",
   "main": "index.js",
   "description": "Hapi plugin that allows using udaru for policy based authorization",
   "author": "nearForm Ltd",
@@ -43,13 +43,13 @@
     "hoek": "^5.0.2",
     "joi": "^10.6.0",
     "lodash": "^4.17.5",
-    "udaru": "^4.1.0"
+    "udaru": "^5.0.0"
   },
   "devDependencies": {
     "code": "^4.0.0",
     "coveralls": "^2.11.15",
     "hapi": "^16.6.2",
     "lab": "^14.3.2",
-    "udaru-test": "^4.1.0"
+    "udaru-test": "^5.0.0"
   }
 }

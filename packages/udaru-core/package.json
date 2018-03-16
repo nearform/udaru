@@ -1,6 +1,6 @@
 {
   "name": "udaru",
-  "version": "4.1.0",
+  "version": "5.0.0",
   "description": "A policy based authorization module",
   "author": "nearForm Ltd",
   "license": "MIT",
@@ -55,6 +55,6 @@
     "lab": "^14.3.2",
     "proxyquire": "^1.7.10",
     "sinon": "^4.0.1",
-    "udaru-test": "^4.1.0"
+    "udaru-test": "^5.0.0"
   }
 }
