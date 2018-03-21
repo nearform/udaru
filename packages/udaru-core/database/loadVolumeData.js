@@ -94,8 +94,8 @@ function getPolicyTemplate () {
   statement[0].Action = ['Read']
   statement[0].Resource = ['x']
   statement[1] = {}
-  statement[1].Effect = 'Deny'
-  statement[1].Action = ['Write']
+  statement[1].Effect = 'Allow'
+  statement[1].Action = ['Read']
   statement[1].Resource = ['y']
   policyTemplate.Statement = statement
   return policyTemplate
@@ -108,19 +108,19 @@ function loadPolicies (startId, orgId, teamId, callback) {
   var policyTemplate = getPolicyTemplate()
 
   let policiesSql = 'INSERT INTO policies (id, version, name, org_id, statements)\nVALUES\n'
-  let teamPoliciesSql = 'INSERT INTO team_policies(team_id, policy_id)\nVALUES\n'
+  let teamPoliciesSql = 'INSERT INTO team_policies(team_id, policy_id, variables)\nVALUES\n'
 
   // 10 policies per team
   var count = 1
   for (var id = startId; id < startId + NUM_POLICIES_PER_TEAM; id++) {
     // modify policy here...
-    policyTemplate.Statement[0].Resource[0] = 'db:team_' + teamId + ':x_' + count
-    policyTemplate.Statement[1].Resource[0] = 'db:team_' + teamId + ':y_' + count
+    policyTemplate.Statement[0].Resource[0] = 'resource_' + count + ':team/$' + '{udaru:teamId}'
+    policyTemplate.Statement[1].Resource[0] = 'resource_' + count + ':user/$' + '{udaru:userId}'
 
-    policiesSql += "('" + id + "', 0.1, 'POLICY_" + id + "', '" + orgId + "', '" +
+    policiesSql += "('" + id + "', '2012-10-17', 'POLICY_" + id + "', '" + orgId + "', '" +
       JSON.stringify(policyTemplate) + "'::JSONB)"
 
-    teamPoliciesSql += "('" + teamId + "','" + id + "')"
+    teamPoliciesSql += "('" + teamId + "','" + id + "','" + JSON.stringify({var: count}) + "'::JSONB)"
 
     if (id === (startId + NUM_POLICIES_PER_TEAM - 1)) {
       policiesSql += ';'

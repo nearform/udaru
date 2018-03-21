@@ -19,6 +19,18 @@ function badImplementationWrap (next) {
   }
 }
 
+function getContext (userId, organizationId) {
+  return {
+    udaru: {
+      userId: userId,
+      organizationId: organizationId
+    },
+    request: {
+      currentTime: new Date().toISOString()
+    }
+  }
+}
+
 function buildAuthorizeOps (db, config) {
   const policyOps = buildPolicyOps(db, config)
   const authorize = {
@@ -37,7 +49,8 @@ function buildAuthorizeOps (db, config) {
           policyOps.listAllUserPolicies({ userId, organizationId }, badImplementationWrap(next))
         },
         function check (policies, next) {
-          next(null, iam(policies).isAuthorized({ resource, action }))
+          let context = getContext(userId, organizationId)
+          next(null, iam(policies).isAuthorized({resource, action, context}))
         }
       ], function (err, access) {
         cb(err, { access })
@@ -59,7 +72,8 @@ function buildAuthorizeOps (db, config) {
           policyOps.listAllUserPolicies({ userId, organizationId }, badImplementationWrap(next))
         },
         function check (policies, next) {
-          iam(policies).actions({ resource }, badImplementationWrap(next))
+          let context = getContext(userId, organizationId)
+          iam(policies).actions({resource, context}, badImplementationWrap(next))
         }
       ], function (err, actions) {
         cb(err, { actions })
@@ -81,7 +95,8 @@ function buildAuthorizeOps (db, config) {
           policyOps.listAllUserPolicies({ userId, organizationId }, badImplementationWrap(next))
         },
         function listAuthorizationsOnResources (policies, next) {
-          iam(policies).actionsOnResources({ resources }, badImplementationWrap(next))
+          let context = getContext(userId, organizationId)
+          iam(policies).actionsOnResources({ resources, context }, badImplementationWrap(next))
         }
       ], cb)
     }
