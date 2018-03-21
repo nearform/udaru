@@ -20,7 +20,7 @@ npm install udaru
 
 ### Stand-alone module
 ```js
-const buildUdaru = require('@nearform/udaru-core)(dbPool, config)
+const buildUdaru = require('@nearform/udaru-core')(dbPool, config)
 ```
 
 Both the dbPool and config are optional and are initialised with default values if not provided, see below for details on both.
@@ -156,7 +156,7 @@ This configuration is the one used in dev environment and we are quite sure the 
 
 **Standalone module**
 ```js
-const buildUdaru = require('@nearform/udaru-core)
+const buildUdaru = require('@nearform/udaru-core')
 const udaru = buildUdaru(dbPool, {
   logger: {
     pino: {
