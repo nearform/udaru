@@ -4,7 +4,7 @@ const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 const utils = require('udaru-test/utils')
-const udaru = require('udaru')()
+const udaru = require('@nearform/udaru-core')()
 const server = require('../test-server')
 
 const statements = { Statement: [{ Effect: 'Allow', Action: ['*'], Resource: ['*'] }] }

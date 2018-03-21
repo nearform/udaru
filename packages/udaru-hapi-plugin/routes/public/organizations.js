@@ -3,7 +3,7 @@ const Joi = require('joi')
 const _ = require('lodash')
 const swagger = require('./../../swagger')
 const headers = require('./../headers')
-const validation = require('udaru/lib/ops/validation').organizations
+const validation = require('@nearform/udaru-core/lib/ops/validation').organizations
 
 exports.register = function (server, options, next) {
   const Action = server.udaruConfig.get('AuthConfig.Action')

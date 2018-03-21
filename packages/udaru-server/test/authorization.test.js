@@ -4,7 +4,7 @@ const lab = exports.lab = Lab.script()
 const server = require('..')
 const Factory = require('udaru-test/factory')
 const { BuildFor, udaru } =
-  require('udaru-hapi-plugin/test/authorization/testBuilder')
+  require('@nearform/udaru-hapi-plugin/test/authorization/testBuilder')
 
 const organizationId = 'WONKA'
 function Policy (Statement) {

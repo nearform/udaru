@@ -13,13 +13,13 @@ See the Udaru [website](https://nearform.github.io/udaru/) for complete document
 To install via npm:
 
 ```
-npm install udaru-hapi-plugin
+npm install @nearform/udaru-hapi-plugin
 ```
 
 ## Usage
 ```js
 const Hapi = require('hapi')
-const UdaruPlugin = require('udaru-hapi-plugin')
+const UdaruPlugin = require('@nearform/udaru-hapi-plugin')
 
 ...
 

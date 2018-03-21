@@ -6,7 +6,7 @@ const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 const utils = require('udaru-test/utils')
 const server = require('../test-server')
-const udaru = require('udaru')()
+const udaru = require('@nearform/udaru-core')()
 
 const statements = { Statement: [{ Effect: 'Allow', Action: ['documents:Read'], Resource: ['wonka:documents:/public/*'] }] }
 const policyCreateData = {

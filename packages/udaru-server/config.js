@@ -1,4 +1,4 @@
-const config = require('udaru-hapi-plugin/config')
+const config = require('@nearform/udaru-hapi-plugin/config')
 
 module.exports = (...amendments) => config({
   hapi: {

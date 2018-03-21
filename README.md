@@ -20,7 +20,7 @@ npm install udaru
 
 ### Stand-alone module
 ```js
-const buildUdaru = require('udaru')(dbPool, config)
+const buildUdaru = require('@nearform/udaru-core)(dbPool, config)
 ```
 
 Both the dbPool and config are optional and are initialised with default values if not provided, see below for details on both.
@@ -33,7 +33,7 @@ npm run start
 ### Hapi plugin
 ```js
 const Hapi = require('hapi')
-const UdaruPlugin = require('udaru-hapi-plugin')
+const UdaruPlugin = require('@nearform/udaru-hapi-plugin')
 
 ...
 
@@ -156,7 +156,7 @@ This configuration is the one used in dev environment and we are quite sure the 
 
 **Standalone module**
 ```js
-const buildUdaru = require('udaru')
+const buildUdaru = require('@nearform/udaru-core)
 const udaru = buildUdaru(dbPool, {
   logger: {
     pino: {
@@ -169,7 +169,7 @@ const udaru = buildUdaru(dbPool, {
 **Hapi plugin**
 ```js
 const Hapi = require('hapi')
-const UdaruPlugin = require('udaru-hapi-plugin')
+const UdaruPlugin = require('@nearform/udaru-hapi-plugin')
 const server = new Hapi.server()
 server.register({
   register: UdaruPlugin,

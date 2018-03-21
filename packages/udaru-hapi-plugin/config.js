@@ -1,4 +1,4 @@
-const config = require('udaru/config')
+const config = require('@nearform/udaru-core/config')
 
 module.exports = (...amendments) => config({
   logger: {

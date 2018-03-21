@@ -6,7 +6,7 @@ const lab = exports.lab = Lab.script()
 const utils = require('udaru-test/utils')
 const uuid = require('uuid/v4')
 const server = require('../test-server')
-const udaru = require('udaru')()
+const udaru = require('@nearform/udaru-core')()
 
 const organizationId = 'SHIPLINE'
 const statementsTest = { Statement: [{ Effect: 'Allow', Action: ['nfdocuments:Read'], Resource: ['nearform:documents:/public/*'] }] }
