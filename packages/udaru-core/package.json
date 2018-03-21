@@ -38,11 +38,12 @@
     "test": "UDARU_SERVICE_logger_pino_level=silent lab -c -t 92"
   },
   "dependencies": {
+    "@nearform/sql": "^1.0.0",
+    "boom": "^7.1.1",
     "async": "^2.6.0",
     "joi": "^10.6.0",
     "jsonfile": "^3.0.1",
     "lodash": "^4.17.5",
-    "minimist": "^1.2.0",
     "pbac": "^0.3.0",
     "pg": "^7.4.1",
     "pino": "^4.10.3",
@@ -53,7 +54,6 @@
     "code": "^4.0.0",
     "coveralls": "^2.11.15",
     "lab": "^14.3.2",
-    "proxyquire": "^1.7.10",
     "sinon": "^4.0.1",
     "udaru-test": "^5.0.0"
   }

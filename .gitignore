@@ -7,3 +7,4 @@ coverage.html
 sqlmap
 
 node_modules
+package-lock.json

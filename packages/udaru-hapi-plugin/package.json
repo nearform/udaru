@@ -38,6 +38,7 @@
     "test": "UDARU_SERVICE_logger_pino_level=silent lab -c -t 96"
   },
   "dependencies": {
+    "uuid": "^3.2.1",
     "async": "^2.1.4",
     "boom": "^7.1.1",
     "hoek": "^5.0.2",

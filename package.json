@@ -63,45 +63,9 @@
   "pre-commit": [
     "test:commit-check"
   ],
-  "dependencies": {
-    "@nearform/sql": "^1.0.0",
-    "async": "^2.6.0",
-    "hapi": "^16.6.2",
-    "hapi-pino": "^1.7.0",
-    "hapi-swagger": "^7.10.0",
-    "inert": "^4.2.1",
-    "joi": "^10.6.0",
-    "jsonfile": "^3.0.1",
-    "lodash": "^4.17.5",
-    "minimist": "^1.2.0",
-    "pbac": "0.3.0",
-    "pg": "^7.4.1",
-    "pino": "^4.10.3",
-    "postgrator": "^2.10.3",
-    "reconfig": "3.2.0",
-    "uuid": "^3.2.1",
-    "vision": "^4.1.1"
-  },
+  "dependencies": {},
   "devDependencies": {
-    "autocannon": "^2.0.1",
-    "bloomrun": "^3.0.3",
-    "chalk": "^2.3.1",
-    "code": "^4.0.0",
-    "coveralls": "^2.11.15",
-    "csvtojson": "^1.1.9",
-    "eslint": "^3.8.1",
-    "lab": "^14.3.2",
-    "lerna": "^2.5.1",
-    "lodash-addons": "^2.0.1",
-    "napa": "^2.3.0",
-    "native-hdr-histogram": "^0.4.6",
-    "nopt": "^4.0.1",
-    "pre-commit": "^1.2.2",
-    "remark-cli": "^4.0.0",
-    "remark-lint": "^6.0.0",
-    "remark-preset-lint-recommended": "^3.0.0",
-    "standard": "^8.6.0",
-    "swagger-gen": "^1.1.3"
+    "lerna": "^2.5.1"
   },
   "standard": {
     "ignore": [
