@@ -121,7 +121,7 @@ lab.experiment('Authorization inherited org policies', () => {
         id: orgId1,
         name: 'Test Organization',
         description: 'Test Organization',
-        policies: ['testPolicy1', 'checkAccessPolicy1'],
+        policies: ['testPolicy1', 'checkAccessPolicy1', 'contextTestPolicy'],
         users: ['TestUser1']
       },
       org2: {
@@ -181,6 +181,19 @@ lab.experiment('Authorization inherited org policies', () => {
               Effect: 'Allow',
               Action: ['authorization:authn:access'],
               Resource: ['authorization/access']
+            }
+          ]
+        }
+      },
+      contextTestPolicy: {
+        name: 'contextTestPolicy',
+        organizationId: orgId1,
+        statements: {
+          Statement: [
+            {
+              Effect: 'Allow',
+              Action: ['read'],
+              Resource: ['org:docs:$' + '{udaru:userId}']
             }
           ]
         }
@@ -264,6 +277,47 @@ lab.experiment('Authorization inherited org policies', () => {
 
       expect(response.statusCode).to.equal(200)
       expect(result.access).to.equal(true)
+
+      done()
+    })
+  })
+
+  lab.test('User is granted access to resource based on udaru:userId context variable', (done) => {
+    const userId = testUserId1
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: `/authorization/access/${userId}/read/org:docs:${userId}`,
+      headers: {
+        authorization: 'ROOTid',
+        org: orgId1
+      }
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(200)
+      expect(result.access).to.equal(true)
+
+      done()
+    })
+  })
+
+  lab.test('User is NOT granted access to other users resource based on udaru:userId context variable', (done) => {
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: `/authorization/access/${testUserId1}/read/org:docs:${testUserId2}`,
+      headers: {
+        authorization: 'ROOTid',
+        org: orgId1
+      }
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(200)
+      expect(result.access).to.equal(false)
 
       done()
     })

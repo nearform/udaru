@@ -10,7 +10,7 @@ module.exports = function (policies) {
     return pbac.evaluate(params)
   }
 
-  function actions ({ resource }, done) {
+  function actions ({ resource, context }, done) {
     try {
       const result = _(policies)
         .map('Statement')
@@ -21,7 +21,7 @@ module.exports = function (policies) {
           statement.Resource.forEach((r) => {
             if (pbac.conditions.StringLike(resource, r)) {
               statement.Action.forEach((action) => {
-                if (isAuthorized({resource, action})) {
+                if (isAuthorized({resource, action, context})) {
                   actions.push(action)
                 }
               })
@@ -41,7 +41,7 @@ module.exports = function (policies) {
     }
   }
 
-  function actionsOnResources ({ resources }, done) {
+  function actionsOnResources ({ resources, context }, done) {
     try {
       const resultMap = {}
 
@@ -56,7 +56,7 @@ module.exports = function (policies) {
             statement.Resource.forEach((r) => {
               if (pbac.conditions.StringLike(resource, r)) {
                 statement.Action.forEach((action) => {
-                  if (isAuthorized({resource, action})) {
+                  if (isAuthorized({resource, action, context})) {
                     resultMap[resource].push(action)
                   }
                 })
