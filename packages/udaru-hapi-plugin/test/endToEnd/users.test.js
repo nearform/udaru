@@ -7,7 +7,7 @@ const lab = exports.lab = Lab.script()
 const config = require('../../config')()
 const utils = require('udaru-test/utils')
 const server = require('../test-server')
-const udaru = require('udaru')()
+const udaru = require('@nearform/udaru-core')()
 
 const defaultPageSize = config.get('authorization.defaultPageSize')
 const statements = { Statement: [{ Effect: 'Allow', Action: ['documents:Read'], Resource: ['wonka:documents:/public/*'] }] }

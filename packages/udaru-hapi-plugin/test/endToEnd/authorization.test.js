@@ -6,7 +6,7 @@ const lab = exports.lab = Lab.script()
 const utils = require('udaru-test/utils')
 const server = require('../test-server')
 const Factory = require('udaru-test/factory')
-const udaru = require('udaru')()
+const udaru = require('@nearform/udaru-core')()
 
 lab.experiment('Authorization', () => {
   lab.test('check authorization should return access true for allowed', (done) => {

@@ -2,7 +2,7 @@
 
 const _ = require('lodash')
 const expect = require('code').expect
-const udaru = require('udaru')()
+const udaru = require('@nearform/udaru-core')()
 const utils = require('udaru-test/utils')
 
 function Policy (Statement) {

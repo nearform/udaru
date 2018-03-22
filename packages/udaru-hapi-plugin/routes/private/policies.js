@@ -6,7 +6,7 @@ const Boom = require('boom')
 const buildServiceKey = require('./../../security/serviceKey')
 const swagger = require('./../../swagger')
 const headers = require('./../headers')
-const validation = require('udaru/lib/ops/validation').policies
+const validation = require('@nearform/udaru-core/lib/ops/validation').policies
 
 exports.register = function (server, options, next) {
   const serviceKey = buildServiceKey(server.udaruConfig)
