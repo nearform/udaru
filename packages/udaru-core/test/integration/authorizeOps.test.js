@@ -187,7 +187,7 @@ lab.experiment('AuthorizeOps', () => {
       name: 'User Context Policy',
       version: '2012-10-17',
       organizationId: organizationId,
-      statements: testUtils.AllowStatement(['read'], ['org:documents/${udaru:userId}'])
+      statements: testUtils.AllowStatement(['read'], ['org:documents/$' + '{udaru:userId}'])
     }
 
     udaru.policies.create(testPolicy, (err, result) => {
@@ -218,7 +218,7 @@ lab.experiment('AuthorizeOps', () => {
       name: 'User Context Policy',
       version: '2012-10-17',
       organizationId: organizationId,
-      statements: testUtils.AllowStatement(['read'], ['org:documents/${udaru:organizationId}'])
+      statements: testUtils.AllowStatement(['read'], ['org:documents/$' + '{udaru:organizationId}'])
     }
 
     udaru.policies.create(testPolicy, (err, result) => {
@@ -249,7 +249,7 @@ lab.experiment('AuthorizeOps', () => {
       name: 'User Context Policy',
       version: '2012-10-17',
       organizationId: organizationId,
-      statements: testUtils.AllowStatement(['read'], ['org:documents/${udaru:userId}'])
+      statements: testUtils.AllowStatement(['read'], ['org:documents/$' + '{udaru:userId}'])
     }
 
     udaru.policies.create(testPolicy, (err, result) => {
@@ -280,7 +280,7 @@ lab.experiment('AuthorizeOps', () => {
       name: 'Team Context Policy',
       version: '2012-10-17',
       organizationId: organizationId,
-      statements: testUtils.AllowStatement(['read'], ['org:documents/${udaru:userId}'])
+      statements: testUtils.AllowStatement(['read'], ['org:documents/$' + '{udaru:userId}'])
     }
 
     udaru.policies.create(testPolicy, (err, result) => {
@@ -311,7 +311,7 @@ lab.experiment('AuthorizeOps', () => {
       name: 'Org Context Policy',
       version: '2012-10-17',
       organizationId: organizationId,
-      statements: testUtils.AllowStatement(['read'], ['org:documents/${udaru:userId}'])
+      statements: testUtils.AllowStatement(['read'], ['org:documents/$' + '{udaru:userId}'])
     }
 
     udaru.policies.create(testPolicy, (err, result) => {
