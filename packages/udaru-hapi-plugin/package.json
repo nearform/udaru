@@ -35,22 +35,27 @@
   "scripts": {
     "coverage": "UDARU_SERVICE_logger_pino_level=silent lab -c -t 96 -r html -o docs/coverage.html",
     "coveralls": "UDARU_SERVICE_logger_pino_level=silent lab -c -t 96 -r lcov | COVERALLS_REPO_TOKEN='?' coveralls",
-    "test": "UDARU_SERVICE_logger_pino_level=silent lab -c -t 96"
+    "pg:init": "UDARU_SERVICE_local=true npx udaru-init && npm run pg:migrate",
+    "pg:init-test-db": "npm run pg:init && npm run pg:load-test-data",
+    "pg:load-test-data": "UDARU_SERVICE_local=true npx udaru-loadTestData",
+    "pg:migrate": "npx udaru-migrate --version=7",
+    "test": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -c -t 96"
   },
   "dependencies": {
-    "uuid": "^3.2.1",
+    "@nearform/udaru-core": "^5.0.0",
     "async": "^2.1.4",
     "boom": "^7.1.1",
     "hoek": "^5.0.2",
     "joi": "^10.6.0",
     "lodash": "^4.17.5",
-    "@nearform/udaru-core": "^5.0.0"
+    "npx": "10.0.1",
+    "uuid": "^3.2.1"
   },
   "devDependencies": {
     "code": "^4.0.0",
     "coveralls": "^2.11.15",
     "hapi": "^16.6.2",
     "lab": "^14.3.2",
-    "udaru-test": "^5.0.0"
+    "@nearform/udaru-test": "^5.0.0"
   }
 }

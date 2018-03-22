@@ -1,7 +1,7 @@
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 const server = require('../test-server')
-const Factory = require('udaru-test/factory')
+const Factory = require('@nearform/udaru-test/factory')
 const { BuildFor, udaru } = require('./testBuilder')
 
 const organizationId = 'WONKA'

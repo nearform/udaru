@@ -3,7 +3,7 @@
 const _ = require('lodash')
 const expect = require('code').expect
 const udaru = require('@nearform/udaru-core')()
-const utils = require('udaru-test/utils')
+const utils = require('@nearform/udaru-test/utils')
 
 function Policy (Statement) {
   return {
@@ -24,7 +24,6 @@ function BuildFor (lab, records) {
 }
 
 class TestBuilder {
-
   constructor (lab, records) {
     this.lab = lab
     this.records = records
@@ -45,7 +44,6 @@ class TestBuilder {
     test.test(description)
     return test
   }
-
 }
 
 function interpolate (value, data) {

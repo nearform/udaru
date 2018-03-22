@@ -3,7 +3,7 @@
 const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
-const utils = require('udaru-test/utils')
+const utils = require('@nearform/udaru-test/utils')
 const server = require('../test-server')
 const udaru = require('@nearform/udaru-core')()
 
@@ -260,11 +260,11 @@ lab.experiment('Teams - get/list', () => {
     udaru.teams.create(teamData, (err, team) => {
       if (err) return done(err)
       const teamUsers = [
-          { id: 'AugustusId', name: 'Augustus Gloop' },
-          { id: 'CharlieId', name: 'Charlie Bucket' },
-          { id: 'MikeId', name: 'Mike Teavee' },
-          { id: 'VerucaId', name: 'Veruca Salt' },
-          { id: 'WillyId', name: 'Willy Wonka' }
+        { id: 'AugustusId', name: 'Augustus Gloop' },
+        { id: 'CharlieId', name: 'Charlie Bucket' },
+        { id: 'MikeId', name: 'Mike Teavee' },
+        { id: 'VerucaId', name: 'Veruca Salt' },
+        { id: 'WillyId', name: 'Willy Wonka' }
       ]
       const teamUsersIds = teamUsers.map((user) => { return user.id })
 

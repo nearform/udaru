@@ -1,21 +1,22 @@
+#!/usr/bin/env node
+
 'use strict'
 
-const _ = require('lodash')
 const async = require('async')
 const pg = require('pg')
-const config = require('../packages/udaru-core/config')()
+const minimist = require('minimist')
+const argv = minimist(process.argv.slice(2))
 
-if (!config.get('local')) {
-  console.error('ERROR: You are trying to init the database while not in local environment.')
-  process.exit(1)
+const pgConf = {
+  user: argv.user || 'postgres',
+  database: argv.database || 'postgres',
+  authDatabase: argv.authDatabase || 'authorization',
+  password: argv.password || 'postgres',
+  host: argv.host || 'localhost',
+  port: argv.port || 5432,
+  max: argv.max || 10,
+  idleTimeoutMillis: argv.idleTimeoutMillis || 30000
 }
-
-const pgConf = _.clone(config.get('pgdb'))
-/**
- * This is a hack to connect to PostgreSQL if you do not have a specific db.
- * @see https://github.com/olalonde/pgtools/blob/master/index.js#L43
- */
-pgConf.database = 'postgres'
 
 const client = new pg.Client(pgConf)
 
@@ -28,7 +29,7 @@ function dropDb (next) {
     return next()
   }
 
-  client.query(`DROP DATABASE IF EXISTS "${config.get('pgdb.database')}"`, function (err, result) {
+  client.query(`DROP DATABASE IF EXISTS "${pgConf.authDatabase}"`, function (err, result) {
     if (err) return next(err)
 
     next()
@@ -36,7 +37,7 @@ function dropDb (next) {
 }
 
 function createDb (next) {
-  client.query(`CREATE DATABASE "${config.get('pgdb.database')}"`, function (err, result) {
+  client.query(`CREATE DATABASE "${pgConf.authDatabase}"`, function (err, result) {
     if (err) return next(err)
 
     next()

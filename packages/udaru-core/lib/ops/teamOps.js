@@ -869,7 +869,9 @@ function buildTeamOps (db, config) {
     search: function search (params, cb) {
       const { organizationId, query } = params
       Joi.validate({ organizationId, query }, validationRules.searchTeam, function (err) {
-        if (err) return cb(Boom.badRequest(err))
+        if (err) {
+          return cb(Boom.badRequest(err))
+        }
 
         const sqlQuery = SQL`
           SELECT *
@@ -898,7 +900,9 @@ function buildTeamOps (db, config) {
     searchUsers: function searchUsers (params, cb) {
       const { organizationId, id, query } = params
       Joi.validate({ organizationId, id, query }, validationRules.searchTeamUsers, function (err) {
-        if (err) return cb(Boom.badRequest(err))
+        if (err) {
+          return cb(Boom.badRequest(err))
+        }
 
         const sqlQuery = SQL`
           SELECT users.id, users.name

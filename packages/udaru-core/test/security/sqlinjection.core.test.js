@@ -6,7 +6,7 @@ const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 const udaru = require('../..')()
 
-const u = require('udaru-test/utils')
+const u = require('@nearform/udaru-test/utils')
 const authorize = udaru.authorize
 
 lab.experiment('UserOps injection tests', () => {

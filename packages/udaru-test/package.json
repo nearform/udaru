@@ -1,5 +1,5 @@
 {
-  "name": "udaru-test",
+  "name": "@nearform/udaru-test",
   "version": "5.0.0",
   "description": "Shared test utilities used by udaru",
   "author": "nearForm Ltd",
@@ -28,6 +28,12 @@
   "bugs": {
     "url": "https://github.com/nearform/udaru/issues"
   },
+  "bin": {
+    "udaru-migrate": "./database/migrate.js",
+    "udaru-loadTestData": "./database/loadTestData.js",
+    "udaru-init": "./database/init.js",
+    "udaru-loadVolumeData": "./database/loadVolumeData.js"
+  },
   "engines": {
     "node": ">=6.0.0"
   },
@@ -37,5 +43,11 @@
   "dependencies": {
     "async": "^2.1.4",
     "lodash": "^4.17.5"
+  },
+  "devDependencies": {
+    "chalk": "2.3.2",
+    "minimist": "1.2.0",
+    "pg": "7.4.1",
+    "postgrator": "2.10.3"
   }
 }

@@ -125,7 +125,7 @@ function debug (message) {
 }
 
 function onResponse (client, statusCode, returnBytes, responseTime) {
-    // change path for next request
+  // change path for next request
   var dynamicPath = getPath()
 
   var requests = [

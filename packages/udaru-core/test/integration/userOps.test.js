@@ -5,7 +5,7 @@ const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 
-const u = require('udaru-test/utils')
+const u = require('@nearform/udaru-test/utils')
 const udaru = require('../..')()
 
 lab.experiment('UserOps', () => {
@@ -90,18 +90,18 @@ lab.experiment('UserOps', () => {
 
         udaru.users.read({id: userData.id,
           organizationId: userData.organizationId},
-          (err, result) => {
-            expect(err).to.not.exist()
-            expect(result).to.exist()
-            expect(result).to.equal({ id: userData.id,
-              name: 'Meta 2',
-              organizationId: userData.organizationId,
-              metadata: meta2,
-              teams: [],
-              policies: []
-            })
-            udaru.users.delete({ id: userData.id, organizationId: userData.organizationId }, done)
+        (err, result) => {
+          expect(err).to.not.exist()
+          expect(result).to.exist()
+          expect(result).to.equal({ id: userData.id,
+            name: 'Meta 2',
+            organizationId: userData.organizationId,
+            metadata: meta2,
+            teams: [],
+            policies: []
           })
+          udaru.users.delete({ id: userData.id, organizationId: userData.organizationId }, done)
+        })
       })
     })
   })

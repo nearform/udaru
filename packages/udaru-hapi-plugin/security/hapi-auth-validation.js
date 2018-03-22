@@ -134,4 +134,3 @@ function buildAuthValidation (authorization) {
 }
 
 module.exports = buildAuthValidation
-

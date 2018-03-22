@@ -3,7 +3,7 @@
 const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
-const utils = require('udaru-test/utils')
+const utils = require('@nearform/udaru-test/utils')
 const uuid = require('uuid/v4')
 const server = require('../test-server')
 const udaru = require('@nearform/udaru-core')()
@@ -195,29 +195,29 @@ lab.experiment('Organizations', () => {
       name: 'nearForm Meta2',
       description: 'nearForm org with Meta2',
       metadata: metadata},
-      (err, res) => {
-        expect(err).to.not.exist()
+    (err, res) => {
+      expect(err).to.not.exist()
 
-        const options = utils.requestOptions({
-          method: 'GET',
-          url: '/authorization/organizations/nearForm_Meta2'
-        })
-
-        server.inject(options, (response) => {
-          const result = response.result
-
-          expect(response.statusCode).to.equal(200)
-          expect(result).to.equal({
-            id: 'nearForm_Meta2',
-            name: 'nearForm Meta2',
-            description: 'nearForm org with Meta2',
-            metadata: metadata,
-            policies: []
-          })
-
-          udaru.organizations.delete('nearForm_Meta2', done)
-        })
+      const options = utils.requestOptions({
+        method: 'GET',
+        url: '/authorization/organizations/nearForm_Meta2'
       })
+
+      server.inject(options, (response) => {
+        const result = response.result
+
+        expect(response.statusCode).to.equal(200)
+        expect(result).to.equal({
+          id: 'nearForm_Meta2',
+          name: 'nearForm Meta2',
+          description: 'nearForm org with Meta2',
+          metadata: metadata,
+          policies: []
+        })
+
+        udaru.organizations.delete('nearForm_Meta2', done)
+      })
+    })
   })
 
   lab.test('get single organization with meta', (done) => {

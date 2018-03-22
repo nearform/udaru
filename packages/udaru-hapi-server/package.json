@@ -52,6 +52,6 @@
   "devDependencies": {
     "coveralls": "^2.11.15",
     "lab": "^14.3.2",
-    "udaru-test": "^5.0.0"
+    "@nearform/udaru-test": "^5.0.0"
   }
 }

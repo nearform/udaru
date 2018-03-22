@@ -23,7 +23,7 @@ function buildUdaruCore (dbPool, config) {
     getUserOrganizationId: userOps.getUserOrganizationId,
 
     db: {
-      close: db.shutdown,
+      close: db.shutdown
     },
 
     authorize: {
