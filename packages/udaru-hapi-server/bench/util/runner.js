@@ -1,6 +1,6 @@
 'use strict'
 
-// Note: you must run the server seperately.
+// Note: you must run the server separately.
 
 const Autocannon = require('autocannon')
 const Bloomrun = require('bloomrun')

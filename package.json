@@ -33,8 +33,6 @@
     "node": ">=6.0.0"
   },
   "scripts": {
-    "bench": "node ./bench/util/runner.js",
-    "bench-volume": "node ./bench/util/volumeRunner.js",
     "test:security": "node ./security/runner.js",
     "pretest:security": "napa sqlmapproject/sqlmap",
     "coverage": "lerna run coverage",

@@ -36,6 +36,8 @@
   },
   "main": "index.js",
   "scripts": {
+    "bench": "node ./bench/util/runner.js",
+    "bench-volume": "node ./bench/util/volumeRunner.js",
     "coverage": "UDARU_SERVICE_logger_pino_level=silent lab -c -t 96 -r html -o docs/coverage.html",
     "coveralls": "UDARU_SERVICE_logger_pino_level=silent lab -c -t 96 -r lcov | COVERALLS_REPO_TOKEN='?' coveralls",
     "start": "node ./start.js",
@@ -50,6 +52,8 @@
     "vision": "^4.1.1"
   },
   "devDependencies": {
+    "autocannon": "^2.0.1",
+    "bloomrun": "^3.0.3",
     "coveralls": "^2.11.15",
     "lab": "^14.3.2",
     "@nearform/udaru-test": "^5.0.0"
