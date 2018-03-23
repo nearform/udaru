@@ -41,6 +41,7 @@
   "scripts": {
     "coverage": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -c -t 92 -r html -o docs/coverage.html",
     "coveralls": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -c -t 92 -r lcov | coveralls",
+    "depcheck": "npx depcheck",
     "pg:init": "node ./database/init.js && npm run pg:migrate",
     "pg:init-test-db": "npm run pg:init && npm run pg:load-test-data",
     "pg:load-test-data": "node ./database/loadTestData.js",
@@ -62,11 +63,14 @@
     "postgrator": "2.10.3"
   },
   "devDependencies": {
+    "depcheck": "0.6.9",
+    "chalk": "2.3.2",
+    "minimist": "1.2.0",
     "@nearform/udaru-test": "^5.0.0",
     "code": "^4.0.0",
     "coveralls": "^2.11.15",
     "lab": "^14.3.2",
-    "npx": "10.0.1",
-    "sinon": "^4.0.1"
+    "sinon": "^4.0.1",
+    "npx": "10.0.1"
   }
 }

@@ -35,6 +35,7 @@
   "scripts": {
     "coverage": "lerna run coverage",
     "coveralls": "lerna run coveralls",
+    "depcheck": "lerna run depcheck",
     "outdated:all": "npm outdated || echo 'Outdated packages found.'; lerna exec \"npm outdated || echo 'Outdated packages found.'\"",
     "update:all": "npm update && lerna exec npm update",
     "lint": "standard",
@@ -42,7 +43,7 @@
     "doc:lint": "remark .",
     "start": "node packages/udaru-server/start.js",
     "test": "lerna run test",
-    "test:commit-check": "npm run doc:lint && npm run lint && npm run test",
+    "test:commit-check": "npm run doc:lint && npm run lint && npm run depcheck && npm run test",
     "swagger-gen": "node scripts/getSwaggerJson.js | swagger-gen -d docs/swagger && node scripts/injectUdaruSwaggerCss.js"
   },
   "remarkConfig": {
@@ -55,6 +56,7 @@
   ],
   "dependencies": {},
   "devDependencies": {
+    "depcheck": "0.6.9",
     "lerna": "^2.5.1",
     "remark-cli": "^4.0.0",
     "remark-lint": "^6.0.0",
