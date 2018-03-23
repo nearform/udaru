@@ -41,7 +41,12 @@
     "coverage": "UDARU_SERVICE_logger_pino_level=silent lab -c -t 96 -r html -o docs/coverage.html",
     "coveralls": "UDARU_SERVICE_logger_pino_level=silent lab -c -t 96 -r lcov | COVERALLS_REPO_TOKEN='?' coveralls",
     "start": "node ./start.js",
-    "test": "UDARU_SERVICE_logger_pino_level=silent lab -c -t 96"
+    "test": "UDARU_SERVICE_logger_pino_level=silent lab -c -t 96",
+    "test:security": "node ./security/runner.js",
+    "pretest:security": "napa sqlmapproject/sqlmap",
+    "pg:init-volume-db": "npx udaru-init && npm run pg:load-volume-data",
+    "pg:load-volume-data": "npx udaru-loadVolumeData",
+    "pg:migrate": "npx udaru-migrate --version=7"
   },
   "dependencies": {
     "hapi": "^16.6.2",
@@ -56,6 +61,8 @@
     "bloomrun": "^3.0.3",
     "coveralls": "^2.11.15",
     "lab": "^14.3.2",
-    "@nearform/udaru-test": "^5.0.0"
+    "napa": "^2.3.0",
+    "@nearform/udaru-test": "^5.0.0",
+    "@nearform/udaru-core": "^5.0.0"
   }
 }
