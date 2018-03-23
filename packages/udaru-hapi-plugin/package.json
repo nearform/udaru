@@ -49,7 +49,7 @@
     "hoek": "^5.0.2",
     "joi": "^10.6.0",
     "lodash": "^4.17.5",
-    "uuid": "^3.2.1"
+    "@nearform/udaru-core": "^5.0.0"
   },
   "devDependencies": {
     "@nearform/udaru-test": "^5.0.0",
