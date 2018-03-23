@@ -32,13 +32,19 @@
     "node": ">=6.0.0"
   },
   "main": "index.js",
+  "bin": {
+    "udaru-migrate": "./database/migrate.js",
+    "udaru-loadTestData": "./database/loadTestData.js",
+    "udaru-init": "./database/init.js",
+    "udaru-loadVolumeData": "./database/loadVolumeData.js"
+  },
   "scripts": {
     "coverage": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -c -t 92 -r html -o docs/coverage.html",
     "coveralls": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -c -t 92 -r lcov | coveralls",
-    "pg:init": "UDARU_SERVICE_local=true npx udaru-init && npm run pg:migrate",
+    "pg:init": "node ./database/init.js && npm run pg:migrate",
     "pg:init-test-db": "npm run pg:init && npm run pg:load-test-data",
-    "pg:load-test-data": "UDARU_SERVICE_local=true npx udaru-loadTestData",
-    "pg:migrate": "npx udaru-migrate --version=7",
+    "pg:load-test-data": "node ./database/loadTestData.js",
+    "pg:migrate": "node ./database/migrate.js --version=7",
     "test": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -c -t 92"
   },
   "dependencies": {
@@ -52,7 +58,8 @@
     "pg": "^7.4.1",
     "pino": "4.15.0",
     "reconfig": "3.2.0",
-    "uuid": "^3.2.1"
+    "uuid": "^3.2.1",
+    "postgrator": "2.10.3"
   },
   "devDependencies": {
     "@nearform/udaru-test": "^5.0.0",
