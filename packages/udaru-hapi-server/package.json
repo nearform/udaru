@@ -54,7 +54,6 @@
     "hapi-pino": "^1.3.0",
     "hapi-swagger": "^7.10.0",
     "inert": "^4.0.3",
-
     "@nearform/udaru-hapi-plugin": "^5.0.0",
     "vision": "^4.1.1"
   },
