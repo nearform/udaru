@@ -48,8 +48,7 @@
     "boom": "^7.1.1",
     "hoek": "^5.0.2",
     "joi": "^10.6.0",
-    "lodash": "^4.17.5",
-    "@nearform/udaru-core": "^5.0.0"
+    "lodash": "^4.17.5"
   },
   "devDependencies": {
     "@nearform/udaru-test": "^5.0.0",
@@ -58,6 +57,7 @@
     "depcheck": "0.6.9",
     "hapi": "^16.6.2",
     "lab": "^14.3.2",
-    "npx": "10.0.1"
+    "npx": "10.0.1",
+    "uuid": "3.2.1"
   }
 }
