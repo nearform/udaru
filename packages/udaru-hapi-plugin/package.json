@@ -33,7 +33,7 @@
     "node": ">=6.0.0"
   },
   "scripts": {
-    "coverage": "UDARU_SERVICE_logger_pino_level=silent lab -c -t 96 -r html -o docs/coverage.html",
+    "coverage": "UDARU_SERVICE_logger_pino_level=silent lab -c -t 96 -r html -o coverage/coverage.html",
     "coveralls": "UDARU_SERVICE_logger_pino_level=silent lab -c -t 96 -r lcov | COVERALLS_REPO_TOKEN='?' coveralls",
     "depcheck": "npx depcheck",
     "pg:init": "UDARU_SERVICE_local=true npx udaru-init && npm run pg:migrate",

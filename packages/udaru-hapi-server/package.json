@@ -38,7 +38,7 @@
   "scripts": {
     "bench": "node ./bench/util/runner.js",
     "bench-volume": "node ./bench/util/volumeRunner.js",
-    "coverage": "UDARU_SERVICE_logger_pino_level=silent lab -c -t 96 -r html -o docs/coverage.html",
+    "coverage": "UDARU_SERVICE_logger_pino_level=silent lab -c -t 96 -r html -o coverage/coverage.html",
     "coveralls": "UDARU_SERVICE_logger_pino_level=silent lab -c -t 96 -r lcov | COVERALLS_REPO_TOKEN='?' coveralls",
     "depcheck": "npx depcheck  --ignores='@nearform/udaru-core'",
     "start": "node ./start.js",

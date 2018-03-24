@@ -39,7 +39,7 @@
     "udaru-loadVolumeData": "./database/loadVolumeData.js"
   },
   "scripts": {
-    "coverage": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -c -t 92 -r html -o docs/coverage.html",
+    "coverage": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -c -t 92 -r html -o coverage/coverage.html",
     "coveralls": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -c -t 92 -r lcov | coveralls",
     "depcheck": "npx depcheck",
     "pg:init": "node ./database/init.js && npm run pg:migrate",
