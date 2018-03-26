@@ -19,14 +19,16 @@ function badImplementationWrap (next) {
   }
 }
 
-function getContext (userId, organizationId) {
+function getContext (params) {
   return {
     udaru: {
-      userId: userId,
-      organizationId: organizationId
+      userId: params.userId,
+      organizationId: params.organizationId
     },
     request: {
-      currentTime: new Date().toISOString()
+      currentTime: new Date().toISOString(),
+      sourceIp: params.sourceIpAddress,
+      sourcePort: params.sourcePort
     }
   }
 }
@@ -40,7 +42,7 @@ function buildAuthorizeOps (db, config) {
      * @param  {Object}   options { resource, action, userId,  }
      * @param  {Function} cb
      */
-    isUserAuthorized: function isUserAuthorized ({ resource, action, userId, organizationId }, cb) {
+    isUserAuthorized: function isUserAuthorized ({ resource, action, userId, organizationId, sourceIpAddress, sourcePort }, cb) {
       async.waterfall([
         function validate (next) {
           Joi.validate({ resource, action, userId, organizationId }, validationRules.isUserAuthorized, badRequestWrap(next))
@@ -49,7 +51,7 @@ function buildAuthorizeOps (db, config) {
           policyOps.listAllUserPolicies({ userId, organizationId }, badImplementationWrap(next))
         },
         function check (policies, next) {
-          let context = getContext(userId, organizationId)
+          let context = getContext({userId, organizationId, sourceIpAddress, sourcePort})
           next(null, iam(policies).isAuthorized({resource, action, context}))
         }
       ], function (err, access) {
@@ -72,7 +74,7 @@ function buildAuthorizeOps (db, config) {
           policyOps.listAllUserPolicies({ userId, organizationId }, badImplementationWrap(next))
         },
         function check (policies, next) {
-          let context = getContext(userId, organizationId)
+          let context = getContext({userId, organizationId})
           iam(policies).actions({resource, context}, badImplementationWrap(next))
         }
       ], function (err, actions) {
@@ -95,7 +97,7 @@ function buildAuthorizeOps (db, config) {
           policyOps.listAllUserPolicies({ userId, organizationId }, badImplementationWrap(next))
         },
         function listAuthorizationsOnResources (policies, next) {
-          let context = getContext(userId, organizationId)
+          let context = getContext({userId, organizationId})
           iam(policies).actionsOnResources({ resources, context }, badImplementationWrap(next))
         }
       ], cb)
