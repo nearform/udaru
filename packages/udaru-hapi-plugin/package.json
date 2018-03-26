@@ -39,7 +39,7 @@
     "pg:init": "UDARU_SERVICE_local=true npx udaru-init && npm run pg:migrate",
     "pg:init-test-db": "npm run pg:init && npm run pg:load-test-data",
     "pg:load-test-data": "UDARU_SERVICE_local=true npx udaru-loadTestData",
-    "pg:migrate": "npx udaru-migrate --version=7",
+    "pg:migrate": "npx udaru-migrate --version=max",
     "test": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -c -t 96"
   },
   "dependencies": {

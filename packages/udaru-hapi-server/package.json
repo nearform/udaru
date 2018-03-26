@@ -47,7 +47,7 @@
     "pretest:security": "napa sqlmapproject/sqlmap",
     "pg:init-volume-db": "npx udaru-init && npm run pg:load-volume-data",
     "pg:load-volume-data": "npx udaru-loadVolumeData",
-    "pg:migrate": "npx udaru-migrate --version=7"
+    "pg:migrate": "npx udaru-migrate --version=max"
   },
   "dependencies": {
     "hapi": "^16.6.2",
