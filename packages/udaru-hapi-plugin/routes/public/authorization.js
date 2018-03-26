@@ -19,7 +19,9 @@ exports.register = function (server, options, next) {
         userId,
         action,
         resource,
-        organizationId
+        organizationId,
+        sourceIpAddress: request.info.remoteAddress,
+        sourcePort: request.info.remotePort
       }
 
       request.udaruCore.authorize.isUserAuthorized(params, reply)
