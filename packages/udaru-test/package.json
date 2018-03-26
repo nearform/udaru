@@ -1,5 +1,5 @@
 {
-  "name": "udaru-test",
+  "name": "@nearform/udaru-test",
   "version": "5.0.0",
   "description": "Shared test utilities used by udaru",
   "author": "nearForm Ltd",
@@ -37,5 +37,8 @@
   "dependencies": {
     "async": "^2.1.4",
     "lodash": "^4.17.5"
+  },
+  "devDependencies": {
+    "pg": "7.4.1"
   }
 }

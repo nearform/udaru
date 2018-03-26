@@ -26,7 +26,7 @@ if (START_SERVER) {
   // start udaru server
   console.log('Starting UDARU server...')
   // need stdin to determine when server starts
-  child = spawn.fork(path.join(__dirname, '../../packages/udaru-server/start'), [], ['ignore', 'ignore', 'ignore', 'ipc'])
+  child = spawn.fork(path.join(__dirname, '../../start'), [], ['ignore', 'ignore', 'ignore', 'ipc'])
 
   child.on('message', (m) => {
     if (m.indexOf('Server started on:') !== -1) {
@@ -125,7 +125,7 @@ function debug (message) {
 }
 
 function onResponse (client, statusCode, returnBytes, responseTime) {
-    // change path for next request
+  // change path for next request
   var dynamicPath = getPath()
 
   var requests = [

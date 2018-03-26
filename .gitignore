@@ -3,7 +3,9 @@
 .DS_Store
 
 *.log
+coverage
 coverage.html
 sqlmap
 
 node_modules
+package-lock.json

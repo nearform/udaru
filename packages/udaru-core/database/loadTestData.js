@@ -1,16 +1,22 @@
+#!/usr/bin/env node
+
 'use strict'
 
 const path = require('path')
 const pg = require('pg')
 const fs = require('fs')
-const config = require('../packages/udaru-core/config')()
+const minimist = require('minimist')
+const argv = minimist(process.argv.slice(2))
 
-if (!config.get('local')) {
-  console.error('ERROR: You are trying to load test data in the database while not in local environment.')
-  process.exit(1)
+const pgConf = {
+  user: argv.user || 'postgres',
+  database: argv.database || 'authorization',
+  password: argv.password || 'postgres',
+  host: argv.host || 'localhost',
+  port: argv.port || 5432
 }
 
-const client = new pg.Client(config.get('pgdb'))
+const client = new pg.Client(pgConf)
 
 let fixturesSQL = fs.readFileSync(path.join(__dirname, '/testdata/fixtures.sql'), 'utf8')
 

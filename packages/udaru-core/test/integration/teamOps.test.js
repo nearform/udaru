@@ -1259,7 +1259,7 @@ lab.experiment('TeamOps', () => {
       udaru.teams.searchUsers({ id: '1', query: '', organizationId: 'WONKA' }, (err, data, total) => {
         expect(err).to.exist()
         expect(err.name).to.exist()
-        expect(err.message).include('ValidationError')
+        expect(err.message).include('not allowed to be empty')
 
         done()
       })

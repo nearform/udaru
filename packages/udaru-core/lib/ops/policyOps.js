@@ -63,7 +63,7 @@ function buildPolicyOps (db, config) {
                  USING teams AS t
                  WHERE t.id = p.team_id
                    AND p.policy_id = ANY (${ids})`,
-                 utils.boomErrorWrapper(cb))
+    utils.boomErrorWrapper(cb))
   }
 
   function deleteUserAssociations (client, ids, orgId, cb) {
@@ -72,7 +72,7 @@ function buildPolicyOps (db, config) {
                  USING users AS u
                  WHERE u.id = p.user_id
                    AND p.policy_id = ANY (${ids})`,
-                 utils.boomErrorWrapper(cb))
+    utils.boomErrorWrapper(cb))
   }
 
   function deleteOrganizationAssociations (client, ids, orgId, cb) {
@@ -81,7 +81,7 @@ function buildPolicyOps (db, config) {
                  USING organizations AS o
                  WHERE o.id = p.org_id
                    AND p.policy_id = ANY (${ids})`,
-                 utils.boomErrorWrapper(cb))
+    utils.boomErrorWrapper(cb))
   }
 
   function getNames (policies) {
