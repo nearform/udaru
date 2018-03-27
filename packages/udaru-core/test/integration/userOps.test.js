@@ -5,7 +5,7 @@ const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 
-const u = require('@nearform/udaru-test/utils')
+const u = require('../testUtils')
 const udaru = require('../..')()
 
 lab.experiment('UserOps', () => {

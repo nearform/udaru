@@ -63,7 +63,6 @@
   },
   "devDependencies": {
     "@nearform/udaru-core": "^5.0.0",
-    "@nearform/udaru-test": "^5.0.0",
     "autocannon": "^2.1.1",
     "bloomrun": "^4.1.0",
     "chalk": "2.3.2",

@@ -3,9 +3,9 @@
 const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
-const utils = require('@nearform/udaru-test/utils')
+const utils = require('@nearform/udaru-core/test/testUtils')
 const serverFactory = require('../test-server')
-const Factory = require('@nearform/udaru-test/factory')
+const Factory = require('@nearform/udaru-core/test/factory')
 const udaru = require('@nearform/udaru-core')()
 
 lab.experiment('Authorization', () => {

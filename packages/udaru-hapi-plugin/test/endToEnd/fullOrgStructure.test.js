@@ -6,8 +6,8 @@ const lab = exports.lab = Lab.script()
 
 const config = require('../../config')()
 const serverFactory = require('../test-server')
-const Factory = require('@nearform/udaru-test/factory')
-const utils = require('@nearform/udaru-test/utils')
+const Factory = require('@nearform/udaru-core/test/factory')
+const utils = require('@nearform/udaru-core/test/testUtils')
 
 const udaru = require('@nearform/udaru-core')()
 const Action = config.get('AuthConfig.Action')

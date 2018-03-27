@@ -52,7 +52,6 @@
     "lodash": "^4.17.5"
   },
   "devDependencies": {
-    "@nearform/udaru-test": "^5.0.0",
     "code": "^5.2.0",
     "coveralls": "^3.0.0",
     "depcheck": "^0.6.9",

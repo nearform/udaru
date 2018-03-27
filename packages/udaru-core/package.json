@@ -65,7 +65,6 @@
   "devDependencies": {
     "depcheck": "0.6.9",
     "minimist": "1.2.0",
-    "@nearform/udaru-test": "^5.0.0",
     "code": "^4.0.0",
     "coveralls": "^2.11.15",
     "lab": "^14.3.2",
