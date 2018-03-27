@@ -35,7 +35,7 @@
     "test": "echo √"
   },
   "dependencies": {
-    "async": "^2.1.4",
+    "async": "^2.6.0",
     "lodash": "^4.17.5"
   },
   "devDependencies": {

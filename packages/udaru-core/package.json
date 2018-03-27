@@ -39,14 +39,14 @@
     "udaru-init": "./database/init.js"
   },
   "scripts": {
-    "coverage": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -c -t 92 -r html -o coverage/coverage.html",
-    "coveralls": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -c -t 92 -r lcov | coveralls",
+    "coverage": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -c -t 90 -r html -o coverage/coverage.html",
+    "coveralls": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -c -t 90 -r lcov | coveralls",
     "depcheck": "npx depcheck",
     "pg:init": "node ./database/init.js && npm run pg:migrate",
     "pg:init-test-db": "npm run pg:init && npm run pg:load-test-data",
     "pg:load-test-data": "node ./database/loadTestData.js",
     "pg:migrate": "node ./database/migrate.js --version=max",
-    "test": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -c -t 92"
+    "test": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -c -t 90"
   },
   "dependencies": {
     "@nearform/sql": "^1.0.0",
