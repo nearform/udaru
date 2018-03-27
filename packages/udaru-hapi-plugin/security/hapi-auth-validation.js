@@ -39,7 +39,7 @@ module.exports = function (authorization) {
     const resources = [builder(buildParams)]
 
     try {
-      const user = await udaru.users.read({id: buildParams.userId, organizationId: organizationId + 'a'})
+      const user = await udaru.users.read({id: buildParams.userId, organizationId: organizationId})
 
       user.teams.forEach((team) => {
         buildParams.teamId = team.id
