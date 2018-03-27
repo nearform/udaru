@@ -2,7 +2,7 @@
 
 'use strict'
 
-const postgrator = require('postgrator')
+const Postgrator = require('postgrator')
 const path = require('path')
 const minimist = require('minimist')
 
@@ -19,7 +19,7 @@ if (!version) {
   process.exit(1)
 }
 
-postgrator.setConfig({
+const postgrator = new Postgrator({
   migrationDirectory: path.join(__dirname, '/migrations'),
   schemaTable: 'schemaversion', // optional. default is 'schemaversion'
   driver: 'pg',
@@ -30,18 +30,11 @@ postgrator.setConfig({
   password: password
 })
 
-postgrator.migrate(version, function (err, migrations) {
-  if (err) {
-    console.error(err)
-    process.exit(1)
-  }
-
-  postgrator.endConnection(function (err) {
-    if (err) {
-      console.error(err)
-      process.exit(1)
-    }
-
+postgrator.migrate(version)
+  .then(migrations => {
     console.log(`Migrations to ${version} done`, migrations)
   })
-})
+  .catch(err => {
+    console.log(error)
+    process.exit(1)
+  })

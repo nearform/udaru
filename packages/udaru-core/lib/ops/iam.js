@@ -2,15 +2,19 @@
 
 const PBAC = require('pbac')
 const _ = require('lodash')
+const asyncify = require('../asyncify')
 
 module.exports = function (policies) {
   const pbac = new PBAC(policies)
 
-  function isAuthorized (params, done) {
+  function isAuthorized (params) {
     return pbac.evaluate(params)
   }
 
   function actions ({ resource, context }, done) {
+    let promise = null
+    if (typeof done !== 'function') [promise, done] = asyncify()
+
     try {
       const result = _(policies)
         .map('Statement')
@@ -35,13 +39,18 @@ module.exports = function (policies) {
         .uniq()
         .value()
 
-      return done(null, result)
+      done(null, result)
     } catch (e) {
-      return done(e)
+      done(e)
     }
+
+    return promise
   }
 
   function actionsOnResources ({ resources, context }, done) {
+    let promise = null
+    if (typeof done !== 'function') [promise, done] = asyncify()
+
     try {
       const resultMap = {}
 
@@ -73,10 +82,12 @@ module.exports = function (policies) {
           return result
         }, [])
 
-      return done(null, result)
+      done(null, result)
     } catch (e) {
-      return done(e)
+      done(e)
     }
+
+    return promise
   }
 
   return {

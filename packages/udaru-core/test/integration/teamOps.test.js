@@ -1144,8 +1144,8 @@ lab.experiment('TeamOps', () => {
     udaru.teams.search({ query: 'Authors', organizationId: 'WONKA' }, (err, data, total) => {
       expect(err).to.not.exist()
       expect(total).to.exist()
-      expect(total).to.equal(3)
-      expect(data.length).to.equal(3)
+      expect(total).to.equal(1)
+      expect(data.length).to.equal(1)
 
       done()
     })
