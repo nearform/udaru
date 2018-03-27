@@ -1,12 +1,6 @@
 'use strict'
 
-const Server = require('./index')
-Server.start((err) => {
-  if (err) {
-    return logMessage(`Failed to start server: ${err.message}`)
-  }
-  logMessage('Server started on: ' + Server.info.uri.toLowerCase())
-})
+const start = require('./index')
 
 // if forked as child, send output message via ipc to parent
 // otherwise output to console
@@ -17,3 +11,12 @@ function logMessage (message) {
     process.send(message)
   }
 }
+
+start()
+  .then(server => {
+    logMessage('Server started on: ' + server.info.uri.toLowerCase())
+  })
+  .catch(err => {
+    logMessage(`Failed to start server: ${err.message}`)
+  })
+
