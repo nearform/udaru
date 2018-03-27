@@ -114,7 +114,7 @@ function loadPolicies (startId, orgId, teamId, callback) {
   var count = 1
   for (var id = startId; id < startId + NUM_POLICIES_PER_TEAM; id++) {
     // modify policy here...
-    policyTemplate.Statement[0].Resource[0] = 'resource_' + count + ':team/$' + '{udaru:teamId}'
+    policyTemplate.Statement[0].Resource[0] = 'resource_' + count + ':org/$' + '{udaru:organizationId}'
     policyTemplate.Statement[1].Resource[0] = 'resource_' + count + ':user/$' + '{udaru:userId}'
 
     policiesSql += "('" + id + "', '2012-10-17', 'POLICY_" + id + "', '" + orgId + "', '" +

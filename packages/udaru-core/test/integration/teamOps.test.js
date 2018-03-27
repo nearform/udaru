@@ -1021,6 +1021,28 @@ lab.experiment('TeamOps', () => {
     })
   })
 
+  lab.test('with system context variable overload fail', (done) => {
+    let policiesParam = [{
+      id: policies[0].id,
+      variables: { udaru: 'userId' }
+    }]
+
+    udaru.teams.addPolicies({ id: testTeam.id, policies: policiesParam, organizationId: 'WONKA' }, (err) => {
+      expect(err).to.exist()
+      expect(err.message).include('"udaru" is not allowed')
+
+      policiesParam = [{
+        id: policies[0].id,
+        variables: { request: 'time' }
+      }]
+      udaru.teams.addPolicies({ id: testTeam.id, policies: policiesParam, organizationId: 'WONKA' }, (err) => {
+        expect(err).to.exist()
+        expect(err.message).include('"request" is not allowed')
+        done()
+      })
+    })
+  })
+
   lab.experiment('nested teams', () => {
     lab.test('list an existing nested team', (done) => {
       udaru.teams.listNestedTeams({ organizationId: 'WONKA', id: '4' }, (err, result, total) => {

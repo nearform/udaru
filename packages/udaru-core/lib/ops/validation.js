@@ -10,7 +10,7 @@ const PolicyIdString = requiredStringId.description('Policy Id String').label('P
 
 const PolicyIdObject = Joi.object({
   id: PolicyIdString,
-  variables: Joi.object().pattern(/^(?!(udaru)|(request)).*$/, requiredString).description('A list of the variables with their fixed values').label('variables')
+  variables: Joi.object().pattern(/^(?!(udaru)|(request)).*$/igm, requiredString).description('A list of the variables with their fixed values').label('variables')
 }).required().description('Policy Id Object').label('PolicyIdObject')
 
 // it would be ideal to put the policyid object first, however it causes a swagger doc error
