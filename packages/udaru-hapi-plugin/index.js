@@ -1,66 +1,40 @@
 'use strict'
 
 const buildUdaru = require('@nearform/udaru-core')
+const buildConfig = require('./config')
 const buildAuthorization = require('./security/authorization')
 const buildHapiAuthService = require('./security/hapi-auth-service')
 const buildAuthValidation = require('./security/hapi-auth-validation')
 
-const buildConfig = require('./config')
+module.exports = {
+  pkg: require('./../../package'),
 
-function register (server, options, next) {
-  const config = buildConfig(options.config)
-  const { decorateUdaruCore = true } = config
-  if (decorateUdaruCore) {
-    const udaru = buildUdaru(options.dbPool, config)
-    server.decorate('request', 'udaruCore', udaru)
-  }
-  server.decorate('server', 'udaruConfig', config)
+  async register (server, options) {
+    const config = buildConfig(options.config)
+    const { decorateUdaruCore = true } = config
 
-  const authorization = buildAuthorization(config)
-  const HapiAuthService = buildHapiAuthService(authorization)
-  const authValidation = buildAuthValidation(authorization)
-
-  server.register(
-    [
-      {
-        register: require('./routes/public/users')
-      },
-      {
-        register: require('./routes/public/policies')
-      },
-      {
-        register: require('./routes/public/teams')
-      },
-      {
-        register: require('./routes/public/authorization')
-      },
-      {
-        register: require('./routes/public/organizations')
-      },
-      {
-        register: require('./routes/public/monitor')
-      },
-      {
-        register: require('./routes/private/policies')
-      },
-      HapiAuthService
-    ],
-    function (err) {
-      if (err) {
-        return next(err)
-      }
-
-      server.auth.strategy('default', 'service', 'required', {
-        validateFunc: authValidation.bind(null, {})
-      })
-
-      return next()
+    if (decorateUdaruCore) {
+      const udaru = buildUdaru(options.dbPool, config)
+      server.decorate('request', 'udaruCore', udaru)
     }
-  )
-}
+    server.decorate('server', 'udaruConfig', config)
 
-module.exports.register = register
+    const authorization = buildAuthorization(config)
+    const HapiAuthService = buildHapiAuthService(authorization)
+    const authValidation = buildAuthValidation(authorization)
 
-module.exports.register.attributes = {
-  pkg: require('./../../package')
+    await server.register([
+      require('./routes/public/users'),
+      require('./routes/public/policies'),
+      require('./routes/public/teams'),
+      require('./routes/public/authorization'),
+      require('./routes/public/organizations'),
+      require('./routes/public/monitor'),
+      require('./routes/private/policies'),
+      HapiAuthService
+    ])
+
+    server.auth.strategy('udaru', 'udaru', {validateFunc: authValidation.bind(null, {})})
+    server.auth.default({mode: 'required', strategy: 'udaru'})
+  }
 }

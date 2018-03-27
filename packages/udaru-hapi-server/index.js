@@ -3,7 +3,7 @@
 const Hapi = require('hapi')
 const config = require('./config')()
 
-module.exports = async function start () {
+module.exports = async function () {
   const server = new Hapi.Server({
     port: Number(config.get('hapi.port')),
     host: config.get('hapi.host'),
@@ -41,6 +41,8 @@ module.exports = async function start () {
       }
     ],
   )
+
+  await server.start()
 
   return server
 }
