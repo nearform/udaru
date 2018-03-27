@@ -132,11 +132,12 @@ lab.experiment('Routes Authorizations', () => {
         }
       }, udaru)
 
-      lab.afterEach((done) => {
-        udaru.teams.delete({ id: 'created_team', organizationId }, () => {
-          // ignore error
-          done()
-        })
+      lab.afterEach(async () => {
+        try {
+          await udaru.teams.delete({id: 'created_team', organizationId})
+        } catch (e) {
+          // This is needed to ignore the error (i.e. in case the team wasn't properly created)
+        }
       })
 
       const endpoint = BuildFor(lab, records)

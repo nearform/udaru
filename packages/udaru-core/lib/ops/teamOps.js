@@ -949,7 +949,7 @@ function buildTeamOps (db, config) {
      */
     search: function search (params, cb) {
       let promise = null
-      if (typeof cb !== 'function') [promise, cb] = asyncify()
+      if (typeof cb !== 'function') [promise, cb] = asyncify('data', 'total')
 
       const { organizationId, query } = params
       Joi.validate({ organizationId, query }, validationRules.searchTeam, function (err) {
@@ -985,7 +985,7 @@ function buildTeamOps (db, config) {
      */
     searchUsers: function searchUsers (params, cb) {
       let promise = null
-      if (typeof cb !== 'function') [promise, cb] = asyncify()
+      if (typeof cb !== 'function') [promise, cb] = asyncify('data', 'total')
 
       const { organizationId, id, query } = params
       Joi.validate({ organizationId, id, query }, validationRules.searchTeamUsers, function (err) {

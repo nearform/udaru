@@ -4,7 +4,7 @@ const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 const utils = require('@nearform/udaru-test/utils')
-const server = require('../test-server')
+const serverFactory = require('../test-server')
 const udaru = require('@nearform/udaru-core')()
 
 const teamData = {
@@ -14,7 +14,7 @@ const teamData = {
   organizationId: 'WONKA'
 }
 
-const metadata = {key1: 'val1', key2: 'val2'}
+const metadata = { key1: 'val1', key2: 'val2' }
 const teamDataMeta = {
   name: 'testTeamMeta',
   description: 'This is a test team with metadata',
@@ -24,21 +24,25 @@ const teamDataMeta = {
 }
 
 lab.experiment('Teams - get/list', () => {
-  lab.test('get team list: with pagination params', (done) => {
+  let server = null
+
+  lab.before(async () => {
+    server = await serverFactory()
+  })
+
+  lab.test('get team list: with pagination params', async () => {
     const options = utils.requestOptions({
       method: 'GET',
       url: '/authorization/teams'
     })
 
-    server.inject(options, (response) => {
-      expect(response.statusCode).to.equal(200)
-      expect(response.result.page).to.equal(1)
-      expect(response.result.limit).greaterThan(1)
-      done()
-    })
+    const response = await server.inject(options)
+    expect(response.statusCode).to.equal(200)
+    expect(response.result.page).to.equal(1)
+    expect(response.result.limit).greaterThan(1)
   })
 
-  lab.test('get teams list from organization with no team', (done) => {
+  lab.test('get teams list from organization with no team', async () => {
     const options = utils.requestOptions({
       method: 'GET',
       url: '/authorization/teams',
@@ -47,294 +51,274 @@ lab.experiment('Teams - get/list', () => {
       }
     })
 
-    server.inject(options, (response) => {
-      expect(response.statusCode).to.equal(200)
-      expect(response.result.page).to.equal(1)
-      expect(response.result.limit).greaterThan(1)
-      expect(response.result.total).equal(0)
-      done()
-    })
+    const response = await server.inject(options)
+    expect(response.statusCode).to.equal(200)
+    expect(response.result.page).to.equal(1)
+    expect(response.result.limit).greaterThan(1)
+    expect(response.result.total).equal(0)
   })
 
-  lab.test('get team list: page 1', (done) => {
+  lab.test('get team list: page 1', async () => {
     const options = utils.requestOptions({
       method: 'GET',
       url: '/authorization/teams?limit=3&page=1'
     })
 
-    server.inject(options, (response) => {
-      const result = response.result
+    const response = await server.inject(options)
+    const result = response.result
 
-      expect(response.statusCode).to.equal(200)
-      expect(result.page).to.equal(1)
-      expect(result.limit).to.equal(3)
-      expect(result.total).to.equal(6)
-      expect(result.data).to.equal([
-        {
-          id: '1',
-          name: 'Admins',
-          organizationId: 'WONKA',
-          description: 'Administrators of the Authorization System',
-          path: '1',
-          usersCount: 1
-        },
-        {
-          id: '3',
-          name: 'Authors',
-          organizationId: 'WONKA',
-          description: 'Content contributors',
-          path: '3',
-          usersCount: 1
-        },
-        {
-          id: '6',
-          name: 'Company Lawyer',
-          organizationId: 'WONKA',
-          description: 'Author of legal documents',
-          path: '6',
-          usersCount: 0
-        }
-      ])
-
-      done()
-    })
+    expect(response.statusCode).to.equal(200)
+    expect(result.page).to.equal(1)
+    expect(result.limit).to.equal(3)
+    expect(result.total).to.equal(6)
+    expect(result.data).to.equal([
+      {
+        id: '1',
+        name: 'Admins',
+        organizationId: 'WONKA',
+        description: 'Administrators of the Authorization System',
+        path: '1',
+        usersCount: 1
+      },
+      {
+        id: '3',
+        name: 'Authors',
+        organizationId: 'WONKA',
+        description: 'Content contributors',
+        path: '3',
+        usersCount: 1
+      },
+      {
+        id: '6',
+        name: 'Company Lawyer',
+        organizationId: 'WONKA',
+        description: 'Author of legal documents',
+        path: '6',
+        usersCount: 0
+      }
+    ])
   })
 
-  lab.test('get team list: page 2', (done) => {
+  lab.test('get team list: page 2', async () => {
     const options = utils.requestOptions({
       method: 'GET',
       url: '/authorization/teams?limit=3&page=2'
     })
 
-    server.inject(options, (response) => {
-      const result = response.result
+    const response = await server.inject(options)
+    const result = response.result
 
-      expect(response.statusCode).to.equal(200)
-      expect(result.page).to.equal(2)
-      expect(result.limit).to.equal(3)
-      expect(result.total).to.equal(6)
-      expect(result.data).to.equal([
-        {
-          id: '4',
-          name: 'Managers',
-          organizationId: 'WONKA',
-          description: 'General Line Managers with confidential info',
-          path: '4',
-          usersCount: 1
-        },
-        {
-          id: '5',
-          name: 'Personnel Managers',
-          organizationId: 'WONKA',
-          description: 'Personnel Line Managers with confidential info',
-          path: '5',
-          usersCount: 1
-        },
-        {
-          id: '2',
-          name: 'Readers',
-          organizationId: 'WONKA',
-          description: 'General read-only access',
-          path: '2',
-          usersCount: 2
-        }
-      ])
-
-      done()
-    })
+    expect(response.statusCode).to.equal(200)
+    expect(result.page).to.equal(2)
+    expect(result.limit).to.equal(3)
+    expect(result.total).to.equal(6)
+    expect(result.data).to.equal([
+      {
+        id: '4',
+        name: 'Managers',
+        organizationId: 'WONKA',
+        description: 'General Line Managers with confidential info',
+        path: '4',
+        usersCount: 1
+      },
+      {
+        id: '5',
+        name: 'Personnel Managers',
+        organizationId: 'WONKA',
+        description: 'Personnel Line Managers with confidential info',
+        path: '5',
+        usersCount: 1
+      },
+      {
+        id: '2',
+        name: 'Readers',
+        organizationId: 'WONKA',
+        description: 'General read-only access',
+        path: '2',
+        usersCount: 2
+      }
+    ])
   })
 
-  lab.test('get team list', (done) => {
+  lab.test('get team list', async () => {
     const options = utils.requestOptions({
       method: 'GET',
       url: '/authorization/teams?page=1&limit=7'
     })
 
-    server.inject(options, (response) => {
-      const result = response.result
+    const response = await server.inject(options)
+    const result = response.result
 
-      expect(response.statusCode).to.equal(200)
-      expect(result.data).to.equal([
-        {
-          id: '1',
-          name: 'Admins',
-          organizationId: 'WONKA',
-          description: 'Administrators of the Authorization System',
-          path: '1',
-          usersCount: 1
-        },
-        {
-          id: '3',
-          name: 'Authors',
-          organizationId: 'WONKA',
-          description: 'Content contributors',
-          path: '3',
-          usersCount: 1
-        },
-        {
-          id: '6',
-          name: 'Company Lawyer',
-          organizationId: 'WONKA',
-          description: 'Author of legal documents',
-          path: '6',
-          usersCount: 0
-        },
-        {
-          id: '4',
-          name: 'Managers',
-          organizationId: 'WONKA',
-          description: 'General Line Managers with confidential info',
-          path: '4',
-          usersCount: 1
-        },
-        {
-          id: '5',
-          name: 'Personnel Managers',
-          organizationId: 'WONKA',
-          description: 'Personnel Line Managers with confidential info',
-          path: '5',
-          usersCount: 1
-        },
-        {
-          id: '2',
-          name: 'Readers',
-          organizationId: 'WONKA',
-          description: 'General read-only access',
-          path: '2',
-          usersCount: 2
-        }
-      ])
-
-      done()
-    })
+    expect(response.statusCode).to.equal(200)
+    expect(result.data).to.equal([
+      {
+        id: '1',
+        name: 'Admins',
+        organizationId: 'WONKA',
+        description: 'Administrators of the Authorization System',
+        path: '1',
+        usersCount: 1
+      },
+      {
+        id: '3',
+        name: 'Authors',
+        organizationId: 'WONKA',
+        description: 'Content contributors',
+        path: '3',
+        usersCount: 1
+      },
+      {
+        id: '6',
+        name: 'Company Lawyer',
+        organizationId: 'WONKA',
+        description: 'Author of legal documents',
+        path: '6',
+        usersCount: 0
+      },
+      {
+        id: '4',
+        name: 'Managers',
+        organizationId: 'WONKA',
+        description: 'General Line Managers with confidential info',
+        path: '4',
+        usersCount: 1
+      },
+      {
+        id: '5',
+        name: 'Personnel Managers',
+        organizationId: 'WONKA',
+        description: 'Personnel Line Managers with confidential info',
+        path: '5',
+        usersCount: 1
+      },
+      {
+        id: '2',
+        name: 'Readers',
+        organizationId: 'WONKA',
+        description: 'General read-only access',
+        path: '2',
+        usersCount: 2
+      }
+    ])
   })
 
-  lab.test('get single team', (done) => {
-    udaru.teams.create(teamData, (err, team) => {
-      expect(err).to.not.exist()
+  lab.test('get single team', async () => {
+    const team = await udaru.teams.create(teamData)
 
-      const options = utils.requestOptions({
-        method: 'GET',
-        url: `/authorization/teams/${team.id}`
-      })
-
-      server.inject(options, (response) => {
-        const result = response.result
-
-        expect(response.statusCode).to.equal(200)
-        expect(result.usersCount).to.exist()
-        expect(result.usersCount).to.equal(0)
-        expect(result.id).to.equal(team.id)
-        expect(result.name).to.equal(team.name)
-
-        udaru.teams.delete({ id: team.id, organizationId: team.organizationId }, done)
-      })
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: `/authorization/teams/${team.id}`
     })
+
+    const response = await server.inject(options)
+    const result = response.result
+
+    expect(response.statusCode).to.equal(200)
+    expect(result.usersCount).to.exist()
+    expect(result.usersCount).to.equal(0)
+    expect(result.id).to.equal(team.id)
+    expect(result.name).to.equal(team.name)
+
+    await udaru.teams.delete({ id: team.id, organizationId: team.organizationId })
   })
 
-  lab.test('get single team with metadata', (done) => {
-    udaru.teams.create(teamDataMeta, (err, team) => {
-      expect(err).to.not.exist()
+  lab.test('get single team with metadata', async () => {
+    const team = await udaru.teams.create(teamDataMeta)
 
-      const options = utils.requestOptions({
-        method: 'GET',
-        url: `/authorization/teams/${team.id}`
-      })
-
-      server.inject(options, (response) => {
-        const result = response.result
-
-        expect(response.statusCode).to.equal(200)
-        expect(result.usersCount).to.exist()
-        expect(result.usersCount).to.equal(0)
-        expect(result.id).to.equal(team.id)
-        expect(result.name).to.equal(team.name)
-        expect(result.metadata).to.equal(team.metadata)
-
-        udaru.teams.delete({ id: team.id, organizationId: team.organizationId }, done)
-      })
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: `/authorization/teams/${team.id}`
     })
+
+    const response = await server.inject(options)
+    const result = response.result
+
+    expect(response.statusCode).to.equal(200)
+    expect(result.usersCount).to.exist()
+    expect(result.usersCount).to.equal(0)
+    expect(result.id).to.equal(team.id)
+    expect(result.name).to.equal(team.name)
+    expect(result.metadata).to.equal(team.metadata)
+
+    await udaru.teams.delete({ id: team.id, organizationId: team.organizationId })
   })
 
-  lab.test('get users for a single team', (done) => {
-    udaru.teams.create(teamData, (err, team) => {
-      if (err) return done(err)
-      const teamUsers = [
-        { id: 'AugustusId', name: 'Augustus Gloop' },
-        { id: 'CharlieId', name: 'Charlie Bucket' },
-        { id: 'MikeId', name: 'Mike Teavee' },
-        { id: 'VerucaId', name: 'Veruca Salt' },
-        { id: 'WillyId', name: 'Willy Wonka' }
-      ]
-      const teamUsersIds = teamUsers.map((user) => { return user.id })
+  lab.test('get users for a single team', async () => {
+    let team = await udaru.teams.create(teamData)
 
-      udaru.teams.addUsers({id: team.id, organizationId: team.organizationId, users: teamUsersIds}, (err, team) => {
-        if (err) return done(err)
+    const teamUsers = [
+      { id: 'AugustusId', name: 'Augustus Gloop' },
+      { id: 'CharlieId', name: 'Charlie Bucket' },
+      { id: 'MikeId', name: 'Mike Teavee' },
+      { id: 'VerucaId', name: 'Veruca Salt' },
+      { id: 'WillyId', name: 'Willy Wonka' }
+    ]
+    const teamUsersIds = teamUsers.map((user) => user.id)
 
-        expect(team.users).to.equal(teamUsers)
+    team = await udaru.teams.addUsers({ id: team.id, organizationId: team.organizationId, users: teamUsersIds })
+    expect(team.users).to.equal(teamUsers)
 
-        const options = utils.requestOptions({
-          method: 'GET',
-          url: `/authorization/teams/${team.id}/users?page=1&limit=10`
-        })
-
-        server.inject(options, (response) => {
-          const result = response.result
-
-          expect(response.statusCode).to.equal(200)
-          expect(result.page).to.equal(1)
-          expect(result.limit).to.equal(10)
-          expect(result.total).to.equal(5)
-          expect(result.data).to.equal(teamUsers)
-
-          const options = utils.requestOptions({
-            method: 'GET',
-            url: `/authorization/teams/${team.id}/users?page=2&limit=3`
-          })
-
-          server.inject(options, (response) => {
-            const result = response.result
-
-            expect(response.statusCode).to.equal(200)
-            expect(result.page).to.equal(2)
-            expect(result.limit).to.equal(3)
-            expect(result.total).to.equal(5)
-            expect(result.data).to.equal([
-              { id: 'VerucaId', name: 'Veruca Salt' },
-              { id: 'WillyId', name: 'Willy Wonka' }
-            ])
-
-            udaru.teams.delete({ id: team.id, organizationId: team.organizationId }, done)
-          })
-        })
-      })
+    let options = utils.requestOptions({
+      method: 'GET',
+      url: `/authorization/teams/${team.id}/users?page=1&limit=10`
     })
+
+    let response = await server.inject(options)
+    let result = response.result
+
+    expect(response.statusCode).to.equal(200)
+    expect(result.page).to.equal(1)
+    expect(result.limit).to.equal(10)
+    expect(result.total).to.equal(5)
+    expect(result.data).to.equal(teamUsers)
+
+    options = utils.requestOptions({
+      method: 'GET',
+      url: `/authorization/teams/${team.id}/users?page=2&limit=3`
+    })
+
+    response = await server.inject(options)
+    result = response.result
+
+    expect(response.statusCode).to.equal(200)
+    expect(result.page).to.equal(2)
+    expect(result.limit).to.equal(3)
+    expect(result.total).to.equal(5)
+    expect(result.data).to.equal([
+      { id: 'VerucaId', name: 'Veruca Salt' },
+      { id: 'WillyId', name: 'Willy Wonka' }
+    ])
+
+    await udaru.teams.delete({ id: team.id, organizationId: team.organizationId })
   })
 
-  lab.test('return 404 if team does not exist when requesting users', (done) => {
+  lab.test('return 404 if team does not exist when requesting users', async () => {
     const teamId = 'idontexist'
     const options = utils.requestOptions({
       method: 'GET',
       url: `/authorization/teams/${teamId}/users`
     })
 
-    server.inject(options, (response) => {
-      const result = response.result
+    const response = await server.inject(options)
+    const result = response.result
 
-      expect(result.statusCode).to.equal(404)
-      expect(result.data).to.not.exist()
-      expect(result.total).to.not.exist()
-      expect(result.error).to.exist()
-      expect(result.message).to.exist()
-      expect(result.message.toLowerCase()).to.include(teamId).include('not').include('found')
-
-      done()
-    })
+    expect(result.statusCode).to.equal(404)
+    expect(result.data).to.not.exist()
+    expect(result.total).to.not.exist()
+    expect(result.error).to.exist()
+    expect(result.message).to.exist()
+    expect(result.message.toLowerCase()).to.include(teamId).include('not').include('found')
   })
 })
 
 lab.experiment('Teams - create', () => {
-  lab.test('Create with no id', (done) => {
+  let server = null
+
+  lab.before(async () => {
+    server = await serverFactory()
+  })
+
+  lab.test('Create with no id', async () => {
     const options = utils.requestOptions({
       method: 'POST',
       url: '/authorization/teams',
@@ -344,25 +328,24 @@ lab.experiment('Teams - create', () => {
       }
     })
 
-    server.inject(options, (response) => {
-      const result = response.result
+    const response = await server.inject(options)
+    const result = response.result
 
-      expect(response.statusCode).to.equal(201)
-      expect(result.id).to.not.be.null()
-      expect(result).to.contain({
-        name: 'Team B',
-        organizationId: 'WONKA',
-        description: 'This is Team B',
-        users: [],
-        policies: [],
-        path: result.id
-      })
-
-      udaru.teams.delete({ id: result.id, organizationId: result.organizationId }, done)
+    expect(response.statusCode).to.equal(201)
+    expect(result.id).to.not.be.null()
+    expect(result).to.contain({
+      name: 'Team B',
+      organizationId: 'WONKA',
+      description: 'This is Team B',
+      users: [],
+      policies: [],
+      path: result.id
     })
+
+    await udaru.teams.delete({ id: result.id, organizationId: result.organizationId })
   })
 
-  lab.test('Create with undefined id', (done) => {
+  lab.test('Create with undefined id', async () => {
     const options = utils.requestOptions({
       method: 'POST',
       url: '/authorization/teams',
@@ -373,25 +356,24 @@ lab.experiment('Teams - create', () => {
       }
     })
 
-    server.inject(options, (response) => {
-      const result = response.result
+    const response = await server.inject(options)
+    const result = response.result
 
-      expect(response.statusCode).to.equal(201)
-      expect(result.id).to.not.be.null()
-      expect(result).to.contain({
-        name: 'Team B',
-        organizationId: 'WONKA',
-        description: 'This is Team B',
-        users: [],
-        policies: [],
-        path: result.id
-      })
-
-      udaru.teams.delete({ id: result.id, organizationId: result.organizationId }, done)
+    expect(response.statusCode).to.equal(201)
+    expect(result.id).to.not.be.null()
+    expect(result).to.contain({
+      name: 'Team B',
+      organizationId: 'WONKA',
+      description: 'This is Team B',
+      users: [],
+      policies: [],
+      path: result.id
     })
+
+    await udaru.teams.delete({ id: result.id, organizationId: result.organizationId })
   })
 
-  lab.test('Create with specific id', (done) => {
+  lab.test('Create with specific id', async () => {
     const options = utils.requestOptions({
       method: 'POST',
       url: '/authorization/teams',
@@ -402,20 +384,19 @@ lab.experiment('Teams - create', () => {
       }
     })
 
-    server.inject(options, (response) => {
-      const result = response.result
+    const response = await server.inject(options)
+    const result = response.result
 
-      expect(response.statusCode).to.equal(201)
-      expect(result).to.contain({
-        id: 'test_fixed_id',
-        path: 'test_fixed_id'
-      })
-
-      udaru.teams.delete({ id: result.id, organizationId: result.organizationId }, done)
+    expect(response.statusCode).to.equal(201)
+    expect(result).to.contain({
+      id: 'test_fixed_id',
+      path: 'test_fixed_id'
     })
+
+    await udaru.teams.delete({ id: result.id, organizationId: result.organizationId })
   })
 
-  lab.test('create team with empty id string', (done) => {
+  lab.test('create team with empty id string', async () => {
     const options = utils.requestOptions({
       method: 'POST',
       url: '/authorization/teams',
@@ -426,18 +407,15 @@ lab.experiment('Teams - create', () => {
       }
     })
 
-    server.inject(options, (response) => {
-      const result = response.result
+    const response = await server.inject(options)
+    const result = response.result
 
-      expect(response.statusCode).to.equal(400)
-      expect(result.error).to.equal('Bad Request')
-      expect(result.id).to.not.exist()
-
-      done()
-    })
+    expect(response.statusCode).to.equal(400)
+    expect(result.error).to.equal('Bad Request')
+    expect(result.id).to.not.exist()
   })
 
-  lab.test('create team with null id string', (done) => {
+  lab.test('create team with null id string', async () => {
     const options = utils.requestOptions({
       method: 'POST',
       url: '/authorization/teams',
@@ -448,18 +426,15 @@ lab.experiment('Teams - create', () => {
       }
     })
 
-    server.inject(options, (response) => {
-      const result = response.result
+    const response = await server.inject(options)
+    const result = response.result
 
-      expect(response.statusCode).to.equal(400)
-      expect(result.error).to.equal('Bad Request')
-      expect(result.id).to.not.exist()
-
-      done()
-    })
+    expect(response.statusCode).to.equal(400)
+    expect(result.error).to.equal('Bad Request')
+    expect(result.id).to.not.exist()
   })
 
-  lab.test('support handling of already present id', (done) => {
+  lab.test('support handling of already present id', async () => {
     const options = utils.requestOptions({
       method: 'POST',
       url: '/authorization/teams',
@@ -470,17 +445,14 @@ lab.experiment('Teams - create', () => {
       }
     })
 
-    server.inject(options, (response) => {
-      const result = response.result
+    const response = await server.inject(options)
+    const result = response.result
 
-      expect(response.statusCode).to.equal(409)
-      expect(result.message).to.equal('Key (id)=(1) already exists.')
-
-      done()
-    })
+    expect(response.statusCode).to.equal(409)
+    expect(result.message).to.equal('Key (id)=(1) already exists.')
   })
 
-  lab.test('Create a team with metadata', (done) => {
+  lab.test('Create a team with metadata', async () => {
     const options = utils.requestOptions({
       method: 'POST',
       url: '/authorization/teams',
@@ -492,22 +464,21 @@ lab.experiment('Teams - create', () => {
       }
     })
 
-    server.inject(options, (response) => {
-      const result = response.result
+    const response = await server.inject(options)
+    const result = response.result
 
-      expect(response.statusCode).to.equal(201)
-      expect(result).to.contain({
-        id: 'test_meta_id',
-        path: 'test_meta_id',
-        description: 'This is Team Meta',
-        metadata: metadata
-      })
-
-      udaru.teams.delete({ id: result.id, organizationId: result.organizationId }, done)
+    expect(response.statusCode).to.equal(201)
+    expect(result).to.contain({
+      id: 'test_meta_id',
+      path: 'test_meta_id',
+      description: 'This is Team Meta',
+      metadata: metadata
     })
+
+    await udaru.teams.delete({ id: result.id, organizationId: result.organizationId })
   })
 
-  lab.test('validates specific id format', (done) => {
+  lab.test('validates specific id format', async () => {
     const options = utils.requestOptions({
       method: 'POST',
       url: '/authorization/teams',
@@ -518,30 +489,31 @@ lab.experiment('Teams - create', () => {
       }
     })
 
-    server.inject(options, (response) => {
-      expect(response.statusCode).to.equal(400)
-      expect(response.result.validation.keys).to.include('id')
-      done()
-    })
+    const response = await server.inject(options)
+    expect(response.statusCode).to.equal(400)
+    expect(response.result.validation.keys).to.include('id')
   })
 
-  lab.test('should return a 400 Bad Request when not providing name or description', (done) => {
+  lab.test('should return a 400 Bad Request when not providing name or description', async () => {
     const options = utils.requestOptions({
       method: 'POST',
       url: '/authorization/teams',
       payload: {}
     })
 
-    server.inject(options, (response) => {
-      expect(response.statusCode).to.equal(400)
-
-      done()
-    })
+    const response = await server.inject(options)
+    expect(response.statusCode).to.equal(400)
   })
 })
 
 lab.experiment('Teams - update', () => {
-  lab.test('update team validation nothing in payload', (done) => {
+  let server = null
+
+  lab.before(async () => {
+    server = await serverFactory()
+  })
+
+  lab.test('update team validation nothing in payload', async () => {
     const options = utils.requestOptions({
       method: 'PUT',
       url: '/authorization/teams/2',
@@ -549,340 +521,311 @@ lab.experiment('Teams - update', () => {
       }
     })
 
-    server.inject(options, (response) => {
-      expect(response.statusCode).to.equal(400)
-
-      done()
-    })
+    const response = await server.inject(options)
+    expect(response.statusCode).to.equal(400)
   })
 
-  lab.test('update only team name', (done) => {
-    udaru.teams.create(teamData, (err, team) => {
-      expect(err).to.not.exist()
+  lab.test('update only team name', async () => {
+    const team = await udaru.teams.create(teamData)
 
-      const options = utils.requestOptions({
-        method: 'PUT',
-        url: `/authorization/teams/${team.id}`,
-        payload: {
-          name: 'Team C'
-        }
-      })
-
-      server.inject(options, (response) => {
-        const result = response.result
-
-        expect(response.statusCode).to.equal(200)
-        expect(result.id).to.equal(team.id)
-        expect(result.name).to.equal('Team C')
-
-        udaru.teams.delete({ id: team.id, organizationId: team.organizationId }, done)
-      })
+    const options = utils.requestOptions({
+      method: 'PUT',
+      url: `/authorization/teams/${team.id}`,
+      payload: {
+        name: 'Team C'
+      }
     })
+
+    const response = await server.inject(options)
+    const result = response.result
+
+    expect(response.statusCode).to.equal(200)
+    expect(result.id).to.equal(team.id)
+    expect(result.name).to.equal('Team C')
+
+    await udaru.teams.delete({id: team.id, organizationId: team.organizationId})
   })
 
-  lab.test('update only team description', (done) => {
-    udaru.teams.create(teamData, (err, team) => {
-      expect(err).to.not.exist()
+  lab.test('update only team description', async () => {
+    const team = await udaru.teams.create(teamData)
 
-      const options = utils.requestOptions({
-        method: 'PUT',
-        url: `/authorization/teams/${team.id}`,
-        payload: {
-          description: 'Team B is now Team C'
-        }
-      })
-
-      server.inject(options, (response) => {
-        const result = response.result
-
-        expect(response.statusCode).to.equal(200)
-        expect(result.id).to.equal(team.id)
-        expect(result.description).to.equal('Team B is now Team C')
-
-        udaru.teams.delete({ id: team.id, organizationId: team.organizationId }, done)
-      })
+    const options = utils.requestOptions({
+      method: 'PUT',
+      url: `/authorization/teams/${team.id}`,
+      payload: {
+        description: 'Team B is now Team C'
+      }
     })
+
+    const response = await server.inject(options)
+    const result = response.result
+
+    expect(response.statusCode).to.equal(200)
+    expect(result.id).to.equal(team.id)
+    expect(result.description).to.equal('Team B is now Team C')
+
+    await udaru.teams.delete({ id: team.id, organizationId: team.organizationId })
   })
 
-  lab.test('update team', (done) => {
-    udaru.teams.create(teamData, (err, team) => {
-      expect(err).to.not.exist()
+  lab.test('update team', async () => {
+    const team = await udaru.teams.create(teamData)
 
-      const options = utils.requestOptions({
-        method: 'PUT',
-        url: `/authorization/teams/${team.id}`,
-        payload: {
-          name: 'Team C',
-          description: 'Team B is now Team C'
-        }
-      })
-
-      server.inject(options, (response) => {
-        const result = response.result
-
-        expect(response.statusCode).to.equal(200)
-        expect(result.id).to.equal(team.id)
-        expect(result.name).to.equal('Team C')
-        expect(result.description).to.equal('Team B is now Team C')
-
-        udaru.teams.delete({ id: team.id, organizationId: team.organizationId }, done)
-      })
+    const options = utils.requestOptions({
+      method: 'PUT',
+      url: `/authorization/teams/${team.id}`,
+      payload: {
+        name: 'Team C',
+        description: 'Team B is now Team C'
+      }
     })
+
+    const response = await server.inject(options)
+    const result = response.result
+
+    expect(response.statusCode).to.equal(200)
+    expect(result.id).to.equal(team.id)
+    expect(result.name).to.equal('Team C')
+    expect(result.description).to.equal('Team B is now Team C')
+
+    await udaru.teams.delete({ id: team.id, organizationId: team.organizationId })
   })
 
-  lab.test('update team with metadata', (done) => {
-    udaru.teams.create(teamData, (err, team) => {
-      expect(err).to.not.exist()
+  lab.test('update team with metadata', async () => {
+    const team = await udaru.teams.create(teamData)
 
-      const options = utils.requestOptions({
-        method: 'PUT',
-        url: `/authorization/teams/${team.id}`,
-        payload: {
-          name: 'Team Meta',
-          description: 'Team B is now Team Meta',
-          metadata: metadata
-        }
-      })
-
-      server.inject(options, (response) => {
-        const result = response.result
-
-        expect(response.statusCode).to.equal(200)
-        expect(result.id).to.equal(team.id)
-        expect(result.name).to.equal('Team Meta')
-        expect(result.description).to.equal('Team B is now Team Meta')
-        expect(result.metadata).to.equal(metadata)
-
-        udaru.teams.delete({ id: team.id, organizationId: team.organizationId }, done)
-      })
+    const options = utils.requestOptions({
+      method: 'PUT',
+      url: `/authorization/teams/${team.id}`,
+      payload: {
+        name: 'Team Meta',
+        description: 'Team B is now Team Meta',
+        metadata: metadata
+      }
     })
+
+    const response = await server.inject(options)
+    const result = response.result
+
+    expect(response.statusCode).to.equal(200)
+    expect(result.id).to.equal(team.id)
+    expect(result.name).to.equal('Team Meta')
+    expect(result.description).to.equal('Team B is now Team Meta')
+    expect(result.metadata).to.equal(metadata)
+
+    await udaru.teams.delete({ id: team.id, organizationId: team.organizationId })
   })
 })
 
 lab.experiment('Teams - delete', () => {
-  lab.test('delete team should return 204 for success', (done) => {
-    udaru.teams.create(teamData, (err, team) => {
-      if (err) return done(err)
+  let server = null
 
-      const options = utils.requestOptions({
-        method: 'DELETE',
-        url: `/authorization/teams/${team.id}`
-      })
+  lab.before(async () => {
+    server = await serverFactory()
+  })
 
-      server.inject(options, (response) => {
-        const result = response.result
+  lab.test('delete team should return 204 for success', async () => {
+    const team = await udaru.teams.create(teamData)
 
-        expect(response.statusCode).to.equal(204)
-        expect(result).to.not.exist()
-
-        done()
-      })
+    const options = utils.requestOptions({
+      method: 'DELETE',
+      url: `/authorization/teams/${team.id}`
     })
+
+    const response = await server.inject(options)
+    const result = response.result
+
+    expect(response.statusCode).to.equal(204)
+    expect(result).to.not.exist()
   })
 })
 
 lab.experiment('Teams - manage users', () => {
-  lab.test('add users to a team', (done) => {
-    udaru.teams.create(teamData, (err, team) => {
-      if (err) return done(err)
+  let server = null
 
-      const options = utils.requestOptions({
-        method: 'PUT',
-        url: `/authorization/teams/${team.id}/users`,
-        payload: {
-          users: ['CharlieId', 'MikeId']
-        }
-      })
-
-      server.inject(options, (response) => {
-        const result = response.result
-
-        expect(response.statusCode).to.equal(200)
-        expect(result.id).to.equal(team.id)
-        expect(result.users).to.equal([
-          { id: 'CharlieId', name: 'Charlie Bucket' },
-          { id: 'MikeId', name: 'Mike Teavee' }
-        ])
-
-        udaru.teams.delete({ id: team.id, organizationId: team.organizationId }, done)
-      })
-    })
+  lab.before(async () => {
+    server = await serverFactory()
   })
 
-  lab.test('replace users in a team', (done) => {
-    udaru.teams.create(teamData, (err, team) => {
-      if (err) return done(err)
+  lab.test('add users to a team', async () => {
+    const team = await udaru.teams.create(teamData)
 
-      udaru.teams.addUsers({id: team.id, organizationId: team.organizationId, users: ['CharlieId']}, (err, team) => {
-        if (err) return done(err)
-
-        const options = utils.requestOptions({
-          method: 'POST',
-          url: `/authorization/teams/${team.id}/users`,
-          payload: {
-            users: ['MikeId']
-          }
-        })
-
-        server.inject(options, (response) => {
-          const result = response.result
-
-          expect(response.statusCode).to.equal(200)
-          expect(result.id).to.equal(team.id)
-          expect(result.users).to.equal([
-            { id: 'MikeId', name: 'Mike Teavee' }
-          ])
-
-          udaru.teams.delete({ id: team.id, organizationId: team.organizationId }, done)
-        })
-      })
+    const options = utils.requestOptions({
+      method: 'PUT',
+      url: `/authorization/teams/${team.id}/users`,
+      payload: {
+        users: ['CharlieId', 'MikeId']
+      }
     })
+
+    const response = await server.inject(options)
+    const result = response.result
+
+    expect(response.statusCode).to.equal(200)
+    expect(result.id).to.equal(team.id)
+    expect(result.users).to.equal([
+      { id: 'CharlieId', name: 'Charlie Bucket' },
+      { id: 'MikeId', name: 'Mike Teavee' }
+    ])
+
+    await udaru.teams.delete({ id: team.id, organizationId: team.organizationId })
   })
 
-  lab.test('delete all team members', (done) => {
-    udaru.teams.create(teamData, (err, team) => {
-      if (err) return done(err)
+  lab.test('replace users in a team', async () => {
+    let team = await udaru.teams.create(teamData)
+    team = await udaru.teams.addUsers({ id: team.id, organizationId: team.organizationId, users: ['CharlieId'] })
 
-      udaru.teams.addUsers({id: team.id, organizationId: team.organizationId, users: ['CharlieId', 'MikeId']}, (err, team) => {
-        if (err) return done(err)
-
-        const options = utils.requestOptions({
-          method: 'DELETE',
-          url: `/authorization/teams/${team.id}/users`
-        })
-
-        server.inject(options, (response) => {
-          expect(response.statusCode).to.equal(204)
-
-          udaru.teams.delete({ id: team.id, organizationId: team.organizationId }, done)
-        })
-      })
+    const options = utils.requestOptions({
+      method: 'POST',
+      url: `/authorization/teams/${team.id}/users`,
+      payload: {
+        users: ['MikeId']
+      }
     })
+
+    const response = await server.inject(options)
+    const result = response.result
+
+    expect(response.statusCode).to.equal(200)
+    expect(result.id).to.equal(team.id)
+    expect(result.users).to.equal([
+      { id: 'MikeId', name: 'Mike Teavee' }
+    ])
+
+    await udaru.teams.delete({ id: team.id, organizationId: team.organizationId })
   })
 
-  lab.test('delete one team member', (done) => {
-    udaru.teams.create(teamData, (err, team) => {
-      if (err) return done(err)
+  lab.test('delete all team members', async () => {
+    let team = await udaru.teams.create(teamData)
+    team = await udaru.teams.addUsers({ id: team.id, organizationId: team.organizationId, users: ['CharlieId', 'MikeId'] })
 
-      udaru.teams.addUsers({id: team.id, organizationId: team.organizationId, users: ['CharlieId', 'MikeId']}, (err, team) => {
-        if (err) return done(err)
-
-        const options = utils.requestOptions({
-          method: 'DELETE',
-          url: `/authorization/teams/${team.id}/users/CharlieId`
-        })
-
-        server.inject(options, (response) => {
-          expect(response.statusCode).to.equal(204)
-
-          udaru.teams.delete({ id: team.id, organizationId: team.organizationId }, done)
-        })
-      })
+    const options = utils.requestOptions({
+      method: 'DELETE',
+      url: `/authorization/teams/${team.id}/users`
     })
+
+    const response = await server.inject(options)
+    expect(response.statusCode).to.equal(204)
+
+    await udaru.teams.delete({ id: team.id, organizationId: team.organizationId })
   })
 
-  lab.test('default team admin should be able to assign users to own team', (done) => {
-    udaru.teams.create({
+  lab.test('delete one team member', async () => {
+    let team = await udaru.teams.create(teamData)
+    team = await udaru.teams.addUsers({ id: team.id, organizationId: team.organizationId, users: ['CharlieId', 'MikeId'] })
+
+    const options = utils.requestOptions({
+      method: 'DELETE',
+      url: `/authorization/teams/${team.id}/users/CharlieId`
+    })
+
+    const response = await server.inject(options)
+    expect(response.statusCode).to.equal(204)
+
+    udaru.teams.delete({ id: team.id, organizationId: team.organizationId })
+  })
+
+  lab.test('default team admin should be able to assign users to own team', async () => {
+    const team = await udaru.teams.create({
       name: 'Team 5',
       description: 'This is a test team',
       parentId: null,
       organizationId: 'WONKA',
       user: { id: 'test-admin', name: 'Test Admin' }
-    }, (err, team) => {
-      if (err) return done(err)
-
-      const options = utils.requestOptions({
-        method: 'PUT',
-        url: `/authorization/teams/${team.id}/users`,
-        headers: {
-          authorization: 'test-admin'
-        },
-        payload: {
-          users: ['CharlieId', 'MikeId']
-        }
-      })
-
-      server.inject(options, (response) => {
-        const result = response.result
-
-        expect(response.statusCode).to.equal(200)
-        expect(result).to.equal({
-          id: team.id,
-          name: 'Team 5',
-          description: 'This is a test team',
-          path: team.path,
-          organizationId: 'WONKA',
-          usersCount: 3,
-          users: [
-            { id: 'CharlieId', name: 'Charlie Bucket' },
-            { id: 'MikeId', name: 'Mike Teavee' },
-            { id: 'test-admin', name: 'Test Admin' }
-          ],
-          policies: []
-        })
-
-        udaru.teams.delete({ id: team.id, organizationId: team.organizationId }, (err) => {
-          if (err) return done(err)
-          udaru.users.delete({ id: 'test-admin', organizationId: team.organizationId }, done)
-        })
-      })
     })
-  })
-})
 
-lab.experiment('Teams - nest/un-nest', () => {
-  lab.test('Nest team should update the team path', (done) => {
     const options = utils.requestOptions({
       method: 'PUT',
-      url: '/authorization/teams/2/nest',
+      url: `/authorization/teams/${team.id}/users`,
+      headers: {
+        authorization: 'test-admin'
+      },
       payload: {
-        parentId: '3'
+        users: ['CharlieId', 'MikeId']
       }
     })
 
-    server.inject(options, (response) => {
-      const { result } = response
+    const response = await server.inject(options)
+    const result = response.result
+
+    expect(response.statusCode).to.equal(200)
+    expect(result).to.equal({
+      id: team.id,
+      name: 'Team 5',
+      description: 'This is a test team',
+      path: team.path,
+      organizationId: 'WONKA',
+      usersCount: 3,
+      users: [
+        { id: 'CharlieId', name: 'Charlie Bucket' },
+        { id: 'MikeId', name: 'Mike Teavee' },
+        { id: 'test-admin', name: 'Test Admin' }
+      ],
+      policies: []
+    })
+
+    await udaru.teams.delete({ id: team.id, organizationId: team.organizationId })
+    await udaru.users.delete({ id: 'test-admin', organizationId: team.organizationId })
+  })
+
+  lab.experiment('Teams - nest/un-nest', () => {
+    let server = null
+
+    lab.before(async () => {
+      server = await serverFactory()
+    })
+
+    lab.test('Nest team should update the team path', async () => {
+      const options = utils.requestOptions({
+        method: 'PUT',
+        url: '/authorization/teams/2/nest',
+        payload: {
+          parentId: '3'
+        }
+      })
+
+      const response = await server.inject(options)
+      const result = response.result
 
       expect(response.statusCode).to.equal(200)
       expect(result.path).to.equal('3.2')
 
-      udaru.teams.move({ id: result.id, parentId: null, organizationId: result.organizationId }, done)
+      await udaru.teams.move({ id: result.id, parentId: null, organizationId: result.organizationId })
     })
-  })
 
-  lab.test('Un-nest team should update the team path', (done) => {
-    udaru.teams.move({ id: '2', parentId: '3', organizationId: 'WONKA' }, (err, res) => {
-      expect(err).to.not.exist()
+    lab.test('Un-nest team should update the team path', async () => {
+      const res = await udaru.teams.move({ id: '2', parentId: '3', organizationId: 'WONKA' })
 
       const options = utils.requestOptions({
         method: 'PUT',
         url: `/authorization/teams/${res.id}/unnest`
       })
 
-      server.inject(options, (response) => {
-        const { result } = response
+      const response = await server.inject(options)
+      const result = response.result
 
-        expect(response.statusCode).to.equal(200)
-        expect(result.path).to.equal('2')
-
-        done()
-      })
+      expect(response.statusCode).to.equal(200)
+      expect(result.path).to.equal('2')
     })
   })
-})
 
-lab.experiment('Teams - manage policies', () => {
-  lab.test('Add one policy to a team', (done) => {
-    const options = utils.requestOptions({
-      method: 'PUT',
-      url: '/authorization/teams/1/policies',
-      payload: {
-        policies: ['policyId2']
-      }
+  lab.experiment('Teams - manage policies', () => {
+    let server = null
+
+    lab.before(async () => {
+      server = await serverFactory()
     })
 
-    server.inject(options, (response) => {
-      const { result } = response
+    lab.test('Add one policy to a team', async () => {
+      const options = utils.requestOptions({
+        method: 'PUT',
+        url: '/authorization/teams/1/policies',
+        payload: {
+          policies: ['policyId2']
+        }
+      })
+
+      const response = await server.inject(options)
+      const result = response.result
 
       expect(response.statusCode).to.equal(200)
       expect(result.policies).to.equal([
@@ -890,36 +833,35 @@ lab.experiment('Teams - manage policies', () => {
         { id: 'policyId1', name: 'Director', version: '0.1', variables: {} }
       ])
 
-      udaru.teams.replacePolicies({ id: result.id, policies: ['policyId1'], organizationId: result.organizationId }, done)
+      await udaru.teams.replacePolicies({ id: result.id, policies: ['policyId1'], organizationId: result.organizationId })
     })
   })
 
-  lab.test('Add one policy with variables to a team', (done) => {
+  lab.test('Add one policy with variables to a team', async () => {
     const options = utils.requestOptions({
       method: 'PUT',
       url: '/authorization/teams/1/policies',
       payload: {
         policies: [{
           id: 'policyId2',
-          variables: {var1: 'value1'}
+          variables: { var1: 'value1' }
         }]
       }
     })
 
-    server.inject(options, (response) => {
-      const { result } = response
+    const response = await server.inject(options)
+    const result = response.result
 
-      expect(response.statusCode).to.equal(200)
-      expect(result.policies).to.equal([
-        { id: 'policyId2', name: 'Accountant', version: '0.1', variables: {var1: 'value1'} },
-        { id: 'policyId1', name: 'Director', version: '0.1', variables: {} }
-      ])
+    expect(response.statusCode).to.equal(200)
+    expect(result.policies).to.equal([
+      { id: 'policyId2', name: 'Accountant', version: '0.1', variables: { var1: 'value1' } },
+      { id: 'policyId1', name: 'Director', version: '0.1', variables: {} }
+    ])
 
-      udaru.teams.replacePolicies({ id: result.id, policies: ['policyId1'], organizationId: result.organizationId }, done)
-    })
+    await udaru.teams.replacePolicies({ id: result.id, policies: ['policyId1'], organizationId: result.organizationId })
   })
 
-  lab.test('Add to one team a policy with invalid ID should return an error', (done) => {
+  lab.test('Add to one team a policy with invalid ID should return an error', async () => {
     const options = utils.requestOptions({
       method: 'PUT',
       url: '/authorization/teams/1/policies',
@@ -928,13 +870,11 @@ lab.experiment('Teams - manage policies', () => {
       }
     })
 
-    server.inject(options, (response) => {
-      expect(response.statusCode).to.equal(400)
-      done()
-    })
+    const response = await server.inject(options)
+    expect(response.statusCode).to.equal(400)
   })
 
-  lab.test('Add one policy from another org to a team should return an error', (done) => {
+  lab.test('Add one policy from another org to a team should return an error', async () => {
     const options = utils.requestOptions({
       method: 'PUT',
       url: '/authorization/teams/1/policies',
@@ -943,13 +883,11 @@ lab.experiment('Teams - manage policies', () => {
       }
     })
 
-    server.inject(options, (response) => {
-      expect(response.statusCode).to.equal(400)
-      done()
-    })
+    const response = await server.inject(options)
+    expect(response.statusCode).to.equal(400)
   })
 
-  lab.test('Add multiple policies to a team', (done) => {
+  lab.test('Add multiple policies to a team', async () => {
     const options = utils.requestOptions({
       method: 'PUT',
       url: '/authorization/teams/1/policies',
@@ -958,22 +896,21 @@ lab.experiment('Teams - manage policies', () => {
       }
     })
 
-    server.inject(options, (response) => {
-      const { result } = response
+    const response = await server.inject(options)
+    const result = response.result
 
-      expect(response.statusCode).to.equal(200)
-      expect(result.policies).to.equal([
-        { id: 'policyId5', name: 'DB Admin', version: '0.1', variables: {} },
-        { id: 'policyId6', name: 'DB Only Read', version: '0.1', variables: {} },
-        { id: 'policyId1', name: 'Director', version: '0.1', variables: {} },
-        { id: 'policyId4', name: 'Finance Director', version: '0.1', variables: {} }
-      ])
+    expect(response.statusCode).to.equal(200)
+    expect(result.policies).to.equal([
+      { id: 'policyId5', name: 'DB Admin', version: '0.1', variables: {} },
+      { id: 'policyId6', name: 'DB Only Read', version: '0.1', variables: {} },
+      { id: 'policyId1', name: 'Director', version: '0.1', variables: {} },
+      { id: 'policyId4', name: 'Finance Director', version: '0.1', variables: {} }
+    ])
 
-      udaru.teams.replacePolicies({ id: result.id, policies: ['policyId1'], organizationId: result.organizationId }, done)
-    })
+    await udaru.teams.replacePolicies({ id: result.id, policies: ['policyId1'], organizationId: result.organizationId })
   })
 
-  lab.test('Replace team policies', (done) => {
+  lab.test('Replace team policies', async () => {
     const options = utils.requestOptions({
       method: 'POST',
       url: '/authorization/teams/1/policies',
@@ -982,22 +919,21 @@ lab.experiment('Teams - manage policies', () => {
       }
     })
 
-    server.inject(options, (response) => {
-      const { result } = response
+    const response = await server.inject(options)
+    const result = response.result
 
-      expect(response.statusCode).to.equal(200)
-      expect(result.policies).to.equal([{
-        id: 'policyId6',
-        name: 'DB Only Read',
-        version: '0.1',
-        variables: {}
-      }])
+    expect(response.statusCode).to.equal(200)
+    expect(result.policies).to.equal([{
+      id: 'policyId6',
+      name: 'DB Only Read',
+      version: '0.1',
+      variables: {}
+    }])
 
-      udaru.teams.replacePolicies({ id: result.id, policies: ['policyId1'], organizationId: result.organizationId }, done)
-    })
+    await udaru.teams.replacePolicies({ id: result.id, policies: ['policyId1'], organizationId: result.organizationId })
   })
 
-  lab.test('Replace team policies with a policy with invalid ID should return an error', (done) => {
+  lab.test('Replace team policies with a policy with invalid ID should return an error', async () => {
     const options = utils.requestOptions({
       method: 'POST',
       url: '/authorization/teams/1/policies',
@@ -1006,13 +942,11 @@ lab.experiment('Teams - manage policies', () => {
       }
     })
 
-    server.inject(options, (response) => {
-      expect(response.statusCode).to.equal(400)
-      done()
-    })
+    const response = await server.inject(options)
+    expect(response.statusCode).to.equal(400)
   })
 
-  lab.test('Replace team policies from another org should return an error', (done) => {
+  lab.test('Replace team policies from another org should return an error', async () => {
     const options = utils.requestOptions({
       method: 'POST',
       url: '/authorization/teams/1/policies',
@@ -1021,60 +955,53 @@ lab.experiment('Teams - manage policies', () => {
       }
     })
 
-    server.inject(options, (response) => {
-      expect(response.statusCode).to.equal(400)
-      done()
-    })
+    const response = await server.inject(options)
+    expect(response.statusCode).to.equal(400)
   })
 
-  lab.test('Delete team policies', (done) => {
+  lab.test('Delete team policies', async () => {
     const options = utils.requestOptions({
       method: 'DELETE',
       url: '/authorization/teams/1/policies'
     })
 
-    server.inject(options, (response) => {
-      expect(response.statusCode).to.equal(204)
+    const response = await server.inject(options)
+    expect(response.statusCode).to.equal(204)
 
-      udaru.teams.replacePolicies({ id: '1', policies: ['policyId1'], organizationId: 'WONKA' }, done)
-    })
+    await udaru.teams.replacePolicies({ id: '1', policies: ['policyId1'], organizationId: 'WONKA' })
   })
 
-  lab.test('Delete specific team policy', (done) => {
+  lab.test('Delete specific team policy', async () => {
     const options = utils.requestOptions({
       method: 'DELETE',
       url: '/authorization/teams/1/policies/policyId1'
     })
 
-    server.inject(options, (response) => {
-      expect(response.statusCode).to.equal(204)
+    const response = await server.inject(options)
+    expect(response.statusCode).to.equal(204)
 
-      udaru.teams.replacePolicies({ id: '1', policies: ['policyId1'], organizationId: 'WONKA' }, done)
-    })
+    await udaru.teams.replacePolicies({ id: '1', policies: ['policyId1'], organizationId: 'WONKA' })
   })
 })
 
 lab.experiment('Teams - checking org_id scoping', () => {
   let teamId
+  let server = null
 
-  lab.before((done) => {
-    udaru.organizations.create({ id: 'NEWORG', name: 'new org', description: 'new org' }, (err, org) => {
-      if (err) return done(err)
+  lab.before(async () => {
+    server = await serverFactory()
 
-      udaru.teams.create({ name: 'otherTeam', description: 'd', parentId: null, organizationId: 'NEWORG' }, (err, team) => {
-        if (err) return done(err)
-
-        teamId = team.id
-        udaru.users.create({ id: 'testUserId', name: 'testUser', organizationId: 'NEWORG' }, done)
-      })
-    })
+    await udaru.organizations.create({ id: 'NEWORG', name: 'new org', description: 'new org' })
+    const team = udaru.teams.create({ name: 'otherTeam', description: 'd', parentId: null, organizationId: 'NEWORG' })
+    await udaru.users.create({ id: 'testUserId', name: 'testUser', organizationId: 'NEWORG' })
+    teamId = team.id
   })
 
-  lab.after((done) => {
-    udaru.organizations.delete('NEWORG', done)
+  lab.after(async () => {
+    udaru.organizations.delete('NEWORG')
   })
 
-  lab.test('Adding a user with invalid ID should not be permitted', (done) => {
+  lab.test('Adding a user with invalid ID should not be permitted', async () => {
     const options = utils.requestOptions({
       method: 'PUT',
       url: '/authorization/teams/2/users',
@@ -1083,13 +1010,11 @@ lab.experiment('Teams - checking org_id scoping', () => {
       }
     })
 
-    server.inject(options, (response) => {
-      expect(response.statusCode).to.equal(400)
-      done()
-    })
+    const response = await server.inject(options)
+    expect(response.statusCode).to.equal(400)
   })
 
-  lab.test('Adding a user from another organization should not be permitted', (done) => {
+  lab.test('Adding a user from another organization should not be permitted', async () => {
     const options = utils.requestOptions({
       method: 'PUT',
       url: '/authorization/teams/2/users',
@@ -1098,13 +1023,11 @@ lab.experiment('Teams - checking org_id scoping', () => {
       }
     })
 
-    server.inject(options, (response) => {
-      expect(response.statusCode).to.equal(400)
-      done()
-    })
+    const response = await server.inject(options)
+    expect(response.statusCode).to.equal(400)
   })
 
-  lab.test('Adding multiple users from different organizations should not be permitted', (done) => {
+  lab.test('Adding multiple users from different organizations should not be permitted', async () => {
     const options = utils.requestOptions({
       method: 'PUT',
       url: '/authorization/teams/2/users',
@@ -1113,13 +1036,11 @@ lab.experiment('Teams - checking org_id scoping', () => {
       }
     })
 
-    server.inject(options, (response) => {
-      expect(response.statusCode).to.equal(400)
-      done()
-    })
+    const response = await server.inject(options)
+    expect(response.statusCode).to.equal(400)
   })
 
-  lab.test('Adding a user with invalid ID should not be permitted', (done) => {
+  lab.test('Adding a user with invalid ID should not be permitted', async () => {
     const options = utils.requestOptions({
       method: 'POST',
       url: '/authorization/teams/2/users',
@@ -1128,13 +1049,11 @@ lab.experiment('Teams - checking org_id scoping', () => {
       }
     })
 
-    server.inject(options, (response) => {
-      expect(response.statusCode).to.equal(400)
-      done()
-    })
+    const response = await server.inject(options)
+    expect(response.statusCode).to.equal(400)
   })
 
-  lab.test('Replacing users from another organization should not be permitted', (done) => {
+  lab.test('Replacing users from another organization should not be permitted', async () => {
     const options = utils.requestOptions({
       method: 'POST',
       url: '/authorization/teams/2/users',
@@ -1143,13 +1062,11 @@ lab.experiment('Teams - checking org_id scoping', () => {
       }
     })
 
-    server.inject(options, (response) => {
-      expect(response.statusCode).to.equal(400)
-      done()
-    })
+    const response = await server.inject(options)
+    expect(response.statusCode).to.equal(400)
   })
 
-  lab.test('moving a team to another organization should not be permitted', (done) => {
+  lab.test('moving a team to another organization should not be permitted', async () => {
     const options = utils.requestOptions({
       method: 'PUT',
       url: `/authorization/teams/${teamId}/nest`,
@@ -1158,229 +1075,203 @@ lab.experiment('Teams - checking org_id scoping', () => {
       }
     })
 
-    server.inject(options, (response) => {
-      expect(response.statusCode).to.equal(400)
-      done()
-    })
+    const response = await server.inject(options)
+    expect(response.statusCode).to.equal(400)
   })
 
-  lab.test('get error if team does not exist', (done) => {
+  lab.test('get error if team does not exist', async () => {
     const options = utils.requestOptions({
       method: 'GET',
       url: `/authorization/teams/IDONTEXIST/nested`
     })
 
-    server.inject(options, (response) => {
-      const result = response.result
+    const response = await server.inject(options)
+    const result = response.result
 
-      expect(result.statusCode).to.equal(404)
-      expect(result.error).to.exist()
-      expect(result.message).to.include('not').include('found')
-
-      done()
-    })
+    expect(result.statusCode).to.equal(404)
+    expect(result.error).to.exist()
+    expect(result.message).to.include('not').include('found')
   })
 
-  lab.test('get nested team list with default paging', (done) => {
+  lab.test('get nested team list with default paging', async () => {
     const options = utils.requestOptions({
       method: 'GET',
       url: '/authorization/teams/3/nested'
     })
 
-    server.inject(options, (response) => {
-      const result = response.result
+    const response = await server.inject(options)
+    const result = response.result
 
-      expect(response.statusCode).to.equal(200)
-      expect(result.page).to.equal(1)
-      expect(result.limit).to.greaterThan(1)
-      expect(result.total).to.equal(1)
-      expect(result.data).to.equal([
-        {
-          id: '6',
-          name: 'Company Lawyer',
-          description: 'Author of legal documents',
-          parentId: '3',
-          path: '6',
-          organizationId: 'WONKA',
-          usersCount: 0
-        }
-      ])
-
-      done()
-    })
+    expect(response.statusCode).to.equal(200)
+    expect(result.page).to.equal(1)
+    expect(result.limit).to.greaterThan(1)
+    expect(result.total).to.equal(1)
+    expect(result.data).to.equal([
+      {
+        id: '6',
+        name: 'Company Lawyer',
+        description: 'Author of legal documents',
+        parentId: '3',
+        path: '6',
+        organizationId: 'WONKA',
+        usersCount: 0
+      }
+    ])
   })
 
-  lab.test('get nested team list with paging', (done) => {
+  lab.test('get nested team list with paging', async () => {
     const options = utils.requestOptions({
       method: 'GET',
       url: '/authorization/teams/3/nested?limit=1&page=1'
     })
 
-    server.inject(options, (response) => {
-      const result = response.result
+    const response = await server.inject(options)
+    const result = response.result
 
-      expect(response.statusCode).to.equal(200)
-      expect(result.page).to.equal(1)
-      expect(result.limit).to.equal(1)
-      expect(result.total).to.equal(1)
-      expect(result.data).to.equal([
-        {
-          id: '6',
-          name: 'Company Lawyer',
-          description: 'Author of legal documents',
-          parentId: '3',
-          path: '6',
-          organizationId: 'WONKA',
-          usersCount: 0
-        }
-      ])
-
-      done()
-    })
+    expect(response.statusCode).to.equal(200)
+    expect(result.page).to.equal(1)
+    expect(result.limit).to.equal(1)
+    expect(result.total).to.equal(1)
+    expect(result.data).to.equal([
+      {
+        id: '6',
+        name: 'Company Lawyer',
+        description: 'Author of legal documents',
+        parentId: '3',
+        path: '6',
+        organizationId: 'WONKA',
+        usersCount: 0
+      }
+    ])
   })
 
-  lab.test('get nested team list with bad paging param', (done) => {
+  lab.test('get nested team list with bad paging param', async () => {
     const options = utils.requestOptions({
       method: 'GET',
       url: '/authorization/teams/3/nested?limit=1&page=0'
     })
 
-    server.inject(options, (response) => {
-      const result = response.result
+    const response = await server.inject(options)
+    const result = response.result
 
-      expect(response.statusCode).to.equal(400)
-      expect(result.error).to.equal('Bad Request')
-      expect(result.message).to.exist()
-      expect(result.data).to.not.exist()
-
-      done()
-    })
+    expect(response.statusCode).to.equal(400)
+    expect(result.error).to.equal('Bad Request')
+    expect(result.message).to.exist()
+    expect(result.data).to.not.exist()
   })
 
-  lab.test('get nested team list with bad limit param', (done) => {
+  lab.test('get nested team list with bad limit param', async () => {
     const options = utils.requestOptions({
       method: 'GET',
       url: '/authorization/teams/3/nested?limit=0&page=1'
     })
 
-    server.inject(options, (response) => {
-      const result = response.result
+    const response = await server.inject(options)
+    const result = response.result
 
-      expect(response.statusCode).to.equal(400)
-      expect(result.error).to.equal('Bad Request')
-      expect(result.message).to.exist()
-      expect(result.data).to.not.exist()
+    expect(response.statusCode).to.equal(400)
+    expect(result.error).to.equal('Bad Request')
+    expect(result.message).to.exist()
+    expect(result.data).to.not.exist()
+  })
+})
 
-      done()
-    })
+lab.experiment('Teams User Search', () => {
+  let server = null
+
+  lab.before(async () => {
+    server = await serverFactory()
   })
 
-  lab.experiment('Teams User Search', () => {
-    lab.test('searching for a real user in an existing team', (done) => {
-      const teamId = '4'
-      const query = 'Will'
+  lab.test('searching for a real user in an existing team', async () => {
+    const teamId = '4'
+    const query = 'Will'
 
-      const options = utils.requestOptions({
-        method: 'GET',
-        url: `/authorization/teams/${teamId}/users/search?query=${query}`
-      })
-
-      server.inject(options, (response) => {
-        const result = response.result
-
-        expect(response.statusCode).to.equal(200)
-        expect(result.data).to.exist()
-        expect(result.total).to.exist()
-
-        expect(result.data.length).to.equal(1)
-        expect(result.total).to.equal(1)
-
-        done()
-      })
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: `/authorization/teams/${teamId}/users/search?query=${query}`
     })
 
-    lab.test('searching for a user that does not exist in an existing team', (done) => {
-      const teamId = '4'
-      const query = 'IDONTEXIST'
+    const response = await server.inject(options)
+    const result = response.result
 
-      const options = utils.requestOptions({
-        method: 'GET',
-        url: `/authorization/teams/${teamId}/users/search?query=${query}`
-      })
+    expect(response.statusCode).to.equal(200)
+    expect(result.data).to.exist()
+    expect(result.total).to.exist()
 
-      server.inject(options, (response) => {
-        const result = response.result
+    expect(result.data.length).to.equal(1)
+    expect(result.total).to.equal(1)
+  })
 
-        expect(response.statusCode).to.equal(200)
-        expect(result.data).to.exist()
-        expect(result.total).to.exist()
+  lab.test('searching for a user that does not exist in an existing team', async () => {
+    const teamId = '4'
+    const query = 'IDONTEXIST'
 
-        expect(result.data.length).to.equal(0)
-        expect(result.total).to.equal(0)
-
-        done()
-      })
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: `/authorization/teams/${teamId}/users/search?query=${query}`
     })
 
-    lab.test('searching for a real user in a non-existing team', (done) => {
-      const teamId = 'IDONTEXIST'
-      const query = 'Will'
+    const response = await server.inject(options)
+    const result = response.result
 
-      const options = utils.requestOptions({
-        method: 'GET',
-        url: `/authorization/teams/${teamId}/users/search?query=${query}`
-      })
+    expect(response.statusCode).to.equal(200)
+    expect(result.data).to.exist()
+    expect(result.total).to.exist()
 
-      server.inject(options, (response) => {
-        const result = response.result
+    expect(result.data.length).to.equal(0)
+    expect(result.total).to.equal(0)
+  })
 
-        expect(response.statusCode).to.equal(404)
-        expect(result.data).to.not.exist()
-        expect(result.total).to.not.exist()
+  lab.test('searching for a real user in a non-existing team', async () => {
+    const teamId = 'IDONTEXIST'
+    const query = 'Will'
 
-        expect(result.error).to.exist()
-        expect(result.message).to.include('not').include('found')
-
-        done()
-      })
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: `/authorization/teams/${teamId}/users/search?query=${query}`
     })
 
-    lab.test('missing query string', (done) => {
-      const teamId = 'IDONTEXIST'
+    const response = await server.inject(options)
+    const result = response.result
 
-      const options = utils.requestOptions({
-        method: 'GET',
-        url: `/authorization/teams/${teamId}/users/search?query=`
-      })
+    expect(response.statusCode).to.equal(404)
+    expect(result.data).to.not.exist()
+    expect(result.total).to.not.exist()
 
-      server.inject(options, (response) => {
-        const result = response.result
+    expect(result.error).to.exist()
+    expect(result.message).to.include('not').include('found')
+  })
 
-        expect(response.statusCode).to.equal(400)
+  lab.test('missing query string', async () => {
+    const teamId = 'IDONTEXIST'
 
-        expect(result.error).to.exist()
-        expect(result.error.toLowerCase()).to.include('bad').include('request')
-
-        done()
-      })
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: `/authorization/teams/${teamId}/users/search?query=`
     })
 
-    lab.test('missing team id param string', (done) => {
-      const options = utils.requestOptions({
-        method: 'GET',
-        url: `/authorization/teams//users/search?query='query'`
-      })
+    const response = await server.inject(options)
+    const result = response.result
 
-      server.inject(options, (response) => {
-        const result = response.result
+    expect(response.statusCode).to.equal(400)
 
-        expect(response.statusCode).to.equal(404)
+    expect(result.error).to.exist()
+    expect(result.error.toLowerCase()).to.include('bad').include('request')
+  })
 
-        expect(result.error).to.exist()
-        expect(result.message.toLowerCase()).to.include('not').include('found')
-
-        done()
-      })
+  lab.test('missing team id param string', async () => {
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: `/authorization/teams//users/search?query='query'`
     })
+
+    const response = await server.inject(options)
+    const result = response.result
+
+    expect(response.statusCode).to.equal(404)
+
+    expect(result.error).to.exist()
+    expect(result.message.toLowerCase()).to.include('not').include('found')
   })
 })

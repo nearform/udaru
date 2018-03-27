@@ -510,7 +510,7 @@ function buildPolicyOps (db, config) {
      */
     listSharedPolicies: function listSharedPolicies (params, cb) {
       let promise = null
-      if (typeof cb !== 'function') [promise, cb] = asyncify()
+      if (typeof cb !== 'function') [promise, cb] = asyncify('data', 'total')
 
       const { limit, page } = params
 

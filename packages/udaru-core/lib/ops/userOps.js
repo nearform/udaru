@@ -738,7 +738,7 @@ function buildUserOps (db, config) {
     // See https://www.postgresql.org/docs/current/static/textsearch.html
     search: function search (params, cb) {
       let promise = null
-      if (typeof cb !== 'function') [promise, cb] = asyncify()
+      if (typeof cb !== 'function') [promise, cb] = asyncify('data', 'total')
 
       const { organizationId, query } = params
       Joi.validate({ organizationId, query }, validationRules.searchUser, function (err) {

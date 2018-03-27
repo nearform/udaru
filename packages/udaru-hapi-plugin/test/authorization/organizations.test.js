@@ -119,11 +119,15 @@ lab.experiment('Routes Authorizations', () => {
         }
       }, udaru)
 
-      lab.afterEach((done) => {
-        udaru.organizations.delete('OTHERORG', () => {
-          // this is needed to ignore the error (i.e. in case the policy wasn't properly created)
-          done()
-        })
+      lab.afterEach(async () => {
+        try {
+          await Promise.all([
+            udaru.organizations.delete('OTHERORG'),
+            udaru.organizations.delete('OTHER-ORG')
+          ])
+        } catch (e) {
+          // This is needed to ignore the error (i.e. in case the organization wasn't properly created)
+        }
       })
 
       const endpoint = BuildFor(lab, records)
