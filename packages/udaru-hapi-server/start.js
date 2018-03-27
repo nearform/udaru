@@ -19,4 +19,3 @@ start()
   .catch(err => {
     logMessage(`Failed to start server: ${err.message}`)
   })
-

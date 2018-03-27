@@ -3,7 +3,6 @@
 const _ = require('lodash')
 const Boom = require('boom')
 const SQL = require('@nearform/sql')
-const asyncify = require('../asyncify')
 
 function boomErrorWrapper (next) {
   return function wrapAsBadImplementation (err, result) {

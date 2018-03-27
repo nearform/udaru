@@ -35,6 +35,6 @@ postgrator.migrate(version)
     console.log(`Migrations to ${version} done`, migrations)
   })
   .catch(err => {
-    console.log(error)
+    console.log(err)
     process.exit(1)
   })

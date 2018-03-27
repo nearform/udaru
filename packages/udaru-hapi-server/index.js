@@ -39,7 +39,7 @@ module.exports = async function () {
         plugin: require('@nearform/udaru-hapi-plugin'),
         options: {config}
       }
-    ],
+    ]
   )
 
   await server.start()

@@ -22,7 +22,8 @@ function load (organizationId, source, callback, closeDb = true) {
 
   let promise = null
   if (typeof callback !== 'function') {
-    closeDb = callback
+    closeDb = callback;
+
     [promise, callback] = asyncify()
   }
 
