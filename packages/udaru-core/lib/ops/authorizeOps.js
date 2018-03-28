@@ -105,7 +105,7 @@ function buildAuthorizeOps (db, config) {
           policyOps.listAllUserPolicies({ userId, organizationId }, badImplementationWrap(next))
         },
         function listAuthorizationsOnResources (policies, next) {
-          let context = buildContext({userId, organizationId}, sourceIpAddress, sourcePort)
+          let context = buildContext({userId, organizationId, sourceIpAddress, sourcePort})
           iam(policies).actionsOnResources({ resources, context }, badImplementationWrap(next))
         }
       ], cb)
