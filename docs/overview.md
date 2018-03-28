@@ -1,10 +1,10 @@
-# Udaru - PBAC Authorization Service. 
+# Udaru - open source Access Manager for node.js
 
-![Udaru](./logo.jpg) Udaru is an Authorization Service designed for use in modern day microservice based Platforms/Solutions. Technically it's a Policy Based Access Control (PBAC) model, heavily inspired by Access Management in [AWS IAM](https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction_access-management.html). 
+![Udaru](./logo.jpg) Udaru is an Access Management Service designed for use in modern day microservice based Platforms/Solutions. Technically it's a Policy Based Access Control (PBAC) model, heavily inspired by Access Management in [AWS IAM](https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction_access-management.html). 
 
-It supports Organizations, Teams and User entities that are used to build the access model. The policies attached to these entities define the 'Actions' that can be performed by an entity on various 'Resources'.
+It supports Organizations, Teams and User entities that are used to build the access model. The policies attached to these entities define Actions that can be performed by an entity on various Resources.
 
-Udaru can be used as a stand-alone module, as a stand-alone server or as a Hapi plugin. 
+Udaru can be used as a stand-alone node.js module ([udaru-core](https://github.com/nearform/udaru/tree/master/packages/udaru-core)), as a Hapi Plugin that provides a REST API around core ([udaru-hapi-plugin](https://github.com/nearform/udaru/tree/master/packages/udaru-hapi-plugin)) or a stand-alone server ([udaru-hapi-server)[https://github.com/nearform/udaru/tree/master/packages/udaru-hapi-server]]). 
 
 
 ## Background
@@ -14,16 +14,16 @@ Access control management evolved from the need to mitigate the risk of unauthor
 ## Core Udaru API Concepts
 
 Udaru effectively has two interfaces:
-*   A REST API for managing Organizations, Teams, Users, and associated Policies - this is called the _Management_ API
-*   A REST API for managing Authorization access itself - this is called the _Authorization_ API
+*   An API for managing Organizations, Teams, Users, and associated Policies - this is called the _Management_ API
+*   An API for managing Authorization access itself - this is called the _Authorization_ API
 
-Both have different use cases and are used in a Platform in a fundamentally different manner. Note the Udaru API can be used directly as a normal node module, but also has a REST API (a Hapi plugin is provided), and it can also be used out of the box as a standalone server.
+Both have different use cases and are used in a Platform in a fundamentally different manner; the Management API is used to administer your organization, users, teams, and policies, while the Authorization API is used at run time for checking who has access to what.
 
-All requests to Udaru need to attach a User ID to all endpoint requests. The User ID must be passed in the http headers as the `authorization` field. Knowing the User ID, Udaru retrieves internally data about the User like: Organization ID to which the user belongs to, Teams to which the User belongs to, Policies attached to it or its parent hierarchy elements. This data is used at middleware level to authorize the User to access the endpoint and then evaluate the endpoint request (to manage the authorization model or to check if an Action can be performed over a Resource).
+All requests to Udaru need to attach a User ID to all endpoint requests. The User ID must be passed in the http headers as the `authorization` field. Knowing the User ID, Udaru retrieves internally data about the User: the Organization ID to which the user belongs to, the Teams to which the User belongs to, the Policies attached directly to the user or inherited via their associated teams. This data is used at middleware level to authorize the User to access the endpoint and then evaluate the endpoint request, i.e. to manage the authorization model or to check if an Action can be performed over a Resource.
 
 ## Management API 
 
-The Management API is used to build sophisticated Administration Tools and Applications. It's used to manage Organization, Teams, Users and their associated Policies in a Platform. Its designed in such a way that the calls in the Management API can be easily proxied directly from the public API gateway straight through to Udaru:
+The Management API is used to build sophisticated Administration Tools and Applications. It is used to manage Organization, Teams, Users and their associated Policies in a Platform. Its designed in such a way that the calls in the Management API can be easily proxied directly from the public API gateway straight through to Udaru:
 
 
 ![Udaru Management API](./udaru/Management.png)
@@ -79,7 +79,7 @@ A brief overview of the Management API calls are as follows, see the [Swagger Do
 
 ## Authorization API
 
-The Authorization API is used to check user permissions as they access Platform resources. This API is intended to be called from a trusted service; they should never be called directly by user facing API. One suggested usage pattern is to call the Authorization API from your public API Gateway, i.e. for each protected call through your gateway, check if the user is firstly Authenticated, then check if they are Authorized, e.g.
+The Authorization API is used to check user permissions as they access Platform resources. This API is intended to be called from a trusted service; they should never be called directly by a user facing API. One suggested usage pattern is to call the Authorization API from your public API Gateway, i.e. for each protected call through your gateway, check if the user is firstly Authenticated, then check if they are Authorized, e.g.
 
 ![Udaru Authorization API](./udaru/Authorization.png)
 
@@ -108,9 +108,11 @@ A brief overview of the Authorization API calls are as follows, see the live [Sw
 
 The PBAC model can be built using the **Organization**, **Team** and **User** entities. The usual modeling case is to build independent organizations, each organization having teams (or nested teams) attached to them and users attached to teams. Policies are attached to Organizations, Teams or Users.
 
-**Policies** can be attached to Teams, Users and Organizations. The policy engine evaluates all policies from all levels when establishing if a User can perform an Action on a Resource.
-
 **Important note:** Teams, Users and Policies can't be shared across Organizations.
+
+### Policies 
+
+Policies can be attached to Teams, Users and Organizations. The policy engine evaluates all policies from all levels when establishing if a User can perform an Action on a Resource.
 
 A policy is a document that describes the type of access that the policy owner has to a resource or a group of resources. Given the policies, the action to perform and a resource, the engine returns `true` if the action is authorized, `false` otherwise.
 
@@ -180,7 +182,7 @@ For a detailed description of the condition operators see the [AWS Policy Condit
 
 **Note:** it is envisaged that more useful context variables will be added in future releases
 
-## Template Policies
+### Template Policies
 
 In order to reduce complexity and duplication Udaru introduces template policies.
 
@@ -236,7 +238,7 @@ When a policy is assigned to a user (or a team) an additional object can be prov
 
 Currently we support variables in the Resource part of the policy statement (similar to what PBAC already does)
 
-## Shared Policies
+### Shared Policies
 
 Everything in Udaru is scoped by policies and there can't be any interaction between two entities that belong to different organizations.
 
@@ -259,7 +261,7 @@ curl impersonation example in which a SuperUser impersonates an user belonging t
 curl -X PUT --header 'Content-Type: application/json' --header 'Accept: application/json' --header 'authorization: ROOTID' --header 'org: WONKA' -d '{"policies":["PolicyID"]}' 'http://localhost:8080/authorization/teams/TeamID/policies'
 ```
 
-# Next Steps
+## Next Steps
 
 To get a feel for the Udaru APIs and sample usage, see a very contrived example [here](./example.md). 
 
