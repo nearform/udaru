@@ -144,7 +144,7 @@ The main elements of a Statement are:
 -   The Action to be performed. Example: `'authorization:teams:create'` or `'authorization:organizations:*'`
 -   The Resource on which the action is performed. A Resource name is effectively a URI for your resources. Example: `'FOO:orga:CLOUDCUCKOO:scenario:*:entity:north-america-id'`
 -   The Effect - has the value 'Allow' or 'Deny'.
--   The Conditions, which contain extra logic to determine whether access is granted to the resources
+-   The Conditions, an optional element, which contain extra logic to determine whether statement is applied or not
 
 Note that wildcards can be used in Action and Resource names, as can certain variables, see [IAM Policy Variables Overview](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_variables.html) for more details.
 
