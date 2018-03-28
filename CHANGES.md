@@ -1,9 +1,9 @@
 ## 5.0.0 - March 16, 2018
 Features, enhancements:
--   Lerna package split, udaru-core, udaru-plugin and udaru-server now in separate npm packages [commit](https://github.com/nearform/udaru/pull/444) 
+-   Lerna package split, udaru-core, udaru-plugin and udaru-server now in separate npm packages [commit](https://github.com/nearform/udaru/pull/444)
 -   **Breaking change**: 404 not found on endpoint GET /authorization/teams/${teamId}/users if team does not exist [commit](https://github.com/nearform/udaru/pull/444)
 -   **Breaking change**: 404 not found on endpoint /authorization/users/${userId}/teams if user does not exist [commit](https://github.com/nearform/udaru/pull/444)
--   SQL module extracted and placed in own npm module (https://www.npmjs.com/package/@nearform/sql)  
+-   SQL module extracted and placed in own npm module ([@nearform/sql](https://www.npmjs.com/package/@nearform/sql))
 
 ## 4.1.0 - March 12, 2018
 Features, enhancements:
@@ -32,7 +32,7 @@ Features, enhancements:
 -   Enhanced swagger documentation (better definition of models and other tidy ups)
 
 Fixes:
--   Added fixes on the get user teams endpoint [commit](https://github.com/nearform/udaru/pull/478 and https://github.com/nearform/udaru/pull/454)
+-   Added fixes on the get user teams endpoint [commit](https://github.com/nearform/udaru/pull/478) and [commit](https://github.com/nearform/udaru/pull/454)
 -   Added fix for policy validation (enforce allow|deny on effect)
 -   Added fix for issue 450 (invalid teams payload)
 
