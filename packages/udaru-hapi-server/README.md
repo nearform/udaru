@@ -299,8 +299,22 @@ npm run pg:init-volume-db
 To run bench test against populated volume data (2 endpoints)
 
 ```
-npm run bench-volume
+npm run bench:volume
 ```
+
+For convenience, you can load the volume db and run the bench tests with the single command. 
+
+```
+npm run bench:load-volume
+```
+
+This command will:
+-  initialise the db & migrate to latest db schema
+-  load the standard test fixtures
+-  load the volume fixtures 
+-  spawn an instance of udaru server
+-  run the autocannon tests & display results
+-  shut down
 
 ## Security
 

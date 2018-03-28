@@ -12,9 +12,7 @@ const NUM_USERS_PER_TEAM = 100 // put this many users in each team
 const NUM_POLICIES_PER_TEAM = 10 // :-|
 const ADD_METADATA = true
 
-const path = require('path')
 const pg = require('pg')
-const fs = require('fs')
 const chalk = require('chalk')
 const minimist = require('minimist')
 const argv = minimist(process.argv.slice(2))
@@ -36,20 +34,8 @@ function loadVolumeDataBegin (callback) {
   startTime = Date.now()
   console.log('loadVolume data started at ' + startTime)
 
-  // load original test data also..., should not interfere
-  console.log('loading existing fixtures from: ' + path.join(__dirname, '/testdata/fixtures.sql'))
-  let fixturesSQL = fs.readFileSync(path.join(__dirname, '/testdata/fixtures.sql'), 'utf8')
-
   client.connect(() => { // connect first, then set off daisy chain of queries on success
-    client.query(fixturesSQL, (err) => {
-      if (err) {
-        callback(err)
-      } else {
-        endTime = Date.now()
-        console.log(chalk.green('successfully loaded original fixtures'))
-        loadTeams('CONCH', callback) // loads load everything into WONKA org
-      }
-    })
+    loadTeams('CONCH', callback) // loads load everything into WONKA org
   })
 }
 

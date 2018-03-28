@@ -35,8 +35,7 @@
   "bin": {
     "udaru-migrate": "./database/migrate.js",
     "udaru-loadTestData": "./database/loadTestData.js",
-    "udaru-init": "./database/init.js",
-    "udaru-loadVolumeData": "./database/loadVolumeData.js"
+    "udaru-init": "./database/init.js"
   },
   "scripts": {
     "coverage": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -c -t 92 -r html -o coverage/coverage.html",
@@ -44,7 +43,6 @@
     "depcheck": "npx depcheck",
     "pg:init": "node ./database/init.js && npm run pg:migrate",
     "pg:init-test-db": "npm run pg:init && npm run pg:load-test-data",
-    "pg:init-volume-db": "npm run pg:init && node ./database/loadVolumeData.js",
     "pg:load-test-data": "node ./database/loadTestData.js",
     "pg:migrate": "node ./database/migrate.js --version=max",
     "test": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -c -t 92"
