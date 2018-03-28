@@ -1,10 +1,10 @@
 # Why Udaru
 
-Authentication (or Identity as its also referred to these days) is relatively easy, and can be considered a solved problem - it's largely standardized (OAuth, OpenId) and we have several good commercial and open source products to choose from. 
+While Authentication (or Identity as it's more commonly known these days) is non-trivial in large enterprises, and can largely be considered a solved problem technically - it's largely standardized (OAuth, OpenId) and we have several good commercial and open source products to choose from. 
 
-Authorization by comparison, has always been hard. There are no standards ([XACML](https://en.wikipedia.org/wiki/XACML) failed to get traction). Authorization is always application specific. It's also one of those things that everyone seems to do differently and nobody is really ever happy with - 'how do you guys do authorization?' is usually a question that's followed by a sharp intake of breath!
+Authorization (or Access as it's more commonly known these days) by comparison, has always been hard. There are no standards ([XACML](https://en.wikipedia.org/wiki/XACML) failed to get traction). Authorization is always application specific; it is effectively business logic, and it's always tricky to get right. 
 
-We've seen a minefield of different problems:
+We've seen a minefield of different problems in this are:
 
 *   mix ups between what is identity and what is authorization
 *   mix ups between identity roles (e.g. 'Fireman') vs authorization roles (e.g. 'CanDriveFireTruck')
@@ -16,17 +16,17 @@ We've seen a minefield of different problems:
 
 ## Udaru Features
 
-We developed Udaru in an attempt to fix these problems. Udaru is first and foremost a standalone Authorization service, which is architected for use in modern day distributed, microservice based systems. It's fully decoupled from Authentication - after all they are two distinct things - and is designed to be flexible and comprehensive enough to be dropped in to any solution.
+We developed Udaru in an attempt to fix these problems. Udaru is first and foremost a standalone Authorization service, which is architected for use in modern day distributed, microservice based systems. It's fully decoupled from Authentication - after all they are two distinct things - and is designed to be modular, flexible and comprehensive enough to be used in to any platform.
 
 Here are its high level features:
 
 *   Policy Based Access Control (PBAC) model, heavily inspired by Access Management in [AWS IAM](https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction_access-management.html) and other tools like [Ladon](https://github.com/ory/ladon) and [KeyCloak](http://www.keycloak.org/).
 *   Supports Organizations, nested Teams, and User entities that are used to build the access model.
 *   Policies can be attached to Users, Teams and Organizations. 
-*   Two primary REST APIs: a Management API for managing Organizations, Teams and Users, and an Authentication API for permission management.
-*   Available for use as a Node.js module, as a [Hapi](http://hapijs.com) plugin, and as a standalone service.
+*   Two primary REST APIs: a Management API for managing Organizations, Teams and Users, and an Authentication API for access management.
+*   Available for use as a Node.js [module](https://github.com/nearform/udaru/tree/master/packages/udaru-core), as a [Hapi](http://hapijs.com) [plugin](https://github.com/nearform/udaru/tree/master/packages/udaru-hapi-plugin), and as a standalone [service](https://github.com/nearform/udaru/tree/master/packages/udaru-hapi-server).
 *   The Management API can be used to easily build Administration tools.
-*   Supports static and dynamic policies; static policies are authorization rules that don't change, dynamic policies are policies that can be created on the fly, this allows advanced features such as users sharing specific data with each other.
+*   Supports static and dynamic policies; static policies are authorization rules that don't change, dynamic policies are policies that can be created on the fly, this allows advanced features; for example users sharing specific data with each other.
 *   The Management API also makes governance quick and exact, i.e. you can query to see who exactly has access to what in your system in real time.
 
 For more, see the main Udaru [documentation](./overview.md).
