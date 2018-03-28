@@ -17,6 +17,7 @@ npm install @nearform/udaru-hapi-plugin
 ```
 
 ## Usage
+
 ```js
 const Hapi = require('hapi')
 const UdaruPlugin = require('@nearform/udaru-hapi-plugin')
@@ -25,6 +26,36 @@ const UdaruPlugin = require('@nearform/udaru-hapi-plugin')
 
 const server = new Hapi.server()
 server.register({register: UdaruPlugin})
+```
+
+In order to register udaru hooks, just provide a `hooks` key in the plugin options where keys are the names and values are handler functions (or array of functions).
+
+```js
+const Hapi = require('hapi')
+const UdaruPlugin = require('@nearform/udaru-hapi-plugin')
+
+...
+
+const server = new Hapi.server()
+server.register({
+  register: UdaruPlugin,
+  options: {
+    // Other options here
+    hooks: {
+      'authorize:isUserAuthorized': [
+        function (error, args, result, done) {
+          if (error) {
+            console.error(`Authorization errored: ${error}`)
+          } else {
+            console.log(`Access to ${args[0]} got access: ${result[0].access}`)
+          }
+
+          done()
+        }
+      ]
+    }
+  }
+})
 ```
 
 ## License
