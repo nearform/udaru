@@ -33,6 +33,12 @@ function Statement (effect, action, resource) {
   }
 }
 
+function StatementWithCondition (effect, action, resource, condition) {
+  let statement = Statement(effect, action, resource)
+  statement.Statement[0].Condition = condition
+  return statement
+}
+
 function DenyStatement (action, resource) {
   return Statement('Deny', action, resource)
 }
@@ -45,6 +51,7 @@ module.exports = {
   requestOptions,
   findPick,
   Statement,
+  StatementWithCondition,
   AllowStatement,
   DenyStatement
 }

@@ -37,7 +37,8 @@
   "main": "index.js",
   "scripts": {
     "bench": "node ./bench/util/runner.js",
-    "bench-volume": "node ./bench/util/volumeRunner.js",
+    "bench:volume": "node ./bench/util/volumeRunner.js",
+    "bench:load-volume": "npm run pg:init-volume-db && node ./bench/util/volumeRunner.js",
     "coverage": "UDARU_SERVICE_logger_pino_level=silent lab -c -t 96 -r html -o coverage/coverage.html",
     "coveralls": "UDARU_SERVICE_logger_pino_level=silent lab -c -t 96 -r lcov | COVERALLS_REPO_TOKEN='?' coveralls",
     "depcheck": "npx depcheck  --ignores='@nearform/udaru-core'",
@@ -45,12 +46,10 @@
     "pg:init": "UDARU_SERVICE_local=true npx udaru-init && npm run pg:migrate",
     "pg:init-test-db": "npm run pg:init && npm run pg:load-test-data",
     "pg:load-test-data": "UDARU_SERVICE_local=true npx udaru-loadTestData",
-    "pg:migrate": "npx udaru-migrate --version=max",
+    "pg:init-volume-db": "npm run pg:init-test-db && ./bench/util/loadVolumeData.js",
     "test": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -c -t 96",
     "test:security": "node ./security/runner.js",
     "pretest:security": "napa sqlmapproject/sqlmap",
-    "pg:init-volume-db": "npx udaru-init && npm run pg:load-volume-data",
-    "pg:load-volume-data": "npx udaru-loadVolumeData",
     "pg:migrate": "npx udaru-migrate --version=max"
   },
   "dependencies": {
@@ -74,6 +73,7 @@
     "lab": "^14.3.2",
     "minimist": "1.2.0",
     "napa": "^2.3.0",
+    "pg": "^7.4.1",
     "npx": "10.0.1"
   }
 }

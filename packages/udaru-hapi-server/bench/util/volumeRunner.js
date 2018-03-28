@@ -101,7 +101,7 @@ function getPath () {
     // get a random policy within the team
     var policy = getRandomIntInclusive(1, NUM_POLICIES_PER_TEAM)
 
-    var dynamicPath = partialRoute + user + '/Read/db:team_' + team + ':x_' + policy
+    var dynamicPath = partialRoute + user + '/Read/resource_' + policy + ':user/' + user
 
     debug('Next request: ' + dynamicPath)
     return dynamicPath

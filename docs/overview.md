@@ -127,6 +127,9 @@ A policy looks like:
     Effect: 'Allow',
     Action: ['Documents:Read'],
     Resource: ['wonka:documents:/public/*']
+    Conditions: { 
+      StringEquals: { udaru:userId: 'CharlieId' }
+    }
   }] }
 }
 ```
@@ -141,10 +144,41 @@ The main elements of a Statement are:
 -   The Action to be performed. Example: `'authorization:teams:create'` or `'authorization:organizations:*'`
 -   The Resource on which the action is performed. A Resource name is effectively a URI for your resources. Example: `'FOO:orga:CLOUDCUCKOO:scenario:*:entity:north-america-id'`
 -   The Effect - has the value 'Allow' or 'Deny'.
+-   The Conditions, an optional element, which contain extra logic to determine whether statement is applied or not
 
 Note that wildcards can be used in Action and Resource names, as can certain variables, see [IAM Policy Variables Overview](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_variables.html) for more details.
 
 For a detailed description of Policies, see the [AWS Policy Elements Reference](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements.html).
+
+## Policy Context Variables & Conditions
+
+IAM facilitates the use of context variables in resources and conditions.
+
+For a detailed description of IAM policy variable usage see the [AWS Policy Variables Reference](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_variables.html)
+
+Udaru has several system context variables that can be used in resources and conditions i.e.
+
+-  Udaru user context variables:
+  -  udaru:userId
+  -  udaru:organizationId
+
+- Request context variables
+  -  request:source (can be either 'api' or 'server')
+  -  request:sourceIp
+  -  request:sourcePort
+  -  request:currentTime
+
+A good example of condition usage would be to grant access to a resource using a policy that expires. To achieve this the DateTime condition, 'DateLessThan', can be used to grant access to a resource if the system context variable request:currentTime is evaluated as being less than the date specified in the condition.
+
+e.g. the following condition would mean the policy is effective until the date time specified is reached.  
+
+```javascript
+Condition: {DateLessThan: {udaru:currentTime: '2018-03-17T23:59:59Z'}}
+```
+
+For a detailed description of the condition operators see the [AWS Policy Condition Operators Reference](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements_condition_operators.html) 
+
+**Note:** it is envisaged that more useful context variables will be added in future releases
 
 ## Template Policies
 

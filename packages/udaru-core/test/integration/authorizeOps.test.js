@@ -12,7 +12,7 @@ const SQL = require('@nearform/sql')
 const udaru = require('../..')()
 const authorize = udaru.authorize
 const Factory = require('@nearform/udaru-test/factory')
-
+const testUtils = require('@nearform/udaru-test/utils')
 const fs = require('fs')
 const path = require('path')
 
@@ -177,6 +177,423 @@ lab.experiment('AuthorizeOps', () => {
         expect(result.access).to.be.false()
 
         done()
+      })
+    })
+  })
+
+  lab.test('authorize isUserAuthorized - using udaru:userId context variable applied to a user attached policy', (done) => {
+    const testPolicy = {
+      id: 'userContextPolicy',
+      name: 'User Context Policy',
+      version: '2012-10-17',
+      organizationId: organizationId,
+      statements: testUtils.AllowStatement(['read'], ['org:documents/$' + '{udaru:userId}'])
+    }
+
+    udaru.policies.create(testPolicy, (err, result) => {
+      if (err) return done(err)
+
+      udaru.users.replacePolicies({ id: testUserId, policies: ['userContextPolicy'], organizationId }, (err, result) => {
+        if (err) return done(err)
+
+        authorize.isUserAuthorized({ userId: testUserId, resource: 'org:documents/' + testUserId, action: 'read', organizationId }, (err, result) => {
+          if (err) return done(err)
+
+          expect(err).to.not.exist()
+          expect(result).to.exist()
+          expect(result.access).to.be.true()
+
+          udaru.policies.delete({id: testPolicy.id, organizationId}, (err, result) => {
+            expect(err).to.not.exist()
+            done()
+          })
+        })
+      })
+    })
+  })
+
+  lab.test('authorize isUserAuthorized - udaru:organizationId context variable applied to a user attached policy', (done) => {
+    const testPolicy = {
+      id: 'userContextPolicy',
+      name: 'User Context Policy',
+      version: '2012-10-17',
+      organizationId: organizationId,
+      statements: testUtils.AllowStatement(['read'], ['org:documents/$' + '{udaru:organizationId}'])
+    }
+
+    udaru.policies.create(testPolicy, (err, result) => {
+      if (err) return done(err)
+
+      udaru.users.replacePolicies({ id: testUserId, policies: ['userContextPolicy'], organizationId }, (err, result) => {
+        if (err) return done(err)
+
+        authorize.isUserAuthorized({ userId: testUserId, resource: 'org:documents/' + organizationId, action: 'read', organizationId }, (err, result) => {
+          if (err) return done(err)
+
+          expect(err).to.not.exist()
+          expect(result).to.exist()
+          expect(result.access).to.be.true()
+
+          udaru.policies.delete({id: testPolicy.id, organizationId}, (err, result) => {
+            expect(err).to.not.exist()
+            done()
+          })
+        })
+      })
+    })
+  })
+
+  lab.test('authorize isUserAuthorized - using udaru:userId context variable applied to a user attached policy', (done) => {
+    const testPolicy = {
+      id: 'userContextPolicy',
+      name: 'User Context Policy',
+      version: '2012-10-17',
+      organizationId: organizationId,
+      statements: testUtils.AllowStatement(['read'], ['org:documents/$' + '{udaru:userId}'])
+    }
+
+    udaru.policies.create(testPolicy, (err, result) => {
+      if (err) return done(err)
+
+      udaru.users.replacePolicies({ id: testUserId, policies: ['userContextPolicy'], organizationId }, (err, result) => {
+        if (err) return done(err)
+
+        authorize.isUserAuthorized({ userId: testUserId, resource: 'org:documents/' + testUserId, action: 'read', organizationId }, (err, result) => {
+          if (err) return done(err)
+
+          expect(err).to.not.exist()
+          expect(result).to.exist()
+          expect(result.access).to.be.true()
+
+          udaru.policies.delete({id: testPolicy.id, organizationId}, (err, result) => {
+            expect(err).to.not.exist()
+            done()
+          })
+        })
+      })
+    })
+  })
+
+  lab.test('authorize isUserAuthorized - using udaru:userId context variable applied to a TEAM attached policy', (done) => {
+    const testPolicy = {
+      id: 'teamContextPolicy',
+      name: 'Team Context Policy',
+      version: '2012-10-17',
+      organizationId: organizationId,
+      statements: testUtils.AllowStatement(['read'], ['org:documents/$' + '{udaru:userId}'])
+    }
+
+    udaru.policies.create(testPolicy, (err, result) => {
+      if (err) return done(err)
+
+      udaru.teams.replacePolicies({ id: managersTeamId, policies: ['teamContextPolicy'], organizationId }, (err, result) => {
+        if (err) return done(err)
+
+        authorize.isUserAuthorized({ userId: testUserId, resource: 'org:documents/' + testUserId, action: 'read', organizationId }, (err, result) => {
+          if (err) return done(err)
+
+          expect(err).to.not.exist()
+          expect(result).to.exist()
+          expect(result.access).to.be.true()
+
+          udaru.policies.delete({id: testPolicy.id, organizationId}, (err, result) => {
+            expect(err).to.not.exist()
+            done()
+          })
+        })
+      })
+    })
+  })
+
+  lab.test('authorize isUserAuthorized - using udaru:userId context variable applied to an ORG attached policy', (done) => {
+    const testPolicy = {
+      id: 'orgContextPolicy',
+      name: 'Org Context Policy',
+      version: '2012-10-17',
+      organizationId: organizationId,
+      statements: testUtils.AllowStatement(['read'], ['org:documents/$' + '{udaru:userId}'])
+    }
+
+    udaru.policies.create(testPolicy, (err, result) => {
+      if (err) return done(err)
+
+      udaru.organizations.replacePolicies({ id: organizationId, policies: ['orgContextPolicy'] }, (err, result) => {
+        if (err) return done(err)
+
+        authorize.isUserAuthorized({ userId: testUserId, resource: 'org:documents/' + testUserId, action: 'read', organizationId }, (err, result) => {
+          if (err) return done(err)
+
+          expect(err).to.not.exist()
+          expect(result).to.exist()
+          expect(result.access).to.be.true()
+
+          udaru.policies.delete({id: testPolicy.id, organizationId}, (err, result) => {
+            expect(err).to.not.exist()
+            done()
+          })
+        })
+      })
+    })
+  })
+
+  lab.test('authorize isUserAuthorized - incorrect variable applied to a user attached policy', (done) => {
+    const testPolicy = {
+      id: 'userContextPolicy',
+      name: 'User Context Policy',
+      version: '2012-10-17',
+      organizationId: organizationId,
+      statements: testUtils.AllowStatement(['read'], ['org:documents/$' + '{udaru:orgId}'])
+    }
+
+    udaru.policies.create(testPolicy, (err, result) => {
+      if (err) return done(err)
+
+      udaru.users.replacePolicies({ id: testUserId, policies: ['userContextPolicy'], organizationId }, (err, result) => {
+        if (err) return done(err)
+
+        authorize.isUserAuthorized({ userId: testUserId, resource: 'org:documents/' + organizationId, action: 'read', organizationId }, (err, result) => {
+          if (err) return done(err)
+
+          expect(err).to.not.exist()
+          expect(result).to.exist()
+          expect(result.access).to.be.false()
+
+          udaru.policies.delete({id: testPolicy.id, organizationId}, (err, result) => {
+            expect(err).to.not.exist()
+            done()
+          })
+        })
+      })
+    })
+  })
+
+  lab.test('authorize isUserAuthorized - test with udaru:organizationId variable for condition', (done) => {
+    const Condition = { StringEquals: { 'udaru:organizationId': organizationId } }
+
+    const testPolicy = {
+      id: 'userContextPolicy',
+      name: 'User Context Policy',
+      version: '2012-10-17',
+      organizationId: organizationId,
+      statements: testUtils.StatementWithCondition('Allow', ['read'], ['org:documents/$' + '{udaru:userId}'], Condition)
+    }
+
+    udaru.policies.create(testPolicy, (err, result) => {
+      if (err) return done(err)
+
+      udaru.users.replacePolicies({ id: testUserId, policies: ['userContextPolicy'], organizationId }, (err, result) => {
+        if (err) return done(err)
+
+        authorize.isUserAuthorized({ userId: testUserId, resource: 'org:documents/' + testUserId, action: 'read', organizationId }, (err, result) => {
+          if (err) return done(err)
+
+          expect(err).to.not.exist()
+          expect(result).to.exist()
+          expect(result.access).to.be.true()
+
+          udaru.policies.delete({id: testPolicy.id, organizationId}, (err, result) => {
+            expect(err).to.not.exist()
+            done()
+          })
+        })
+      })
+    })
+  })
+
+  lab.test('authorize isUserAuthorized - test with invalid variable for condition', (done) => {
+    const Condition = { StringEquals: { 'udaru:organizationId': 'invalidOrg' } }
+
+    const testPolicy = {
+      id: 'userContextPolicy',
+      name: 'User Context Policy',
+      version: '2012-10-17',
+      organizationId: organizationId,
+      statements: testUtils.StatementWithCondition('Allow', ['read'], ['org:documents/$' + '{udaru:userId}'], Condition)
+    }
+
+    udaru.policies.create(testPolicy, (err, result) => {
+      if (err) return done(err)
+
+      udaru.users.replacePolicies({ id: testUserId, policies: ['userContextPolicy'], organizationId }, (err, result) => {
+        if (err) return done(err)
+
+        authorize.isUserAuthorized({ userId: testUserId, resource: 'org:documents/' + testUserId, action: 'read', organizationId }, (err, result) => {
+          if (err) return done(err)
+
+          expect(err).to.not.exist()
+          expect(result).to.exist()
+          expect(result.access).to.be.false()
+
+          udaru.policies.delete({id: testPolicy.id, organizationId}, (err, result) => {
+            expect(err).to.not.exist()
+            done()
+          })
+        })
+      })
+    })
+  })
+
+  lab.test('authorize isUserAuthorized - test with udaru:organizationId variable for condition', (done) => {
+    const Condition = { StringEquals: { 'udaru:organizationId': organizationId } }
+
+    const testPolicy = {
+      id: 'userContextPolicy',
+      name: 'User Context Policy',
+      version: '2012-10-17',
+      organizationId: organizationId,
+      statements: testUtils.StatementWithCondition('Allow', ['read'], ['org:documents/$' + '{udaru:userId}'], Condition)
+    }
+
+    udaru.policies.create(testPolicy, (err, result) => {
+      if (err) return done(err)
+
+      udaru.users.replacePolicies({ id: testUserId, policies: ['userContextPolicy'], organizationId }, (err, result) => {
+        if (err) return done(err)
+
+        authorize.isUserAuthorized({ userId: testUserId, resource: 'org:documents/' + testUserId, action: 'read', organizationId }, (err, result) => {
+          if (err) return done(err)
+
+          expect(err).to.not.exist()
+          expect(result).to.exist()
+          expect(result.access).to.be.true()
+
+          udaru.policies.delete({id: testPolicy.id, organizationId}, (err, result) => {
+            expect(err).to.not.exist()
+            done()
+          })
+        })
+      })
+    })
+  })
+
+  lab.test('authorize isUserAuthorized - allow with udaru:source condition = api', (done) => {
+    const Condition = { StringEquals: { 'request:source': 'api' } }
+
+    const testPolicy = {
+      id: 'userConditionPolicy',
+      name: 'User Condition Policy',
+      version: '2012-10-17',
+      organizationId: organizationId,
+      statements: testUtils.StatementWithCondition('Allow', ['write'], ['org:documents/$' + '{udaru:userId}'], Condition)
+    }
+
+    udaru.policies.create(testPolicy, (err, result) => {
+      if (err) return done(err)
+
+      udaru.users.replacePolicies({ id: testUserId, policies: ['userConditionPolicy'], organizationId }, (err, result) => {
+        if (err) return done(err)
+
+        authorize.isUserAuthorized({ userId: testUserId, resource: 'org:documents/' + testUserId, action: 'write', organizationId }, (err, result) => {
+          if (err) return done(err)
+
+          expect(err).to.not.exist()
+          expect(result).to.exist()
+          expect(result.access).to.be.true()
+
+          udaru.policies.delete({id: testPolicy.id, organizationId}, (err, result) => {
+            expect(err).to.not.exist()
+            done()
+          })
+        })
+      })
+    })
+  })
+
+  lab.test('authorize isUserAuthorized - deny test with udaru:source condition = server', (done) => {
+    const Condition = { StringEquals: { 'request:source': 'server' } }
+
+    const testPolicy = {
+      id: 'userConditionPolicy',
+      name: 'User Condition Policy',
+      version: '2012-10-17',
+      organizationId: organizationId,
+      statements: testUtils.StatementWithCondition('Allow', ['write'], ['org:documents/$' + '{udaru:userId}'], Condition)
+    }
+
+    udaru.policies.create(testPolicy, (err, result) => {
+      if (err) return done(err)
+
+      udaru.users.replacePolicies({ id: testUserId, policies: ['userConditionPolicy'], organizationId }, (err, result) => {
+        if (err) return done(err)
+
+        authorize.isUserAuthorized({ userId: testUserId, resource: 'org:documents/' + testUserId, action: 'write', organizationId }, (err, result) => {
+          if (err) return done(err)
+
+          expect(err).to.not.exist()
+          expect(result).to.exist()
+          expect(result.access).to.be.false()
+
+          udaru.policies.delete({id: testPolicy.id, organizationId}, (err, result) => {
+            expect(err).to.not.exist()
+            done()
+          })
+        })
+      })
+    })
+  })
+
+  lab.test('authorize isUserAuthorized - test with date greater than condition', (done) => {
+    const Condition = { DateGreaterThan: { 'request:currentTime': '2018-03-20T00:00:00Z' } }
+
+    const testPolicy = {
+      id: 'userContextPolicy',
+      name: 'User Context Policy',
+      version: '2012-10-17',
+      organizationId: organizationId,
+      statements: testUtils.StatementWithCondition('Allow', ['read'], ['org:documents/$' + '{udaru:userId}'], Condition)
+    }
+
+    udaru.policies.create(testPolicy, (err, result) => {
+      if (err) return done(err)
+
+      udaru.users.replacePolicies({ id: testUserId, policies: ['userContextPolicy'], organizationId }, (err, result) => {
+        if (err) return done(err)
+
+        authorize.isUserAuthorized({ userId: testUserId, resource: 'org:documents/' + testUserId, action: 'read', organizationId }, (err, result) => {
+          if (err) return done(err)
+
+          expect(err).to.not.exist()
+          expect(result).to.exist()
+          expect(result.access).to.be.true()
+
+          udaru.policies.delete({id: testPolicy.id, organizationId}, (err, result) => {
+            expect(err).to.not.exist()
+            done()
+          })
+        })
+      })
+    })
+  })
+
+  lab.test('authorize isUserAuthorized - test with date less than condition', (done) => {
+    const Condition = { DateLessThan: { 'request:currentTime': '2018-03-20T00:00:00Z' } }
+
+    const testPolicy = {
+      id: 'userContextPolicy',
+      name: 'User Context Policy',
+      version: '2012-10-17',
+      organizationId: organizationId,
+      statements: testUtils.StatementWithCondition('Allow', ['read'], ['org:documents/$' + '{udaru:userId}'], Condition)
+    }
+
+    udaru.policies.create(testPolicy, (err, result) => {
+      if (err) return done(err)
+
+      udaru.users.replacePolicies({ id: testUserId, policies: ['userContextPolicy'], organizationId }, (err, result) => {
+        if (err) return done(err)
+
+        authorize.isUserAuthorized({ userId: testUserId, resource: 'org:documents/' + testUserId, action: 'read', organizationId }, (err, result) => {
+          if (err) return done(err)
+
+          expect(err).to.not.exist()
+          expect(result).to.exist()
+          expect(result.access).to.be.false()
+
+          udaru.policies.delete({id: testPolicy.id, organizationId}, (err, result) => {
+            expect(err).to.not.exist()
+            done()
+          })
+        })
       })
     })
   })
