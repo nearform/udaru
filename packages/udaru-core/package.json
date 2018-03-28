@@ -63,7 +63,6 @@
   },
   "devDependencies": {
     "depcheck": "0.6.9",
-    "chalk": "2.3.2",
     "minimist": "1.2.0",
     "@nearform/udaru-test": "^5.0.0",
     "code": "^4.0.0",
