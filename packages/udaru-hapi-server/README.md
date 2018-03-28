@@ -78,6 +78,31 @@ npm run pg:load-test-data
 
 -   **Note:** Running a test or coverage command will auto run these commands
 
+#### Volume data set installation and bench tests
+The Authorization database can be further initialized with a larger volume of data, which can be tested using autocannon bench tests in order to demonstrate the potential throughput of the authorization API.
+
+To populate the database with volume data, execute the following command:
+
+```
+npm run pg:init-volume-db
+```
+
+-   **Note:** Running this command will auto run the standard database population commands also
+
+All volume data sits under the organization 'CONCH' and has the following default setup:
+-  500 teams
+-  100 users per team (the first of every 100 being the parent of subsequent 99)
+-  10 policies per team
+
+After loading the data, the autocannon bench tests can be run by executing:
+
+```
+npm run bench-volume
+```
+
+This will run 15 second autocannon tests, which fire multiple concurrent requests at 2 frequently used endpoints. This results in the database being queried randomly across the entire set of data giving a good indication of average end-to-end latency and potential requests per second for a database containing 50K users.
+
+
 ### pgAdmin database access
 As the Postgresql docker container has its 5432 port forwarded on the local machine the database can be accessed with pgAdmin.
 

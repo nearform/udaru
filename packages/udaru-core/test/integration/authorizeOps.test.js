@@ -466,6 +466,72 @@ lab.experiment('AuthorizeOps', () => {
     })
   })
 
+  lab.test('authorize isUserAuthorized - allow with udaru:source condition = api', (done) => {
+    let Condition = { StringEquals: { 'request:source': 'api' } }
+
+    let testPolicy = {
+      id: 'userConditionPolicy',
+      name: 'User Condition Policy',
+      version: '2012-10-17',
+      organizationId: organizationId,
+      statements: testUtils.StatementWithCondition('Allow', ['write'], ['org:documents/$' + '{udaru:userId}'], Condition)
+    }
+
+    udaru.policies.create(testPolicy, (err, result) => {
+      if (err) return done(err)
+
+      udaru.users.replacePolicies({ id: testUserId, policies: ['userConditionPolicy'], organizationId }, (err, result) => {
+        if (err) return done(err)
+
+        authorize.isUserAuthorized({ userId: testUserId, resource: 'org:documents/' + testUserId, action: 'write', organizationId }, (err, result) => {
+          if (err) return done(err)
+
+          expect(err).to.not.exist()
+          expect(result).to.exist()
+          expect(result.access).to.be.true()
+
+          udaru.policies.delete({id: testPolicy.id, organizationId}, (err, result) => {
+            expect(err).to.not.exist()
+            done()
+          })
+        })
+      })
+    })
+  })
+
+  lab.test('authorize isUserAuthorized - deny test with udaru:source condition = server', (done) => {
+    let Condition = { StringEquals: { 'request:source': 'server' } }
+
+    let testPolicy = {
+      id: 'userConditionPolicy',
+      name: 'User Condition Policy',
+      version: '2012-10-17',
+      organizationId: organizationId,
+      statements: testUtils.StatementWithCondition('Allow', ['write'], ['org:documents/$' + '{udaru:userId}'], Condition)
+    }
+
+    udaru.policies.create(testPolicy, (err, result) => {
+      if (err) return done(err)
+
+      udaru.users.replacePolicies({ id: testUserId, policies: ['userConditionPolicy'], organizationId }, (err, result) => {
+        if (err) return done(err)
+
+        authorize.isUserAuthorized({ userId: testUserId, resource: 'org:documents/' + testUserId, action: 'write', organizationId }, (err, result) => {
+          if (err) return done(err)
+
+          expect(err).to.not.exist()
+          expect(result).to.exist()
+          expect(result.access).to.be.false()
+
+          udaru.policies.delete({id: testPolicy.id, organizationId}, (err, result) => {
+            expect(err).to.not.exist()
+            done()
+          })
+        })
+      })
+    })
+  })
+
   lab.test('authorize isUserAuthorized - test with date greater than condition', (done) => {
     let Condition = { DateGreaterThan: { 'request:currentTime': '2018-03-20T00:00:00Z' } }
 

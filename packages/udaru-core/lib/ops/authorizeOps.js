@@ -19,18 +19,26 @@ function badImplementationWrap (next) {
   }
 }
 
-function getContext (params) {
-  return {
+function buildContext (params) {
+  let context = {
     udaru: {
       userId: params.userId,
       organizationId: params.organizationId
     },
     request: {
-      currentTime: new Date().toISOString(),
-      sourceIp: params.sourceIpAddress,
-      sourcePort: params.sourcePort
+      currentTime: new Date().toISOString()
     }
   }
+
+  if (params.sourceIpAddress) {
+    context.request.sourceIp = params.sourceIpAddress
+    context.request.sourcePort = params.sourcePort
+    context.request.source = 'server'
+  } else {
+    context.request.source = 'api'
+  }
+
+  return context
 }
 
 function buildAuthorizeOps (db, config) {
@@ -51,7 +59,7 @@ function buildAuthorizeOps (db, config) {
           policyOps.listAllUserPolicies({ userId, organizationId }, badImplementationWrap(next))
         },
         function check (policies, next) {
-          let context = getContext({userId, organizationId, sourceIpAddress, sourcePort})
+          let context = buildContext({userId, organizationId, sourceIpAddress, sourcePort})
           next(null, iam(policies).isAuthorized({resource, action, context}))
         }
       ], function (err, access) {
@@ -65,7 +73,7 @@ function buildAuthorizeOps (db, config) {
      * @param  {Object}   options { userId, resource }
      * @param  {Function} cb
      */
-    listAuthorizations: function listAuthorizations ({ userId, resource, organizationId }, cb) {
+    listAuthorizations: function listAuthorizations ({ userId, resource, organizationId, sourceIpAddress, sourcePort }, cb) {
       async.waterfall([
         function validate (next) {
           Joi.validate({ resource, userId, organizationId }, validationRules.listAuthorizations, badRequestWrap(next))
@@ -74,7 +82,7 @@ function buildAuthorizeOps (db, config) {
           policyOps.listAllUserPolicies({ userId, organizationId }, badImplementationWrap(next))
         },
         function check (policies, next) {
-          let context = getContext({userId, organizationId})
+          let context = buildContext({userId, organizationId, sourceIpAddress, sourcePort})
           iam(policies).actions({resource, context}, badImplementationWrap(next))
         }
       ], function (err, actions) {
@@ -88,7 +96,7 @@ function buildAuthorizeOps (db, config) {
      * @param  {Object}   options { userId, resources }
      * @param  {Function} cb
      */
-    listAuthorizationsOnResources: function listAuthorizationsOnResources ({ userId, resources, organizationId }, cb) {
+    listAuthorizationsOnResources: function listAuthorizationsOnResources ({ userId, resources, organizationId, sourceIpAddress, sourcePort }, cb) {
       async.waterfall([
         function validate (next) {
           Joi.validate({ userId, resources, organizationId }, validationRules.listAuthorizationsOnResources, badRequestWrap(next))
@@ -97,7 +105,7 @@ function buildAuthorizeOps (db, config) {
           policyOps.listAllUserPolicies({ userId, organizationId }, badImplementationWrap(next))
         },
         function listAuthorizationsOnResources (policies, next) {
-          let context = getContext({userId, organizationId})
+          let context = buildContext({userId, organizationId}, sourceIpAddress, sourcePort)
           iam(policies).actionsOnResources({ resources, context }, badImplementationWrap(next))
         }
       ], cb)

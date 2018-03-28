@@ -53,7 +53,9 @@ exports.register = function (server, options, next) {
       const params = {
         userId,
         resource,
-        organizationId
+        organizationId,
+        sourceIpAddress: request.info.remoteAddress,
+        sourcePort: request.info.remotePort
       }
 
       request.udaruCore.authorize.listActions(params, reply)
@@ -86,7 +88,9 @@ exports.register = function (server, options, next) {
       const params = {
         userId,
         resources,
-        organizationId
+        organizationId,
+        sourceIpAddress: request.info.remoteAddress,
+        sourcePort: request.info.remotePort
       }
 
       request.udaruCore.authorize.listAuthorizationsOnResources(params, reply)
