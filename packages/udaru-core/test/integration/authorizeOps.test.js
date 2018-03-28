@@ -182,7 +182,7 @@ lab.experiment('AuthorizeOps', () => {
   })
 
   lab.test('authorize isUserAuthorized - using udaru:userId context variable applied to a user attached policy', (done) => {
-    let testPolicy = {
+    const testPolicy = {
       id: 'userContextPolicy',
       name: 'User Context Policy',
       version: '2012-10-17',
@@ -213,7 +213,7 @@ lab.experiment('AuthorizeOps', () => {
   })
 
   lab.test('authorize isUserAuthorized - udaru:organizationId context variable applied to a user attached policy', (done) => {
-    let testPolicy = {
+    const testPolicy = {
       id: 'userContextPolicy',
       name: 'User Context Policy',
       version: '2012-10-17',
@@ -244,7 +244,7 @@ lab.experiment('AuthorizeOps', () => {
   })
 
   lab.test('authorize isUserAuthorized - using udaru:userId context variable applied to a user attached policy', (done) => {
-    let testPolicy = {
+    const testPolicy = {
       id: 'userContextPolicy',
       name: 'User Context Policy',
       version: '2012-10-17',
@@ -275,7 +275,7 @@ lab.experiment('AuthorizeOps', () => {
   })
 
   lab.test('authorize isUserAuthorized - using udaru:userId context variable applied to a TEAM attached policy', (done) => {
-    let testPolicy = {
+    const testPolicy = {
       id: 'teamContextPolicy',
       name: 'Team Context Policy',
       version: '2012-10-17',
@@ -306,7 +306,7 @@ lab.experiment('AuthorizeOps', () => {
   })
 
   lab.test('authorize isUserAuthorized - using udaru:userId context variable applied to an ORG attached policy', (done) => {
-    let testPolicy = {
+    const testPolicy = {
       id: 'orgContextPolicy',
       name: 'Org Context Policy',
       version: '2012-10-17',
@@ -337,7 +337,7 @@ lab.experiment('AuthorizeOps', () => {
   })
 
   lab.test('authorize isUserAuthorized - incorrect variable applied to a user attached policy', (done) => {
-    let testPolicy = {
+    const testPolicy = {
       id: 'userContextPolicy',
       name: 'User Context Policy',
       version: '2012-10-17',
@@ -368,9 +368,9 @@ lab.experiment('AuthorizeOps', () => {
   })
 
   lab.test('authorize isUserAuthorized - test with udaru:organizationId variable for condition', (done) => {
-    let Condition = { StringEquals: { 'udaru:organizationId': organizationId } }
+    const Condition = { StringEquals: { 'udaru:organizationId': organizationId } }
 
-    let testPolicy = {
+    const testPolicy = {
       id: 'userContextPolicy',
       name: 'User Context Policy',
       version: '2012-10-17',
@@ -401,9 +401,9 @@ lab.experiment('AuthorizeOps', () => {
   })
 
   lab.test('authorize isUserAuthorized - test with invalid variable for condition', (done) => {
-    let Condition = { StringEquals: { 'udaru:organizationId': 'invalidOrg' } }
+    const Condition = { StringEquals: { 'udaru:organizationId': 'invalidOrg' } }
 
-    let testPolicy = {
+    const testPolicy = {
       id: 'userContextPolicy',
       name: 'User Context Policy',
       version: '2012-10-17',
@@ -434,9 +434,9 @@ lab.experiment('AuthorizeOps', () => {
   })
 
   lab.test('authorize isUserAuthorized - test with udaru:organizationId variable for condition', (done) => {
-    let Condition = { StringEquals: { 'udaru:organizationId': organizationId } }
+    const Condition = { StringEquals: { 'udaru:organizationId': organizationId } }
 
-    let testPolicy = {
+    const testPolicy = {
       id: 'userContextPolicy',
       name: 'User Context Policy',
       version: '2012-10-17',
@@ -467,9 +467,9 @@ lab.experiment('AuthorizeOps', () => {
   })
 
   lab.test('authorize isUserAuthorized - allow with udaru:source condition = api', (done) => {
-    let Condition = { StringEquals: { 'request:source': 'api' } }
+    const Condition = { StringEquals: { 'request:source': 'api' } }
 
-    let testPolicy = {
+    const testPolicy = {
       id: 'userConditionPolicy',
       name: 'User Condition Policy',
       version: '2012-10-17',
@@ -500,9 +500,9 @@ lab.experiment('AuthorizeOps', () => {
   })
 
   lab.test('authorize isUserAuthorized - deny test with udaru:source condition = server', (done) => {
-    let Condition = { StringEquals: { 'request:source': 'server' } }
+    const Condition = { StringEquals: { 'request:source': 'server' } }
 
-    let testPolicy = {
+    const testPolicy = {
       id: 'userConditionPolicy',
       name: 'User Condition Policy',
       version: '2012-10-17',
@@ -533,9 +533,9 @@ lab.experiment('AuthorizeOps', () => {
   })
 
   lab.test('authorize isUserAuthorized - test with date greater than condition', (done) => {
-    let Condition = { DateGreaterThan: { 'request:currentTime': '2018-03-20T00:00:00Z' } }
+    const Condition = { DateGreaterThan: { 'request:currentTime': '2018-03-20T00:00:00Z' } }
 
-    let testPolicy = {
+    const testPolicy = {
       id: 'userContextPolicy',
       name: 'User Context Policy',
       version: '2012-10-17',
@@ -566,9 +566,9 @@ lab.experiment('AuthorizeOps', () => {
   })
 
   lab.test('authorize isUserAuthorized - test with date less than condition', (done) => {
-    let Condition = { DateLessThan: { 'request:currentTime': '2018-03-20T00:00:00Z' } }
+    const Condition = { DateLessThan: { 'request:currentTime': '2018-03-20T00:00:00Z' } }
 
-    let testPolicy = {
+    const testPolicy = {
       id: 'userContextPolicy',
       name: 'User Context Policy',
       version: '2012-10-17',
