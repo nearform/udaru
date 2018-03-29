@@ -4,10 +4,10 @@ const udaru = require('../index.js')()
 udaru.addHook('authorize:isUserAuthorized', function (error, args, result, done) {
   if (error) {
     console.error(`Authorization errored: ${error}`)
-  } else {
-    console.log(`Access to ${args[0]} got access: ${result[0].access}`)
+    return done(error)
   }
 
+  console.log(`Access to ${args[0]} got access: ${result[0].access}`)
   done()
 })
 
