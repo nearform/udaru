@@ -527,6 +527,108 @@ lab.experiment('Users - manage policies', () => {
     })
   })
 
+  lab.test('Policy instance addition and removal', (done) => {
+    let options = utils.requestOptions({
+      method: 'POST',
+      url: '/authorization/users/VerucaId/policies',
+      payload: {policies: []}
+    })
+
+    server.inject(options, (response) => {
+      const { result } = response
+
+      expect(response.statusCode).to.equal(200)
+      expect(result.policies.length).to.equal(0)
+
+      options = utils.requestOptions({
+        method: 'PUT',
+        url: '/authorization/users/VerucaId/policies',
+        payload: {
+          policies: [{
+            id: 'policyId2',
+            variables: {var1: 'value1'}
+          }]
+        }
+      })
+
+      server.inject(options, (response) => {
+        const { result } = response
+
+        expect(response.statusCode).to.equal(200)
+        expect(utils.PoliciesWithoutInstance(result.policies)).to.contain([
+          { id: 'policyId2', name: 'Accountant', version: '0.1', variables: {var1: 'value1'} }
+        ])
+
+        const firstInstance = result.policies[0].instance
+
+        options.payload = {
+          policies: [{
+            id: 'policyId2',
+            variables: {var2: 'value2'}
+          }, {
+            id: 'policyId2',
+            variables: {var3: 'value3'}
+          }]
+        }
+
+        server.inject(options, (response) => {
+          const { result } = response
+
+          expect(response.statusCode).to.equal(200)
+          expect(result.policies.length).to.equal(3)
+          expect(utils.PoliciesWithoutInstance(result.policies)).to.contain([
+            { id: 'policyId2', name: 'Accountant', version: '0.1', variables: {var3: 'value3'} }
+          ])
+
+          options = utils.requestOptions({
+            method: 'DELETE',
+            url: `/authorization/users/VerucaId/policies/policyId2?instance=${firstInstance}`
+          })
+
+          server.inject(options, (response) => {
+            expect(response.statusCode).to.equal(204)
+
+            options = utils.requestOptions({
+              method: 'GET',
+              url: `/authorization/users/VerucaId`
+            })
+
+            server.inject(options, (response) => {
+              const { result } = response
+              expect(response.statusCode).to.equal(200)
+              expect(result.policies.length).to.equal(2)
+              expect(utils.PoliciesWithoutInstance(result.policies)).to.not.contain([
+                { id: 'policyId2', name: 'Accountant', version: '0.1', variables: {var1: 'value1'} }
+              ])
+
+              options = utils.requestOptions({
+                method: 'DELETE',
+                url: `/authorization/users/VerucaId/policies/policyId2`
+              })
+
+              server.inject(options, (response) => {
+                expect(response.statusCode).to.equal(204)
+
+                options = utils.requestOptions({
+                  method: 'GET',
+                  url: `/authorization/users/VerucaId`
+                })
+
+                server.inject(options, (response) => {
+                  const { result } = response
+                  expect(response.statusCode).to.equal(200)
+                  expect(result.policies.length).to.equal(0)
+
+                  udaru.users.replacePolicies({ id: result.id, policies: ['policyId2'], organizationId: result.organizationId }, done)
+                })
+              })
+            })
+          })
+        })
+      })
+    })
+  })
+
   lab.test('add policy with invalid ID to a user', (done) => {
     const options = utils.requestOptions({
       method: 'PUT',

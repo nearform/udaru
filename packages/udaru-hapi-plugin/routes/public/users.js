@@ -279,8 +279,9 @@ exports.register = function (server, options, next) {
     handler: function (request, reply) {
       const { userId, policyId } = request.params
       const { organizationId } = request.udaru
+      const { instance } = request.query
 
-      request.udaruCore.users.deletePolicy({ userId, policyId, organizationId }, function (err, res) {
+      request.udaruCore.users.deletePolicy({ userId, policyId, organizationId, instance }, function (err, res) {
         if (err) {
           return reply(err)
         }
@@ -293,8 +294,9 @@ exports.register = function (server, options, next) {
         params: _.pick(validation.deleteUserPolicy, ['userId', 'policyId']),
         headers
       },
-      description: 'Remove a user\'s policy',
-      notes: 'The DELETE /authorization/users/{userId}/policies/{policyId} endpoint removes a specific user\'s policy.\n',
+      description: 'Remove a policy associated with a user',
+      notes: 'The DELETE /authorization/users/{userId}/policies/{policyId} disassociates a policy from a user.\n' +
+      'Set optional parameter instance to delete a specific policy instance with variables, or leave blank to remove all instances with this policyId.\n',
       tags: ['api', 'users'],
       plugins: {
         auth: {

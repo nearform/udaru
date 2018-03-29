@@ -54,7 +54,8 @@ function mapPolicySimple (row) {
     id: row.id,
     name: row.name,
     version: row.version,
-    variables: row.variables || {}
+    variables: row.variables || {},
+    instance: row.policy_instance
   }
 }
 

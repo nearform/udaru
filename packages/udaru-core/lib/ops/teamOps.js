@@ -180,13 +180,18 @@ function buildTeamOps (db, config) {
   }
 
   function removeTeamPolicy (job, next) {
-    const { teamId, policyId } = job
+    const { teamId, policyId, instance } = job
 
     const sqlQuery = SQL`
       DELETE FROM team_policies
       WHERE team_id = ${teamId}
       AND policy_id = ${policyId}
     `
+
+    if (instance) {
+      sqlQuery.append(SQL`AND policy_instance = ${instance}`)
+    }
+
     job.client.query(sqlQuery, utils.boomErrorWrapper(next))
   }
 
@@ -266,7 +271,7 @@ function buildTeamOps (db, config) {
   function loadTeamPolicies (job, next) {
     const { id } = job
     const sql = SQL`
-      SELECT pol.id, pol.name, pol.version, tpol.variables
+      SELECT pol.id, pol.name, pol.version, tpol.variables, tpol.policy_instance
       FROM team_policies tpol, policies pol
       WHERE tpol.team_id = ${id}
       AND tpol.policy_id = pol.id
@@ -672,16 +677,16 @@ function buildTeamOps (db, config) {
     /**
      * Remove a specific team policy
      *
-     * @param  {Object}   params { userId, organizationId, policyId }
+     * @param  {Object}   params { userId, organizationId, policyId, instance } "instance" optional
      * @param  {Function} cb
      */
     deleteTeamPolicy: function deleteTeamPolicy (params, cb) {
-      const { teamId, organizationId, policyId } = params
+      const { teamId, organizationId, policyId, instance } = params
 
-      Joi.validate({ teamId, organizationId, policyId }, validationRules.deleteTeamPolicy, function (err) {
+      Joi.validate({ teamId, organizationId, policyId, instance }, validationRules.deleteTeamPolicy, function (err) {
         if (err) return cb(Boom.badRequest(err))
 
-        removeTeamPolicy({ client: db, teamId, policyId }, (err, res) => {
+        removeTeamPolicy({ client: db, teamId, policyId, instance }, (err, res) => {
           if (err) return cb(err)
           teamOps.readTeam({ id: teamId, organizationId }, cb)
         })

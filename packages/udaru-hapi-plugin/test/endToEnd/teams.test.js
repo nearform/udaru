@@ -885,7 +885,7 @@ lab.experiment('Teams - manage policies', () => {
       const { result } = response
 
       expect(response.statusCode).to.equal(200)
-      expect(result.policies).to.equal([
+      expect(utils.PoliciesWithoutInstance(result.policies)).to.equal([
         { id: 'policyId2', name: 'Accountant', version: '0.1', variables: {} },
         { id: 'policyId1', name: 'Director', version: '0.1', variables: {} }
       ])
@@ -910,12 +910,101 @@ lab.experiment('Teams - manage policies', () => {
       const { result } = response
 
       expect(response.statusCode).to.equal(200)
-      expect(result.policies).to.equal([
+      expect(utils.PoliciesWithoutInstance(result.policies)).to.equal([
         { id: 'policyId2', name: 'Accountant', version: '0.1', variables: {var1: 'value1'} },
         { id: 'policyId1', name: 'Director', version: '0.1', variables: {} }
       ])
 
       udaru.teams.replacePolicies({ id: result.id, policies: ['policyId1'], organizationId: result.organizationId }, done)
+    })
+  })
+
+  lab.test('Policy instance addition and removal', (done) => {
+    let options = utils.requestOptions({
+      method: 'PUT',
+      url: '/authorization/teams/2/policies',
+      payload: {
+        policies: [{
+          id: 'policyId2',
+          variables: {var1: 'value1'}
+        }]
+      }
+    })
+
+    server.inject(options, (response) => {
+      const { result } = response
+
+      expect(response.statusCode).to.equal(200)
+      expect(utils.PoliciesWithoutInstance(result.policies)).to.equal([
+        { id: 'policyId2', name: 'Accountant', version: '0.1', variables: {var1: 'value1'} }
+      ])
+
+      const firstInstance = result.policies[0].instance
+
+      options.payload = {
+        policies: [{
+          id: 'policyId2',
+          variables: {var2: 'value2'}
+        }, {
+          id: 'policyId2',
+          variables: {var3: 'value3'}
+        }]
+      }
+
+      server.inject(options, (response) => {
+        const { result } = response
+
+        expect(response.statusCode).to.equal(200)
+        expect(result.policies.length).to.equal(3)
+        expect(utils.PoliciesWithoutInstance(result.policies)).to.contain([
+          { id: 'policyId2', name: 'Accountant', version: '0.1', variables: {var3: 'value3'} }
+        ])
+
+        options = utils.requestOptions({
+          method: 'DELETE',
+          url: `/authorization/teams/2/policies/policyId2?instance=${firstInstance}`
+        })
+
+        server.inject(options, (response) => {
+          expect(response.statusCode).to.equal(204)
+
+          options = utils.requestOptions({
+            method: 'GET',
+            url: `/authorization/teams/2`
+          })
+
+          server.inject(options, (response) => {
+            const { result } = response
+            expect(response.statusCode).to.equal(200)
+            expect(result.policies.length).to.equal(2)
+            expect(utils.PoliciesWithoutInstance(result.policies)).to.not.contain([
+              { id: 'policyId2', name: 'Accountant', version: '0.1', variables: {var1: 'value1'} }
+            ])
+
+            options = utils.requestOptions({
+              method: 'DELETE',
+              url: `/authorization/teams/2/policies/policyId2`
+            })
+
+            server.inject(options, (response) => {
+              expect(response.statusCode).to.equal(204)
+
+              options = utils.requestOptions({
+                method: 'GET',
+                url: `/authorization/teams/2`
+              })
+
+              server.inject(options, (response) => {
+                const { result } = response
+                expect(response.statusCode).to.equal(200)
+                expect(result.policies.length).to.equal(0)
+
+                udaru.teams.replacePolicies({ id: result.id, policies: ['policyId1'], organizationId: result.organizationId }, done)
+              })
+            })
+          })
+        })
+      })
     })
   })
 
@@ -962,7 +1051,7 @@ lab.experiment('Teams - manage policies', () => {
       const { result } = response
 
       expect(response.statusCode).to.equal(200)
-      expect(result.policies).to.equal([
+      expect(utils.PoliciesWithoutInstance(result.policies)).to.equal([
         { id: 'policyId5', name: 'DB Admin', version: '0.1', variables: {} },
         { id: 'policyId6', name: 'DB Only Read', version: '0.1', variables: {} },
         { id: 'policyId1', name: 'Director', version: '0.1', variables: {} },
@@ -986,7 +1075,7 @@ lab.experiment('Teams - manage policies', () => {
       const { result } = response
 
       expect(response.statusCode).to.equal(200)
-      expect(result.policies).to.equal([{
+      expect(utils.PoliciesWithoutInstance(result.policies)).to.equal([{
         id: 'policyId6',
         name: 'DB Only Read',
         version: '0.1',
