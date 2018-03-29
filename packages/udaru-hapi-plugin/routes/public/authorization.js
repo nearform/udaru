@@ -11,47 +11,17 @@ module.exports = {
   register (server, options) {
     const Action = server.udaruConfig.get('AuthConfig.Action')
 
-<<<<<<< HEAD
-      const params = {
-        userId,
-        action,
-        resource,
-        organizationId,
-        sourceIpAddress: request.info.remoteAddress,
-        sourcePort: request.info.remotePort
-      }
-=======
     server.route({
       method: 'GET',
       path: '/authorization/access/{userId}/{action}/{resource*}',
       async handler (request) {
         const { organizationId } = request.udaru
         const { resource, action, userId } = request.params
->>>>>>> Updated @nearform/udaru-hapi-plugin to hapi v17.
 
-        return request.udaruCore.authorize.isUserAuthorized({userId, action, resource, organizationId})
+        return request.udaruCore.authorize.isUserAuthorized({
+          userId, action, resource, organizationId, sourceIpAddress: request.info.remoteAddress, sourcePort: request.info.remotePort
+        })
       },
-<<<<<<< HEAD
-      description: 'Authorize user action against a resource',
-      notes: 'The GET /authorization/access/{userId}/{action}/{resource} endpoint answers if a user can perform an action\non a resource.\n',
-      tags: ['api', 'authorization'],
-      response: { schema: swagger.Access }
-    }
-  })
-
-  server.route({
-    method: 'GET',
-    path: '/authorization/list/{userId}/{resource*}',
-    handler: function (request, reply) {
-      const { organizationId } = request.udaru
-      const { resource, userId } = request.params
-      const params = {
-        userId,
-        resource,
-        organizationId,
-        sourceIpAddress: request.info.remoteAddress,
-        sourcePort: request.info.remotePort
-=======
       config: {
         plugins: {
           auth: {
@@ -67,7 +37,6 @@ module.exports = {
         notes: 'The GET /authorization/access/{userId}/{action}/{resource} endpoint answers if a user can perform an action\non a resource.\n',
         tags: ['api', 'authorization'],
         response: {schema: swagger.Access}
->>>>>>> Updated @nearform/udaru-hapi-plugin to hapi v17.
       }
     })
 
@@ -78,38 +47,9 @@ module.exports = {
         const { organizationId } = request.udaru
         const { resource, userId } = request.params
 
-<<<<<<< HEAD
-  server.route({
-    method: 'GET',
-    path: '/authorization/list/{userId}',
-    handler: function (request, reply) {
-      const { organizationId } = request.udaru
-      const { userId } = request.params
-      const { resources } = request.query
-      const params = {
-        userId,
-        resources,
-        organizationId,
-        sourceIpAddress: request.info.remoteAddress,
-        sourcePort: request.info.remotePort
-      }
-
-      request.udaruCore.authorize.listAuthorizationsOnResources(params, reply)
-    },
-    config: {
-      plugins: {
-        auth: {
-          action: Action.ListActionsOnResources,
-          resource: 'authorization/actions/resources'
-        }
-      },
-      validate: {
-        params: _.pick(validation.listAuthorizationsOnResources, ['userId']),
-        query: _.pick(validation.listAuthorizationsOnResources, ['resources']),
-        headers
-=======
-        return request.udaruCore.authorize.listActions({userId, resource, organizationId})
->>>>>>> Updated @nearform/udaru-hapi-plugin to hapi v17.
+        return request.udaruCore.authorize.listActions({
+          userId, resource, organizationId, sourceIpAddress: request.info.remoteAddress, sourcePort: request.info.remotePort
+        })
       },
       config: {
         plugins: {
