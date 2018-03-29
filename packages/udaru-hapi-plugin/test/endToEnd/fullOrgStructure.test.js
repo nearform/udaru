@@ -5,9 +5,9 @@ const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 
 const config = require('../../config')()
-const server = require('../test-server')
-const Factory = require('@nearform/udaru-test/factory')
-const utils = require('@nearform/udaru-test/utils')
+const serverFactory = require('../test-server')
+const Factory = require('@nearform/udaru-core/test/factory')
+const utils = require('@nearform/udaru-core/test/testUtils')
 
 const udaru = require('@nearform/udaru-core')()
 const Action = config.get('AuthConfig.Action')
@@ -26,6 +26,12 @@ lab.experiment('SuperUsers with limited access across organizations', () => {
   const userId2 = 'userId2'
   const userId3 = 'userId3'
   const userId4 = 'userId4'
+
+  let server = null
+
+  lab.before(async () => {
+    server = await serverFactory()
+  })
 
   Factory(lab, {
     organizations: {
@@ -126,7 +132,7 @@ lab.experiment('SuperUsers with limited access across organizations', () => {
   }, udaru)
 
   lab.experiment('Check limited super users organization management rights', () => {
-    lab.test('Get org on an org endpoint on which it has rights', (done) => {
+    lab.test('Get org on an org endpoint on which it has rights', async () => {
       const options = {
         headers: {
           authorization: userId1,
@@ -136,16 +142,13 @@ lab.experiment('SuperUsers with limited access across organizations', () => {
         url: `/authorization/organizations/${orgId1}`
       }
 
-      server.inject(options, (response) => {
-        expect(response.statusCode).to.equal(200)
-        expect(response.result).to.exist()
-        expect(response.result.id).to.equal(orgId1)
-
-        done()
-      })
+      const response = await server.inject(options)
+      expect(response.statusCode).to.equal(200)
+      expect(response.result).to.exist()
+      expect(response.result.id).to.equal(orgId1)
     })
 
-    lab.test('Get org on an org endpoint on which it has no rights', (done) => {
+    lab.test('Get org on an org endpoint on which it has no rights', async () => {
       const options = {
         headers: {
           authorization: userId1,
@@ -155,14 +158,11 @@ lab.experiment('SuperUsers with limited access across organizations', () => {
         url: `/authorization/organizations/${orgId3}`
       }
 
-      server.inject(options, (response) => {
-        expect(response.statusCode).to.equal(403)
-
-        done()
-      })
+      const response = await server.inject(options)
+      expect(response.statusCode).to.equal(403)
     })
 
-    lab.test('SuperUser not in team has no rights', (done) => {
+    lab.test('SuperUser not in team has no rights', async () => {
       const options = {
         headers: {
           authorization: userId4,
@@ -172,14 +172,11 @@ lab.experiment('SuperUsers with limited access across organizations', () => {
         url: `/authorization/organizations/${orgId1}`
       }
 
-      server.inject(options, (response) => {
-        expect(response.statusCode).to.equal(403)
-
-        done()
-      })
+      const response = await server.inject(options)
+      expect(response.statusCode).to.equal(403)
     })
 
-    lab.test('List teams and users on an org on which it has rights', (done) => {
+    lab.test('List teams and users on an org on which it has rights', async () => {
       const options = {
         headers: {
           authorization: userId1,
@@ -189,16 +186,13 @@ lab.experiment('SuperUsers with limited access across organizations', () => {
         url: '/authorization/teams'
       }
 
-      server.inject(options, (response) => {
-        expect(response.statusCode).to.equal(200)
-        expect(response.result).to.exist()
-        expect(response.result.data).to.exist()
-
-        done()
-      })
+      const response = await server.inject(options)
+      expect(response.statusCode).to.equal(200)
+      expect(response.result).to.exist()
+      expect(response.result.data).to.exist()
     })
 
-    lab.test('List teams and users on an org on which it has no rights', (done) => {
+    lab.test('List teams and users on an org on which it has no rights', async () => {
       const options = {
         headers: {
           authorization: userId1,
@@ -208,21 +202,17 @@ lab.experiment('SuperUsers with limited access across organizations', () => {
         url: '/authorization/teams'
       }
 
-      server.inject(options, (response) => {
-        expect(response.statusCode).to.equal(403)
+      let response = await server.inject(options)
+      expect(response.statusCode).to.equal(403)
 
-        options.headers.authorization = userId4
-        server.inject(options, (response) => {
-          expect(response.statusCode).to.equal(403)
-
-          done()
-        })
-      })
+      options.headers.authorization = userId4
+      response = await server.inject(options)
+      expect(response.statusCode).to.equal(403)
     })
   })
 
   lab.experiment('Limited SuperUser rights on accessing organization resources', () => {
-    lab.test('Access resource on which it has rights', (done) => {
+    lab.test('Access resource on which it has rights', async () => {
       const options = {
         headers: {
           authorization: userId1,
@@ -232,15 +222,12 @@ lab.experiment('SuperUsers with limited access across organizations', () => {
         url: `/authorization/access/${userId1}/org1:action:read/org1:resource:res1`
       }
 
-      server.inject(options, (response) => {
-        expect(response.statusCode).to.equal(200)
-        expect(response.result.access).to.equal(true)
-
-        done()
-      })
+      const response = await server.inject(options)
+      expect(response.statusCode).to.equal(200)
+      expect(response.result.access).to.equal(true)
     })
 
-    lab.test('Do an invalid action on a resource on which it has rights', (done) => {
+    lab.test('Do an invalid action on a resource on which it has rights', async () => {
       const options = {
         headers: {
           authorization: userId1,
@@ -250,15 +237,12 @@ lab.experiment('SuperUsers with limited access across organizations', () => {
         url: `/authorization/access/${userId1}/org1:action:dummy/org1:resource:res1`
       }
 
-      server.inject(options, (response) => {
-        expect(response.statusCode).to.equal(200)
-        expect(response.result.access).to.equal(false)
-
-        done()
-      })
+      const response = await server.inject(options)
+      expect(response.statusCode).to.equal(200)
+      expect(response.result.access).to.equal(false)
     })
 
-    lab.test('Access resource on which it has no rights', (done) => {
+    lab.test('Access resource on which it has no rights', async () => {
       const options = {
         headers: {
           authorization: userId1,
@@ -268,15 +252,12 @@ lab.experiment('SuperUsers with limited access across organizations', () => {
         url: `/authorization/access/${userId1}/org3:action:read/org3:resource:res3`
       }
 
-      server.inject(options, (response) => {
-        expect(response.statusCode).to.equal(200)
-        expect(response.result.access).to.equal(false)
-
-        done()
-      })
+      const response = await server.inject(options)
+      expect(response.statusCode).to.equal(200)
+      expect(response.result.access).to.equal(false)
     })
 
-    lab.test('Access resource by user not registered in teams on which it has no rights', (done) => {
+    lab.test('Access resource by user not registered in teams on which it has no rights', async () => {
       const options = {
         headers: {
           authorization: userId4,
@@ -286,11 +267,8 @@ lab.experiment('SuperUsers with limited access across organizations', () => {
         url: `/authorization/access/${userId4}/org1:action:read/org1:resource:res1`
       }
 
-      server.inject(options, (response) => {
-        expect(response.statusCode).to.equal(403)
-
-        done()
-      })
+      const response = await server.inject(options)
+      expect(response.statusCode).to.equal(403)
     })
   })
 })

@@ -180,7 +180,7 @@ and then go to [`http://localhost:8080/documentation`][swagger-link]
 The Swagger documentation also gives the ability to execute calls to the API and see their results. If you're using the test database, you can use 'ROOTid' as the required authorization parameter and 'WONKA' as the organisation.
 
 ### ENV variables to set configuration options
-There are three default configuration files, one per "level": [`packages/udaru-core/config.js`][core-config], [`packages/udaru-hapi-plugin/config.js`][plugin-config] and [`packages/udaru-server/config.js`][server-config].
+There are three default configuration files, one per "level": [`packages/udaru-core/config.js`][core-config], [`packages/udaru-hapi-plugin/config.js`][plugin-config] and [`packages/udaru-hapi-server/config.js`][server-config].
 
 They are cumulative: when running udaru as a standalone server all the three files will be loaded; when using it as an Hapi plugin, plugin and core will be loaded.
 
@@ -342,7 +342,7 @@ Copyright nearForm Ltd 2017. Licensed under [MIT][license].
 
 [core-config]: https://github.com/nearform/udaru/blob/master/packages/udaru-core/config.js
 [plugin-config]: https://github.com/nearform/udaru/blob/master/packages/udaru-hapi-plugin/config.js
-[server-config]: https://github.com/nearform/udaru/blob/master/packages/udaru-server/config.js
+[server-config]: https://github.com/nearform/udaru/blob/master/packages/udaru-hapi-server/config.js
 [license]: ./LICENSE.md
 [postgrator]: https://github.com/rickbergfalk/postgrator
 [prefix-link]: https://github.com/nearform/udaru/blob/master/lib/core/config.js#L100

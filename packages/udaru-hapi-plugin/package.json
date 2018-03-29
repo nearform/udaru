@@ -13,6 +13,7 @@
     "Florian Traverse (https://github.com/temsa)",
     "Mihai Dima (https://github.com/mihaidma)",
     "Paolo Chiodi (https://github.com/paolochiodi)",
+    "Paolo Insogna (https://github.com/ShogunPanda)",
     "Paul Negrutiu (https://github.com/floridemai)",
     "Mark Ireland (https://github.com/irelandm)",
     "Michael O'Brien (https://github.com/mobri3n)",
@@ -30,7 +31,7 @@
     "url": "https://github.com/nearform/udaru/issues"
   },
   "engines": {
-    "node": ">=6.0.0"
+    "node": ">=8.9.0"
   },
   "scripts": {
     "coverage": "UDARU_SERVICE_logger_pino_level=silent lab -c -t 96 -r html -o coverage/coverage.html",
@@ -44,20 +45,18 @@
   },
   "dependencies": {
     "@nearform/udaru-core": "^5.0.0",
-    "async": "^2.1.4",
-    "boom": "^7.1.1",
-    "hoek": "^5.0.2",
-    "joi": "^10.6.0",
+    "boom": "^7.2.0",
+    "hoek": "^5.0.3",
+    "joi": "^13.1.2",
     "lodash": "^4.17.5"
   },
   "devDependencies": {
-    "@nearform/udaru-test": "^5.0.0",
-    "code": "^4.0.0",
-    "coveralls": "^2.11.15",
-    "depcheck": "0.6.9",
-    "hapi": "^16.6.2",
-    "lab": "^14.3.2",
-    "npx": "10.0.1",
-    "uuid": "3.2.1"
+    "code": "^5.2.0",
+    "coveralls": "^3.0.0",
+    "depcheck": "^0.6.9",
+    "hapi": "^17.2.3",
+    "lab": "^15.4.1",
+    "npx": "^10.0.1",
+    "uuid": "^3.2.1"
   }
 }

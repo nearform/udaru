@@ -3,45 +3,45 @@
 const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
-const utils = require('@nearform/udaru-test/utils')
-const server = require('../test-server')
-const Factory = require('@nearform/udaru-test/factory')
+const utils = require('@nearform/udaru-core/test/testUtils')
+const serverFactory = require('../test-server')
+const Factory = require('@nearform/udaru-core/test/factory')
 const udaru = require('@nearform/udaru-core')()
 
 lab.experiment('Authorization', () => {
-  lab.test('check authorization should return access true for allowed', (done) => {
+  let server = null
+
+  lab.before(async () => {
+    server = await serverFactory()
+  })
+
+  lab.test('check authorization should return access true for allowed', async () => {
     const options = utils.requestOptions({
       method: 'GET',
       url: '/authorization/access/ROOTid/action_a/resource_a'
     })
 
-    server.inject(options, (response) => {
-      const result = response.result
+    const response = await server.inject(options)
+    const result = response.result
 
-      expect(response.statusCode).to.equal(200)
-      expect(result).to.equal({ access: true })
-
-      done()
-    })
+    expect(response.statusCode).to.equal(200)
+    expect(result).to.equal({ access: true })
   })
 
-  lab.test('check authorization should return access false for denied', (done) => {
+  lab.test('check authorization should return access false for denied', async () => {
     const options = utils.requestOptions({
       method: 'GET',
       url: '/authorization/access/Modifyid/action_a/resource_a'
     })
 
-    server.inject(options, (response) => {
-      const result = response.result
+    const response = await server.inject(options)
+    const result = response.result
 
-      expect(response.statusCode).to.equal(200)
-      expect(result).to.equal({ access: false })
-
-      done()
-    })
+    expect(response.statusCode).to.equal(200)
+    expect(result).to.equal({ access: false })
   })
 
-  lab.test('list authorizations should return actions allowed for the user', (done) => {
+  lab.test('list authorizations should return actions allowed for the user', async () => {
     const actionList = {
       actions: []
     }
@@ -50,17 +50,14 @@ lab.experiment('Authorization', () => {
       url: '/authorization/list/ModifyId/not/my/resource'
     })
 
-    server.inject(options, (response) => {
-      const result = response.result
+    const response = await server.inject(options)
+    const result = response.result
 
-      expect(response.statusCode).to.equal(200)
-      expect(result).to.equal(actionList)
-
-      done()
-    })
+    expect(response.statusCode).to.equal(200)
+    expect(result).to.equal(actionList)
   })
 
-  lab.test('list authorizations should return actions allowed for the user', (done) => {
+  lab.test('list authorizations should return actions allowed for the user', async () => {
     const actionList = {
       actions: ['Read']
     }
@@ -71,17 +68,14 @@ lab.experiment('Authorization', () => {
       url: '/authorization/list/ManyPoliciesId//myapp/users/filippo'
     })
 
-    server.inject(options, (response) => {
-      const result = response.result
+    const response = await server.inject(options)
+    const result = response.result
 
-      expect(response.statusCode).to.equal(200)
-      expect(result).to.equal(actionList)
-
-      done()
-    })
+    expect(response.statusCode).to.equal(200)
+    expect(result).to.equal(actionList)
   })
 
-  lab.test('list authorizations should return actions allowed for the user', (done) => {
+  lab.test('list authorizations should return actions allowed for the user', async () => {
     const actionList = [
       {
         resource: '/myapp/users/filippo',
@@ -97,14 +91,11 @@ lab.experiment('Authorization', () => {
       url: '/authorization/list/ManyPoliciesId?resources=/myapp/users/filippo&resources=/myapp/documents/no_access'
     })
 
-    server.inject(options, (response) => {
-      const result = response.result
+    const response = await server.inject(options)
+    const result = response.result
 
-      expect(response.statusCode).to.equal(200)
-      expect(result).to.equal(actionList)
-
-      done()
-    })
+    expect(response.statusCode).to.equal(200)
+    expect(result).to.equal(actionList)
   })
 })
 
@@ -114,6 +105,12 @@ lab.experiment('Authorization inherited org policies', () => {
   const testUserId1 = 'testUserId1'
   const testUserId2 = 'testUserId2'
   const org1PolicyId = 'org1PolicyId'
+
+  let server = null
+
+  lab.before(async () => {
+    server = await serverFactory()
+  })
 
   Factory(lab, {
     organizations: {
@@ -234,7 +231,7 @@ lab.experiment('Authorization inherited org policies', () => {
     }
   }, udaru)
 
-  lab.test('User authorized against policies inherited from its own organization', (done) => {
+  lab.test('User authorized against policies inherited from its own organization', async () => {
     const userId = testUserId1
     const options = utils.requestOptions({
       method: 'GET',
@@ -244,17 +241,14 @@ lab.experiment('Authorization inherited org policies', () => {
       }
     })
 
-    server.inject(options, (response) => {
-      const result = response.result
+    const response = await server.inject(options)
+    const result = response.result
 
-      expect(response.statusCode).to.equal(200)
-      expect(result.access).to.equal(true)
-
-      done()
-    })
+    expect(response.statusCode).to.equal(200)
+    expect(result.access).to.equal(true)
   })
 
-  lab.test('User checks authorization for another org user', (done) => {
+  lab.test('User checks authorization for another org user', async () => {
     const userId = testUserId1
     const options = utils.requestOptions({
       method: 'GET',
@@ -264,17 +258,14 @@ lab.experiment('Authorization inherited org policies', () => {
       }
     })
 
-    server.inject(options, (response) => {
-      const result = response.result
+    const response = await server.inject(options)
+    const result = response.result
 
-      expect(response.statusCode).to.equal(200)
-      expect(result.access).to.equal(false)
-
-      done()
-    })
+    expect(response.statusCode).to.equal(200)
+    expect(result.access).to.equal(false)
   })
 
-  lab.test('Non-existing user has no access to existing organization policies', (done) => {
+  lab.test('Non-existing user has no access to existing organization policies', async () => {
     const userId = 'abcd1234'
     const options = utils.requestOptions({
       method: 'GET',
@@ -284,17 +275,14 @@ lab.experiment('Authorization inherited org policies', () => {
       }
     })
 
-    server.inject(options, (response) => {
-      const result = response.result
+    const response = await server.inject(options)
+    const result = response.result
 
-      expect(response.statusCode).to.equal(200)
-      expect(result.access).to.equal(false)
-
-      done()
-    })
+    expect(response.statusCode).to.equal(200)
+    expect(result.access).to.equal(false)
   })
 
-  lab.test('Root impersonates org in which checked authorization exists', (done) => {
+  lab.test('Root impersonates org in which checked authorization exists', async () => {
     const userId = testUserId1
     const options = utils.requestOptions({
       method: 'GET',
@@ -305,17 +293,14 @@ lab.experiment('Authorization inherited org policies', () => {
       }
     })
 
-    server.inject(options, (response) => {
-      const result = response.result
+    const response = await server.inject(options)
+    const result = response.result
 
-      expect(response.statusCode).to.equal(200)
-      expect(result.access).to.equal(true)
-
-      done()
-    })
+    expect(response.statusCode).to.equal(200)
+    expect(result.access).to.equal(true)
   })
 
-  lab.test('User is granted access to resource based on udaru:userId context variable', (done) => {
+  lab.test('User is granted access to resource based on udaru:userId context variable', async () => {
     const userId = testUserId1
     const options = utils.requestOptions({
       method: 'GET',
@@ -326,17 +311,14 @@ lab.experiment('Authorization inherited org policies', () => {
       }
     })
 
-    server.inject(options, (response) => {
-      const result = response.result
+    const response = await server.inject(options)
+    const result = response.result
 
-      expect(response.statusCode).to.equal(200)
-      expect(result.access).to.equal(true)
-
-      done()
-    })
+    expect(response.statusCode).to.equal(200)
+    expect(result.access).to.equal(true)
   })
 
-  lab.test('User is NOT granted access to other users resource based on udaru:userId context variable', (done) => {
+  lab.test('User is NOT granted access to other users resource based on udaru:userId context variable', async () => {
     const options = utils.requestOptions({
       method: 'GET',
       url: `/authorization/access/${testUserId1}/read/org:docs:${testUserId2}`,
@@ -346,17 +328,14 @@ lab.experiment('Authorization inherited org policies', () => {
       }
     })
 
-    server.inject(options, (response) => {
-      const result = response.result
+    const response = await server.inject(options)
+    const result = response.result
 
-      expect(response.statusCode).to.equal(200)
-      expect(result.access).to.equal(false)
-
-      done()
-    })
+    expect(response.statusCode).to.equal(200)
+    expect(result.access).to.equal(false)
   })
 
-  lab.test('User is granted access to udaru:organizationId resource based on IP conditions', (done) => {
+  lab.test('User is granted access to udaru:organizationId resource based on IP conditions', async () => {
     const userId = testUserId1
     const options = utils.requestOptions({
       method: 'GET',
@@ -367,17 +346,14 @@ lab.experiment('Authorization inherited org policies', () => {
       }
     })
 
-    server.inject(options, (response) => {
-      const result = response.result
+    const response = await server.inject(options)
+    const result = response.result
 
-      expect(response.statusCode).to.equal(200)
-      expect(result.access).to.equal(true)
-
-      done()
-    })
+    expect(response.statusCode).to.equal(200)
+    expect(result.access).to.equal(true)
   })
 
-  lab.test('User is denied write access to udaru:organization resourec based on request:source condition', (done) => {
+  lab.test('User is denied write access to udaru:organization resourec based on request:source condition', async () => {
     const userId = testUserId1
     const options = utils.requestOptions({
       method: 'GET',
@@ -388,17 +364,14 @@ lab.experiment('Authorization inherited org policies', () => {
       }
     })
 
-    server.inject(options, (response) => {
-      const result = response.result
+    const response = await server.inject(options)
+    const result = response.result
 
-      expect(response.statusCode).to.equal(200)
-      expect(result.access).to.equal(false)
-
-      done()
-    })
+    expect(response.statusCode).to.equal(200)
+    expect(result.access).to.equal(false)
   })
 
-  lab.test('Root impersonates org in which checked authorization exists but provides valid other org data', (done) => {
+  lab.test('Root impersonates org in which checked authorization exists but provides valid other org data', async () => {
     const userId = testUserId1
     const options = utils.requestOptions({
       method: 'GET',
@@ -409,13 +382,10 @@ lab.experiment('Authorization inherited org policies', () => {
       }
     })
 
-    server.inject(options, (response) => {
-      const result = response.result
+    const response = await server.inject(options)
+    const result = response.result
 
-      expect(response.statusCode).to.equal(200)
-      expect(result.access).to.equal(false)
-
-      done()
-    })
+    expect(response.statusCode).to.equal(200)
+    expect(result.access).to.equal(false)
   })
 })

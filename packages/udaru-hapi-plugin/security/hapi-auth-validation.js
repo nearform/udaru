@@ -1,111 +1,105 @@
 'use strict'
 
-const async = require('async')
 const Boom = require('boom')
 
-function buildAuthValidation (authorization) {
+module.exports = function (authorization) {
   function canImpersonate (request, user) {
     return user.organizationId === request.server.udaruConfig.get('authorization.superUser.organization.id')
   }
 
-  function loadUser (job, next) {
+  async function loadUser (job) {
     const { userId } = job
 
-    job.udaru.getUserOrganizationId(userId, (err, organizationId) => {
-      if (err) return next(Boom.unauthorized('Bad credentials'))
-
-      job.udaru.users.read({ id: userId, organizationId }, (err, user) => {
-        if (err) return next(Boom.unauthorized('Bad credentials'))
-        job.currentUser = user
-
-        next()
-      })
-    })
+    try {
+      const organizationId = await job.udaru.getUserOrganizationId(userId)
+      job.currentUser = await job.udaru.users.read({id: userId, organizationId})
+    } catch (e) {
+      throw Boom.unauthorized('Bad credentials')
+    }
   }
 
-  function impersonate (job, next) {
+  async function impersonate (job) {
     const { currentUser } = job
     job.organizationId = currentUser.organizationId
 
     if (canImpersonate(job.request, currentUser) && job.requestedOrganizationId) {
       job.organizationId = job.requestedOrganizationId
     }
-
-    next()
   }
 
-  function checkAuthorization (udaru, userId, action, organizationId, resource, done) {
-    const params = { userId, action, organizationId, resource }
+  async function checkAuthorization (udaru, userId, action, organizationId, resource, done) {
+    const params = {userId, action, organizationId, resource}
 
-    udaru.authorize.isUserAuthorized(params, (err, result) => {
-      if (err) return done(err)
-      done(null, result.access)
-    })
+    const result = await udaru.authorize.isUserAuthorized(params)
+
+    return result.access
   }
 
-  function buildResourcesForUser (udaru, builder, buildParams, organizationId, done) {
+  async function buildResourcesForUser (udaru, builder, buildParams, organizationId) {
     const resources = [builder(buildParams)]
 
-    udaru.users.read({ id: buildParams.userId, organizationId: organizationId }, (err, user) => {
-      if (err && err.output.statusCode === 404) return done(null, resources)
-      if (err) return done(err)
+    try {
+      const user = await udaru.users.read({id: buildParams.userId, organizationId: organizationId})
 
       user.teams.forEach((team) => {
         buildParams.teamId = team.id
         resources.push(builder(buildParams))
       })
 
-      done(null, resources)
-    })
+      return resources
+    } catch (err) {
+      if (err.output && err.output.statusCode === 404) {
+        return resources
+      }
+
+      throw err
+    }
   }
 
-  function buildResources (options, udaru, authParams, request, organizationId, done) {
+  function buildResources (options, udaru, authParams, request, organizationId) {
     let resource = authParams.resource
 
     if (resource) {
-      return done(null, [resource])
+      return [resource]
     }
 
     const resourceType = request.route.path.split('/')[2]
     const resourceBuilder = request.server.udaruConfig.get('AuthConfig.resources')[resourceType]
 
     if (!resourceBuilder) {
-      return done(new Error('Resource builder not found'))
+      throw new Error('Resource builder not found')
     }
 
     const requestParams = authParams.getParams ? authParams.getParams(request) : {}
-    const buildParams = Object.assign({}, { organizationId }, requestParams)
+    const buildParams = Object.assign({}, {organizationId}, requestParams)
 
     if (resourceType === 'users' && buildParams.userId) {
-      return buildResourcesForUser(udaru, resourceBuilder, buildParams, organizationId, done)
+      return buildResourcesForUser(udaru, resourceBuilder, buildParams, organizationId)
     }
 
-    done(null, [resourceBuilder(buildParams)])
+    return [resourceBuilder(buildParams)]
   }
 
-  function authorize (job, next) {
-    buildResources(job.options, job.udaru, job.authParams, job.request, job.organizationId, (err, resources) => {
-      if (err) return next(Boom.unauthorized('Bad credentials'))
+  async function authorize (job) {
+    const resources = await buildResources(job.options, job.udaru, job.authParams, job.request, job.organizationId)
 
-      const action = job.authParams.action
-      const userId = job.currentUser.id
-      const organizationId = job.currentUser.organizationId
+    const action = job.authParams.action
+    const userId = job.currentUser.id
+    const organizationId = job.currentUser.organizationId
 
-      async.any(resources, async.apply(checkAuthorization, job.udaru, userId, action, organizationId), (err, valid) => {
-        if (err) return next(Boom.forbidden('Invalid credentials', 'udaru'))
-        if (!valid) return next(Boom.forbidden('Invalid credentials', 'udaru'))
+    const valids = await Promise.all(resources.map(resource => checkAuthorization(job.udaru, userId, action, organizationId, resource)))
 
-        next()
-      })
-    })
+    if (!valids.includes(true)) {
+      throw Boom.forbidden('Invalid credentials', 'udaru')
+    }
   }
 
-  function authValidation (options, server, request, userId, callback) {
+  async function authValidation (options, server, request, userId, callback) {
     const authParams = authorization.getAuthParams(request)
     const udaru = request.udaruCore
 
     if (!authParams) {
-      return callback(Boom.forbidden('Invalid credentials', 'udaru'))
+      throw Boom.forbidden('Invalid credentials', 'udaru')
     }
 
     const job = {
@@ -117,20 +111,12 @@ function buildAuthValidation (authorization) {
       requestedOrganizationId: request.headers.org
     }
 
-    async.applyEachSeries([
-      loadUser,
-      impersonate,
-      authorize
-    ], job, (err) => {
-      if (err) return callback(err)
-      callback(null, {
-        user: job.currentUser,
-        organizationId: job.organizationId
-      })
-    })
+    await loadUser(job)
+    await impersonate(job)
+    await authorize(job)
+
+    return {user: job.currentUser, organizationId: job.organizationId}
   }
 
   return authValidation
 }
-
-module.exports = buildAuthValidation

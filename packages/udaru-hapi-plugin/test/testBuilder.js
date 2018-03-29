@@ -1,9 +1,9 @@
 'use strict'
 
 const _ = require('lodash')
-const expect = require('code').expect
+const { expect } = require('code')
 const udaru = require('@nearform/udaru-core')()
-const utils = require('@nearform/udaru-test/utils')
+const utils = require('@nearform/udaru-core/test/testUtils')
 
 function Policy (Statement) {
   return {
@@ -43,6 +43,11 @@ class TestBuilder {
     const test = new CustomTest(this)
     test.test(description)
     return test
+  }
+
+  async startServer () {
+    if (typeof this.serverInstance !== 'function') return
+    this.serverInstance = await this.serverInstance()
   }
 }
 
@@ -105,7 +110,9 @@ class CustomTest {
       test = this.builder.lab.test.skip
     }
 
-    test(this.description, (done) => {
+    test(this.description, async () => {
+      await this.builder.startServer()
+
       const { records, serverInstance, endpointData: parentEndpointData } = this.builder
       const { statusCode, endpointData: childEndpointData, statement } = this
       const endpointData = childEndpointData || parentEndpointData
@@ -115,16 +122,10 @@ class CustomTest {
       policyData.id = testedPolicy.id
       policyData.organizationId = testedPolicy.organizationId || 'WONKA'
 
-      udaru.policies.update(policyData, (err, policy) => {
-        if (err) return done(err)
-
-        const options = utils.requestOptions(interpolate(endpointData, records))
-
-        serverInstance.inject(options, (response) => {
-          expect(response.statusCode).to.equal(statusCode)
-          done()
-        })
-      })
+      await udaru.policies.update(policyData)
+      const options = utils.requestOptions(interpolate(endpointData, records))
+      const response = await serverInstance.inject(options)
+      expect(response.statusCode).to.equal(statusCode)
     })
   }
 }

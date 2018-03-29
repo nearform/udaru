@@ -290,7 +290,7 @@ curl -X GET --header 'Accept: application/json' --header 'authorization: ROOTid'
 
 ## Teams
 
-Now let's add some teams; lets create a `Justice Leage` team that has the following sub teams: `Amazons`, `Aliens`, `Atlantis` (yep, they do exist: https://en.wikipedia.org/wiki/Justice_Leagues)
+Now let's add some teams; lets create a `Justice Leage` team that has the following sub teams: `Amazons`, `Aliens`, `Atlantis` (yep, they do exist: [Justice_Leagues](https://en.wikipedia.org/wiki/Justice_Leagues))
 
 Frist, let's list teams to make sure we don't already have any:
 

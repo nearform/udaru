@@ -4,7 +4,8 @@ const Joi = require('joi')
 const Boom = require('boom')
 const async = require('async')
 const SQL = require('@nearform/sql')
-const mapping = require('./../mapping')
+const asyncify = require('../asyncify')
+const mapping = require('../mapping')
 const utils = require('./utils')
 const validationRules = require('./validation').organizations
 const uuid = require('uuid/v4')
@@ -166,6 +167,9 @@ function buildOrganizationOps (db, config) {
      * @param  {Function} cb
      */
     list: function list ({ limit, page }, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify('data', 'total')
+
       Joi.validate({ limit, page }, validationRules.list, (err) => {
         if (err) return cb(Boom.badRequest(err))
 
@@ -192,6 +196,8 @@ function buildOrganizationOps (db, config) {
           return cb(null, result.rows.map(mapping.organization), total)
         })
       })
+
+      return promise
     },
 
     /**
@@ -201,6 +207,9 @@ function buildOrganizationOps (db, config) {
      * @param  {Function} cb
      */
     readById: function readById (id, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       let organization
       const tasks = []
 
@@ -246,6 +255,8 @@ function buildOrganizationOps (db, config) {
 
         return cb(null, organization)
       })
+
+      return promise
     },
 
     /**
@@ -260,6 +271,9 @@ function buildOrganizationOps (db, config) {
         cb = opts
         opts = {}
       }
+
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
 
       const { createOnly } = opts
 
@@ -298,6 +312,8 @@ function buildOrganizationOps (db, config) {
           cb(null, { organization, user: res.user })
         })
       })
+
+      return promise
     },
 
     /**
@@ -307,6 +323,9 @@ function buildOrganizationOps (db, config) {
      * @param  {Function} cb
      */
     deleteById: function deleteById (id, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       const tasks = [
         (job, next) => {
           Joi.validate(id, validationRules.deleteById, (err) => {
@@ -331,6 +350,8 @@ function buildOrganizationOps (db, config) {
       ]
 
       db.withTransaction(tasks, cb)
+
+      return promise
     },
 
     /**
@@ -340,6 +361,9 @@ function buildOrganizationOps (db, config) {
      * @param  {Function} cb
      */
     update: function update (params, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       const { id, name, description, metadata } = params
 
       Joi.validate({ id, name, description, metadata }, validationRules.update, (err) => {
@@ -361,6 +385,8 @@ function buildOrganizationOps (db, config) {
           organizationOps.readById(id, cb)
         })
       })
+
+      return promise
     },
 
     /**
@@ -370,6 +396,9 @@ function buildOrganizationOps (db, config) {
      * @param  {Function} cb
      */
     replaceOrganizationPolicies: function replaceOrganizationPolicies (params, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       const { id, policies } = params
       const tasks = [
         (job, next) => {
@@ -400,6 +429,8 @@ function buildOrganizationOps (db, config) {
 
         organizationOps.readById(id, cb)
       })
+
+      return promise
     },
 
     /**
@@ -409,6 +440,9 @@ function buildOrganizationOps (db, config) {
      * @param  {Function} cb
      */
     addOrganizationPolicies: function addOrganizationPolicies (params, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       const { id, policies } = params
       if (policies.length <= 0) {
         return organizationOps.readById(id, cb)
@@ -439,6 +473,8 @@ function buildOrganizationOps (db, config) {
 
         organizationOps.readById(id, cb)
       })
+
+      return promise
     },
 
     /**
@@ -448,6 +484,9 @@ function buildOrganizationOps (db, config) {
      * @param  {Function} cb
      */
     deleteOrganizationAttachedPolicies: function deleteOrganizationAttachedPolicies (params, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       const { id } = params
       const tasks = [
         (job, next) => {
@@ -470,6 +509,8 @@ function buildOrganizationOps (db, config) {
 
         organizationOps.readById(id, cb)
       })
+
+      return promise
     },
 
     /**
@@ -479,6 +520,9 @@ function buildOrganizationOps (db, config) {
      * @param  {Function} cb
      */
     deleteOrganizationAttachedPolicy: function deleteOrganizationAttachedPolicy (params, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       const { id, policyId } = params
       const tasks = [
         (job, next) => {
@@ -502,10 +546,19 @@ function buildOrganizationOps (db, config) {
 
         organizationOps.readById(id, cb)
       })
+
+      return promise
     },
 
     insertPolicies: function insertPolicies (client, id, policies, cb) {
-      if (policies.length === 0) return cb()
+      if (policies.length === 0) {
+        if (typeof cb !== 'function') return Promise.resolve()
+
+        return cb()
+      }
+
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
 
       const sqlQuery = SQL`
         INSERT INTO organization_policies (
@@ -519,6 +572,8 @@ function buildOrganizationOps (db, config) {
       sqlQuery.append(SQL` ON CONFLICT ON CONSTRAINT org_policy_link DO NOTHING`)
 
       client.query(sqlQuery, utils.boomErrorWrapper(cb))
+
+      return promise
     }
   }
 
