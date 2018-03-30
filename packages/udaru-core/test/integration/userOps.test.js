@@ -501,7 +501,7 @@ lab.experiment('UserOps', () => {
             variables: {var2: 'val2'}
           }])
 
-           // delete remaining, no instance param
+          // delete remaining, no instance param
           udaru.users.deletePolicy({ userId: 'VerucaId', policyId: accountantPolicy.id, organizationId: 'WONKA' }, (err, user) => {
             expect(err).to.not.exist()
             expect(user).to.exist()

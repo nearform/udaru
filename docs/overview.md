@@ -159,15 +159,15 @@ For a detailed description of IAM Policy variable usage see the [AWS Policy Vari
 
 Udaru has several system context variables that can be used in resources and conditions i.e.
 
--  Udaru User context variables:
-  -  udaru:userId
-  -  udaru:organizationId
+-   Udaru user context variables:
+    -   udaru:userId
+    -   udaru:organizationId
 
-- Request context variables
-  -  request:source (can be either 'api' or 'server')
-  -  request:sourceIp
-  -  request:sourcePort
-  -  request:currentTime
+-   Request context variables:
+    -   request:source (can be either 'api' or 'server')
+    -   request:sourceIp
+    -   request:sourcePort
+    -   request:currentTime
 
 A good example of condition usage would be to grant access to a resource using a Policy that expires. To achieve this the DateTime condition, 'DateLessThan', can be used to grant access to a resource if the system context variable request:currentTime is evaluated as being less than the date specified in the condition.
 
