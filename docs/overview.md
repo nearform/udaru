@@ -236,9 +236,9 @@ When a Policy is assigned to a User (or a Team) an additional object can be prov
 
 Currently we support variables in the Resource part of the Policy statement (similar to what PBAC already does).
 
-Once a Policy Instance is created, it is assigned an Instance id, which is returned as a property of the Policy Instance in the Policies array. This can be used to identify and delete that single Instance of the Policy using the query param 'instance' using the same endpoints to disassociate policies from Users, Teams and Organizations.
+Once a policy instance is created, it is assigned an instance id, which is returned as a property of the policy instance in the policies array. This can be used to identify and delete that single instance of the policy using the query param 'instance' using the same endpoints to disassociate policies from users, teams and organizations.
 
-### Shared Policies
+## Shared Policies
 
 Everything in Udaru is scoped by Policies and there can't be any interaction between two entities that belong to different Organizations.
 
