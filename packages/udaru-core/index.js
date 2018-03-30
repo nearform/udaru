@@ -28,6 +28,7 @@ function buildUdaruCore (dbPool, config) {
     },
 
     addHook: hooks.addHook,
+    clearHook: hooks.clearHook,
 
     authorize: {
       isUserAuthorized: hooks.wrap('authorize:isUserAuthorized', authorizeOps.isUserAuthorized),

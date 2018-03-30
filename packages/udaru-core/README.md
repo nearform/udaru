@@ -44,6 +44,8 @@ Each udaru method exposes a namespaced hook (e.g.: the `udaru.authorize.isUserAu
 
 The hook is a node-style callback with three arguments: the method arguments, the method result values and a callback to invoke once done.
 
+If the hook returns a promise, the execution will await its completion.
+
 Simple example taken from [examples/hooks.js](examples/hooks.js):
 
 ```
