@@ -47,11 +47,30 @@ function AllowStatement (action, resource) {
   return Statement('Allow', action, resource)
 }
 
+function PolicyWithoutInstance (policy) {
+  const policyTestModel = {
+    id: null,
+    name: null,
+    version: null,
+    variables: null
+  }
+
+  return _.pick(policy, _.keys(policyTestModel))
+}
+
+function PoliciesWithoutInstance (policies) {
+  return _.map(policies, function (policy) {
+    return PolicyWithoutInstance(policy)
+  })
+}
+
 module.exports = {
   requestOptions,
   findPick,
   Statement,
   StatementWithCondition,
   AllowStatement,
-  DenyStatement
+  DenyStatement,
+  PolicyWithoutInstance,
+  PoliciesWithoutInstance
 }

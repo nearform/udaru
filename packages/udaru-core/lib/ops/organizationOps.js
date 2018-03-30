@@ -74,13 +74,18 @@ function buildOrganizationOps (db, config) {
   }
 
   function clearOrganizationAttachedPolicy (job, next) {
-    const { id, policyId } = job
+    const { id, policyId, instance } = job
 
     const sqlQuery = SQL`
       DELETE FROM organization_policies
       WHERE org_id = ${id}
       AND policy_id = ${policyId}
     `
+
+    if (instance) {
+      sqlQuery.append(SQL`AND policy_instance = ${instance}`)
+    }
+
     job.client.query(sqlQuery, utils.boomErrorWrapper(next))
   }
 
@@ -228,7 +233,7 @@ function buildOrganizationOps (db, config) {
 
       tasks.push((next) => {
         const sqlQuery = SQL`
-          SELECT pol.id, pol.name, pol.version, org_pol.variables
+          SELECT pol.id, pol.name, pol.version, org_pol.variables, org_pol.policy_instance
           FROM organization_policies org_pol, policies pol
           WHERE org_pol.org_id = ${id} AND org_pol.policy_id = pol.id
           ORDER BY UPPER(pol.name)
@@ -475,14 +480,14 @@ function buildOrganizationOps (db, config) {
     /**
      * Remove one organization policy
      *
-     * @param  {Object}   params { id, policyId }
+     * @param  {Object}   params { id, policyId, instance } "instance" optional
      * @param  {Function} cb
      */
     deleteOrganizationAttachedPolicy: function deleteOrganizationAttachedPolicy (params, cb) {
-      const { id, policyId } = params
+      const { id, policyId, instance } = params
       const tasks = [
         (job, next) => {
-          Joi.validate({ id, policyId }, validationRules.deleteOrganizationPolicy, (err) => {
+          Joi.validate({ id, policyId, instance }, validationRules.deleteOrganizationPolicy, (err) => {
             if (err) return next(Boom.badRequest(err))
             next()
           })
@@ -490,6 +495,7 @@ function buildOrganizationOps (db, config) {
         (job, next) => {
           job.id = id
           job.policyId = policyId
+          job.instance = instance
 
           next()
         },

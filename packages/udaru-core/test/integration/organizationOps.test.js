@@ -6,6 +6,7 @@ const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 const async = require('async')
 const udaru = require('../..')()
+const u = require('@nearform/udaru-test/utils')
 
 const config = require('../../config')()
 const defaultPolicies = config.get('authorization.organizations.defaultPolicies', { 'organizationId': 'nearForm' })
@@ -1049,7 +1050,7 @@ lab.experiment('OrganizationOps', () => {
           expect(res).to.exist()
           expect(res.id).to.equal(organizationId)
           expect(res.policies.length).to.equal(2)
-          expect(res.policies).to.include([{
+          expect(u.PoliciesWithoutInstance(res.policies)).to.include([{
             id: testPolicy.id,
             name: testPolicy.name,
             version: testPolicy.version,
@@ -1063,7 +1064,7 @@ lab.experiment('OrganizationOps', () => {
           expect(err).to.not.exist()
           expect(res).to.exist()
           expect(res.policies.length).to.equal(2)
-          expect(res.policies).to.include([{
+          expect(u.PoliciesWithoutInstance(res.policies)).to.include([{
             id: testPolicy.id,
             name: testPolicy.name,
             version: testPolicy.version,
@@ -1075,6 +1076,103 @@ lab.experiment('OrganizationOps', () => {
             variables: {var1: 'value2'}
           }])
 
+          next(err, res)
+        })
+      })
+
+      async.series(tasks, done)
+    })
+
+    lab.test('test policy instance addition and removal', (done) => {
+      const tasks = []
+
+      var firstInstance
+      tasks.push((next) => {
+        udaru.organizations.read(organizationId, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res).to.exist()
+          expect(res.policies.length).to.equal(0)
+          next(err, res)
+        })
+      })
+      tasks.push((next) => {
+        const policies = [{
+          id: testPolicy.id,
+          variables: {var1: 'value1'}
+        }]
+        udaru.organizations.addPolicies({id: organizationId, policies}, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res).to.exist()
+          expect(res.id).to.equal(organizationId)
+          expect(res.policies.length).to.equal(1)
+          expect(res.policies[0].id).to.equal(testPolicy.id)
+          expect(res.policies[0].name).to.equal(testPolicy.name)
+          expect(res.policies[0].version).to.equal(testPolicy.version)
+          expect(res.policies[0].variables).to.equal({var1: 'value1'})
+          expect(res.policies[0].instance).to.exist()
+          firstInstance = res.policies[0].instance
+          next(err, res)
+        })
+      })
+      tasks.push((next) => {
+        const policies = [{
+          id: testPolicy.id,
+          variables: {var1: 'value2'}
+        }]
+        udaru.organizations.addPolicies({id: organizationId, policies}, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res).to.exist()
+          expect(res.id).to.equal(organizationId)
+          expect(res.policies.length).to.equal(2)
+          expect(u.PoliciesWithoutInstance(res.policies)).to.include([{
+            id: testPolicy.id,
+            name: testPolicy.name,
+            version: testPolicy.version,
+            variables: {var1: 'value2'}
+          }])
+          next(err, res)
+        })
+      })
+      tasks.push((next) => {
+        const policies = [{
+          id: testPolicy.id,
+          variables: {var1: 'value3'}
+        }]
+        udaru.organizations.addPolicies({id: organizationId, policies}, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res).to.exist()
+          expect(res.id).to.equal(organizationId)
+          expect(res.policies.length).to.equal(3)
+          expect(u.PoliciesWithoutInstance(res.policies)).to.include([{
+            id: testPolicy.id,
+            name: testPolicy.name,
+            version: testPolicy.version,
+            variables: {var1: 'value3'}
+          }])
+          next(err, res)
+        })
+      })
+      tasks.push((next) => { // delete the first policy instance
+        udaru.organizations.deletePolicy({id: organizationId, policyId: testPolicy.id, instance: firstInstance}, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res).to.exist()
+          expect(res.id).to.equal(organizationId)
+          expect(res.policies.length).to.equal(2)
+          expect(u.PoliciesWithoutInstance(res.policies)).to.not.include([{
+            id: testPolicy.id,
+            name: testPolicy.name,
+            version: testPolicy.version,
+            variables: {var1: 'value1'}
+          }])
+          next(err, res)
+        })
+      })
+      tasks.push((next) => { // delete remaining instances
+        udaru.organizations.deletePolicy({id: organizationId, policyId: testPolicy.id}, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res).to.exist()
+          expect(res.id).to.equal(organizationId)
+          expect(res.policies.length).to.equal(0)
           next(err, res)
         })
       })
@@ -1140,7 +1238,7 @@ lab.experiment('OrganizationOps', () => {
           expect(res).to.exist()
           expect(res.id).to.equal(organizationId)
           expect(res.policies.length).to.equal(1)
-          expect(res.policies).to.include([{
+          expect(u.PoliciesWithoutInstance(res.policies)).to.include([{
             id: testPolicy.id,
             name: testPolicy.name,
             version: testPolicy.version,
@@ -1154,7 +1252,7 @@ lab.experiment('OrganizationOps', () => {
           expect(err).to.not.exist()
           expect(res).to.exist()
           expect(res.policies.length).to.equal(1)
-          expect(res.policies).to.include([{
+          expect(u.PoliciesWithoutInstance(res.policies)).to.include([{
             id: testPolicy.id,
             name: testPolicy.name,
             version: testPolicy.version,

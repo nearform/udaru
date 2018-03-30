@@ -69,13 +69,17 @@ function buildUserOps (db, config) {
   }
 
   function removeUserPolicy (job, next) {
-    const { id, policyId } = job
+    const { id, policyId, instance } = job
 
-    const sqlQuery = SQL`
+    let sqlQuery = SQL`
       DELETE FROM user_policies
       WHERE user_id = ${id}
       AND policy_id = ${policyId}
     `
+    if (instance) {
+      sqlQuery.append(SQL`AND policy_instance = ${instance}`)
+    }
+
     job.client.query(sqlQuery, utils.boomErrorWrapper(next))
   }
 
@@ -190,7 +194,7 @@ function buildUserOps (db, config) {
 
       tasks.push((next) => {
         const sqlQuery = SQL`
-          SELECT pol.id, pol.name, pol.version, user_pol.variables
+          SELECT pol.id, pol.name, pol.version, user_pol.variables, user_pol.policy_instance
           FROM user_policies user_pol, policies pol
           WHERE user_pol.user_id = ${id} AND user_pol.policy_id = pol.id
           ORDER BY UPPER(pol.name)
@@ -431,10 +435,10 @@ function buildUserOps (db, config) {
      * @param  {Function} cb
      */
     deleteUserPolicy: function deleteUserPolicy (params, cb) {
-      const { userId, organizationId, policyId } = params
+      const { userId, organizationId, policyId, instance } = params
       const tasks = [
         (job, next) => {
-          Joi.validate({ userId, organizationId, policyId }, validationRules.deleteUserPolicy, (err) => {
+          Joi.validate({ userId, organizationId, policyId, instance }, validationRules.deleteUserPolicy, (err) => {
             if (err) return next(Boom.badRequest(err))
             next()
           })
@@ -443,6 +447,7 @@ function buildUserOps (db, config) {
           job.id = userId
           job.policyId = policyId
           job.organizationId = organizationId
+          job.instance = instance
 
           next()
         },
