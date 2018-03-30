@@ -4,7 +4,7 @@
 
 It supports Organizations, Teams and User entities that are used to build the access model. The Policies attached to these entities define Actions that can be performed by an entity on various Resources.
 
-Udaru can be used as a stand-alone node.js module ([udaru-core](https://github.com/nearform/udaru/tree/master/packages/udaru-core)), as a Hapi Plugin that provides a REST API around core ([udaru-hapi-plugin](https://github.com/nearform/udaru/tree/master/packages/udaru-hapi-plugin)) or a stand-alone server ([udaru-hapi-server)[https://github.com/nearform/udaru/tree/master/packages/udaru-hapi-server]]). 
+Udaru can be used as a stand-alone node.js module ([udaru-core](https://github.com/nearform/udaru/tree/master/packages/udaru-core)), as a Hapi Plugin that provides a REST API around core ([udaru-hapi-plugin](https://github.com/nearform/udaru/tree/master/packages/udaru-hapi-plugin)) or a stand-alone server ([udaru-hapi-server](https://github.com/nearform/udaru/tree/master/packages/udaru-hapi-server)). 
 
 ## Background
 
