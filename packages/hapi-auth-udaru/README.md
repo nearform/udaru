@@ -74,9 +74,9 @@ npm run pg:init-volume-db
 -   **Note:** Running this command will auto run the standard database population commands also
 
 All volume data sits under the organization 'CONCH' and has the following default setup:
--  500 teams
--  100 users per team (the first of every 100 being the parent of subsequent 99)
--  10 policies per team
+-   500 teams
+-   100 users per team (the first of every 100 being the parent of subsequent 99)
+-   10 policies per team
 
 After loading the data, the autocannon bench tests can be run by executing:
 
@@ -293,12 +293,12 @@ npm run bench:load-volume
 ```
 
 This command will:
--  initialise the db & migrate to latest db schema
--  load the standard test fixtures
--  load the volume fixtures 
--  spawn an instance of udaru server
--  run the autocannon tests & display results
--  shut down
+-   initialise the db & migrate to latest db schema
+-   load the standard test fixtures
+-   load the volume fixtures
+-   spawn an instance of udaru server
+-   run the autocannon tests & display results
+-   shut down
 
 ## Security
 
@@ -333,3 +333,15 @@ Copyright nearForm Ltd 2017. Licensed under [MIT][license].
 [coveralls-url]: https://coveralls.io/github/nearform/hapi-auth-udaru?branch=master
 [snyk-badge]: https://snyk.io/test/github/nearform/hapi-auth-udaru/badge.svg
 [snyk-url]: https://snyk.io/test/github/nearform/hapi-auth-udaru
+[postgrator]: https://github.com/rickbergfalk/postgrator
+[docs-site]: https://nearform.github.io/udaru
+[swagger-docs-url]: https://nearform.github.io/udaru/swagger/
+[core-config]: https://github.com/nearform/udaru/blob/master/packages/udaru-core/config.js
+[plugin-config]: https://github.com/nearform/udaru/blob/master/packages/hapi-auth-udaru/lib/config.js
+[server-config]: https://github.com/nearform/udaru/blob/master/packages/hapi-auth-udaru/standalone/config.js
+[swagger-link]: http://localhost:8080/documentation
+[prefix-link]: https://github.com/nearform/udaru/blob/master/lib/core/config.js#L100
+[reconfig]: https://github.com/namshi/reconfig
+[sqlmap]: https://github.com/sqlmapproject/sqlmap
+[sqlmap config]: https://github.com/nearform/udaru/blob/master/security/fixtures/injection-endpoints.json
+[SQL Injection]: docs/sqlinjection.md
