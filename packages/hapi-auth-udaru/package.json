@@ -49,7 +49,9 @@
     "pg:load-test-data": "UDARU_SERVICE_local=true npx udaru-loadTestData",
     "pg:migrate": "npx udaru-migrate --version=max",
     "start": "node ./start.js",
-    "test": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -c -t 96",
+    "test-lts": "echo '\\033[33mhapi-auth-udaru requires Node.js greater than 8.9.0. Exiting without errors.\\033[0m'",
+    "test-current": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -c -t 96",
+    "test": "npm run test-$(node -v | grep '^v6' >> /dev/null && echo 'lts' || echo 'current')",
     "test:security": "node ./security/runner.js",
     "pretest:security": "napa sqlmapproject/sqlmap"
   },
