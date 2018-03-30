@@ -12,8 +12,23 @@ function register (server, options, next) {
   const { decorateUdaruCore = true } = config
   if (decorateUdaruCore) {
     const udaru = buildUdaru(options.dbPool, config)
+
+    // If there are hooks to register
+    if (typeof options.hooks === 'object') {
+      for (const hook of Object.keys(options.hooks)) { // For each hook
+        // Normalize handlers to always be an array and only consider functions
+        let handlers = options.hooks[hook]
+        if (!Array.isArray(handlers)) handlers = [handlers]
+        handlers = handlers.filter(f => typeof f === 'function')
+
+        // Register each handler
+        for (const handler of handlers) udaru.addHook(hook, handler)
+      }
+    }
+
     server.decorate('request', 'udaruCore', udaru)
   }
+
   server.decorate('server', 'udaruConfig', config)
 
   const authorization = buildAuthorization(config)

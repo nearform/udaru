@@ -20,7 +20,7 @@ This repository is home to Udaru's three main modules:
 
 ## License
 
-Copyright nearForm Ltd 2017-2018. Licensed under [MIT][license].
+Copyright nearForm Ltd 2017-2018. Licensed under [MIT license](https://choosealicense.com/licenses/mit).
 
 
 [travis-badge]: https://travis-ci.org/nearform/udaru.svg?branch=master
