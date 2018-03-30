@@ -371,8 +371,9 @@ exports.register = function (server, options, next) {
     handler: function (request, reply) {
       const { teamId, policyId } = request.params
       const { organizationId } = request.udaru
+      const { instance } = request.query
 
-      request.udaruCore.teams.deletePolicy({ teamId, policyId, organizationId }, function (err, res) {
+      request.udaruCore.teams.deletePolicy({ teamId, policyId, organizationId, instance }, function (err, res) {
         if (err) {
           return reply(err)
         }
@@ -385,8 +386,9 @@ exports.register = function (server, options, next) {
         params: _.pick(validation.deleteTeamPolicy, ['teamId', 'policyId']),
         headers
       },
-      description: 'Remove a team policy',
-      notes: 'The DELETE /authorization/teams/{teamId}/policies/{policyId} endpoint removes a specific team policy.\n',
+      description: 'Remove a policy associated with a team',
+      notes: 'The DELETE /authorization/teams/{teamId}/policies/{policyId} endpoint disassociates a policy from a team.\n' +
+        'Set optional parameter instance to delete a specific policy instance with variables, or leave blank to remove all instances with this policyId.\n',
       tags: ['api', 'teams'],
       plugins: {
         auth: {

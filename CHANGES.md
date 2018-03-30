@@ -3,6 +3,9 @@ Features, enhancements:
 -   Lerna package split, udaru-core, udaru-plugin and udaru-server now in separate npm packages [commit](https://github.com/nearform/udaru/pull/444) 
 -   **Breaking change**: 404 not found on endpoint GET /authorization/teams/${teamId}/users if team does not exist [commit](https://github.com/nearform/udaru/pull/444)
 -   **Breaking change**: 404 not found on endpoint /authorization/users/${userId}/teams if user does not exist [commit](https://github.com/nearform/udaru/pull/444)
+-   SQL module extracted and placed in own npm module (https://www.npmjs.com/package/@nearform/sql)
+-   Policy instance now returned when associating policy with user,team,org, which can be passed as param to DELETE to delete a specific instance
+-   Policy context variables added, which can be used in policy resources and policy condition elements
 -   SQL module extracted and placed in own npm module ([@nearform/sql](https://www.npmjs.com/package/@nearform/sql))
 
 ## 4.1.0 - March 12, 2018

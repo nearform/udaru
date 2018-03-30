@@ -230,12 +230,13 @@ And then provide the value for `documentId` when assigning the Policy to a User 
 
 This will reduce the number of Policies required, while still being specific on the documents a User can read.
 
-
 Policy Templates are actually regular Policies that use variables. The difference is that the value of the variables, rather than being obtained from context at run time, is defined on Policy assignment.
 
 When a Policy is assigned to a User (or a Team) an additional object can be provided whose properties will be used as the value for the variables in the Policy itself.
 
-Currently we support variables in the Resource part of the Policy statement (similar to what PBAC already does)
+Currently we support variables in the Resource part of the Policy statement (similar to what PBAC already does).
+
+Once a Policy Instance is created, it is assigned an Instance id, which is returned as a property of the Policy Instance in the Policies array. This can be used to identify and delete that single Instance of the Policy using the query param 'instance' using the same endpoints to disassociate policies from Users, Teams and Organizations.
 
 ### Shared Policies
 

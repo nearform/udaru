@@ -519,6 +519,107 @@ lab.experiment('Organizations', () => {
     })
   })
 
+  lab.test('Policy instance addition and removal', (done) => {
+    let options = utils.requestOptions({
+      method: 'PUT',
+      url: `/authorization/organizations/${organizationId}/policies`,
+      payload: {policies: []}
+    })
+
+    server.inject(options, (response) => {
+      const { result } = response
+
+      expect(response.statusCode).to.equal(200)
+      expect(result.policies.length).to.equal(0)
+
+      options = utils.requestOptions({
+        method: 'PUT',
+        url: `/authorization/organizations/${organizationId}/policies`,
+        payload: {
+          policies: [{
+            id: testPolicy.id,
+            variables: {var1: 'value1'}
+          }]
+        }
+      })
+
+      server.inject(options, (response) => {
+        const { result } = response
+
+        expect(response.statusCode).to.equal(200)
+        expect(utils.PoliciesWithoutInstance(result.policies)).to.contain([
+          { id: testPolicy.id, name: testPolicy.name, version: testPolicy.version, variables: {var1: 'value1'} }
+        ])
+
+        const firstInstance = result.policies[0].instance
+
+        options.payload = {
+          policies: [{
+            id: testPolicy.id,
+            variables: {var2: 'value2'}
+          }, {
+            id: testPolicy.id,
+            variables: {var3: 'value3'}
+          }]
+        }
+
+        server.inject(options, (response) => {
+          const { result } = response
+
+          expect(response.statusCode).to.equal(200)
+          expect(result.policies.length).to.equal(3)
+          expect(utils.PoliciesWithoutInstance(result.policies)).to.contain([
+            { id: testPolicy.id, name: testPolicy.name, version: testPolicy.version, variables: {var3: 'value3'} }
+          ])
+
+          options = utils.requestOptions({
+            method: 'DELETE',
+            url: `/authorization/organizations/${organizationId}/policies/${testPolicy.id}?instance=${firstInstance}`
+          })
+
+          server.inject(options, (response) => {
+            expect(response.statusCode).to.equal(204)
+
+            options = utils.requestOptions({
+              method: 'GET',
+              url: `/authorization/organizations/${organizationId}`
+            })
+
+            server.inject(options, (response) => {
+              const { result } = response
+              expect(response.statusCode).to.equal(200)
+              expect(result.policies.length).to.equal(2)
+              expect(utils.PoliciesWithoutInstance(result.policies)).to.not.contain([
+                { id: testPolicy.id, name: testPolicy.name, version: testPolicy.version, variables: {var1: 'value1'} }
+              ])
+
+              options = utils.requestOptions({
+                method: 'DELETE',
+                url: `/authorization/organizations/${organizationId}/policies/${testPolicy.id}`
+              })
+
+              server.inject(options, (response) => {
+                expect(response.statusCode).to.equal(204)
+
+                options = utils.requestOptions({
+                  method: 'GET',
+                  url: `/authorization/organizations/${organizationId}`
+                })
+
+                server.inject(options, (response) => {
+                  const { result } = response
+                  expect(response.statusCode).to.equal(200)
+                  expect(result.policies.length).to.equal(0)
+                  done()
+                })
+              })
+            })
+          })
+        })
+      })
+    })
+  })
+
   lab.test('add policies to an organization', (done) => {
     const options = utils.requestOptions({
       method: 'PUT',
@@ -559,7 +660,7 @@ lab.experiment('Organizations', () => {
       expect(result.policies).to.exist()
       // it's 2 because the previous tests insert one policy, this inserts the second
       expect(result.policies.length).to.equal(2)
-      expect(result.policies).to.include({
+      expect(utils.PoliciesWithoutInstance(result.policies)).to.include({
         id: testPolicy.id,
         name: testPolicy.name,
         version: testPolicy.version,

@@ -207,6 +207,7 @@ lab.experiment('UserOps', () => {
     udaru.users.read({ id: 'VerucaId', organizationId: 'WONKA' }, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.exist()
+      result.policies = u.PoliciesWithoutInstance(result.policies)
       expect(result).to.equal(expected)
 
       done()
@@ -242,7 +243,7 @@ lab.experiment('UserOps', () => {
     udaru.users.read({ id: 'VerucaId', organizationId: 'WONKA' }, (err, user) => {
       expect(err).to.not.exist()
       expect(user).to.exist()
-      expect(user.policies).to.equal([{
+      expect(u.PoliciesWithoutInstance(user.policies)).to.equal([{
         id: accountantPolicy.id,
         name: accountantPolicy.name,
         version: accountantPolicy.version,
@@ -257,7 +258,7 @@ lab.experiment('UserOps', () => {
         expect(err).to.not.exist()
         expect(user).to.exist()
         expect(user.policies.length).to.equal(2)
-        expect(user.policies).to.contain([{
+        expect(u.PoliciesWithoutInstance(user.policies)).to.contain([{
           id: directorPolicy.id,
           name: directorPolicy.name,
           version: directorPolicy.version,
@@ -285,7 +286,7 @@ lab.experiment('UserOps', () => {
     udaru.users.read({ id: 'VerucaId', organizationId: 'WONKA' }, (err, user) => {
       expect(err).to.not.exist()
       expect(user).to.exist()
-      expect(user.policies).to.equal([{
+      expect(u.PoliciesWithoutInstance(user.policies)).to.equal([{
         id: accountantPolicy.id,
         name: accountantPolicy.name,
         version: accountantPolicy.version,
@@ -305,7 +306,7 @@ lab.experiment('UserOps', () => {
         expect(err).to.not.exist()
         expect(user).to.exist()
         expect(user.policies.length).to.equal(2)
-        expect(user.policies).to.contain([{
+        expect(u.PoliciesWithoutInstance(user.policies)).to.contain([{
           id: directorPolicy.id,
           name: directorPolicy.name,
           version: directorPolicy.version,
@@ -331,7 +332,7 @@ lab.experiment('UserOps', () => {
     udaru.users.read({ id: 'VerucaId', organizationId: 'WONKA' }, (err, user) => {
       expect(err).to.not.exist()
       expect(user).to.exist()
-      expect(user.policies).to.equal([{
+      expect(u.PoliciesWithoutInstance(user.policies)).to.equal([{
         id: accountantPolicy.id,
         name: accountantPolicy.name,
         version: accountantPolicy.version,
@@ -345,7 +346,7 @@ lab.experiment('UserOps', () => {
       }, (err, user) => {
         expect(err).to.not.exist()
         expect(user).to.exist()
-        expect(user.policies).to.equal([{
+        expect(u.PoliciesWithoutInstance(user.policies)).to.equal([{
           id: 'sharedPolicyId1',
           name: 'Shared policy from fixtures',
           version: '0.1',
@@ -368,7 +369,7 @@ lab.experiment('UserOps', () => {
     udaru.users.read({ id: 'VerucaId', organizationId: 'WONKA' }, (err, user) => {
       expect(err).to.not.exist()
       expect(user).to.exist()
-      expect(user.policies).to.equal([{
+      expect(u.PoliciesWithoutInstance(user.policies)).to.equal([{
         id: accountantPolicy.id,
         name: accountantPolicy.name,
         version: accountantPolicy.version,
@@ -378,7 +379,7 @@ lab.experiment('UserOps', () => {
       udaru.users.addPolicies({ id: 'VerucaId', policies: [directorPolicy.id, sysadminPolicy.id], organizationId: 'WONKA' }, (err, user) => {
         expect(err).to.not.exist()
         expect(user).to.exist()
-        expect(user.policies).to.equal([{
+        expect(u.PoliciesWithoutInstance(user.policies)).to.equal([{
           id: accountantPolicy.id,
           name: accountantPolicy.name,
           version: accountantPolicy.version,
@@ -411,7 +412,7 @@ lab.experiment('UserOps', () => {
     udaru.users.read({ id: 'VerucaId', organizationId: 'WONKA' }, (err, user) => {
       expect(err).to.not.exist()
       expect(user).to.exist()
-      expect(user.policies).to.equal([{
+      expect(u.PoliciesWithoutInstance(user.policies)).to.equal([{
         id: accountantPolicy.id,
         name: accountantPolicy.name,
         version: accountantPolicy.version,
@@ -430,7 +431,7 @@ lab.experiment('UserOps', () => {
         expect(err).to.not.exist()
         expect(user).to.exist()
         expect(user.policies.length).to.equal(3)
-        expect(user.policies).to.contain([{
+        expect(u.PoliciesWithoutInstance(user.policies)).to.contain([{
           id: accountantPolicy.id,
           name: accountantPolicy.name,
           version: accountantPolicy.version,
@@ -455,13 +456,74 @@ lab.experiment('UserOps', () => {
     })
   })
 
+  lab.test('test addition and deletion of policies instances with variables', (done) => {
+    let accountantPolicy = u.findPick(wonkaPolicies, {name: 'Accountant'}, ['id', 'name', 'version'])
+
+    udaru.users.read({ id: 'VerucaId', organizationId: 'WONKA' }, (err, user) => {
+      expect(err).to.not.exist()
+      expect(user).to.exist()
+      expect(u.PoliciesWithoutInstance(user.policies)).to.equal([{
+        id: accountantPolicy.id,
+        name: accountantPolicy.name,
+        version: accountantPolicy.version,
+        variables: {}
+      }])
+      const firstInstance = user.policies[0].instance
+
+      const policies = [{
+        id: accountantPolicy.id,
+        variables: {var1: 'val1'}
+      }, {
+        id: accountantPolicy.id,
+        variables: {var2: 'val2'}
+      }]
+
+      udaru.users.addPolicies({ id: 'VerucaId', policies, organizationId: 'WONKA' }, (err, user) => {
+        expect(err).to.not.exist()
+        expect(user).to.exist()
+        expect(user.policies.length).to.equal(3)
+        expect(u.PoliciesWithoutInstance(user.policies)).to.contain([{
+          id: accountantPolicy.id,
+          name: accountantPolicy.name,
+          version: accountantPolicy.version,
+          variables: {var2: 'val2'}
+        }])
+
+        // delete instance only
+        udaru.users.deletePolicy({ userId: 'VerucaId', policyId: accountantPolicy.id, instance: firstInstance, organizationId: 'WONKA' }, (err, user) => {
+          expect(err).to.not.exist()
+          expect(user).to.exist()
+          expect(user.policies.length).to.equal(2)
+          expect(u.PoliciesWithoutInstance(user.policies)).to.contain([{
+            id: accountantPolicy.id,
+            name: accountantPolicy.name,
+            version: accountantPolicy.version,
+            variables: {var2: 'val2'}
+          }])
+
+           // delete remaining, no instance param
+          udaru.users.deletePolicy({ userId: 'VerucaId', policyId: accountantPolicy.id, organizationId: 'WONKA' }, (err, user) => {
+            expect(err).to.not.exist()
+            expect(user).to.exist()
+            expect(user.policies.length).to.equal(0)
+
+            udaru.users.replacePolicies({ id: 'VerucaId', policies: [accountantPolicy.id], organizationId: 'WONKA' }, (err, user) => {
+              expect(err).to.not.exist()
+              done()
+            })
+          })
+        })
+      })
+    })
+  })
+
   lab.test('add shared policies to user', (done) => {
     const accountantPolicy = u.findPick(wonkaPolicies, {name: 'Accountant'}, ['id', 'name', 'version'])
 
     udaru.users.read({ id: 'VerucaId', organizationId: 'WONKA' }, (err, user) => {
       expect(err).to.not.exist()
       expect(user).to.exist()
-      expect(user.policies).to.equal([{
+      expect(u.PoliciesWithoutInstance(user.policies)).to.equal([{
         id: accountantPolicy.id,
         name: accountantPolicy.name,
         version: accountantPolicy.version,
@@ -472,7 +534,7 @@ lab.experiment('UserOps', () => {
         expect(err).to.not.exist()
         expect(user).to.exist()
         expect(user.policies.length).to.equal(2)
-        expect(user.policies).to.contain([{
+        expect(u.PoliciesWithoutInstance(user.policies)).to.contain([{
           id: accountantPolicy.id,
           name: accountantPolicy.name,
           version: accountantPolicy.version,
@@ -498,7 +560,7 @@ lab.experiment('UserOps', () => {
     udaru.users.read({ id: 'VerucaId', organizationId: 'WONKA' }, (err, user) => {
       expect(err).to.not.exist()
       expect(user).to.exist()
-      expect(user.policies).to.equal([{
+      expect(u.PoliciesWithoutInstance(user.policies)).to.equal([{
         id: accountantPolicy.id,
         name: accountantPolicy.name,
         version: accountantPolicy.version,
@@ -524,7 +586,7 @@ lab.experiment('UserOps', () => {
     udaru.users.read({ id: 'VerucaId', organizationId: 'WONKA' }, (err, user) => {
       expect(err).to.not.exist()
       expect(user).to.exist()
-      expect(user.policies).to.equal([{
+      expect(u.PoliciesWithoutInstance(user.policies)).to.equal([{
         id: accountantPolicy.id,
         name: accountantPolicy.name,
         version: accountantPolicy.version,
@@ -553,7 +615,7 @@ lab.experiment('UserOps', () => {
       udaru.users.read({ id: 'VerucaId', organizationId: 'WONKA' }, (err, user) => {
         expect(err).to.not.exist()
         expect(user).to.exist()
-        expect(user.policies).to.equal([{
+        expect(u.PoliciesWithoutInstance(user.policies)).to.equal([{
           id: accountantPolicy.id,
           name: accountantPolicy.name,
           version: accountantPolicy.version,
@@ -572,7 +634,7 @@ lab.experiment('UserOps', () => {
           expect(err).to.not.exist()
           expect(user).to.exist()
           expect(user.policies.length).to.equal(3)
-          expect(user.policies).to.contain([{
+          expect(u.PoliciesWithoutInstance(user.policies)).to.contain([{
             id: accountantPolicy.id,
             name: accountantPolicy.name,
             version: accountantPolicy.version,
@@ -604,7 +666,7 @@ lab.experiment('UserOps', () => {
       udaru.users.read({ id: 'VerucaId', organizationId: 'WONKA' }, (err, user) => {
         expect(err).to.not.exist()
         expect(user).to.exist()
-        expect(user.policies).to.equal([{
+        expect(u.PoliciesWithoutInstance(user.policies)).to.equal([{
           id: accountantPolicy.id,
           name: accountantPolicy.name,
           version: accountantPolicy.version,
@@ -627,7 +689,7 @@ lab.experiment('UserOps', () => {
           expect(err).to.not.exist()
           expect(user).to.exist()
           expect(user.policies.length).to.equal(3)
-          expect(user.policies).to.contain([{
+          expect(u.PoliciesWithoutInstance(user.policies)).to.contain([{
             id: accountantPolicy.id,
             name: accountantPolicy.name,
             version: accountantPolicy.version,
@@ -658,7 +720,7 @@ lab.experiment('UserOps', () => {
       udaru.users.read({ id: 'VerucaId', organizationId: 'WONKA' }, (err, user) => {
         expect(err).to.not.exist()
         expect(user).to.exist()
-        expect(user.policies).to.equal([{
+        expect(u.PoliciesWithoutInstance(user.policies)).to.equal([{
           id: accountantPolicy.id,
           name: accountantPolicy.name,
           version: accountantPolicy.version,
@@ -678,7 +740,7 @@ lab.experiment('UserOps', () => {
           expect(err).to.not.exist()
           expect(user).to.exist()
           expect(user.policies.length).to.equal(2)
-          expect(user.policies).to.contain([{
+          expect(u.PoliciesWithoutInstance(user.policies)).to.contain([{
             id: accountantPolicy.id,
             name: accountantPolicy.name,
             version: accountantPolicy.version,
@@ -698,7 +760,7 @@ lab.experiment('UserOps', () => {
             expect(err).to.not.exist()
             expect(user).to.exist()
             expect(user.policies.length).to.equal(2)
-            expect(user.policies).to.contain([{
+            expect(u.PoliciesWithoutInstance(user.policies)).to.contain([{
               id: accountantPolicy.id,
               name: accountantPolicy.name,
               version: accountantPolicy.version,

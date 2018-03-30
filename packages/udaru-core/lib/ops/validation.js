@@ -50,6 +50,7 @@ const validationRules = {
   userId: requiredStringId.description('User ID'),
   teamId: requiredStringId.description('Team ID'),
   organizationId: requiredStringId.description('Organization ID'),
+  policyInstance: Joi.number().integer().optional().description('Policy Instance Id'),
   page: Joi.number().integer().min(1).description('Page number, starts from 1'),
   limit: Joi.number().integer().min(1).description('Items per page'),
   version: requiredString.description('Version number'),
@@ -112,7 +113,8 @@ const users = {
   deleteUserPolicy: {
     userId: validationRules.userId,
     policyId: validationRules.policyId,
-    organizationId: validationRules.organizationId
+    organizationId: validationRules.organizationId,
+    instance: validationRules.policyInstance
   },
   listUserTeams: {
     id: validationRules.userId,
@@ -193,7 +195,8 @@ const teams = {
   deleteTeamPolicy: {
     teamId: validationRules.teamId,
     policyId: validationRules.policyId,
-    organizationId: validationRules.organizationId
+    organizationId: validationRules.organizationId,
+    instance: validationRules.policyInstance
   },
   readTeamUsers: {
     id: validationRules.teamId,
@@ -316,7 +319,8 @@ const organizations = {
   },
   deleteOrganizationPolicy: {
     id: validationRules.organizationId,
-    policyId: validationRules.policyId
+    policyId: validationRules.policyId,
+    instance: validationRules.policyInstance
   }
 }
 

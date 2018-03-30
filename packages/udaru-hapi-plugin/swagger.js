@@ -26,7 +26,8 @@ const PolicyRef = Joi.object({
   id: Joi.string().description('Policy ID'),
   version: Joi.string().description('Policy version'),
   name: Joi.string().description('Policy name'),
-  variables: Joi.object().description('List of fixed values for variables').label('Variables')
+  variables: Joi.object().description('List of fixed values for variables').label('Variables'),
+  instance: Joi.number().integer().description('Policy unique instance')
 }).label('PolicyRef')
 const PolicyRefs = Joi.array().items(PolicyRef).description('Policy Refs').label('PolicyRefs')
 
