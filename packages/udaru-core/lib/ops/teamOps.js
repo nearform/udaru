@@ -5,9 +5,10 @@ const Joi = require('joi')
 const Boom = require('boom')
 const uuid = require('uuid/v4')
 const async = require('async')
-const utils = require('./utils')
 const SQL = require('@nearform/sql')
-const mapping = require('./../mapping')
+const asyncify = require('../asyncify')
+const mapping = require('../mapping')
+const utils = require('./utils')
 const validationRules = require('./validation').teams
 
 const buildPolicyOps = require('./policyOps')
@@ -330,6 +331,9 @@ function buildTeamOps (db, config) {
      * @param  {Function} cb
      */
     listOrgTeams: function listOrgTeams (params, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify('data', 'total')
+
       let { organizationId, limit, page } = params
 
       Joi.validate({ organizationId, page, limit }, validationRules.listOrgTeams, function (err) {
@@ -371,6 +375,8 @@ function buildTeamOps (db, config) {
           return cb(null, result.rows.map(mapping.team.list), total)
         })
       })
+
+      return promise
     },
 
     /**
@@ -385,6 +391,9 @@ function buildTeamOps (db, config) {
         cb = opts
         opts = {}
       }
+
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
 
       const { createOnly } = opts
       const tasks = [
@@ -416,6 +425,8 @@ function buildTeamOps (db, config) {
         if (err) return cb(err)
         teamOps.readTeam({ id: res.team.id, organizationId: params.organizationId }, cb)
       })
+
+      return promise
     },
 
     /**
@@ -428,6 +439,9 @@ function buildTeamOps (db, config) {
       const job = {
         team: {}
       }
+
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
 
       async.applyEachSeries([
         (job, next) => {
@@ -449,6 +463,8 @@ function buildTeamOps (db, config) {
         if (err) return cb(err)
         return cb(null, job.team)
       })
+
+      return promise
     },
 
     /**
@@ -457,6 +473,9 @@ function buildTeamOps (db, config) {
      * @param {Function} cb
      */
     updateTeam: function updateTeam (params, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       const { id, name, description, metadata, organizationId } = params
 
       Joi.validate({ id, name, description, organizationId, metadata }, Joi.object().keys(validationRules.updateTeam).or('name', 'description'), function (err) {
@@ -481,6 +500,8 @@ function buildTeamOps (db, config) {
           teamOps.readTeam({ id, organizationId }, cb)
         })
       })
+
+      return promise
     },
 
     /**
@@ -490,6 +511,9 @@ function buildTeamOps (db, config) {
      * @param  {Function} cb     [description]
      */
     deleteTeam: function deleteTeam (params, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       db.withTransaction([
         (job, next) => {
           const { id, organizationId } = params
@@ -514,6 +538,8 @@ function buildTeamOps (db, config) {
         if (err) return cb(err)
         cb()
       })
+
+      return promise
     },
     /**
      * List a nested team in an organization
@@ -522,6 +548,9 @@ function buildTeamOps (db, config) {
      * @param  {Function} cb
      */
     listNestedTeams: function listNestedTeams (params, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify('data', 'total')
+
       let { organizationId, id, limit, page } = params
 
       Joi.validate({ organizationId, id, page, limit }, validationRules.listNestedTeams, function (err) {
@@ -565,6 +594,8 @@ function buildTeamOps (db, config) {
           return cb(null, result.rows.map(mapping.team.listNestedTeam), total)
         })
       })
+
+      return promise
     },
 
     /**
@@ -574,6 +605,9 @@ function buildTeamOps (db, config) {
      * @param  {Function} cb
      */
     moveTeam: function moveTeam (params, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       const { id, organizationId } = params
 
       db.withTransaction([
@@ -594,6 +628,8 @@ function buildTeamOps (db, config) {
         if (err) return cb(err)
         teamOps.readTeam({ id, organizationId }, cb)
       })
+
+      return promise
     },
 
     /**
@@ -603,6 +639,9 @@ function buildTeamOps (db, config) {
      * @param  {Function} cb
      */
     addTeamPolicies: function addTeamPolicies (params, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       const { id, organizationId } = params
 
       Joi.validate({ id, organizationId, policies: params.policies }, validationRules.addTeamPolicies, function (err) {
@@ -619,6 +658,8 @@ function buildTeamOps (db, config) {
           })
         })
       })
+
+      return promise
     },
 
     /**
@@ -628,6 +669,9 @@ function buildTeamOps (db, config) {
      * @param  {Function} cb
      */
     replaceTeamPolicies: function replaceTeamPolicies (params, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       const { id, organizationId, policies } = params
       const tasks = [
         (job, next) => {
@@ -653,6 +697,8 @@ function buildTeamOps (db, config) {
         if (err) return cb(err)
         teamOps.readTeam({ id, organizationId }, cb)
       })
+
+      return promise
     },
 
     /**
@@ -662,6 +708,9 @@ function buildTeamOps (db, config) {
      * @param  {Function} cb
      */
     deleteTeamPolicies: function deleteTeamPolicies (params, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       const { id, organizationId } = params
 
       Joi.validate({ id, organizationId }, validationRules.deleteTeamPolicies, function (err) {
@@ -672,6 +721,8 @@ function buildTeamOps (db, config) {
           teamOps.readTeam({ id, organizationId }, cb)
         })
       })
+
+      return promise
     },
 
     /**
@@ -681,6 +732,9 @@ function buildTeamOps (db, config) {
      * @param  {Function} cb
      */
     deleteTeamPolicy: function deleteTeamPolicy (params, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       const { teamId, organizationId, policyId, instance } = params
 
       Joi.validate({ teamId, organizationId, policyId, instance }, validationRules.deleteTeamPolicy, function (err) {
@@ -691,6 +745,8 @@ function buildTeamOps (db, config) {
           teamOps.readTeam({ id: teamId, organizationId }, cb)
         })
       })
+
+      return promise
     },
 
     /**
@@ -700,6 +756,9 @@ function buildTeamOps (db, config) {
      * @param  {Function} cb
      */
     readTeamUsers: function readTeamUsers ({ id, page = 1, limit, organizationId }, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       Joi.validate({ id, page, limit, organizationId }, validationRules.readTeamUsers, function (err) {
         if (err) return cb(Boom.badRequest(err))
 
@@ -727,6 +786,8 @@ function buildTeamOps (db, config) {
           return cb(null, result)
         })
       })
+
+      return promise
     },
 
     /**
@@ -736,6 +797,9 @@ function buildTeamOps (db, config) {
      * @param  {Function} cb
      */
     addUsersToTeam: function addUsersToTeam (params, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       const { id, users, organizationId } = params
       const tasks = [
         (job, next) => {
@@ -762,6 +826,8 @@ function buildTeamOps (db, config) {
         if (err) return cb(err)
         teamOps.readTeam({ id, organizationId }, cb)
       })
+
+      return promise
     },
 
     /**
@@ -771,6 +837,9 @@ function buildTeamOps (db, config) {
      * @param  {Function} cb
      */
     replaceUsersInTeam: function replaceUsersInTeam (params, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       const { id, users, organizationId } = params
       const tasks = [
         (job, next) => {
@@ -798,6 +867,8 @@ function buildTeamOps (db, config) {
         if (err) return cb(err)
         teamOps.readTeam({ id, organizationId }, cb)
       })
+
+      return promise
     },
 
     /**
@@ -807,6 +878,9 @@ function buildTeamOps (db, config) {
      * @param  {Function} cb
      */
     deleteTeamMembers: function deleteTeamMembers (params, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       const { id, organizationId } = params
 
       const tasks = [
@@ -831,6 +905,8 @@ function buildTeamOps (db, config) {
         if (err) return cb(err)
         cb()
       })
+
+      return promise
     },
 
     /**
@@ -840,6 +916,9 @@ function buildTeamOps (db, config) {
      * @param  {Function} cb
      */
     deleteTeamMember: function deleteTeamMember (params, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       const { id, userId, organizationId } = params
       const tasks = [
         (job, next) => {
@@ -863,6 +942,8 @@ function buildTeamOps (db, config) {
         if (err) return cb(err)
         cb()
       })
+
+      return promise
     },
 
     /**
@@ -872,6 +953,9 @@ function buildTeamOps (db, config) {
      * @param {Function} cb
      */
     search: function search (params, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify('data', 'total')
+
       const { organizationId, query } = params
       Joi.validate({ organizationId, query }, validationRules.searchTeam, function (err) {
         if (err) {
@@ -894,6 +978,8 @@ function buildTeamOps (db, config) {
           return cb(null, result.rows.map(mapping.team), result.rows.length)
         })
       })
+
+      return promise
     },
 
     /**
@@ -903,6 +989,9 @@ function buildTeamOps (db, config) {
      * @param {Function} cb
      */
     searchUsers: function searchUsers (params, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify('data', 'total')
+
       const { organizationId, id, query } = params
       Joi.validate({ organizationId, id, query }, validationRules.searchTeamUsers, function (err) {
         if (err) {
@@ -929,6 +1018,8 @@ function buildTeamOps (db, config) {
           return cb(null, result.rows.map(mapping.user), result.rows.length)
         })
       })
+
+      return promise
     }
   }
 

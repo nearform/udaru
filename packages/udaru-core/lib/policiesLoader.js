@@ -4,6 +4,7 @@ const jsonfile = require('jsonfile')
 const config = require('../config')()
 const udaru = require('..')(null, config)
 const db = require('./db')(null, config)
+const asyncify = require('./asyncify')
 
 function exit (message) {
   console.error(message)
@@ -17,6 +18,13 @@ function load (organizationId, source, callback, closeDb = true) {
 
   if (!source) {
     return callback(new Error('Please provide a json file'))
+  }
+
+  let promise = null
+  if (typeof callback !== 'function') {
+    closeDb = callback;
+
+    [promise, callback] = asyncify()
   }
 
   const input = jsonfile.readFileSync(source, { throws: false })
@@ -46,6 +54,8 @@ function load (organizationId, source, callback, closeDb = true) {
       callback(err)
     })
   })
+
+  return promise
 }
 
 module.exports = {

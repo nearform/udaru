@@ -4,7 +4,7 @@
 
 It supports Organizations, Teams and User entities that are used to build the access model. The Policies attached to these entities define Actions that can be performed by an entity on various Resources.
 
-Udaru can be used as a stand-alone node.js module ([udaru-core](https://github.com/nearform/udaru/tree/master/packages/udaru-core)), as a Hapi Plugin that provides a REST API around core ([udaru-hapi-plugin](https://github.com/nearform/udaru/tree/master/packages/udaru-hapi-plugin)) or a stand-alone server ([udaru-hapi-server)[https://github.com/nearform/udaru/tree/master/packages/udaru-hapi-server]]). 
+Udaru can be used as a stand-alone node.js module ([udaru-core](https://github.com/nearform/udaru/tree/master/packages/udaru-core)), as a Hapi Plugin that provides a REST API around core ([udaru-hapi-plugin](https://github.com/nearform/udaru/tree/master/packages/udaru-hapi-plugin)) or a stand-alone server ([udaru-hapi-server](https://github.com/nearform/udaru/tree/master/packages/udaru-hapi-server)). 
 
 ## Background
 
@@ -159,15 +159,15 @@ For a detailed description of IAM Policy variable usage see the [AWS Policy Vari
 
 Udaru has several system context variables that can be used in resources and conditions i.e.
 
--  Udaru User context variables:
-  -  udaru:userId
-  -  udaru:organizationId
+-   Udaru user context variables:
+    -   udaru:userId
+    -   udaru:organizationId
 
-- Request context variables
-  -  request:source (can be either 'api' or 'server')
-  -  request:sourceIp
-  -  request:sourcePort
-  -  request:currentTime
+-   Request context variables:
+    -   request:source (can be either 'api' or 'server')
+    -   request:sourceIp
+    -   request:sourcePort
+    -   request:currentTime
 
 A good example of condition usage would be to grant access to a resource using a Policy that expires. To achieve this the DateTime condition, 'DateLessThan', can be used to grant access to a resource if the system context variable request:currentTime is evaluated as being less than the date specified in the condition.
 
@@ -236,9 +236,9 @@ When a Policy is assigned to a User (or a Team) an additional object can be prov
 
 Currently we support variables in the Resource part of the Policy statement (similar to what PBAC already does).
 
-Once a Policy Instance is created, it is assigned an Instance id, which is returned as a property of the Policy Instance in the Policies array. This can be used to identify and delete that single Instance of the Policy using the query param 'instance' using the same endpoints to disassociate policies from Users, Teams and Organizations.
+Once a policy instance is created, it is assigned an instance id, which is returned as a property of the policy instance in the policies array. This can be used to identify and delete that single instance of the policy using the query param 'instance' using the same endpoints to disassociate policies from users, teams and organizations.
 
-### Shared Policies
+## Shared Policies
 
 Everything in Udaru is scoped by Policies and there can't be any interaction between two entities that belong to different Organizations.
 

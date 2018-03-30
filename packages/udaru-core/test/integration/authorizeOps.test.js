@@ -11,8 +11,9 @@ const SQL = require('@nearform/sql')
 
 const udaru = require('../..')()
 const authorize = udaru.authorize
-const Factory = require('@nearform/udaru-test/factory')
-const testUtils = require('@nearform/udaru-test/utils')
+const Factory = require('../factory')
+const testUtils = require('../testUtils')
+
 const fs = require('fs')
 const path = require('path')
 

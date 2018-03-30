@@ -5,7 +5,7 @@ const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 
-const u = require('@nearform/udaru-test/utils')
+const u = require('../testUtils')
 const udaru = require('../..')()
 
 lab.experiment('UserOps', () => {
@@ -501,7 +501,7 @@ lab.experiment('UserOps', () => {
             variables: {var2: 'val2'}
           }])
 
-           // delete remaining, no instance param
+          // delete remaining, no instance param
           udaru.users.deletePolicy({ userId: 'VerucaId', policyId: accountantPolicy.id, organizationId: 'WONKA' }, (err, user) => {
             expect(err).to.not.exist()
             expect(user).to.exist()

@@ -28,6 +28,11 @@ lab.experiment('Hooks', () => {
     udaru.users.delete({id: testUserId, organizationId: 'WONKA'}, done)
   })
 
+  lab.afterEach((done) => {
+    udaru.clearHook('authorize:isUserAuthorized')
+    done()
+  })
+
   lab.test('requires hook name to be a string', (done) => {
     expect(() => {
       udaru.addHook([], (...args) => args.pop()())
@@ -118,6 +123,45 @@ lab.experiment('Hooks', () => {
         [{access: true}]
       ])
 
+      done()
+    })
+  })
+
+  lab.test('should support promise based hooks that resolves', (done) => {
+    let handlerArgs
+
+    udaru.addHook('authorize:isUserAuthorized', function (error, input, result) {
+      return new Promise(resolve => {
+        handlerArgs = [error, input, result]
+        resolve()
+      })
+    })
+
+    udaru.authorize.isUserAuthorized({userId: testUserId, resource: 'database:pg01:balancesheet', action: 'finance:ReadBalanceSheet', organizationId}, (err, result) => {
+      if (err) return done(err)
+
+      expect(err).to.not.exist()
+      expect(result).to.exist()
+      expect(result.access).to.be.true()
+      expect(handlerArgs).to.equal([
+        null,
+        [{userId: testUserId, resource: 'database:pg01:balancesheet', action: 'finance:ReadBalanceSheet', organizationId}],
+        [{access: true}]
+      ])
+
+      done()
+    })
+  })
+
+  lab.test('should support promise based hooks that rejects', (done) => {
+    udaru.addHook('authorize:isUserAuthorized', function (_e, input, result) {
+      return new Promise(() => {
+        throw new Error('hook error')
+      })
+    })
+
+    udaru.authorize.isUserAuthorized({userId: testUserId, resource: 'database:pg01:balancesheet', action: 'finance:ReadBalanceSheet', organizationId}, (err, result) => {
+      expect(err).to.be.an.error('hook error')
       done()
     })
   })

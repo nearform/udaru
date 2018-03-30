@@ -12,6 +12,7 @@
     "Florian Traverse (https://github.com/temsa)",
     "Mihai Dima (https://github.com/mihaidma)",
     "Paolo Chiodi (https://github.com/paolochiodi)",
+    "Paolo Insogna (https://github.com/ShogunPanda)",
     "Paul Negrutiu (https://github.com/floridemai)",
     "Mark Ireland (https://github.com/irelandm)",
     "Michael O'Brien (https://github.com/mobri3n)",
@@ -38,37 +39,36 @@
     "udaru-init": "./database/init.js"
   },
   "scripts": {
-    "coverage": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -c -t 92 -r html -o coverage/coverage.html",
-    "coveralls": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -c -t 92 -r lcov | coveralls",
+    "coverage": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -c -t 90 -r html -o coverage/coverage.html",
+    "coveralls": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -c -t 90 -r lcov | coveralls",
     "depcheck": "npx depcheck",
     "pg:init": "node ./database/init.js && npm run pg:migrate",
     "pg:init-test-db": "npm run pg:init && npm run pg:load-test-data",
     "pg:load-test-data": "node ./database/loadTestData.js",
     "pg:migrate": "node ./database/migrate.js --version=max",
-    "test": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -c -t 92"
+    "test": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -c -t 90"
   },
   "dependencies": {
     "@nearform/sql": "^1.0.0",
     "async": "^2.6.0",
-    "boom": "^7.1.1",
-    "joi": "^10.6.0",
-    "jsonfile": "^3.0.1",
+    "boom": "^7.2.0",
+    "joi": "^13.1.2",
+    "jsonfile": "^4.0.0",
     "lodash": "^4.17.5",
     "pbac": "^0.3.0",
     "pg": "^7.4.1",
-    "pino": "4.15.0",
+    "pino": "^4.15.3",
     "reconfig": "3.2.0",
     "uuid": "^3.2.1",
-    "postgrator": "2.10.3"
+    "postgrator": "^3.5.0"
   },
   "devDependencies": {
-    "depcheck": "0.6.9",
-    "minimist": "1.2.0",
-    "@nearform/udaru-test": "^5.0.0",
+    "depcheck": "^0.6.9",
+    "minimist": "^1.2.0",
     "code": "^4.0.0",
-    "coveralls": "^2.11.15",
+    "coveralls": "^3.0.0",
     "lab": "^14.3.2",
-    "sinon": "^4.0.1",
-    "npx": "10.0.1"
+    "sinon": "^4.4.9",
+    "npx": "^10.0.1"
   }
 }

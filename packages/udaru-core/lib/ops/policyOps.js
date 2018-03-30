@@ -4,7 +4,8 @@ const Boom = require('boom')
 const Joi = require('joi')
 const async = require('async')
 const SQL = require('@nearform/sql')
-const mapping = require('./../mapping')
+const asyncify = require('../asyncify')
+const mapping = require('../mapping')
 const utils = require('./utils')
 const uuidV4 = require('uuid/v4')
 const validationRules = require('./validation').policies
@@ -145,6 +146,9 @@ function buildPolicyOps (db, config) {
      * @param  {Function} cb
      */
     listByOrganization: function listByOrganization (params, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify('data', 'total')
+
       const { organizationId, limit, page } = params
 
       Joi.validate({ organizationId, page, limit }, validationRules.listByOrganization, function (err) {
@@ -179,6 +183,8 @@ function buildPolicyOps (db, config) {
           return cb(null, result.rows.map(mapping.policy), total)
         })
       })
+
+      return promise
     },
 
     /**
@@ -188,6 +194,9 @@ function buildPolicyOps (db, config) {
      * @param  {Function} cb
      */
     readPolicy: function readPolicy ({ id, organizationId }, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       Joi.validate({ id, organizationId }, validationRules.readPolicy, function (err) {
         if (err) return cb(Boom.badRequest(err))
 
@@ -204,6 +213,8 @@ function buildPolicyOps (db, config) {
           return cb(null, mapping.policy(result.rows[0]))
         })
       })
+
+      return promise
     },
 
     /**
@@ -213,6 +224,9 @@ function buildPolicyOps (db, config) {
      * @param  {Function} cb
      */
     createPolicy: function createPolicy (params, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       const { id, version, name, organizationId, statements } = params
 
       Joi.validate({ id, version, name, organizationId, statements }, validationRules.createPolicy, function (err) {
@@ -230,6 +244,8 @@ function buildPolicyOps (db, config) {
           policyOps.readPolicy({ id: result.rows[0].id, organizationId }, cb)
         })
       })
+
+      return promise
     },
 
     /**
@@ -239,6 +255,9 @@ function buildPolicyOps (db, config) {
      * @param  {Function} cb
      */
     updatePolicy: function updatePolicy (params, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       const { id, organizationId, version, name, statements } = params
 
       Joi.validate({ id, organizationId, version, name, statements }, validationRules.updatePolicy, function (err) {
@@ -262,6 +281,8 @@ function buildPolicyOps (db, config) {
           policyOps.readPolicy({ id, organizationId }, cb)
         })
       })
+
+      return promise
     },
 
     /**
@@ -271,6 +292,9 @@ function buildPolicyOps (db, config) {
      * @param  {Function} cb
      */
     deletePolicy: function deletePolicy (params, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       const { id, organizationId } = params
       const tasks = [
         (job, next) => {
@@ -295,6 +319,8 @@ function buildPolicyOps (db, config) {
         if (err) return cb(err)
         cb()
       })
+
+      return promise
     },
 
     /**
@@ -304,6 +330,9 @@ function buildPolicyOps (db, config) {
      * @param  {Function} cb
      */
     listAllUserPolicies: function listAllUserPolicies ({ userId, organizationId }, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       const rootOrgId = config.get('authorization.superUser.organization.id')
       const sql = SQL`
         WITH user_teams AS (
@@ -414,17 +443,27 @@ function buildPolicyOps (db, config) {
         if (err) return cb(Boom.badImplementation(err))
         cb(null, result.rows.map(mapping.policy.iam))
       })
+
+      return promise
     },
 
-    deleteAllPolicyByIds: function deleteAllPolicyByIds (client, ids, orgId, next) {
+    deleteAllPolicyByIds: function deleteAllPolicyByIds (client, ids, orgId, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       async.applyEachSeries([
         deleteTeamAssociations,
         deleteUserAssociations,
         deletePolicies
-      ], client, ids, orgId, next)
+      ], client, ids, orgId, cb)
+
+      return promise
     },
 
     createOrgDefaultPolicies: function createOrgDefaultPolicies (client, organizationId, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       const defaultPolicies = config.get('authorization.organizations.defaultPolicies', {'organizationId': organizationId})
       insertPolicies(client, defaultPolicies, function (err, result) {
         if (err) return cb(Boom.badImplementation(err))
@@ -443,17 +482,24 @@ function buildPolicyOps (db, config) {
           cb(null, result.rows[0].id)
         })
       })
+
+      return promise
     },
 
     createTeamDefaultPolicies: function createTeamDefaultPolicies (client, organizationId, teamId, cb) {
       const defaultPolicies = config.get('authorization.teams.defaultPolicies', { organizationId, teamId })
-      insertPolicies(client, defaultPolicies, cb)
+      return insertPolicies(client, defaultPolicies, cb)
     },
 
     readTeamDefaultPolicies: function readTeamDefaultPolicies (client, organizationId, teamId, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       const defaultPolicies = config.get('authorization.teams.defaultPolicies', {organizationId, teamId})
       const names = getNames(defaultPolicies)
       client.query(SQL`SELECT id FROM policies WHERE name = ANY(${names}) AND org_id = ${organizationId}`, utils.boomErrorWrapper(cb))
+
+      return promise
     },
 
     /**
@@ -463,6 +509,9 @@ function buildPolicyOps (db, config) {
      * @param  {Function} cb
      */
     listSharedPolicies: function listSharedPolicies (params, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify('data', 'total')
+
       const { limit, page } = params
 
       Joi.validate({ page, limit }, validationRules.listSharedPolicies, function (err) {
@@ -497,6 +546,8 @@ function buildPolicyOps (db, config) {
           return cb(null, result.rows.map(mapping.policy), total)
         })
       })
+
+      return promise
     },
 
     /**
@@ -506,6 +557,9 @@ function buildPolicyOps (db, config) {
      * @param  {Function} cb
      */
     readSharedPolicy: function readSharedPolicy ({ id }, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       Joi.validate({ id }, validationRules.readSharedPolicy, function (err) {
         if (err) return cb(Boom.badRequest(err))
 
@@ -522,6 +576,8 @@ function buildPolicyOps (db, config) {
           return cb(null, mapping.policy(result.rows[0]))
         })
       })
+
+      return promise
     },
 
     /**
@@ -531,6 +587,9 @@ function buildPolicyOps (db, config) {
      * @param  {Function} cb
      */
     createSharedPolicy: function createSharedPolicy (params, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       Joi.validate(params, validationRules.createSharedPolicy, function (err) {
         if (err) return cb(Boom.badRequest(err))
 
@@ -548,6 +607,8 @@ function buildPolicyOps (db, config) {
           policyOps.readSharedPolicy({ id: result.rows[0].id }, cb)
         })
       })
+
+      return promise
     },
 
     /**
@@ -557,6 +618,9 @@ function buildPolicyOps (db, config) {
      * @param  {Function} cb
      */
     updateSharedPolicy: function updateSharedPolicy (params, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       const { id, version, name, statements } = params
 
       Joi.validate({ id, version, name, statements }, validationRules.updateSharedPolicy, function (err) {
@@ -580,6 +644,8 @@ function buildPolicyOps (db, config) {
           policyOps.readSharedPolicy({ id }, cb)
         })
       })
+
+      return promise
     },
 
     /**
@@ -589,6 +655,9 @@ function buildPolicyOps (db, config) {
      * @param  {Function} cb
      */
     deleteSharedPolicy: function deleteSharedPolicy (params, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       const id = params.id
       const tasks = [
         (job, next) => {
@@ -612,6 +681,8 @@ function buildPolicyOps (db, config) {
         if (err) return cb(err)
         cb()
       })
+
+      return promise
     }
   }
 

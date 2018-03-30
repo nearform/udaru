@@ -90,9 +90,9 @@ npm run pg:init-volume-db
 -   **Note:** Running this command will auto run the standard database population commands also
 
 All volume data sits under the organization 'CONCH' and has the following default setup:
--  500 teams
--  100 users per team (the first of every 100 being the parent of subsequent 99)
--  10 policies per team
+-   500 teams
+-   100 users per team (the first of every 100 being the parent of subsequent 99)
+-   10 policies per team
 
 After loading the data, the autocannon bench tests can be run by executing:
 
@@ -309,12 +309,12 @@ npm run bench:load-volume
 ```
 
 This command will:
--  initialise the db & migrate to latest db schema
--  load the standard test fixtures
--  load the volume fixtures 
--  spawn an instance of udaru server
--  run the autocannon tests & display results
--  shut down
+-   initialise the db & migrate to latest db schema
+-   load the standard test fixtures
+-   load the volume fixtures
+-   spawn an instance of udaru server
+-   run the autocannon tests & display results
+-   shut down
 
 ## Security
 

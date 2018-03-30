@@ -6,7 +6,7 @@ const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 const crypto = require('crypto')
-const u = require('@nearform/udaru-test/utils')
+const u = require('../testUtils')
 const udaru = require('../..')()
 
 const statements = { Statement: [{ Effect: 'Allow', Action: ['documents:Read'], Resource: ['wonka:documents:/public/*'] }] }
