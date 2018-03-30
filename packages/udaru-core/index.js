@@ -7,6 +7,7 @@ const buildTeamOps = require('./lib/ops/teamOps')
 const buildPolicyOps = require('./lib/ops/policyOps')
 const buildDb = require('./lib/db')
 const buildConfig = require('./config')
+const hooks = require('./lib/hooks')
 
 function buildUdaruCore (dbPool, config) {
   const fullConfig = buildConfig(config)
@@ -20,78 +21,80 @@ function buildUdaruCore (dbPool, config) {
 
   return {
     config,
-    getUserOrganizationId: userOps.getUserOrganizationId,
+    getUserOrganizationId: hooks.wrap('user:getUserOrganizationId', userOps.getUserOrganizationId),
 
     db: {
       close: db.shutdown
     },
 
+    addHook: hooks.addHook,
+
     authorize: {
-      isUserAuthorized: authorizeOps.isUserAuthorized,
-      listActions: authorizeOps.listAuthorizations,
-      listAuthorizationsOnResources: authorizeOps.listAuthorizationsOnResources
+      isUserAuthorized: hooks.wrap('authorize:isUserAuthorized', authorizeOps.isUserAuthorized),
+      listActions: hooks.wrap('authorize:listActions', authorizeOps.listAuthorizations),
+      listAuthorizationsOnResources: hooks.wrap('authorize:listAuthorizationsOnResources', authorizeOps.listAuthorizationsOnResources)
     },
 
     organizations: {
-      list: organizationOps.list,
-      create: organizationOps.create,
-      read: organizationOps.readById,
-      delete: organizationOps.deleteById,
-      update: organizationOps.update,
-      addPolicies: organizationOps.addOrganizationPolicies,
-      replacePolicies: organizationOps.replaceOrganizationPolicies,
-      deletePolicies: organizationOps.deleteOrganizationAttachedPolicies,
-      deletePolicy: organizationOps.deleteOrganizationAttachedPolicy
+      list: hooks.wrap('organization:list', organizationOps.list),
+      create: hooks.wrap('organization:create', organizationOps.create),
+      read: hooks.wrap('organization:read', organizationOps.readById),
+      delete: hooks.wrap('organization:delete', organizationOps.deleteById),
+      update: hooks.wrap('organization:update', organizationOps.update),
+      addPolicies: hooks.wrap('organization:addPolicies', organizationOps.addOrganizationPolicies),
+      replacePolicies: hooks.wrap('organization:replacePolicies', organizationOps.replaceOrganizationPolicies),
+      deletePolicies: hooks.wrap('organization:deletePolicies', organizationOps.deleteOrganizationAttachedPolicies),
+      deletePolicy: hooks.wrap('organization:deletePolicy', organizationOps.deleteOrganizationAttachedPolicy)
     },
 
     policies: {
-      list: policyOps.listByOrganization,
-      read: policyOps.readPolicy,
-      create: policyOps.createPolicy,
-      update: policyOps.updatePolicy,
-      delete: policyOps.deletePolicy,
-      listShared: policyOps.listSharedPolicies,
-      createShared: policyOps.createSharedPolicy,
-      updateShared: policyOps.updateSharedPolicy,
-      deleteShared: policyOps.deleteSharedPolicy,
-      readShared: policyOps.readSharedPolicy
+      list: hooks.wrap('policy:list', policyOps.listByOrganization),
+      read: hooks.wrap('policy:read', policyOps.readPolicy),
+      create: hooks.wrap('policy:create', policyOps.createPolicy),
+      update: hooks.wrap('policy:update', policyOps.updatePolicy),
+      delete: hooks.wrap('policy:delete', policyOps.deletePolicy),
+      listShared: hooks.wrap('policy:listShared', policyOps.listSharedPolicies),
+      createShared: hooks.wrap('policy:createShared', policyOps.createSharedPolicy),
+      updateShared: hooks.wrap('policy:updateShared', policyOps.updateSharedPolicy),
+      deleteShared: hooks.wrap('policy:deleteShared', policyOps.deleteSharedPolicy),
+      readShared: hooks.wrap('policy:readShared', policyOps.readSharedPolicy)
     },
 
     teams: {
-      list: teamOps.listOrgTeams,
-      create: teamOps.createTeam,
-      read: teamOps.readTeam,
-      update: teamOps.updateTeam,
-      delete: teamOps.deleteTeam,
-      move: teamOps.moveTeam,
-      listUsers: teamOps.readTeamUsers,
-      replacePolicies: teamOps.replaceTeamPolicies,
-      addPolicies: teamOps.addTeamPolicies,
-      deletePolicies: teamOps.deleteTeamPolicies,
-      deletePolicy: teamOps.deleteTeamPolicy,
-      addUsers: teamOps.addUsersToTeam,
-      replaceUsers: teamOps.replaceUsersInTeam,
-      deleteMembers: teamOps.deleteTeamMembers,
-      deleteMember: teamOps.deleteTeamMember,
-      listNestedTeams: teamOps.listNestedTeams,
-      search: teamOps.search,
-      searchUsers: teamOps.searchUsers
+      list: hooks.wrap('team:list', teamOps.listOrgTeams),
+      create: hooks.wrap('team:create', teamOps.createTeam),
+      read: hooks.wrap('team:read', teamOps.readTeam),
+      update: hooks.wrap('team:update', teamOps.updateTeam),
+      delete: hooks.wrap('team:delete', teamOps.deleteTeam),
+      move: hooks.wrap('team:move', teamOps.moveTeam),
+      listUsers: hooks.wrap('team:listUsers', teamOps.readTeamUsers),
+      replacePolicies: hooks.wrap('team:replacePolicies', teamOps.replaceTeamPolicies),
+      addPolicies: hooks.wrap('team:addPolicies', teamOps.addTeamPolicies),
+      deletePolicies: hooks.wrap('team:deletePolicies', teamOps.deleteTeamPolicies),
+      deletePolicy: hooks.wrap('team:deletePolicy', teamOps.deleteTeamPolicy),
+      addUsers: hooks.wrap('team:addUsers', teamOps.addUsersToTeam),
+      replaceUsers: hooks.wrap('team:replaceUsers', teamOps.replaceUsersInTeam),
+      deleteMembers: hooks.wrap('team:deleteMembers', teamOps.deleteTeamMembers),
+      deleteMember: hooks.wrap('team:deleteMember', teamOps.deleteTeamMember),
+      listNestedTeams: hooks.wrap('team:listNestedTeams', teamOps.listNestedTeams),
+      search: hooks.wrap('team:search', teamOps.search),
+      searchUsers: hooks.wrap('team:searchUsers', teamOps.searchUsers)
     },
 
     users: {
-      list: userOps.listOrgUsers,
-      create: userOps.createUser,
-      read: userOps.readUser,
-      update: userOps.updateUser,
-      delete: userOps.deleteUser,
-      replacePolicies: userOps.replaceUserPolicies,
-      addPolicies: userOps.addUserPolicies,
-      deletePolicies: userOps.deleteUserPolicies,
-      deletePolicy: userOps.deleteUserPolicy,
-      listUserTeams: userOps.listUserTeams,
-      replaceTeams: userOps.replaceUserTeams,
-      deleteTeams: userOps.deleteUserFromTeams,
-      search: userOps.search
+      list: hooks.wrap('user:list', userOps.listOrgUsers),
+      create: hooks.wrap('user:create', userOps.createUser),
+      read: hooks.wrap('user:read', userOps.readUser),
+      update: hooks.wrap('user:update', userOps.updateUser),
+      delete: hooks.wrap('user:delete', userOps.deleteUser),
+      replacePolicies: hooks.wrap('user:replacePolicies', userOps.replaceUserPolicies),
+      addPolicies: hooks.wrap('user:addPolicies', userOps.addUserPolicies),
+      deletePolicies: hooks.wrap('user:deletePolicies', userOps.deleteUserPolicies),
+      deletePolicy: hooks.wrap('user:deletePolicy', userOps.deleteUserPolicy),
+      listUserTeams: hooks.wrap('user:listUserTeams', userOps.listUserTeams),
+      replaceTeams: hooks.wrap('user:replaceTeams', userOps.replaceUserTeams),
+      deleteTeams: hooks.wrap('user:deleteTeams', userOps.deleteUserFromTeams),
+      search: hooks.wrap('user:search', userOps.search)
     }
   }
 }
