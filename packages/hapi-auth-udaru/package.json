@@ -1,0 +1,84 @@
+{
+  "name": "@nearform/hapi-auth-udaru",
+  "version": "5.0.0",
+  "bin": {
+    "udaru": "./start.js"
+  },
+  "main": "index.js",
+  "description": "Hapi authentication plugin that allows using udaru for policy based authorization",
+  "author": "nearForm Ltd",
+  "license": "MIT",
+  "contributors": [
+    "Andrew Cashmore (https://github.com/andrewcashmore)",
+    "Damian Beresford (https://github.com/dberesford)",
+    "Dean McDonnell (https://github.com/mcdonnelldean)",
+    "Filippo De Santis (https://github.com/p16)",
+    "Florian Traverse (https://github.com/temsa)",
+    "Mihai Dima (https://github.com/mihaidma)",
+    "Paolo Chiodi (https://github.com/paolochiodi)",
+    "Paolo Insogna (https://github.com/ShogunPanda)",
+    "Paul Negrutiu (https://github.com/floridemai)",
+    "Mark Ireland (https://github.com/irelandm)",
+    "Michael O'Brien (https://github.com/mobri3n)",
+    "Michele Capra (https://github.com/piccoloaiutante)",
+    "Nicolas Herment (https://github.com/nherment)",
+    "Salman Mitha (https://github.com/salmanm)",
+    "William Riley-Land (https://github.com/wprl)"
+  ],
+  "homepage": "https://github.com/nearform/udaru#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nearform/udaru.git"
+  },
+  "bugs": {
+    "url": "https://github.com/nearform/udaru/issues"
+  },
+  "engines": {
+    "node": ">=8.9.0"
+  },
+  "scripts": {
+    "bench": "node ./bench/util/runner.js",
+    "bench:volume": "node ./bench/util/volumeRunner.js",
+    "bench:load-volume": "npm run pg:init-volume-db && node ./bench/util/volumeRunner.js",
+    "coverage": "UDARU_SERVICE_logger_pino_level=silent lab -c -t 96 -r html -o coverage/coverage.html",
+    "coveralls": "UDARU_SERVICE_logger_pino_level=silent lab -c -t 96 -r lcov | COVERALLS_REPO_TOKEN='?' coveralls",
+    "depcheck": "npx depcheck",
+    "pg:init": "UDARU_SERVICE_local=true npx udaru-init && npm run pg:migrate",
+    "pg:init-test-db": "npm run pg:init && npm run pg:load-test-data",
+    "pg:init-volume-db": "npm run pg:init-test-db && ./bench/util/loadVolumeData.js",
+    "pg:load-test-data": "UDARU_SERVICE_local=true npx udaru-loadTestData",
+    "pg:migrate": "npx udaru-migrate --version=max",
+    "start": "node ./start.js",
+    "test": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -c -t 96",
+    "test:security": "node ./security/runner.js",
+    "pretest:security": "napa sqlmapproject/sqlmap"
+  },
+  "dependencies": {
+    "@nearform/udaru-core": "^5.0.0",
+    "boom": "^7.2.0",
+    "hapi": "^17.2.3",
+    "hapi-pino": "^4.0.4",
+    "hapi-swagger": "^9.1.1",
+    "hoek": "^5.0.3",
+    "inert": "^5.1.0",
+    "joi": "^13.1.2",
+    "lodash": "^4.17.5",
+    "vision": "^5.3.2"
+  },
+  "devDependencies": {
+    "autocannon": "^2.1.1",
+    "bloomrun": "^4.1.0",
+    "chalk": "2.3.2",
+    "code": "^5.2.0",
+    "coveralls": "^3.0.0",
+    "depcheck": "^0.6.9",
+    "jsonfile": "^4.0.0",
+    "lab": "^15.4.1",
+    "minimist": "1.2.0",
+    "napa": "^3.0.0",
+    "npx": "^10.0.1",
+    "pg": "^7.4.1",
+    "sinon": "^4.4.9",
+    "uuid": "^3.2.1"
+  }
+}

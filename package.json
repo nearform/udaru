@@ -29,7 +29,9 @@
   "bugs": {
     "url": "https://github.com/nearform/udaru/issues"
   },
-  "bin": "packages/udaru-server/start.js",
+  "bin": {
+    "udaru": "packages/udaru-server/start.js"
+  },
   "engines": {
     "node": ">=6.0.0"
   },
@@ -43,6 +45,7 @@
     "postinstall": "lerna bootstrap",
     "doc:lint": "remark .",
     "start": "node packages/udaru-server/start.js",
+    "start-v17": "node packages/hapi-auth-udaru/start.js",
     "test": "lerna run test",
     "test:commit-check": "npm run doc:lint && npm run lint && npm run depcheck && npm run test",
     "swagger-gen": "node scripts/getSwaggerJson.js | swagger-gen -d docs/swagger && node scripts/injectUdaruSwaggerCss.js"

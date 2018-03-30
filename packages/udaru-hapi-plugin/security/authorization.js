@@ -64,7 +64,7 @@ function buildAuthorization (config) {
       const resourceBuilder = server.udaruConfig.get('AuthConfig.resources')[resourceType]
 
       if (!resourceBuilder) {
-        return reply(Boom.badImplentation('Resource builder not found'))
+        return reply(Boom.badImplementation('Resource builder not found'))
       }
 
       const tasks = teams.map(function (team) {
