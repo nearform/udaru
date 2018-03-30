@@ -5,7 +5,8 @@ const Boom = require('boom')
 const async = require('async')
 const uuidV4 = require('uuid/v4')
 const SQL = require('@nearform/sql')
-const mapping = require('./../mapping')
+const asyncify = require('../asyncify')
+const mapping = require('../mapping')
 const utils = require('./utils')
 const validationRules = require('./validation').users
 
@@ -108,6 +109,9 @@ function buildUserOps (db, config) {
      * @param  {Function} cb
      */
     listOrgUsers: function listOrgUsers (params, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify('data', 'total')
+
       const { organizationId, page, limit } = params
 
       Joi.validate({ organizationId, page, limit }, validationRules.listOrgUsers, function (err) {
@@ -140,6 +144,8 @@ function buildUserOps (db, config) {
           return cb(null, result.rows.map(mapping.user), total)
         })
       })
+
+      return promise
     },
 
     /**
@@ -149,6 +155,9 @@ function buildUserOps (db, config) {
      * @param  {Function} cb
      */
     readUser: function readUser (params, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       const { id, organizationId } = params
       let user
 
@@ -212,6 +221,8 @@ function buildUserOps (db, config) {
 
         return cb(null, user)
       })
+
+      return promise
     },
 
     /**
@@ -221,6 +232,9 @@ function buildUserOps (db, config) {
      * @param  {Function} cb
      */
     createUser: function createUser (params, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       const { id, name, organizationId, metadata } = params
 
       Joi.validate({ id, name, organizationId }, validationRules.createUser, function (err) {
@@ -237,6 +251,8 @@ function buildUserOps (db, config) {
           })
         })
       })
+
+      return promise
     },
 
     /**
@@ -246,6 +262,9 @@ function buildUserOps (db, config) {
      * @param  {Function} cb
      */
     deleteUser: function deleteUser (params, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       const { id, organizationId } = params
       const tasks = [
         (job, next) => {
@@ -285,6 +304,8 @@ function buildUserOps (db, config) {
 
         cb()
       })
+
+      return promise
     },
 
     /**
@@ -294,6 +315,9 @@ function buildUserOps (db, config) {
      * @param  {Function} cb
      */
     updateUser: function updateUser (params, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       const { id, organizationId, name, metadata } = params
 
       Joi.validate({ id, organizationId, name, metadata }, validationRules.updateUser, function (err) {
@@ -314,6 +338,8 @@ function buildUserOps (db, config) {
           userOps.readUser({ id, organizationId }, cb)
         })
       })
+
+      return promise
     },
 
     /**
@@ -323,6 +349,9 @@ function buildUserOps (db, config) {
      * @param  {Function} cb
      */
     replaceUserPolicies: function replaceUserPolicies (params, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       const { id, organizationId, policies } = params
       const tasks = [
         (job, next) => {
@@ -354,6 +383,8 @@ function buildUserOps (db, config) {
 
         userOps.readUser({ id, organizationId }, cb)
       })
+
+      return promise
     },
 
     /**
@@ -363,6 +394,9 @@ function buildUserOps (db, config) {
      * @param  {Function} cb
      */
     addUserPolicies: function addUserPolicies (params, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       const { id, organizationId, policies } = params
       if (policies.length <= 0) {
         return userOps.readUser({ id, organizationId }, cb)
@@ -394,6 +428,8 @@ function buildUserOps (db, config) {
 
         userOps.readUser({ id, organizationId }, cb)
       })
+
+      return promise
     },
 
     /**
@@ -403,6 +439,9 @@ function buildUserOps (db, config) {
      * @param  {Function} cb
      */
     deleteUserPolicies: function deleteUserPolicies (params, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       const { id, organizationId } = params
       const tasks = [
         (job, next) => {
@@ -426,6 +465,8 @@ function buildUserOps (db, config) {
 
         userOps.readUser({ id, organizationId }, cb)
       })
+
+      return promise
     },
 
     /**
@@ -435,6 +476,9 @@ function buildUserOps (db, config) {
      * @param  {Function} cb
      */
     deleteUserPolicy: function deleteUserPolicy (params, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       const { userId, organizationId, policyId, instance } = params
       const tasks = [
         (job, next) => {
@@ -460,6 +504,8 @@ function buildUserOps (db, config) {
 
         userOps.readUser({ id: userId, organizationId }, cb)
       })
+
+      return promise
     },
 
     /**
@@ -473,6 +519,9 @@ function buildUserOps (db, config) {
      * @param  {Function}    cb
      */
     insertUser: function insertUser (client, { id, name, organizationId, metadata }, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       id = id || uuidV4()
 
       const sqlQuery = SQL`
@@ -490,9 +539,14 @@ function buildUserOps (db, config) {
 
         cb(null, result)
       })
+
+      return promise
     },
 
     insertTeams: function insertTeams (client, id, teams, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       const sqlQuery = SQL`
         INSERT INTO team_members (
           team_id, user_id
@@ -505,9 +559,14 @@ function buildUserOps (db, config) {
       sqlQuery.append(SQL` ON CONFLICT ON CONSTRAINT team_member_link DO NOTHING`)
 
       client.query(sqlQuery, utils.boomErrorWrapper(cb))
+
+      return promise
     },
 
     insertPolicies: function insertPolicies (client, id, policies, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       const sqlQuery = SQL`
         INSERT INTO user_policies (
           policy_id, user_id, variables
@@ -521,9 +580,14 @@ function buildUserOps (db, config) {
       sqlQuery.append(SQL` ON CONFLICT ON CONSTRAINT user_policy_link DO NOTHING`)
 
       client.query(sqlQuery, utils.boomErrorWrapper(cb))
+
+      return promise
     },
 
     organizationExists: function organizationExists (id, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       const sqlQuery = SQL`
         SELECT id
         FROM organizations
@@ -534,6 +598,8 @@ function buildUserOps (db, config) {
 
         return cb(null, result.rowCount !== 0)
       })
+
+      return promise
     },
 
     /**
@@ -543,6 +609,9 @@ function buildUserOps (db, config) {
      * @param  {Function} cb
      */
     getUserOrganizationId: function getUserOrganizationId (id, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       const sqlQuery = SQL`
         SELECT org_id
         FROM users
@@ -554,6 +623,8 @@ function buildUserOps (db, config) {
 
         return cb(null, result.rows[0].org_id)
       })
+
+      return promise
     },
 
     /**
@@ -564,6 +635,9 @@ function buildUserOps (db, config) {
      * @param  {Function} cb
      */
     listUserTeams: function listUserTeams ({ id, organizationId, page = 1, limit }, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify('data', 'total')
+
       Joi.validate({ id, organizationId, page, limit }, validationRules.listUserTeams, function (err) {
         if (err) return cb(Boom.badRequest(err))
 
@@ -583,6 +657,8 @@ function buildUserOps (db, config) {
           return cb(null, job.user.teams, job.totalTeamsCount)
         })
       })
+
+      return promise
     },
 
     /**
@@ -592,6 +668,9 @@ function buildUserOps (db, config) {
      * @param  {Function} cb
      */
     replaceUserTeams: function replaceUserTeams (params, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       const { id, organizationId, teams } = params
       const tasks = [
         (job, next) => {
@@ -620,6 +699,8 @@ function buildUserOps (db, config) {
 
         userOps.readUser({ id, organizationId }, cb)
       })
+
+      return promise
     },
 
     /**
@@ -629,6 +710,9 @@ function buildUserOps (db, config) {
      * @param  {Function} cb
      */
     deleteUserFromTeams: function deleteUserFromTeams (params, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       const { id, organizationId } = params
       const tasks = [
         (job, next) => {
@@ -652,10 +736,15 @@ function buildUserOps (db, config) {
 
         userOps.readUser({ id, organizationId }, cb)
       })
+
+      return promise
     },
 
     // See https://www.postgresql.org/docs/current/static/textsearch.html
     search: function search (params, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify('data', 'total')
+
       const { organizationId, query } = params
       Joi.validate({ organizationId, query }, validationRules.searchUser, function (err) {
         if (err) return cb(Boom.badRequest(err))
@@ -675,6 +764,8 @@ function buildUserOps (db, config) {
           return cb(null, result.rows.map(mapping.user), result.rows.length)
         })
       })
+
+      return promise
     }
   }
 

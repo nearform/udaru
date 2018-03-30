@@ -28,11 +28,38 @@ const DEFAULT_SHARED_POLICY = {
   }
 }
 
+function asyncify () {
+  let promiseResolve = null
+  let promiseReject = null
+
+  const promise = new Promise((resolve, reject) => {
+    promiseResolve = resolve
+    promiseReject = reject
+  })
+
+  const cb = function (err, ...args) {
+    if (err) return promiseReject(err)
+
+    return promiseResolve(args[0])
+  }
+
+  return [promise, cb]
+}
+
 function Factory (lab, data, udaru) {
   const records = {}
 
   function createUsers (done) {
-    if (!data.users) return done()
+    let promise = null
+    if (typeof done !== 'function') [promise, done] = asyncify()
+
+    if (!data.users) {
+      if (promise) {
+        return Promise.resolve()
+      } else {
+        return done()
+      }
+    }
 
     async.mapValues(data.users, (user, key, next) => {
       udaru.users.create(_.pick(user, 'id', 'name', 'organizationId'), next)
@@ -42,10 +69,21 @@ function Factory (lab, data, udaru) {
       Object.assign(records, users)
       done()
     })
+
+    return promise
   }
 
   function createPolicies (done) {
-    if (!data.policies) return done()
+    let promise = null
+    if (typeof done !== 'function') [promise, done] = asyncify()
+
+    if (!data.policies) {
+      if (promise) {
+        return Promise.resolve()
+      } else {
+        return done()
+      }
+    }
 
     async.mapValues(data.policies, (policy, key, next) => {
       udaru.policies.create(Object.assign({}, DEFAULT_POLICY, _.pick(policy, 'id', 'name', 'version', 'statements', 'organizationId')), (err, res) => {
@@ -59,10 +97,21 @@ function Factory (lab, data, udaru) {
       Object.assign(records, policies)
       done()
     })
+
+    return promise
   }
 
   function createSharedPolicies (done) {
-    if (!data.sharedPolicies) return done()
+    let promise = null
+    if (typeof done !== 'function') [promise, done] = asyncify()
+
+    if (!data.sharedPolicies) {
+      if (promise) {
+        return Promise.resolve()
+      } else {
+        return done()
+      }
+    }
 
     async.mapValues(data.sharedPolicies, (policy, key, next) => {
       udaru.policies.createShared(Object.assign(
@@ -76,10 +125,21 @@ function Factory (lab, data, udaru) {
       Object.assign(records, policies)
       done()
     })
+
+    return promise
   }
 
   function createTeams (done) {
-    if (!data.teams) return done()
+    let promise = null
+    if (typeof done !== 'function') [promise, done] = asyncify()
+
+    if (!data.teams) {
+      if (promise) {
+        return Promise.resolve()
+      } else {
+        return done()
+      }
+    }
 
     async.mapValues(data.teams, (team, key, next) => {
       udaru.teams.create(_.pick(team, 'id', 'name', 'description', 'organizationId'), next)
@@ -89,10 +149,21 @@ function Factory (lab, data, udaru) {
       Object.assign(records, teams)
       done()
     })
+
+    return promise
   }
 
   function createOrganizations (done) {
-    if (!data.organizations) return done()
+    let promise = null
+    if (typeof done !== 'function') [promise, done] = asyncify()
+
+    if (!data.organizations) {
+      if (promise) {
+        return Promise.resolve()
+      } else {
+        return done()
+      }
+    }
 
     async.mapValues(data.organizations, (org, key, next) => {
       udaru.organizations.create(_.pick(org, 'id', 'name', 'description'), (err, res) => {
@@ -105,9 +176,14 @@ function Factory (lab, data, udaru) {
       Object.assign(records, orgs)
       done()
     })
+
+    return promise
   }
 
   function linkTeamUsers (done) {
+    let promise = null
+    if (typeof done !== 'function') [promise, done] = asyncify()
+
     const list = {}
 
     _.each(data.teams, (team, teamKey) => {
@@ -129,9 +205,14 @@ function Factory (lab, data, udaru) {
       team.users = _.uniq(team.users)
       udaru.teams.replaceUsers(team, next)
     }, done)
+
+    return promise
   }
 
   function linkTeamPolicies (done) {
+    let promise = null
+    if (typeof done !== 'function') [promise, done] = asyncify()
+
     const list = {}
 
     _.each(data.teams, (team, teamKey) => {
@@ -157,9 +238,14 @@ function Factory (lab, data, udaru) {
       team.policies = _.uniq(team.policies)
       udaru.teams.replacePolicies(team, next)
     }, done)
+
+    return promise
   }
 
   function linkOrganizationPolicies (done) {
+    let promise = null
+    if (typeof done !== 'function') [promise, done] = asyncify()
+
     const list = {}
 
     _.each(data.organizations, (organization, orgKey) => {
@@ -180,9 +266,14 @@ function Factory (lab, data, udaru) {
       org.policies = _.uniq(org.policies)
       udaru.organizations.replacePolicies({ id: org.id, policies: org.policies }, next)
     }, done)
+
+    return promise
   }
 
   function buildTeamTree (done) {
+    let promise = null
+    if (typeof done !== 'function') [promise, done] = asyncify()
+
     async.eachOf(data.teams, (team, teamKey, next) => {
       if (!team.parent) return next()
 
@@ -191,9 +282,14 @@ function Factory (lab, data, udaru) {
 
       udaru.teams.move({ id: teamId, parentId, organizationId: team.organizationId }, next)
     }, done)
+
+    return promise
   }
 
   function linkUserPolicies (done) {
+    let promise = null
+    if (typeof done !== 'function') [promise, done] = asyncify()
+
     const list = {}
 
     _.each(data.users, (user, userKey) => {
@@ -219,9 +315,14 @@ function Factory (lab, data, udaru) {
       user.policies = _.uniq(user.policies)
       udaru.users.replacePolicies(user, next)
     }, done)
+
+    return promise
   }
 
   function createData (done) {
+    let promise = null
+    if (typeof done !== 'function') [promise, done] = asyncify()
+
     async.series([
       createOrganizations,
       createUsers,
@@ -239,10 +340,21 @@ function Factory (lab, data, udaru) {
         buildTeamTree
       ], done)
     })
+
+    return promise
   }
 
   function deleteUsers (done) {
-    if (!data.users) return done()
+    let promise = null
+    if (typeof done !== 'function') [promise, done] = asyncify()
+
+    if (!data.users) {
+      if (promise) {
+        return Promise.resolve()
+      } else {
+        return done()
+      }
+    }
 
     async.eachOf(data.users, (user, key, next) => {
       udaru.users.delete({
@@ -253,10 +365,21 @@ function Factory (lab, data, udaru) {
         next()
       })
     }, done)
+
+    return promise
   }
 
   function deleteTeams (done) {
-    if (!data.teams) return done()
+    let promise = null
+    if (typeof done !== 'function') [promise, done] = asyncify()
+
+    if (!data.teams) {
+      if (promise) {
+        return Promise.resolve()
+      } else {
+        return done()
+      }
+    }
 
     async.eachOf(data.teams, (team, key, next) => {
       udaru.teams.delete({
@@ -267,10 +390,21 @@ function Factory (lab, data, udaru) {
         next()
       })
     }, done)
+
+    return promise
   }
 
   function deletePolicies (done) {
-    if (!data.policies) return done()
+    let promise = null
+    if (typeof done !== 'function') [promise, done] = asyncify()
+
+    if (!data.policies) {
+      if (promise) {
+        return Promise.resolve()
+      } else {
+        return done()
+      }
+    }
 
     async.eachOf(data.policies, (policy, key, next) => {
       udaru.policies.delete({
@@ -281,10 +415,21 @@ function Factory (lab, data, udaru) {
         next()
       })
     }, done)
+
+    return promise
   }
 
   function deleteSharedPolicies (done) {
-    if (!data.sharedPolicies) return done()
+    let promise = null
+    if (typeof done !== 'function') [promise, done] = asyncify()
+
+    if (!data.sharedPolicies) {
+      if (promise) {
+        return Promise.resolve()
+      } else {
+        return done()
+      }
+    }
 
     async.eachOf(data.sharedPolicies, (policy, key, next) => {
       udaru.policies.deleteShared({
@@ -294,10 +439,21 @@ function Factory (lab, data, udaru) {
         next()
       })
     }, done)
+
+    return promise
   }
 
   function deleteOrganizations (done) {
-    if (!data.organizations) return done()
+    let promise = null
+    if (typeof done !== 'function') [promise, done] = asyncify()
+
+    if (!data.organizations) {
+      if (promise) {
+        return Promise.resolve()
+      } else {
+        return done()
+      }
+    }
 
     async.eachOf(data.organizations, (org, key, next) => {
       udaru.organizations.delete(records[key].id, (err) => {
@@ -305,9 +461,22 @@ function Factory (lab, data, udaru) {
         next()
       })
     }, done)
+
+    return promise
   }
 
   function deleteData (done) {
+    let promise = null
+    if (typeof done !== 'function') [promise, done] = asyncify()
+
+    if (!data.users) {
+      if (promise) {
+        return Promise.resolve()
+      } else {
+        return done()
+      }
+    }
+
     async.series([
       deleteUsers,
       deleteTeams,
@@ -315,6 +484,8 @@ function Factory (lab, data, udaru) {
       deleteSharedPolicies,
       deleteOrganizations
     ], done)
+
+    return promise
   }
 
   lab.beforeEach(createData)

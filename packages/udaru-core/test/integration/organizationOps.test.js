@@ -6,7 +6,7 @@ const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 const async = require('async')
 const udaru = require('../..')()
-const u = require('@nearform/udaru-test/utils')
+const u = require('../testUtils')
 
 const config = require('../../config')()
 const defaultPolicies = config.get('authorization.organizations.defaultPolicies', { 'organizationId': 'nearForm' })

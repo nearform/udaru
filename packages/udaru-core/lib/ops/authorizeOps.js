@@ -3,6 +3,7 @@
 const async = require('async')
 const Boom = require('boom')
 const Joi = require('joi')
+const asyncify = require('../asyncify')
 const iam = require('./iam')
 const validationRules = require('./validation').authorize
 const buildPolicyOps = require('./policyOps')
@@ -51,6 +52,9 @@ function buildAuthorizeOps (db, config) {
      * @param  {Function} cb
      */
     isUserAuthorized: function isUserAuthorized ({ resource, action, userId, organizationId, sourceIpAddress, sourcePort }, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       async.waterfall([
         function validate (next) {
           Joi.validate({ resource, action, userId, organizationId }, validationRules.isUserAuthorized, badRequestWrap(next))
@@ -65,6 +69,8 @@ function buildAuthorizeOps (db, config) {
       ], function (err, access) {
         cb(err, { access })
       })
+
+      return promise
     },
 
     /**
@@ -74,6 +80,9 @@ function buildAuthorizeOps (db, config) {
      * @param  {Function} cb
      */
     listAuthorizations: function listAuthorizations ({ userId, resource, organizationId, sourceIpAddress, sourcePort }, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       async.waterfall([
         function validate (next) {
           Joi.validate({ resource, userId, organizationId }, validationRules.listAuthorizations, badRequestWrap(next))
@@ -88,6 +97,8 @@ function buildAuthorizeOps (db, config) {
       ], function (err, actions) {
         cb(err, { actions })
       })
+
+      return promise
     },
 
     /**
@@ -97,6 +108,9 @@ function buildAuthorizeOps (db, config) {
      * @param  {Function} cb
      */
     listAuthorizationsOnResources: function listAuthorizationsOnResources ({ userId, resources, organizationId, sourceIpAddress, sourcePort }, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
       async.waterfall([
         function validate (next) {
           Joi.validate({ userId, resources, organizationId }, validationRules.listAuthorizationsOnResources, badRequestWrap(next))
@@ -109,6 +123,8 @@ function buildAuthorizeOps (db, config) {
           iam(policies).actionsOnResources({ resources, context }, badImplementationWrap(next))
         }
       ], cb)
+
+      return promise
     }
   }
 

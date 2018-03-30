@@ -12,6 +12,7 @@
     "Florian Traverse (https://github.com/temsa)",
     "Mihai Dima (https://github.com/mihaidma)",
     "Paolo Chiodi (https://github.com/paolochiodi)",
+    "Paolo Insogna (https://github.com/ShogunPanda)",
     "Paul Negrutiu (https://github.com/floridemai)",
     "Mark Ireland (https://github.com/irelandm)",
     "Michael O'Brien (https://github.com/mobri3n)",
@@ -56,13 +57,13 @@
   ],
   "dependencies": {},
   "devDependencies": {
-    "depcheck": "0.6.9",
-    "joi": "10.6.0",
-    "lerna": "^2.5.1",
-    "remark-cli": "^4.0.0",
-    "remark-lint": "^6.0.0",
-    "remark-preset-lint-recommended": "^3.0.0",
-    "standard": "^8.6.0",
+    "depcheck": "^0.6.9",
+    "joi": "^13.1.2",
+    "lerna": "^2.9.0",
+    "remark-cli": "^5.0.0",
+    "remark-lint": "^6.0.1",
+    "remark-preset-lint-recommended": "^3.0.1",
+    "standard": "^11.0.1",
     "swagger-gen": "^1.1.3"
   },
   "standard": {

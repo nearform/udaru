@@ -62,18 +62,17 @@
   },
   "devDependencies": {
     "@nearform/udaru-core": "^5.0.0",
-    "@nearform/udaru-test": "^5.0.0",
-    "async": "2.6.0",
-    "autocannon": "^2.0.1",
-    "bloomrun": "^3.0.3",
-    "chalk": "2.3.2",
-    "coveralls": "^2.11.15",
-    "depcheck": "0.6.9",
+    "async": "^2.6.0",
+    "autocannon": "^2.1.1",
+    "bloomrun": "^4.1.0",
+    "chalk": "^2.3.2",
+    "coveralls": "^3.0.0",
+    "depcheck": "^0.6.9",
     "jsonfile": "4.0.0",
     "lab": "^14.3.2",
-    "minimist": "1.2.0",
-    "napa": "^2.3.0",
+    "minimist": "^1.2.0",
+    "napa": "^3.0.0",
     "pg": "^7.4.1",
-    "npx": "10.0.1"
+    "npx": "^10.0.1"
   }
 }
