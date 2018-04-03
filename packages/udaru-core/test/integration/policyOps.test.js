@@ -283,6 +283,44 @@ lab.experiment('PolicyOps', () => {
       })
     })
 
+    lab.test('search policies, no results', (done) => {
+      policyOps.search({ organizationId: 'WONKA', query: 'bibbidybobbedy' }, (err, results) => {
+        if (err) return done(err)
+        expect(results).to.have.length(0)
+        done()
+      })
+    })
+
+    lab.test('search policies', (done) => {
+      policyOps.search({ organizationId: 'WONKA', query: 'acc' }, (err, results) => {
+        if (err) return done(err)
+        expect(results).to.have.length(2)
+        expect(results[0].name.toLowerCase()).to.contain('acc')
+        expect(results[1].name.toLowerCase()).to.contain('acc')
+        done()
+      })
+    })
+
+    lab.test('search shared policies', (done) => {
+      policyOps.search({ organizationId: 'WONKA', query: 'pol', type: 'shared' }, (err, results) => {
+        if (err) return done(err)
+        expect(results).to.have.length(1)
+        expect(results[0].name.toLowerCase()).to.contain('pol')
+        done()
+      })
+    })
+
+    lab.test('search all policies', (done) => {
+      policyOps.search({ organizationId: 'WONKA', query: 'a', type: 'all' }, (err, results) => {
+        if (err) return done(err)
+        expect(results).to.have.length(13)
+        expect(results[0].name.toLowerCase()).to.contain('a')
+        expect(results[6].name.toLowerCase()).to.contain('a')
+        expect(results[12].name.toLowerCase()).to.contain('a')
+        done()
+      })
+    })
+
     lab.test('loads policies from user', (done) => {
       policyOps.listAllUserPolicies({ userId: records.called.id, organizationId: orgId }, (err, results) => {
         if (err) return done(err)

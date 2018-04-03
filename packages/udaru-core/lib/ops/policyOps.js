@@ -472,12 +472,12 @@ function buildPolicyOps (db, config) {
           )      
         `
 
-        if (type !== 'all') {
-          if (type === 'shared') {
-            sqlQuery.append(SQL` AND org_id is NULL`)
-          } else {
-            sqlQuery.append(SQL` AND org_id=${organizationId}`)
-          }
+        if (type === 'shared') {
+          sqlQuery.append(SQL` AND org_id is NULL`)
+        } else if (type === 'all') {
+          sqlQuery.append(SQL` AND (org_id is NULL OR org_id=${organizationId})`)
+        } else {
+          sqlQuery.append(SQL` AND org_id=${organizationId}`)
         }
 
         sqlQuery.append(SQL` ORDER BY name;`)

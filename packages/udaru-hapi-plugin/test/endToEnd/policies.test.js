@@ -31,6 +31,32 @@ lab.experiment('Policies - get/list', () => {
     })
   })
 
+  lab.test('search policies', (done) => {
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: '/authorization/policies/search?query=acc'
+    })
+
+    server.inject(options, (response) => {
+      expect(response.statusCode).to.equal(200)
+      expect(response.result.total).to.equal(2)
+      done()
+    })
+  })
+
+  lab.test('search shared policies', (done) => {
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: '/authorization/shared-policies/search?query=pol'
+    })
+
+    server.inject(options, (response) => {
+      expect(response.statusCode).to.equal(200)
+      expect(response.result.total).to.equal(2)
+      done()
+    })
+  })
+
   lab.test('get policy list: limit', (done) => {
     const options = utils.requestOptions({
       method: 'GET',
