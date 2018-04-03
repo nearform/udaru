@@ -1,4 +1,4 @@
-const Server = require('../packages/udaru-hapi-server')
+const start = require('../packages/hapi-auth-udaru/lib/standalone/server')
 const Joi = require('joi')
 
 const swaggerSchema = Joi.object({
@@ -12,13 +12,10 @@ const swaggerSchema = Joi.object({
   definitions: Joi.object()
 })
 
-Server.start((err) => {
-  if (err) throw err
-  var requestOpts = {
-    method: 'GET',
-    url: `/swagger.json`
-  }
-  Server.inject(requestOpts, (response) => {
+start()
+  .then(async server => {
+    const response = await server.inject({method: 'GET', url: '/swagger.json'})
+
     Joi.validate(response.result, swaggerSchema, {allowUnknown: true}, (err) => {
       if (err) {
         console.error('Error validating swagger definition', err)
@@ -28,4 +25,7 @@ Server.start((err) => {
       process.exit(0)
     })
   })
-})
+  .catch(err => {
+    console.error(err)
+    process.exit(1)
+  })
