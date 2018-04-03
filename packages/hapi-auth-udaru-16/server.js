@@ -32,7 +32,7 @@ server.register(
       options: require('./swagger-server')
     },
     {
-      register: require('@nearform/hapi-auth-udaru-16'),
+      register: require('./index'),
       options: {config}
     }
   ],
