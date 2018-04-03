@@ -52,7 +52,6 @@
   },
   "dependencies": {
     "@nearform/udaru-core": "^5.0.0",
-    "@nearform/hapi-auth-udaru-16": "^5.0.0",
     "async": "^2.6.0",
     "boom": "^7.2.0",
     "hapi": "^16.6.2",
