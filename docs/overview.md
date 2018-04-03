@@ -45,8 +45,10 @@ A brief overview of the Management API calls are as follows, see the [Swagger Do
 |/authorization/organizations/{id}/policies|PUT|Add one or more policies to an organization|
 |/authorization/organizations/{id}/policies/{policyId}|DELETE|Remove a policy associated with an organization|
 |/authorization/policies|GET|Fetch all the defined policies|
+|/authorization/policies/search|GET|Search for policies by name|
 |/authorization/policies/{id}|GET|Fetch a single policy by ID|
 |/authorization/shared-policies|GET|Fetch all the defined shared policies|
+|/authorization/shared-policies/search|GET|Search for shared policies by name|
 |/authorization/shared-policies/{id}|GET|Fetch a single shared policy|
 |/authorization/teams|POST|Create a team|
 |/authorization/teams|GET|Fetch all teams from the current user organization|
