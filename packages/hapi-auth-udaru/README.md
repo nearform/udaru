@@ -164,7 +164,7 @@ and then go to [`http://localhost:8080/documentation`][swagger-link]
 The Swagger documentation also gives the ability to execute calls to the API and see their results. If you're using the test database, you can use 'ROOTid' as the required authorization parameter and 'WONKA' as the organisation.
 
 ### ENV variables to set configuration options
-There are three default configuration files, one per "level": [`packages/udaru-core/config.js`][core-config], [`packages/udaru-hapi-plugin/config.js`][plugin-config] and [`packages/udaru-hapi-server/config.js`][server-config].
+There are three default configuration files, one per "level": [`packages/udaru-core/config.js`][core-config], [`packages/hapi-auth-udaru/lib/config.js`][plugin-config] and [`packages/hapi-auth-udaru/lib/standalone/config.js`][server-config].
 
 They are cumulative: when running udaru as a standalone server all the three files will be loaded; when using it as an Hapi plugin, plugin and core will be loaded.
 
@@ -189,36 +189,23 @@ const udaru = buildUdaru(dbPool, {
 
 **Hapi plugin**
 ```js
-const Hapi = require('hapi')
-const UdaruPlugin = require('@nearform/udaru-hapi-plugin')
-const server = Hapi.server()
-server.register({
-  register: UdaruPlugin,
-  options: {dbPool, config: {
-    api: {
-      servicekeys: {
-        private: ['123456789']
+async function () {
+  const server = Hapi.Server()
+  const UdaruPlugin = require('@nearform/hapi-auth-udaru')
+
+  await server.register({
+    plugin: UdaruPlugin,
+    options: {dbPool, config: {
+      api: {
+        servicekeys: {
+          private: ['123456789']
+        }
       }
-    }
-}}})
-```
+  }}})
 
-### Env variables
+  await server.start()
 
-To override those configuration settings you will have to specify your ENV variables with a [prefix][prefix-link] and then the "path" to the property you want to override.
-
-**Configuration**
-```
-{
-  security: {
-    api: {
-      servicekeys: {
-        private: [
-          '123456789'
-        ]
-      }
-    }
-  }
+  return server
 }
 ```
 

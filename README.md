@@ -11,22 +11,24 @@ See the Udaru [website](https://nearform.github.io/udaru/) for complete document
 
 This repository is home to Udaru's three main modules:
 
-| Module                                                                                         | Package                                                      |
-| ------                                                                                         | -------                                                      |
-| [@nearform/udaru-core](https://www.npmjs.com/package/@nearform/udaru-core)                     | [./packages/udaru-core](./packages/udaru-core)               |
-| [@nearform/udaru-hapi-plugin](https://www.npmjs.com/package/udaru/@nearform/udaru-hapi-plugin) | [./packages/udaru-hapi-plugin](./packages/udaru-hapi-plugin) |
-| [udaru](https://www.npmjs.com/package/udaru)                                                   | [./packages/udaru-hapi-server](./packages/udaru-hapi-server) |
-
+| Module                                                                | Package                                                         |
+| ------                                                                | -------                                                         |
+| [@nearform/udaru-core][npm-udaru-core]                                | [./packages/udaru-core](./packages/udaru-core)                  |
+| [@nearform/hapi-auth-udaru][hapi-auth-udaru] (for Hapi v17 and above) | [./packages/hapi-auth-udaru](./packages/hapi-auth-udaru)        |
+| [@nearform/hapi-auth-udaru-16][hapi-auth-udaru-16] (for Hapi v16)     | [./packages/hapi-auth-udaru-16](./packages/hapi-auth-udaru-16)  |
 
 ## License
 
 Copyright nearForm Ltd 2017-2018. Licensed under [MIT license](https://choosealicense.com/licenses/mit).
 
 
+[npm-udaru-core]: https://www.npmjs.com/package/@nearform/udaru-core
+[hapi-auth-udaru]: https://www.npmjs.com/package/udaru/@nearform/hapi-auth-udaru
+[hapi-auth-udaru-16]: https://www.npmjs.com/package/udaru/@nearform/hapi-auth-udaru-16
 [travis-badge]: https://travis-ci.org/nearform/udaru.svg?branch=master
 [travis-url]: https://travis-ci.org/nearform/udaru
-[npm-badge]: https://badge.fury.io/js/udaru.svg
-[npm-url]: https://npmjs.org/package/udaru
+[npm-badge]: https://badge.fury.io/js/%40nearform/udaru-core.svg
+[npm-url]: https://npmjs.org/package/@nearform/udaru-core
 
 [coveralls-badge]: https://coveralls.io/repos/nearform/udaru/badge.svg?branch=master&service=github
 [coveralls-url]: https://coveralls.io/github/nearform/udaru?branch=master

@@ -1,6 +1,6 @@
 'use strict'
 
-const config = require('./config')()
+const config = require('./config-server')()
 const Hapi = require('hapi')
 
 const server = new Hapi.Server()
@@ -29,10 +29,10 @@ server.register(
     },
     {
       register: require('hapi-swagger'),
-      options: require('./swagger-config')
+      options: require('./swagger-server')
     },
     {
-      register: require('@nearform/udaru-hapi-plugin'),
+      register: require('@nearform/hapi-auth-udaru-16'),
       options: {config}
     }
   ],

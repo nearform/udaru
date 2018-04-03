@@ -1,6 +1,6 @@
 'use strict'
 
-const Server = require('./index')
+const Server = require('./server')
 Server.start((err) => {
   if (err) {
     return logMessage(`Failed to start server: ${err.message}`)

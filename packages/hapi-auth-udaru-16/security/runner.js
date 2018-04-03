@@ -18,12 +18,12 @@ if (!endpoints) {
 function findPython2 (pythonCommand, done) {
   return exec(`${pythonCommand} --version`, function (err, stdout, stderr) {
     if (err) {
-      return done(err)
+      return done(null, false)
     }
 
     if (stderr.indexOf('Python 2.') >= 0) {
       console.log(chalk.green(`'${pythonCommand}' is a valid Python2 ✔️`))
-      return done(null, pythonCommand)
+      return done(null, true)
     }
     return done(null, false)
   })
@@ -82,7 +82,7 @@ function executeMap (command, config, urlDescription, done) {
   })
 }
 
-const hapi = spawn('node', ['packages/udaru-server/start.js'])
+const hapi = spawn('node', ['./start.js'])
 
 async.detect(['python2', 'python'], findPython2, function (err, python) {
   if (err) {

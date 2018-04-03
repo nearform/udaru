@@ -1,9 +1,11 @@
-## 5.0.0 - March 16, 2018
+## 5.0.0 - April 3, 2018
 Features, enhancements:
--   Lerna package split, udaru-core, udaru-plugin and udaru-server now in separate npm packages [commit](https://github.com/nearform/udaru/pull/444) 
+-   Lerna package split, udaru-core, hapi-auth-udaru and hapi-auth-udaru-16 now in separate npm packages [commit](https://github.com/nearform/udaru/pull/505)
 -   **Breaking change**: 404 not found on endpoint GET /authorization/teams/${teamId}/users if team does not exist [commit](https://github.com/nearform/udaru/pull/444)
 -   **Breaking change**: 404 not found on endpoint /authorization/users/${userId}/teams if user does not exist [commit](https://github.com/nearform/udaru/pull/444)
 -   SQL module extracted and placed in own npm module ([@nearform/sql](https://www.npmjs.com/package/@nearform/sql))
+-   Promises support [commit](https://github.com/nearform/udaru/pull/508)
+-   Hooks support [commit](https://github.com/nearform/udaru/pull/503)
 -   Policy instance now returned when associating policy with user,team,org, which can be passed as param to DELETE to delete a specific instance
 -   Policy context variables added, which can be used in policy resources and policy condition elements
 

@@ -1,9 +1,9 @@
 'use strict'
 
 const buildUdaru = require('@nearform/udaru-core')
-const buildAuthorization = require('./security/authorization')
-const buildHapiAuthService = require('./security/hapi-auth-service')
-const buildAuthValidation = require('./security/hapi-auth-validation')
+const buildAuthorization = require('./authentication/authorization')
+const buildHapiAuthService = require('./authentication/hapi-auth-service')
+const buildAuthValidation = require('./authentication/hapi-auth-validation')
 
 const buildConfig = require('./config')
 
