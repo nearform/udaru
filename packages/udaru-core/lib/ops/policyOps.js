@@ -447,6 +447,50 @@ function buildPolicyOps (db, config) {
       return promise
     },
 
+    /**
+     * Search for policies
+     *
+     * @param {Object} params { organizationId, query, type } "type" is optional, default is organization wide search
+     * @param {Function} cb
+     */
+    search: function search (params, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify('data', 'total')
+
+      const { organizationId, query, type } = params
+      Joi.validate({ organizationId, query, type }, validationRules.searchPolicy, function (err) {
+        if (err) {
+          return cb(Boom.badRequest(err))
+        }
+
+        const sqlQuery = SQL`
+          SELECT *
+          FROM policies
+          WHERE (
+            to_tsvector(name) @@ to_tsquery(${query.split(' ').join(' & ') + ':*'})
+            OR name LIKE(${'%' + query + '%'})
+          )      
+        `
+
+        if (type !== 'all') {
+          if (type === 'shared') {
+            sqlQuery.append(SQL` AND org_id is NULL`)
+          } else {
+            sqlQuery.append(SQL` AND org_id=${organizationId}`)
+          }
+        }
+
+        sqlQuery.append(SQL` ORDER BY name;`)
+
+        db.query(sqlQuery, (err, result) => {
+          if (err) return cb(Boom.badImplementation(err))
+          return cb(null, result.rows.map(mapping.policy), result.rows.length)
+        })
+      })
+
+      return promise
+    },
+
     deleteAllPolicyByIds: function deleteAllPolicyByIds (client, ids, orgId, cb) {
       let promise = null
       if (typeof cb !== 'function') [promise, cb] = asyncify()
@@ -691,6 +735,7 @@ function buildPolicyOps (db, config) {
   policyOps.createPolicy.validate = validationRules.createPolicy
   policyOps.updatePolicy.validate = validationRules.updatePolicy
   policyOps.deletePolicy.validate = validationRules.deletePolicy
+  policyOps.search.validate = validationRules.searchPolicy
 
   policyOps.listSharedPolicies.validate = validationRules.listSharedPolicies
   policyOps.readSharedPolicy.validate = validationRules.readSharedPolicy

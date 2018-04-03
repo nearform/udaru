@@ -115,6 +115,82 @@ exports.register = function (server, options, next) {
 
   server.route({
     method: 'GET',
+    path: '/authorization/policies/search',
+    handler: function (request, reply) {
+      const { organizationId } = request.udaru
+      const query = request.query.query
+
+      request.udaruCore.policies.search({
+        organizationId,
+        query,
+        type: 'organization'
+      }, (err, data, total) => {
+        reply(
+          err,
+          err ? null : {
+            data,
+            total
+          }
+        )
+      })
+    },
+    config: {
+      description: 'Search for organization policies',
+      notes: 'The GET /authorization/policies/search endpoint returns a filtered list of policies.\n\n',
+      tags: ['api', 'teams'],
+      plugins: {
+        auth: {
+          action: Action.SearchPolicies
+        }
+      },
+      validate: {
+        headers,
+        query: _.pick(validation.searchPolicy, ['query'])
+      },
+      response: { schema: swagger.PagedPolicies }
+    }
+  })
+
+  server.route({
+    method: 'GET',
+    path: '/authorization/shared-policies/search',
+    handler: function (request, reply) {
+      const { organizationId } = request.udaru
+      const query = request.query.query
+
+      request.udaruCore.policies.search({
+        organizationId,
+        query,
+        type: 'shared'
+      }, (err, data, total) => {
+        reply(
+          err,
+          err ? null : {
+            data,
+            total
+          }
+        )
+      })
+    },
+    config: {
+      description: 'Search for shared policies',
+      notes: 'The GET /authorization/shared-policies/search endpoint returns a filtered list of shared policies.\n\n',
+      tags: ['api', 'teams'],
+      plugins: {
+        auth: {
+          action: Action.SearchPolicies
+        }
+      },
+      validate: {
+        headers,
+        query: _.pick(validation.searchPolicy, ['query'])
+      },
+      response: { schema: swagger.PagedPolicies }
+    }
+  })
+
+  server.route({
+    method: 'GET',
     path: '/authorization/shared-policies/{id}',
     handler: function (request, reply) {
       const { id } = request.params

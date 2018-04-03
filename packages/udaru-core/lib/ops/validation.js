@@ -283,6 +283,11 @@ const policies = {
     version: validationRules.version,
     name: validationRules.policyName,
     statements: validationRules.statements
+  },
+  searchPolicy: {
+    organizationId: validationRules.organizationId,
+    query: requiredString,
+    type: Joi.string().optional().allow('shared', 'organization', 'all').description('Flag to denote search for shared policy, defaults to organization wide search')
   }
 }
 
