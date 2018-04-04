@@ -1,9 +1,19 @@
 'use strict'
 
-const config = require('./config-server')()
+const config = require('./config')()
 const Hapi = require('hapi')
 
 const server = new Hapi.Server()
+
+// if forked as child, send output message via ipc to parent
+// otherwise output to console
+function logMessage (message) {
+  if (!process.send) {
+    console.log(message)
+  } else {
+    process.send(message)
+  }
+}
 
 server.connection({
   port: Number(config.get('hapi.port')),
@@ -29,10 +39,10 @@ server.register(
     },
     {
       register: require('hapi-swagger'),
-      options: require('./swagger-server')
+      options: require('./swagger')
     },
     {
-      register: require('./index'),
+      register: require('@nearform/udaru-hapi-16-plugin'),
       options: {config}
     }
   ],
@@ -43,4 +53,9 @@ server.register(
   }
 )
 
-module.exports = server
+server.start((err) => {
+  if (err) {
+    return logMessage(`Failed to start server: ${err.message}`)
+  }
+  logMessage('Server started on: ' + server.info.uri.toLowerCase())
+})

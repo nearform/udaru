@@ -76,5 +76,5 @@ function register (server, options, next) {
 module.exports.register = register
 
 module.exports.register.attributes = {
-  pkg: require('./../../package')
+  pkg: require('./package')
 }
