@@ -9,6 +9,7 @@ const mapping = require('../mapping')
 const utils = require('./utils')
 const uuidV4 = require('uuid/v4')
 const validationRules = require('./validation').policies
+const _ = require('lodash')
 
 function toArrayWithId (policies) {
   if (Array.isArray(policies)) {
@@ -211,6 +212,56 @@ function buildPolicyOps (db, config) {
           if (result.rowCount === 0) return cb(Boom.notFound())
 
           return cb(null, mapping.policy(result.rows[0]))
+        })
+      })
+
+      return promise
+    },
+
+    /**
+     * fetch specific policy variables
+     *
+     * @param  {Object}   params { id, organizationId, type } "type" is optional, defaults to organization policies
+     * @param  {Function} cb
+     */
+    readPolicyVariables: function readPolicyVariables ({ id, organizationId, type }, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
+      Joi.validate({ id, organizationId, type }, validationRules.readPolicyVariables, function (err) {
+        if (err) return cb(Boom.badRequest(err))
+
+        const sqlQuery = SQL`
+          SELECT  *
+          FROM policies
+          WHERE id = ${id}
+        `
+
+        if (type === 'shared') {
+          sqlQuery.append(SQL` AND org_id is NULL`)
+        } else {
+          sqlQuery.append(SQL` AND org_id=${organizationId}`)
+        }
+
+        db.query(sqlQuery, function (err, result) {
+          if (err) return cb(Boom.badImplementation(err))
+          if (result.rowCount === 0) return cb(Boom.notFound())
+
+          let variables = []
+
+          _.each(result.rows[0].statements.Statement, function (statement) {
+            if (statement.Resource) {
+              _.map(statement.Resource, function (resource) {
+                // ignore context vars but list all others, should match validation.js
+                let variableMatches = resource.match(/\${((?!(udaru)|(request)).*)(.+?)}/g)
+                _.each(variableMatches, function (variable) {
+                  variables.push(variable)
+                })
+              })
+            }
+          })
+
+          return cb(null, variables)
         })
       })
 
@@ -736,6 +787,7 @@ function buildPolicyOps (db, config) {
   policyOps.updatePolicy.validate = validationRules.updatePolicy
   policyOps.deletePolicy.validate = validationRules.deletePolicy
   policyOps.search.validate = validationRules.searchPolicy
+  policyOps.readPolicyVariables.validate = validationRules.readPolicyVariables
 
   policyOps.listSharedPolicies.validate = validationRules.listSharedPolicies
   policyOps.readSharedPolicy.validate = validationRules.readSharedPolicy

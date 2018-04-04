@@ -31,6 +31,8 @@ const PolicyRef = Joi.object({
 }).label('PolicyRef')
 const PolicyRefs = Joi.array().items(PolicyRef).description('Policy Refs').label('PolicyRefs')
 
+const PolicyTemplateVariables = Joi.array().items(Joi.string()).description('Policy Template Variable Placeholders').label('Policy Template Variables')
+
 const UserRef = Joi.object({
   id: Joi.string().description('User ID'),
   name: Joi.string().description('User name')
@@ -163,6 +165,7 @@ module.exports = {
   Organization,
   OrganizationAndUser,
   PolicyStatements,
+  PolicyTemplateVariables,
   Access,
   Search,
   SearchUser,

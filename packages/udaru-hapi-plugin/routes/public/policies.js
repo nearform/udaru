@@ -77,6 +77,60 @@ exports.register = function (server, options, next) {
 
   server.route({
     method: 'GET',
+    path: '/authorization/policies/{id}/variables',
+    handler: function (request, reply) {
+      const { organizationId } = request.udaru
+      const { id } = request.params
+
+      request.udaruCore.policies.readPolicyVariables({ id, organizationId, type: 'organization' }, reply)
+    },
+    config: {
+      validate: {
+        params: _.pick(validation.readPolicy, ['id']),
+        headers
+      },
+      description: 'Fetch a template policy\'s variables',
+      notes: 'The GET /authorization/policies/{id}/variables endpoint returns policy variables based on its ID.\n',
+      tags: ['api', 'policies'],
+      plugins: {
+        auth: {
+          action: Action.ReadPolicyVariables,
+          getParams: (request) => ({ policyId: request.params.id })
+        }
+      },
+      response: { schema: swagger.TemplatePolicyVariables }
+    }
+  })
+
+  server.route({
+    method: 'GET',
+    path: '/authorization/shared-policies/{id}/variables',
+    handler: function (request, reply) {
+      const { organizationId } = request.udaru
+      const { id } = request.params
+
+      request.udaruCore.policies.readPolicyVariables({ id, organizationId, type: 'shared' }, reply)
+    },
+    config: {
+      validate: {
+        params: _.pick(validation.readPolicy, ['id']),
+        headers
+      },
+      description: 'Fetch a template shared policy\'s variables',
+      notes: 'The GET /authorization/policies/{id}/variables endpoint returns shared policy variables based on its ID.\n',
+      tags: ['api', 'policies'],
+      plugins: {
+        auth: {
+          action: Action.ReadPolicyVariables,
+          getParams: (request) => ({ policyId: request.params.id })
+        }
+      },
+      response: { schema: swagger.TemplatePolicyVariables }
+    }
+  })
+
+  server.route({
+    method: 'GET',
     path: '/authorization/shared-policies',
     handler: function (request, reply) {
       const limit = request.query.limit || server.udaruConfig.get('authorization.defaultPageSize')

@@ -47,9 +47,11 @@ A brief overview of the Management API calls are as follows, see the [Swagger Do
 |/authorization/policies|GET|Fetch all the defined policies|
 |/authorization/policies/search|GET|Search for policies by name|
 |/authorization/policies/{id}|GET|Fetch a single policy by ID|
+|/authorization/policies/{id}/variables|GET|Fetch a template policy's variables by ID|
 |/authorization/shared-policies|GET|Fetch all the defined shared policies|
 |/authorization/shared-policies/search|GET|Search for shared policies by name|
 |/authorization/shared-policies/{id}|GET|Fetch a single shared policy|
+|/authorization/shared-policies/{id}/variables|GET|Fetch a template shared policy's variables by ID|
 |/authorization/teams|POST|Create a team|
 |/authorization/teams|GET|Fetch all teams from the current user organization|
 |/authorization/teams/search|GET|Search for teams from the current user organization|
