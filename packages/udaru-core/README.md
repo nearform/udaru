@@ -10,7 +10,7 @@ Udaru is a Policy Based Access Control (PBAC) authorization module. It supports 
 
 See the Udaru [website](https://nearform.github.io/udaru/) for complete documentation on Udaru.
 
-`udaru-core` is a lower level library that's primarily used by `hapi-auth-udaru` and `hapi-auth-udaru-16`, but can also be used directly for other purposes.
+`udaru-core` is a lower level library that's primarily used by `udaru-hapi-plugin` and `udaru-hapi-16-plugin`, but can also be used directly for other purposes.
 
 ## Install
 To install via npm:

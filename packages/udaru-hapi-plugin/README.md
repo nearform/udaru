@@ -14,13 +14,13 @@ See the Udaru [website](https://nearform.github.io/udaru/) for complete document
 To install via npm:
 
 ```
-npm install @nearform/hapi-auth-udaru
+npm install @nearform/udaru-hapi-plugin
 ```
 
 ## Usage
 ```js
 const Hapi = require('hapi')
-const HapiAuthUdaruPlugin = require('@nearform/hapi-auth-udaru')
+const HapiAuthUdaruPlugin = require('@nearform/udaru-hapi-plugin')
 
 ...
 
@@ -164,7 +164,7 @@ and then go to [`http://localhost:8080/documentation`][swagger-link]
 The Swagger documentation also gives the ability to execute calls to the API and see their results. If you're using the test database, you can use 'ROOTid' as the required authorization parameter and 'WONKA' as the organisation.
 
 ### ENV variables to set configuration options
-There are three default configuration files, one per "level": [`packages/udaru-core/config.js`][core-config], [`packages/hapi-auth-udaru/lib/config.js`][plugin-config] and [`packages/hapi-auth-udaru/lib/standalone/config.js`][server-config].
+There are three default configuration files, one per "level": [`packages/udaru-core/config.js`][core-config], [`packages/udaru-hapi-plugin/lib/config.js`][plugin-config] and [`packages/udaru-hapi-plugin/lib/standalone/config.js`][server-config].
 
 They are cumulative: when running udaru as a standalone server all the three files will be loaded; when using it as an Hapi plugin, plugin and core will be loaded.
 
@@ -191,7 +191,7 @@ const udaru = buildUdaru(dbPool, {
 ```js
 async function () {
   const server = Hapi.Server()
-  const UdaruPlugin = require('@nearform/hapi-auth-udaru')
+  const UdaruPlugin = require('@nearform/udaru-hapi-plugin')
 
   await server.register({
     plugin: UdaruPlugin,
@@ -312,20 +312,20 @@ See the [sqlmap][] repository for more details.
 Copyright nearForm Ltd 2017. Licensed under [MIT][license].
 
 [license]: ./LICENSE.md
-[travis-badge]: https://travis-ci.org/nearform/hapi-auth-udaru.svg?branch=master
-[travis-url]: https://travis-ci.org/nearform/hapi-auth-udaru
-[npm-badge]: https://badge.fury.io/js/hapi-auth-udaru.svg
-[npm-url]: https://npmjs.org/package/hapi-auth-udaru
-[coveralls-badge]: https://coveralls.io/repos/nearform/hapi-auth-udaru/badge.svg?branch=master&service=github
-[coveralls-url]: https://coveralls.io/github/nearform/hapi-auth-udaru?branch=master
-[snyk-badge]: https://snyk.io/test/github/nearform/hapi-auth-udaru/badge.svg
-[snyk-url]: https://snyk.io/test/github/nearform/hapi-auth-udaru
+[travis-badge]: https://travis-ci.org/nearform/udaru-hapi-plugin.svg?branch=master
+[travis-url]: https://travis-ci.org/nearform/udaru-hapi-plugin
+[npm-badge]: https://badge.fury.io/js/udaru-hapi-plugin.svg
+[npm-url]: https://npmjs.org/package/udaru-hapi-plugin
+[coveralls-badge]: https://coveralls.io/repos/nearform/udaru-hapi-plugin/badge.svg?branch=master&service=github
+[coveralls-url]: https://coveralls.io/github/nearform/udaru-hapi-plugin?branch=master
+[snyk-badge]: https://snyk.io/test/github/nearform/udaru-hapi-plugin/badge.svg
+[snyk-url]: https://snyk.io/test/github/nearform/udaru-hapi-plugin
 [postgrator]: https://github.com/rickbergfalk/postgrator
 [docs-site]: https://nearform.github.io/udaru
 [swagger-docs-url]: https://nearform.github.io/udaru/swagger/
 [core-config]: https://github.com/nearform/udaru/blob/master/packages/udaru-core/config.js
-[plugin-config]: https://github.com/nearform/udaru/blob/master/packages/hapi-auth-udaru/lib/config.js
-[server-config]: https://github.com/nearform/udaru/blob/master/packages/hapi-auth-udaru/standalone/config.js
+[plugin-config]: https://github.com/nearform/udaru/blob/master/packages/udaru-hapi-plugin/lib/config.js
+[server-config]: https://github.com/nearform/udaru/blob/master/packages/udaru-hapi-plugin/standalone/config.js
 [swagger-link]: http://localhost:8080/documentation
 [prefix-link]: https://github.com/nearform/udaru/blob/master/lib/core/config.js#L100
 [reconfig]: https://github.com/namshi/reconfig

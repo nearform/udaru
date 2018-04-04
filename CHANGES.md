@@ -1,6 +1,6 @@
 ## 5.0.0 - April 3, 2018
 Features, enhancements:
--   Lerna package split, udaru-core, hapi-auth-udaru and hapi-auth-udaru-16 now in separate npm packages [commit](https://github.com/nearform/udaru/pull/505)
+-   Lerna package split, udaru-core, udaru-hapi-plugin, udaru-hapi-16-plugin and udaru-hapi-server now in separate npm packages [commit](https://github.com/nearform/udaru/pull/505)
 -   **Breaking change**: 404 not found on endpoint GET /authorization/teams/${teamId}/users if team does not exist [commit](https://github.com/nearform/udaru/pull/444)
 -   **Breaking change**: 404 not found on endpoint /authorization/users/${userId}/teams if user does not exist [commit](https://github.com/nearform/udaru/pull/444)
 -   SQL module extracted and placed in own npm module ([@nearform/sql](https://www.npmjs.com/package/@nearform/sql))

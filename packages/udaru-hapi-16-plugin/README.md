@@ -13,14 +13,14 @@ See the Udaru [website](https://nearform.github.io/udaru/) for complete document
 To install via npm:
 
 ```
-npm install @nearform/hapi-auth-udaru-16
+npm install @nearform/udaru-hapi-16-plugin
 ```
 
 ## Usage
 
 ```js
 const Hapi = require('hapi')
-const UdaruPlugin = require('@nearform/hapi-auth-udaru-16')
+const UdaruPlugin = require('@nearform/udaru-hapi-16-plugin')
 
 ...
 
@@ -33,7 +33,7 @@ In order to register udaru hooks, just provide a `hooks` key in the plugin optio
 
 ```js
 const Hapi = require('hapi')
-const UdaruPlugin = require('@nearform/hapi-auth-udaru-16')
+const UdaruPlugin = require('@nearform/udaru-hapi-16-plugin')
 
 ...
 
@@ -66,8 +66,8 @@ Copyright nearForm Ltd 2017. Licensed under [MIT][license].
 [license]: ./LICENSE.md
 [travis-badge]: https://travis-ci.org/nearform/udaru.svg?branch=master
 [travis-url]: https://travis-ci.org/nearform/udaru
-[npm-badge]: https://badge.fury.io/js/%40nearform/hapi-auth-udaru-16.svg
-[npm-url]: https://npmjs.org/package/@nearform/hapi-auth-udaru-16
+[npm-badge]: https://badge.fury.io/js/%40nearform/udaru-hapi-16-plugin.svg
+[npm-url]: https://npmjs.org/package/@nearform/udaru-hapi-16-plugin
 [coveralls-badge]: https://coveralls.io/repos/nearform/udaru/badge.svg?branch=master&service=github
 [coveralls-url]: https://coveralls.io/github/nearform/udaru?branch=master
 [snyk-badge]: https://snyk.io/test/github/nearform/udaru/badge.svg

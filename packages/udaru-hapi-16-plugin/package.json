@@ -1,5 +1,5 @@
 {
-  "name": "@nearform/hapi-auth-udaru-16",
+  "name": "@nearform/udaru-hapi-16-plugin",
   "version": "5.0.0",
   "main": "index.js",
   "description": "Hapi plugin that allows using udaru for policy based authorization",

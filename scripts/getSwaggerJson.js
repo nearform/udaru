@@ -1,4 +1,4 @@
-const start = require('../packages/hapi-auth-udaru/lib/standalone/server')
+const start = require('../packages/udaru-hapi-plugin/lib/standalone/server')
 const Joi = require('joi')
 
 const swaggerSchema = Joi.object({
