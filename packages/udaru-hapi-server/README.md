@@ -1,4 +1,4 @@
-# Hapi Udaru Authentication Plugin
+# Hapi Udaru Server
 [![npm][npm-badge]][npm-url]
 [![travis][travis-badge]][travis-url]
 [![coveralls][coveralls-badge]][coveralls-url]
@@ -14,51 +14,32 @@ See the Udaru [website](https://nearform.github.io/udaru/) for complete document
 To install via npm:
 
 ```
-npm install @nearform/udaru-hapi-plugin
+npm install @nearform/udaru-hapi-server
 ```
 
 ## Usage
-```js
-const Hapi = require('hapi')
-const UdaruPlugin = require('@nearform/udaru-hapi-plugin')
 
-...
-
-const server = Hapi.server()
-
-await server.register({register: UdaruPlugin})
+```
+npm run start
 ```
 
-## Hooks
+## Documentation
 
-In order to register udaru hooks, just provide a `hooks` key in the plugin options where keys are the names and values are handler functions (or array of functions).
+The Udaru documentation site can be found at [nearform.github.io/udaru][docs-site].
 
-```js
-const Hapi = require('hapi')
-const UdaruPlugin = require('@nearform/udaru-hapi-plugin')
+### Swagger API Documentation
 
-...
+The Swagger API documentation gives explanations on the exposed API. The documentation can be found at [nearform.github.io/udaru/swagger/][swagger-docs-url].
 
-const server = new Hapi.server()
+It is also possible to access the Swagger documentation from Udaru itself. Simply start the server:
 
-await server.register({
-  register: UdaruPlugin,
-  options: {
-    // Other options here
-    hooks: {
-      'authorize:isUserAuthorized': [
-        async function (error, args, result) {
-          if (error) {
-            console.error(`Authorization errored: ${error}`)
-          } else {
-            console.log(`Access to ${args[0]} got access: ${result[0].access}`)
-          }
-        }
-      ]
-    }
-  }
-})
 ```
+npm run start
+```
+
+and then go to [`http://localhost:8080/documentation`][swagger-link]
+
+The Swagger documentation also gives the ability to execute calls to the API and see their results. If you're using the test database, you can use 'ROOTid' as the required authorization parameter and 'WONKA' as the organisation.
 
 ## License
 
@@ -73,3 +54,6 @@ Copyright nearForm Ltd 2017. Licensed under [MIT][license].
 [coveralls-url]: https://coveralls.io/github/nearform/udaru-hapi-plugin?branch=master
 [snyk-badge]: https://snyk.io/test/github/nearform/udaru-hapi-plugin/badge.svg
 [snyk-url]: https://snyk.io/test/github/nearform/udaru-hapi-plugin
+[swagger-link]: http://localhost:8080/documentation
+[docs-site]: https://nearform.github.io/udaru
+[swagger-docs-url]: https://nearform.github.io/udaru/swagger/

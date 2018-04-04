@@ -30,23 +30,33 @@
     "url": "https://github.com/nearform/udaru/issues"
   },
   "bin": {
-    "udaru": "packages/udaru-server/start.js"
+    "udaru": "packages/udaru-server/index.js"
   },
   "engines": {
     "node": ">=6.0.0"
   },
   "scripts": {
+    "bench": "cd packages/udaru-hapi-server && node ./bench/util/runner.js",
+    "bench:volume": "cd packages/udaru-hapi-server && node ./bench/util/volumeRunner.js",
+    "bench:load-volume": "cd packages/udaru-hapi-server && npm run pg:init-volume-db && node ./bench/util/volumeRunner.js",
     "coverage": "lerna run coverage",
     "coveralls": "lerna run coveralls",
     "depcheck": "lerna run depcheck",
     "outdated:all": "npm outdated || echo 'Outdated packages found.'; lerna exec \"npm outdated || echo 'Outdated packages found.'\"",
     "update:all": "npm update && lerna exec npm update",
     "lint": "standard",
+    "pg:init": "cd packages/udaru-core && node ./database/init.js && npm run pg:migrate",
+    "pg:init-test-db": "cd packages/udaru-core && npm run pg:init && npm run pg:load-test-data",
+    "pg:init-volume-db": "cd packages/udaru-hapi-server && npm run pg:init-test-db && ./bench/util/loadVolumeData.js",
+    "pg:load-test-data": "cd packages/udaru-core && node ./database/loadTestData.js",
+    "pg:migrate": "cd packages/udaru-core && node ./database/migrate.js --version=max",
     "postinstall": "lerna bootstrap",
     "doc:lint": "remark .",
-    "start": "node packages/udaru-hapi-server/start.js",
+    "start": "node packages/udaru-hapi-server/index.js",
     "test": "lerna run test",
     "test:commit-check": "npm run doc:lint && npm run lint && npm run depcheck && npm run test",
+    "pretest:security": "cd packages/udaru-hapi-server && napa sqlmapproject/sqlmap",
+    "test:security": "cd packages/udaru-hapi-server && node ./security/runner.js",
     "swagger-gen": "node scripts/getSwaggerJson.js | swagger-gen -d docs/swagger && node scripts/injectUdaruSwaggerCss.js"
   },
   "remarkConfig": {

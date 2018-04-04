@@ -28,7 +28,7 @@ const server = new Hapi.server()
 server.register({register: UdaruPlugin})
 ```
 
-## Hooks 
+## Hooks
 In order to register udaru hooks, just provide a `hooks` key in the plugin options where keys are the names and values are handler functions (or array of functions).
 
 ```js

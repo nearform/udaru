@@ -82,7 +82,7 @@ function executeMap (command, config, urlDescription, done) {
   })
 }
 
-const hapi = spawn('node', ['./start.js'])
+const hapi = spawn('node', ['./index.js'])
 
 async.detect(['python2', 'python'], findPython2, function (err, python) {
   if (err) {
