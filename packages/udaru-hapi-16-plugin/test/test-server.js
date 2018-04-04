@@ -31,8 +31,8 @@ module.exports = function buildServer (additionalConfig, done) {
   server.route({
     method: 'GET',
     path: '/no/plugins',
-    async handler (request) {
-      return true
+    handler: function (request, reply) {
+      reply(true)
     },
     config: {
       plugins: {}
@@ -42,8 +42,8 @@ module.exports = function buildServer (additionalConfig, done) {
   server.route({
     method: 'GET',
     path: '/no/resource',
-    async handler (request) {
-      return true
+    handler: function (request, reply) {
+      reply(true)
     },
     config: {
       plugins: {
@@ -57,8 +57,8 @@ module.exports = function buildServer (additionalConfig, done) {
   server.route({
     method: 'POST',
     path: '/no/team-resource/{id}',
-    async handler (request) {
-      return true
+    handler: function (request, reply) {
+      reply(true)
     },
     config: {
       plugins: {
