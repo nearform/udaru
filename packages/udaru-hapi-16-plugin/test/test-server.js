@@ -18,7 +18,7 @@ module.exports = function buildServer (additionalConfig, done) {
 
   server.register({
     register: UdaruPlugin,
-    options: {config, ...additionalConfig}
+    options: Object.assign({}, config, additionalConfig)
   }, function (err) {
     if (err) {
       if (typeof done === 'function') return done(err, server)
