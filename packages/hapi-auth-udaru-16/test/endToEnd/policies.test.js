@@ -5,7 +5,8 @@ const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 const utils = require('../../../udaru-core/test/testUtils')
-const server = require('../test-server')
+const sinon = require('sinon')
+const server = require('../test-server')()
 const udaru = require('@nearform/udaru-core')()
 
 const statements = { Statement: [{ Effect: 'Allow', Action: ['documents:Read'], Resource: ['wonka:documents:/public/*'] }] }
@@ -97,6 +98,22 @@ lab.experiment('Policies - get/list', () => {
         }
       })
 
+      done()
+    })
+  })
+
+  lab.test('get policy list: error handling', (done) => {
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: '/authorization/policies?limit=500&page=1'
+    })
+
+    const stub = sinon.stub(server.udaru.policies, 'list').yields(new Error('ERROR'))
+
+    server.inject(options, (response) => {
+      stub.restore()
+
+      expect(response.statusCode).to.equal(500)
       done()
     })
   })
@@ -364,6 +381,26 @@ lab.experiment('Policies - create/update/delete (need service key)', () => {
       })
     })
   })
+
+  lab.test('delete policy should return 500 when server errors happen', (done) => {
+    udaru.policies.create(policyCreateData, (err, p) => {
+      expect(err).to.not.exist()
+
+      const options = utils.requestOptions({
+        method: 'DELETE',
+        url: `/authorization/policies/${p.id}?sig=123456789`
+      })
+
+      const stub = sinon.stub(server.udaru.policies, 'delete').yields(new Error('ERROR'))
+
+      server.inject(options, (response) => {
+        stub.restore()
+
+        expect(response.statusCode).to.equal(500)
+        done()
+      })
+    })
+  })
 })
 
 lab.experiment('Shared Policies - create/update/delete (need service key)', () => {
@@ -595,6 +632,26 @@ lab.experiment('Shared Policies - create/update/delete (need service key)', () =
       })
     })
   })
+
+  lab.test('delete shared policy should return 500 when server errors happen', (done) => {
+    udaru.policies.createShared(sharedPolicyCreateData, (err, p) => {
+      expect(err).to.not.exist()
+
+      const options = utils.requestOptions({
+        method: 'DELETE',
+        url: `/authorization/shared-policies/${p.id}?sig=123456789`
+      })
+
+      const stub = sinon.stub(server.udaru.policies, 'deleteShared').yields(new Error('ERROR'))
+
+      server.inject(options, (response) => {
+        stub.restore()
+
+        expect(response.statusCode).to.equal(500)
+        done()
+      })
+    })
+  })
 })
 
 lab.experiment('Shared policies - get/list', () => {
@@ -671,6 +728,22 @@ lab.experiment('Shared policies - get/list', () => {
         }
       })
 
+      done()
+    })
+  })
+
+  lab.test('get policy list: error handling', (done) => {
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: '/authorization/shared-policies?limit=500&page=1'
+    })
+
+    const stub = sinon.stub(server.udaru.policies, 'listShared').yields(new Error('ERROR'))
+
+    server.inject(options, (response) => {
+      stub.restore()
+
+      expect(response.statusCode).to.equal(500)
       done()
     })
   })

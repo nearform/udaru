@@ -6,8 +6,9 @@ const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 const config = require('../../config')()
 const utils = require('../../../udaru-core/test/testUtils')
-const server = require('../test-server')
+const server = require('../test-server')()
 const udaru = require('@nearform/udaru-core')()
+const sinon = require('sinon')
 
 const defaultPageSize = config.get('authorization.defaultPageSize')
 const statements = { Statement: [{ Effect: 'Allow', Action: ['documents:Read'], Resource: ['wonka:documents:/public/*'] }] }
@@ -155,6 +156,29 @@ lab.experiment('Users: read - delete - update', () => {
         expect(result).to.not.exist()
 
         done()
+      })
+    })
+  })
+
+  lab.test('delete user should handle server error', (done) => {
+    udaru.users.create({name: 'test', id: 'testId', organizationId: 'ROOT'}, (err, user) => {
+      expect(err).to.not.exist()
+
+      const options = utils.requestOptions({
+        method: 'DELETE',
+        url: '/authorization/users/testId',
+        headers: {
+          authorization: 'ROOTid'
+        }
+      })
+
+      const stub = sinon.stub(server.udaru.users, 'delete').yields(new Error('ERROR'))
+
+      server.inject(options, (response) => {
+        stub.restore()
+
+        expect(response.statusCode).to.equal(500)
+        udaru.users.delete({id: 'testId', organizationId: 'ROOT'}, done)
       })
     })
   })
@@ -731,6 +755,30 @@ lab.experiment('Users - manage policies', () => {
     })
   })
 
+  lab.test('remove all user\'s policies should handle server errors', (done) => {
+    const options = utils.requestOptions({
+      method: 'DELETE',
+      url: '/authorization/users/ModifyId/policies'
+    })
+
+    udaru.policies.create(policyCreateData, (err, p) => {
+      expect(err).to.not.exist()
+
+      udaru.users.addPolicies({ id: 'ModifyId', organizationId: 'WONKA', policies: [p.id] }, (err) => {
+        expect(err).to.not.exist()
+
+        const stub = sinon.stub(server.udaru.users, 'deletePolicies').yields(new Error('ERROR'))
+
+        server.inject(options, (response) => {
+          stub.restore()
+
+          expect(response.statusCode).to.equal(500)
+          udaru.policies.delete({ id: p.id, organizationId: 'WONKA' }, done)
+        })
+      })
+    })
+  })
+
   lab.test('remove one user\'s policies', (done) => {
     udaru.policies.create(policyCreateData, (err, p) => {
       expect(err).to.not.exist()
@@ -752,6 +800,30 @@ lab.experiment('Users - manage policies', () => {
 
             udaru.policies.delete({ id: p.id, organizationId: 'WONKA' }, done)
           })
+        })
+      })
+    })
+  })
+
+  lab.test('remove one user\'s policies should handle server errors', (done) => {
+    udaru.policies.create(policyCreateData, (err, p) => {
+      expect(err).to.not.exist()
+
+      udaru.users.addPolicies({ id: 'ModifyId', organizationId: 'WONKA', policies: [p.id] }, (err) => {
+        expect(err).to.not.exist()
+
+        const options = utils.requestOptions({
+          method: 'DELETE',
+          url: `/authorization/users/ModifyId/policies/${p.id}`
+        })
+
+        const stub = sinon.stub(server.udaru.users, 'deletePolicy').yields(new Error('ERROR'))
+
+        server.inject(options, (response) => {
+          stub.restore()
+
+          expect(response.statusCode).to.equal(500)
+          udaru.policies.delete({ id: p.id, organizationId: 'WONKA' }, done)
         })
       })
     })
@@ -1039,6 +1111,22 @@ lab.experiment('Users - search for user', () => {
       expect(result.total).to.equal(0)
       expect(result.data.length).to.equal(0)
 
+      done()
+    })
+  })
+
+  lab.test(`search should handle server error`, (done) => {
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: `/authorization/users/search?query=ABC`
+    })
+
+    const stub = sinon.stub(server.udaru.users, 'search').yields(new Error('ERROR'))
+
+    server.inject(options, (response) => {
+      stub.restore()
+
+      expect(response.statusCode).to.equal(500)
       done()
     })
   })

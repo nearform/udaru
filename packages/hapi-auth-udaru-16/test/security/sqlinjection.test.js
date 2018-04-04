@@ -5,7 +5,7 @@ const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 const utils = require('../../../udaru-core/test/testUtils')
 const udaru = require('@nearform/udaru-core')()
-const server = require('../test-server')
+const server = require('../test-server')()
 
 const statements = { Statement: [{ Effect: 'Allow', Action: ['*'], Resource: ['*'] }] }
 const policyCreateData = {

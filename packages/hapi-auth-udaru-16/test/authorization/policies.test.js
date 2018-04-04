@@ -1,7 +1,7 @@
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 
-const server = require('../test-server')
+const server = require('../test-server')()
 const config = require('../../config')()
 
 const Factory = require('../../../udaru-core/test/factory')

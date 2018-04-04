@@ -4,8 +4,9 @@ const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 const utils = require('../../../udaru-core/test/testUtils')
-const server = require('../test-server')
+const server = require('../test-server')()
 const udaru = require('@nearform/udaru-core')()
+const sinon = require('sinon')
 
 const teamData = {
   name: 'testTeam',
@@ -22,6 +23,51 @@ const teamDataMeta = {
   organizationId: 'WONKA',
   metadata: metadata
 }
+
+lab.experiment('Teams - search', () => {
+  lab.test('searching for teams', (done) => {
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: `/authorization/teams/search?query=test`
+    })
+
+    udaru.teams.create(teamData, (err, team) => {
+      expect(err).to.not.exist()
+
+      server.inject(options, (response) => {
+        const result = response.result
+
+        expect(response.statusCode).to.equal(200)
+        expect(result.data).to.exist()
+        expect(result.total).to.exist()
+
+        expect(result.data.length).to.equal(1)
+        expect(result.total).to.equal(1)
+
+        udaru.teams.delete({ id: team.id, organizationId: team.organizationId }, done)
+      })
+    })
+  })
+
+  lab.test('searching for teams should handle server errors', (done) => {
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: `/authorization/teams/search?query=test`
+    })
+
+    udaru.teams.create(teamData, (err, team) => {
+      expect(err).to.not.exist()
+
+      const stub = sinon.stub(server.udaru.teams, 'search').yields(new Error('ERROR'))
+      server.inject(options, (response) => {
+        stub.restore()
+
+        expect(response.statusCode).to.equal(500)
+        udaru.teams.delete({ id: team.id, organizationId: team.organizationId }, done)
+      })
+    })
+  })
+})
 
 lab.experiment('Teams - get/list', () => {
   lab.test('get team list: with pagination params', (done) => {
@@ -205,6 +251,22 @@ lab.experiment('Teams - get/list', () => {
         }
       ])
 
+      done()
+    })
+  })
+
+  lab.test('get team list should handle server errors', (done) => {
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: '/authorization/teams?page=1&limit=7'
+    })
+
+    const stub = sinon.stub(server.udaru.teams, 'list').yields(new Error('ERROR'))
+
+    server.inject(options, (response) => {
+      stub.restore()
+
+      expect(response.statusCode).to.equal(500)
       done()
     })
   })
@@ -679,6 +741,26 @@ lab.experiment('Teams - delete', () => {
       })
     })
   })
+
+  lab.test('delete team should return 500 for server errors', (done) => {
+    udaru.teams.create(teamData, (err, team) => {
+      if (err) return done(err)
+
+      const options = utils.requestOptions({
+        method: 'DELETE',
+        url: `/authorization/teams/${team.id}`
+      })
+
+      const stub = sinon.stub(server.udaru.teams, 'delete').yields(new Error('ERROR'))
+
+      server.inject(options, (response) => {
+        stub.restore()
+
+        expect(response.statusCode).to.equal(500)
+        udaru.teams.delete({id: team.id, organizationId: team.organizationId}, done)
+      })
+    })
+  })
 })
 
 lab.experiment('Teams - manage users', () => {
@@ -760,6 +842,30 @@ lab.experiment('Teams - manage users', () => {
     })
   })
 
+  lab.test('delete all team members should handle server errors', (done) => {
+    udaru.teams.create(teamData, (err, team) => {
+      if (err) return done(err)
+
+      udaru.teams.addUsers({id: team.id, organizationId: team.organizationId, users: ['CharlieId', 'MikeId']}, (err, team) => {
+        if (err) return done(err)
+
+        const options = utils.requestOptions({
+          method: 'DELETE',
+          url: `/authorization/teams/${team.id}/users`
+        })
+
+        const stub = sinon.stub(server.udaru.teams, 'deleteMembers').yields(new Error('ERROR'))
+
+        server.inject(options, (response) => {
+          stub.restore()
+
+          expect(response.statusCode).to.equal(500)
+          udaru.teams.delete({ id: team.id, organizationId: team.organizationId }, done)
+        })
+      })
+    })
+  })
+
   lab.test('delete one team member', (done) => {
     udaru.teams.create(teamData, (err, team) => {
       if (err) return done(err)
@@ -774,6 +880,30 @@ lab.experiment('Teams - manage users', () => {
 
         server.inject(options, (response) => {
           expect(response.statusCode).to.equal(204)
+
+          udaru.teams.delete({ id: team.id, organizationId: team.organizationId }, done)
+        })
+      })
+    })
+  })
+
+  lab.test('delete one team member should handle server errors', (done) => {
+    udaru.teams.create(teamData, (err, team) => {
+      if (err) return done(err)
+
+      udaru.teams.addUsers({id: team.id, organizationId: team.organizationId, users: ['CharlieId', 'MikeId']}, (err, team) => {
+        if (err) return done(err)
+
+        const options = utils.requestOptions({
+          method: 'DELETE',
+          url: `/authorization/teams/${team.id}/users/CharlieId`
+        })
+
+        const stub = sinon.stub(server.udaru.teams, 'deleteMember').yields(new Error('ERROR'))
+
+        server.inject(options, (response) => {
+          expect(response.statusCode).to.equal(500)
+          stub.restore()
 
           udaru.teams.delete({ id: team.id, organizationId: team.organizationId }, done)
         })
@@ -866,6 +996,26 @@ lab.experiment('Teams - nest/un-nest', () => {
         expect(result.path).to.equal('2')
 
         done()
+      })
+    })
+  })
+
+  lab.test('Un-nest team should handle server errors', (done) => {
+    udaru.teams.move({ id: '2', parentId: '3', organizationId: 'WONKA' }, (err, res) => {
+      expect(err).to.not.exist()
+
+      const options = utils.requestOptions({
+        method: 'PUT',
+        url: `/authorization/teams/${res.id}/unnest`
+      })
+
+      const stub = sinon.stub(server.udaru.teams, 'move').yields(new Error('ERROR'))
+
+      server.inject(options, (response) => {
+        stub.restore()
+
+        expect(response.statusCode).to.equal(500)
+        udaru.teams.move({ id: '2', parentId: null, organizationId: 'WONKA' }, done)
       })
     })
   })
@@ -999,7 +1149,7 @@ lab.experiment('Teams - manage policies', () => {
                 expect(response.statusCode).to.equal(200)
                 expect(result.policies.length).to.equal(0)
 
-                udaru.teams.replacePolicies({ id: result.id, policies: ['policyId1'], organizationId: result.organizationId }, done)
+                udaru.teams.replacePolicies({ id: result.id, policies: [], organizationId: result.organizationId }, done)
               })
             })
           })
@@ -1129,6 +1279,22 @@ lab.experiment('Teams - manage policies', () => {
     })
   })
 
+  lab.test('Delete team policies should handle server errors', (done) => {
+    const options = utils.requestOptions({
+      method: 'DELETE',
+      url: '/authorization/teams/1/policies'
+    })
+
+    const stub = sinon.stub(server.udaru.teams, 'deletePolicies').yields(new Error('ERROR'))
+
+    server.inject(options, (response) => {
+      stub.restore()
+
+      expect(response.statusCode).to.equal(500)
+      udaru.teams.replacePolicies({ id: '1', policies: ['policyId1'], organizationId: 'WONKA' }, done)
+    })
+  })
+
   lab.test('Delete specific team policy', (done) => {
     const options = utils.requestOptions({
       method: 'DELETE',
@@ -1138,6 +1304,22 @@ lab.experiment('Teams - manage policies', () => {
     server.inject(options, (response) => {
       expect(response.statusCode).to.equal(204)
 
+      udaru.teams.replacePolicies({ id: '1', policies: ['policyId1'], organizationId: 'WONKA' }, done)
+    })
+  })
+
+  lab.test('Delete specific team policy should handle server errors', (done) => {
+    const options = utils.requestOptions({
+      method: 'DELETE',
+      url: '/authorization/teams/1/policies/policyId1'
+    })
+
+    const stub = sinon.stub(server.udaru.teams, 'deletePolicy').yields(new Error('ERROR'))
+
+    server.inject(options, (response) => {
+      stub.restore()
+
+      expect(response.statusCode).to.equal(500)
       udaru.teams.replacePolicies({ id: '1', policies: ['policyId1'], organizationId: 'WONKA' }, done)
     })
   })
@@ -1364,6 +1546,22 @@ lab.experiment('Teams - checking org_id scoping', () => {
     })
   })
 
+  lab.test('get nested team list should handle server error', (done) => {
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: '/authorization/teams/3/nested'
+    })
+
+    const stub = sinon.stub(server.udaru.teams, 'listNestedTeams').yields(new Error('ERROR'))
+
+    server.inject(options, (response) => {
+      stub.restore()
+
+      expect(response.statusCode).to.equal(500)
+      done()
+    })
+  })
+
   lab.experiment('Teams User Search', () => {
     lab.test('searching for a real user in an existing team', (done) => {
       const teamId = '4'
@@ -1468,6 +1666,24 @@ lab.experiment('Teams - checking org_id scoping', () => {
         expect(result.error).to.exist()
         expect(result.message.toLowerCase()).to.include('not').include('found')
 
+        done()
+      })
+    })
+
+    lab.test('searching for a real user in an existing team should handle server errors', (done) => {
+      const teamId = '4'
+      const query = 'Will'
+
+      const options = utils.requestOptions({
+        method: 'GET',
+        url: `/authorization/teams/${teamId}/users/search?query=${query}`
+      })
+
+      const stub = sinon.stub(server.udaru.teams, 'searchUsers').yields(new Error('ERROR'))
+      server.inject(options, (response) => {
+        stub.restore()
+
+        expect(response.statusCode).to.equal(500)
         done()
       })
     })

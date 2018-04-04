@@ -56,7 +56,7 @@ function buildResources (options, udaru, authParams, request, organizationId) {
 
   const resourceType = request.route.path.split('/')[2]
   const resourceBuilder = request.server.udaruConfig.get('AuthConfig.resources')[resourceType]
-  if (!resourceBuilder) throw new Error('Resource builder not found')
+  if (!resourceBuilder) throw Boom.badImplementation('Resource builder not found')
 
   const requestParams = authParams.getParams ? authParams.getParams(request) : {}
   const buildParams = Object.assign({}, {organizationId}, requestParams)

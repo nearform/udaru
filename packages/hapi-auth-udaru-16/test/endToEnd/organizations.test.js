@@ -5,8 +5,9 @@ const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 const utils = require('../../../udaru-core/test/testUtils')
 const uuid = require('uuid/v4')
-const server = require('../test-server')
+const server = require('../test-server')()
 const udaru = require('@nearform/udaru-core')()
+const sinon = require('sinon')
 
 const organizationId = 'SHIPLINE'
 const statementsTest = { Statement: [{ Effect: 'Allow', Action: ['nfdocuments:Read'], Resource: ['nearform:documents:/public/*'] }] }
@@ -169,6 +170,22 @@ lab.experiment('Organizations', () => {
     })
   })
 
+  lab.test('get organizations list: should handle server error', (done) => {
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: '/authorization/organizations?limit=10&page=1'
+    })
+
+    const stub = sinon.stub(server.udaru.organizations, 'list').yields(new Error('ERROR'))
+
+    server.inject(options, (response) => {
+      stub.restore()
+
+      expect(response.statusCode).to.equal(500)
+      done()
+    })
+  })
+
   lab.test('get single organization', (done) => {
     const options = utils.requestOptions({
       method: 'GET',
@@ -302,6 +319,30 @@ lab.experiment('Organizations', () => {
       })
 
       udaru.organizations.delete('nearForm_Meta', done)
+    })
+  })
+
+  lab.test('create organization with metadata, return 500 for server error', (done) => {
+    const organization = {
+      id: 'nearForm_Meta',
+      name: 'nearForm_Meta',
+      description: 'nearForm org with meta',
+      metadata: metadata
+    }
+
+    const options = utils.requestOptions({
+      method: 'POST',
+      url: '/authorization/organizations',
+      payload: organization
+    })
+
+    const stub = sinon.stub(server.udaru.organizations, 'create').yields(new Error('ERROR'))
+
+    server.inject(options, (response) => {
+      stub.restore()
+
+      expect(response.statusCode).to.equal(500)
+      done()
     })
   })
 
@@ -456,6 +497,26 @@ lab.experiment('Organizations', () => {
         expect(result).to.not.exist()
 
         done()
+      })
+    })
+  })
+
+  lab.test('delete organization should return 500 for server errors', (done) => {
+    udaru.organizations.create({ id: 'nearForm', name: 'nearForm', description: 'nearForm org' }, (err, res) => {
+      expect(err).to.not.exist()
+
+      const options = utils.requestOptions({
+        method: 'DELETE',
+        url: `/authorization/organizations/${res.organization.id}`
+      })
+
+      const stub = sinon.stub(server.udaru.organizations, 'delete').yields(new Error('ERROR'))
+
+      server.inject(options, (response) => {
+        stub.restore()
+
+        expect(response.statusCode).to.equal(500)
+        udaru.organizations.delete('nearForm', done)
       })
     })
   })
@@ -748,6 +809,26 @@ lab.experiment('Organizations', () => {
     })
   })
 
+  lab.test('delete the policies of an organization should handle server errors', (done) => {
+    udaru.organizations.addPolicies({ id: organizationId, policies: [testPolicy.id, testPolicy2.id] }, (err, res) => {
+      expect(err).to.not.exist()
+
+      const options = utils.requestOptions({
+        method: 'DELETE',
+        url: `/authorization/organizations/${organizationId}/policies`
+      })
+
+      const stub = sinon.stub(server.udaru.organizations, 'deletePolicies').yields(new Error('ERROR'))
+
+      server.inject(options, (response) => {
+        stub.restore()
+
+        expect(response.statusCode).to.equal(500)
+        udaru.organizations.deletePolicies({ id: organizationId }, done)
+      })
+    })
+  })
+
   lab.test('delete the policy of an organization', (done) => {
     udaru.organizations.addPolicies({ id: organizationId, policies: [testPolicy.id, testPolicy2.id] }, (err, res) => {
       expect(err).to.not.exist()
@@ -767,6 +848,26 @@ lab.experiment('Organizations', () => {
 
           done()
         })
+      })
+    })
+  })
+
+  lab.test('delete the policy of an organization should handle server errors', (done) => {
+    udaru.organizations.addPolicies({ id: organizationId, policies: [testPolicy.id, testPolicy2.id] }, (err, res) => {
+      expect(err).to.not.exist()
+
+      const options = utils.requestOptions({
+        method: 'DELETE',
+        url: `/authorization/organizations/${organizationId}/policies/${testPolicy2.id}`
+      })
+
+      const stub = sinon.stub(server.udaru.organizations, 'deletePolicy').yields(new Error('ERROR'))
+
+      server.inject(options, (response) => {
+        stub.restore()
+
+        expect(response.statusCode).to.equal(500)
+        udaru.organizations.deletePolicies({ id: organizationId, policies: [testPolicy.id, testPolicy2.id] }, done)
       })
     })
   })

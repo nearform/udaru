@@ -93,9 +93,9 @@ class CustomTest {
     return this
   }
 
-  shouldRespond (statusCode) {
+  shouldRespond (statusCode, additionalChecks) {
     this.statusCode = statusCode
-    this.build()
+    this.build(additionalChecks)
     return this
   }
 
@@ -104,7 +104,7 @@ class CustomTest {
     return this
   }
 
-  build () {
+  build (additionalChecks) {
     let test = this.builder.lab.test
     if (this._skip) {
       test = this.builder.lab.test.skip
@@ -126,6 +126,8 @@ class CustomTest {
       const options = utils.requestOptions(interpolate(endpointData, records))
       const response = await serverInstance.inject(options)
       expect(response.statusCode).to.equal(statusCode)
+
+      if (typeof additionalChecks === 'function') additionalChecks.call(this)
     })
   }
 }

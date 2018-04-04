@@ -1,7 +1,8 @@
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 
-const server = require('../test-server')
+const buildServer = require('../test-server')
+const server = buildServer()
 const Factory = require('../../../udaru-core/test/factory')
 const { BuildFor, udaru } = require('./testBuilder')
 
@@ -33,7 +34,7 @@ lab.experiment('Routes Authorizations', () => {
         }
       }, udaru)
 
-      const endpoint = BuildFor(lab, records)
+      let endpoint = BuildFor(lab, records)
         .server(server)
         .endpoint({
           method: 'GET',

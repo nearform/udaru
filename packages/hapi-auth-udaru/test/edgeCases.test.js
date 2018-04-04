@@ -35,6 +35,80 @@ lab.experiment('Edge cases', () => {
     })
   })
 
+  lab.experiment('single hook', async () => {
+    const records = Factory(lab, {
+      users: {
+        caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
+      },
+      policies: {
+        testedPolicy: Policy()
+      }
+    }, udaru)
+
+    let called = false
+
+    const endpoint = BuildFor(lab, records)
+      .server(server.bind(null, {
+        hooks: {
+          'authorize:isUserAuthorized': async function (_u1, _u2, _u3) {
+            called = true
+          }
+        }
+      }, config.get('hapi.port') + 1))
+      .endpoint({
+        method: 'GET',
+        url: '/authorization/access/Modifyid/action_a/resource_a',
+        headers: { authorization: '{{caller.id}}' }
+      })
+
+    endpoint.test('should be run')
+      .withPolicy([{
+        Effect: 'Allow',
+        Action: ['authorization:authn:access'],
+        Resource: ['authorization/access']
+      }])
+      .shouldRespond(200, () => {
+        expect(called).to.equal(true)
+      })
+  })
+
+  lab.experiment('multiple hooks', async () => {
+    const records = Factory(lab, {
+      users: {
+        caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
+      },
+      policies: {
+        testedPolicy: Policy()
+      }
+    }, udaru)
+
+    let called = false
+
+    const endpoint = BuildFor(lab, records)
+      .server(server.bind(null, {
+        hooks: {
+          'authorize:isUserAuthorized': [async function (_u1, _u2, _u3) {
+            called = true
+          }]
+        }
+      }, config.get('hapi.port') + 2))
+      .endpoint({
+        method: 'GET',
+        url: '/authorization/access/Modifyid/action_a/resource_a',
+        headers: { authorization: '{{caller.id}}' }
+      })
+
+    endpoint.test('should be run')
+      .withPolicy([{
+        Effect: 'Allow',
+        Action: ['authorization:authn:access'],
+        Resource: ['authorization/access']
+      }])
+      .shouldRespond(200, () => {
+        expect(called).to.equal(true)
+      })
+  })
+
   lab.experiment('invalid routes', () => {
     const records = Factory(lab, {
       users: {

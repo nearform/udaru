@@ -47,7 +47,7 @@ function buildAuthValidation (authorization) {
     const resources = [builder(buildParams)]
 
     udaru.users.read({ id: buildParams.userId, organizationId: organizationId }, (err, user) => {
-      if (err && err.output.statusCode === 404) return done(null, resources)
+      if (err && err.output && err.output.statusCode === 404) return done(null, resources)
       if (err) return done(err)
 
       user.teams.forEach((team) => {
@@ -69,9 +69,7 @@ function buildAuthValidation (authorization) {
     const resourceType = request.route.path.split('/')[2]
     const resourceBuilder = request.server.udaruConfig.get('AuthConfig.resources')[resourceType]
 
-    if (!resourceBuilder) {
-      return done(new Error('Resource builder not found'))
-    }
+    if (!resourceBuilder) return done(Boom.badImplementation('Resource builder not found'))
 
     const requestParams = authParams.getParams ? authParams.getParams(request) : {}
     const buildParams = Object.assign({}, { organizationId }, requestParams)

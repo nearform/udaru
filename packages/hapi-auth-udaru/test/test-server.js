@@ -4,12 +4,13 @@ const Hapi = require('hapi')
 
 let server = null
 
-module.exports = async function () {
-  if (server) return server
+module.exports = async function (additionalConfig, port) {
+  if (server && !port) return server
 
   server = Hapi.Server({
-    port: Number(config.get('hapi.port')),
+    port: Number(port || config.get('hapi.port')),
     host: config.get('hapi.host'),
+    debug: false,
     routes: {
       cors: {
         additionalHeaders: ['org']
@@ -22,7 +23,7 @@ module.exports = async function () {
     }
   })
 
-  await server.register({plugin: require('..'), options: {config}})
+  await server.register({plugin: require('..'), options: {config, ...additionalConfig}})
 
   server.route({
     method: 'GET',

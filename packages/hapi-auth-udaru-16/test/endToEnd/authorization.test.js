@@ -4,7 +4,7 @@ const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 const utils = require('../../../udaru-core/test/testUtils')
-const server = require('../test-server')
+const server = require('../test-server')()
 const Factory = require('../../../udaru-core/test/factory')
 const udaru = require('@nearform/udaru-core')()
 
