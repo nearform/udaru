@@ -2,7 +2,7 @@
   "name": "@nearform/udaru-hapi-plugin",
   "version": "5.0.0",
   "main": "index.js",
-  "description": "Hapi plugin that allows using udaru for policy based authorization",
+  "description": "Hapi authentication plugin that allows using udaru for policy based authorization",
   "author": "nearForm Ltd",
   "license": "MIT",
   "contributors": [
@@ -13,6 +13,7 @@
     "Florian Traverse (https://github.com/temsa)",
     "Mihai Dima (https://github.com/mihaidma)",
     "Paolo Chiodi (https://github.com/paolochiodi)",
+    "Paolo Insogna (https://github.com/ShogunPanda)",
     "Paul Negrutiu (https://github.com/floridemai)",
     "Mark Ireland (https://github.com/irelandm)",
     "Michael O'Brien (https://github.com/mobri3n)",
@@ -30,33 +31,34 @@
     "url": "https://github.com/nearform/udaru/issues"
   },
   "engines": {
-    "node": ">=6.0.0"
+    "node": ">=8.9.0"
   },
   "scripts": {
     "coverage": "UDARU_SERVICE_logger_pino_level=silent lab -c -t 96 -r html -o coverage/coverage.html",
     "coveralls": "UDARU_SERVICE_logger_pino_level=silent lab -c -t 96 -r lcov | COVERALLS_REPO_TOKEN='?' coveralls",
     "depcheck": "npx depcheck",
-    "pg:init": "UDARU_SERVICE_local=true npx udaru-init && npm run pg:migrate",
-    "pg:init-test-db": "npm run pg:init && npm run pg:load-test-data",
-    "pg:load-test-data": "UDARU_SERVICE_local=true npx udaru-loadTestData",
-    "pg:migrate": "npx udaru-migrate --version=max",
-    "test": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -c -t 96"
+    "pg:init": "npx --no-install udaru-init && npm run pg:migrate",
+    "pg:init-test-db": "npm run pg:init && npx --no-install udaru-loadTestData",
+    "pg:migrate": "npx --no-install udaru-migrate --version=max",
+    "test-6": "echo '\\033[33mudaru-hapi-plugin requires Node.js greater than 8.9.0. Exiting without errors.\\033[0m'",
+    "test-current": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -c -t 96",
+    "test": "npm run test-$(node -v | grep '^v6' >> /dev/null && echo '6' || echo 'current')"
   },
   "dependencies": {
     "@nearform/udaru-core": "^5.0.0",
-    "async": "^2.6.0",
     "boom": "^7.2.0",
+    "hapi": "^17.2.3",
     "hoek": "^5.0.3",
     "joi": "^13.1.2",
     "lodash": "^4.17.5"
   },
   "devDependencies": {
-    "code": "^4.0.0",
+    "code": "^5.2.0",
     "coveralls": "^3.0.0",
     "depcheck": "^0.6.9",
-    "hapi": "^16.6.2",
-    "lab": "^14.3.2",
+    "lab": "^15.4.1",
     "npx": "^10.0.1",
+    "sinon": "^4.5.0",
     "uuid": "^3.2.1"
   }
 }

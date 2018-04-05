@@ -1,6 +1,7 @@
 {
-  "name": "udaru",
+  "name": "@nearform/udaru-hapi-server",
   "version": "5.0.0",
+  "main": "index.js",
   "description": "Hapi server that uses udaru for policy based authorization",
   "author": "nearForm Ltd",
   "license": "MIT",
@@ -12,6 +13,7 @@
     "Florian Traverse (https://github.com/temsa)",
     "Mihai Dima (https://github.com/mihaidma)",
     "Paolo Chiodi (https://github.com/paolochiodi)",
+    "Paolo Insogna (https://github.com/ShogunPanda)",
     "Paul Negrutiu (https://github.com/floridemai)",
     "Mark Ireland (https://github.com/irelandm)",
     "Michael O'Brien (https://github.com/mobri3n)",
@@ -28,51 +30,59 @@
   "bugs": {
     "url": "https://github.com/nearform/udaru/issues"
   },
+  "bin": {
+    "udaru": "packages/udaru-server/index.js"
+  },
   "engines": {
     "node": ">=6.0.0"
   },
-  "bin": {
-    "udaru": "./start.js"
-  },
-  "main": "index.js",
   "scripts": {
     "bench": "node ./bench/util/runner.js",
     "bench:volume": "node ./bench/util/volumeRunner.js",
     "bench:load-volume": "npm run pg:init-volume-db && node ./bench/util/volumeRunner.js",
-    "coverage": "UDARU_SERVICE_logger_pino_level=silent lab -c -t 96 -r html -o coverage/coverage.html",
-    "coveralls": "UDARU_SERVICE_logger_pino_level=silent lab -c -t 96 -r lcov | COVERALLS_REPO_TOKEN='?' coveralls",
-    "depcheck": "npx depcheck  --ignores='@nearform/udaru-core'",
-    "start": "node ./start.js",
-    "pg:init": "UDARU_SERVICE_local=true npx udaru-init && npm run pg:migrate",
-    "pg:init-test-db": "npm run pg:init && npm run pg:load-test-data",
-    "pg:load-test-data": "UDARU_SERVICE_local=true npx udaru-loadTestData",
+    "coverage": "echo  ️",
+    "depcheck": "npx depcheck",
+    "pg:init": "npx --no-install udaru-init && npm run pg:migrate",
+    "pg:init-test-db": "npm run pg:init && npx --no-install udaru-loadTestData",
     "pg:init-volume-db": "npm run pg:init-test-db && ./bench/util/loadVolumeData.js",
-    "test": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -c -t 96",
-    "test:security": "node ./security/runner.js",
+    "pg:migrate": "npx --no-install udaru-migrate --version=max",
+    "start": "node ./index.js",
+    "test": "echo  ️",
     "pretest:security": "napa sqlmapproject/sqlmap",
-    "pg:migrate": "npx udaru-migrate --version=max"
+    "test:security": "node ./security/runner.js"
   },
+  "remarkConfig": {
+    "plugins": [
+      "remark-preset-lint-recommended"
+    ]
+  },
+  "pre-commit": [
+    "test:commit-check"
+  ],
   "dependencies": {
+    "@nearform/udaru-core": "^5.0.0",
+    "@nearform/udaru-hapi-16-plugin": "^5.0.0",
+    "async": "^2.6.0",
     "hapi": "^16.6.2",
-    "hapi-pino": "^1.3.0",
-    "hapi-swagger": "^7.10.0",
+    "hapi-pino": "^2.0.0",
+    "hapi-swagger": "^7.9.1",
     "inert": "^4.0.3",
-    "@nearform/udaru-hapi-plugin": "^5.0.0",
     "vision": "^4.1.1"
   },
   "devDependencies": {
-    "@nearform/udaru-core": "^5.0.0",
-    "async": "^2.6.0",
     "autocannon": "^2.1.1",
     "bloomrun": "^4.1.0",
     "chalk": "^2.3.2",
-    "coveralls": "^3.0.0",
     "depcheck": "^0.6.9",
-    "jsonfile": "4.0.0",
-    "lab": "^14.3.2",
+    "jsonfile": "^4.0.0",
     "minimist": "^1.2.0",
     "napa": "^3.0.0",
-    "pg": "^7.4.1",
-    "npx": "^10.0.1"
+    "npx": "^10.0.1",
+    "pg": "^7.4.1"
+  },
+  "standard": {
+    "ignore": [
+      "docs/*"
+    ]
   }
 }

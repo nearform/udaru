@@ -1,6 +1,6 @@
 'use strict'
 
-const _ = require('lodash')
+const getProperty = require('lodash/get')
 const Boom = require('boom')
 const async = require('async')
 
@@ -9,49 +9,38 @@ function buildAuthorization (config) {
   const actionsNeedingValidation = [Action.ReplaceUserTeams, Action.DeleteUserTeams]
 
   function getAuthParams (request) {
-    return request.route.settings.plugins && request.route.settings.plugins.auth
+    return getProperty(request, 'route.settings.plugins.auth')
   }
 
   function getTeams (server, request, callback) {
     const authParams = getAuthParams(request)
-    if (!authParams || !authParams.action) {
-      return callback(Boom.forbidden('Invalid credentials', 'udaru'))
-    }
 
-    if (Action.ReplaceUserTeams === authParams.action) {
-      // this is called before we get to routing so needs to be validated first
-      const teams = _.get(request, 'payload.teams')
-      if (!teams || !Array.isArray(teams)) {
-        return callback(Boom.badRequest('No teams found in payload', 'udaru'))
-      }
-      return callback(null, teams)
-    }
+    switch (authParams.action) {
+      case Action.ReplaceUserTeams:
+        // this is called before we get to routing so needs to be validated first
+        const teams = getProperty(request, 'payload.teams')
+        if (!teams || !Array.isArray(teams)) {
+          return callback(Boom.badRequest('No teams found in payload', 'udaru'))
+        }
+        return callback(null, teams)
+      case Action.DeleteUserTeams:
+        const { user: currentUser } = request.udaru
 
-    if (Action.DeleteUserTeams === authParams.action) {
-      const { user: currentUser } = request.udaru
-      if (!currentUser) {
-        return callback(Boom.forbidden('Invalid credentials', 'udaru'))
-      }
+        const requestParams = authParams.getParams(request)
+        const organizationId = request.headers.org || currentUser.organizationId
 
-      const requestParams = authParams.getParams ? authParams.getParams(request) : {}
-      const organizationId = request.headers.org || currentUser.organizationId
+        request.udaruCore.users.read({ id: requestParams.userId, organizationId }, function (err, user) {
+          if (err) return callback(err)
 
-      request.udaruCore.users.read({ id: requestParams.userId, organizationId }, function (err, user) {
-        if (err) return callback(err)
-
-        return callback(null, user.teams.map(t => t.id))
-      })
+          return callback(null, user.teams.map(t => t.id))
+        })
     }
   }
 
   function needTeamsValidation (request) {
-    const authParams = getAuthParams(request)
+    const authParams = getAuthParams(request, {})
 
-    if (!authParams) {
-      return false
-    }
-
-    return _.includes(actionsNeedingValidation, authParams.action)
+    return actionsNeedingValidation.includes(authParams.action)
   }
 
   function validateTeamsInPayload (server, request, reply) {
@@ -63,14 +52,12 @@ function buildAuthorization (config) {
       const resourceType = request.route.path.split('/')[2]
       const resourceBuilder = server.udaruConfig.get('AuthConfig.resources')[resourceType]
 
-      if (!resourceBuilder) {
-        return reply(Boom.badImplentation('Resource builder not found'))
-      }
+      if (!resourceBuilder) return reply(Boom.badImplementation('Resource builder not found'))
 
-      const tasks = teams.map(function (team) {
+      const tasks = teams.map(function (teamId) {
         const params = {
           userId: currentUser.id,
-          teamId: team,
+          teamId,
           organizationId: currentUser.organizationId
         }
         const resource = resourceBuilder(params)
@@ -78,7 +65,7 @@ function buildAuthorization (config) {
 
         return function check (callback) {
           request.udaruCore.authorize.isUserAuthorized({ userId: currentUser.id, action, resource, organizationId: currentUser.organizationId }, (err, result) => {
-            if (err || !result || !result.access) return callback(err || new Error(`Not enough permissions to modify team ${team}`))
+            if (err || !getProperty(result, 'access')) return callback(err || Boom.forbidden(`Not enough permissions to modify team ${teamId}`))
             callback()
           })
         }

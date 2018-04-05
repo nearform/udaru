@@ -5,6 +5,16 @@ const Hapi = require('hapi')
 
 const server = new Hapi.Server()
 
+// if forked as child, send output message via ipc to parent
+// otherwise output to console
+function logMessage (message) {
+  if (!process.send) {
+    console.log(message)
+  } else {
+    process.send(message)
+  }
+}
+
 server.connection({
   port: Number(config.get('hapi.port')),
   host: config.get('hapi.host'),
@@ -29,10 +39,10 @@ server.register(
     },
     {
       register: require('hapi-swagger'),
-      options: require('./swagger-config')
+      options: require('./swagger')
     },
     {
-      register: require('@nearform/udaru-hapi-plugin'),
+      register: require('@nearform/udaru-hapi-16-plugin'),
       options: {config}
     }
   ],
@@ -42,5 +52,13 @@ server.register(
     }
   }
 )
+
+server.start((err) => {
+  if (err) {
+    logMessage(`Failed to start server: ${err.message}`)
+    process.exit(1)
+  }
+  logMessage('Server started on: ' + server.info.uri.toLowerCase())
+})
 
 module.exports = server

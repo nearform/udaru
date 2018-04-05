@@ -1,8 +1,8 @@
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 const server = require('../test-server')
-const Factory = require('../../../udaru-core/test/factory')
-const { BuildFor, udaru } = require('./testBuilder')
+const Factory = require('@nearform/udaru-core/test/factory')
+const { BuildFor, udaru } = require('../testBuilder')
 
 const organizationId = 'WONKA'
 function Policy (Statement) {
@@ -132,11 +132,12 @@ lab.experiment('Routes Authorizations', () => {
         }
       }, udaru)
 
-      lab.afterEach((done) => {
-        udaru.teams.delete({ id: 'created_team', organizationId }, () => {
-          // ignore error
-          done()
-        })
+      lab.afterEach(async () => {
+        try {
+          await udaru.teams.delete({id: 'created_team', organizationId})
+        } catch (e) {
+          // This is needed to ignore the error (i.e. in case the team wasn't properly created)
+        }
       })
 
       const endpoint = BuildFor(lab, records)

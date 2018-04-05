@@ -2,10 +2,10 @@ const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 
 const server = require('../test-server')
-const config = require('../../config')()
+const config = require('../../lib/config')()
 
-const Factory = require('../../../udaru-core/test/factory')
-const { BuildFor, udaru } = require('./testBuilder')
+const Factory = require('@nearform/udaru-core/test/factory')
+const { BuildFor, udaru } = require('../testBuilder')
 
 const organizationId = 'WONKA'
 function Policy (Statement) {
@@ -162,11 +162,12 @@ lab.experiment('Routes Authorizations', () => {
           headers: { authorization: '{{caller.id}}' }
         })
 
-      lab.afterEach((done) => {
-        udaru.policies.delete({ id: 'added-policy', organizationId: 'WONKA' }, () => {
-          // ignore error
-          done()
-        })
+      lab.afterEach(async () => {
+        try {
+          await udaru.policies.delete({id: 'added-policy', organizationId: 'WONKA'})
+        } catch (e) {
+          // This is needed to ignore the error (i.e. in case the policy wasn't properly created)
+        }
       })
 
       endpoint.test('should authorize user with correct policy')
@@ -434,11 +435,12 @@ lab.experiment('Routes Authorizations', () => {
           headers: { authorization: '{{caller.id}}' }
         })
 
-      lab.afterEach((done) => {
-        udaru.policies.delete({ id: 'added-policy', organizationId: 'WONKA' }, () => {
-          // ignore error
-          done()
-        })
+      lab.afterEach(async () => {
+        try {
+          await udaru.policies.deleteShared({id: 'added-policy'})
+        } catch (e) {
+          // This is needed to ignore the error (i.e. in case the policy wasn't properly created)
+        }
       })
 
       endpoint.test('should authorize user with correct policy')

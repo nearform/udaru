@@ -3,19 +3,22 @@
 const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
-const server = require('../test-server')
+const serverFactory = require('../test-server')
 
 lab.experiment('monitor', () => {
-  lab.test('calling ping should return 200 Ok', (done) => {
+  let server = null
+
+  lab.before(async () => {
+    server = await serverFactory()
+  })
+
+  lab.test('calling ping should return 200 Ok', async () => {
     const options = {
       method: 'GET',
       url: '/ping'
     }
 
-    server.inject(options, (response) => {
-      expect(response.statusCode).to.equal(200)
-
-      done()
-    })
+    const response = await server.inject(options)
+    expect(response.statusCode).to.equal(200)
   })
 })

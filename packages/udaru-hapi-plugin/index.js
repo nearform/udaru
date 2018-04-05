@@ -1,16 +1,15 @@
 'use strict'
 
 const buildUdaru = require('@nearform/udaru-core')
-const buildAuthorization = require('./security/authorization')
-const buildHapiAuthService = require('./security/hapi-auth-service')
-const buildAuthValidation = require('./security/hapi-auth-validation')
+const buildConfig = require('./lib/config')
+const buildAuthorization = require('./lib/authorization')
+const HapiAuthService = require('./lib/authentication')
 
-const buildConfig = require('./config')
+module.exports = {
+  pkg: require('./package'),
 
-function register (server, options, next) {
-  const config = buildConfig(options.config)
-  const { decorateUdaruCore = true } = config
-  if (decorateUdaruCore) {
+  async register (server, options) {
+    const config = buildConfig(options.config)
     const udaru = buildUdaru(options.dbPool, config)
 
     // If there are hooks to register
@@ -22,60 +21,28 @@ function register (server, options, next) {
         handlers = handlers.filter(f => typeof f === 'function')
 
         // Register each handler
-        for (const handler of handlers) udaru.addHook(hook, handler)
+        for (const handler of handlers) {
+          udaru.addHook(hook, handler)
+        }
       }
     }
 
+    server.decorate('server', 'udaru', udaru)
+    server.decorate('server', 'udaruConfig', config)
+    server.decorate('server', 'udaruAuthorization', buildAuthorization(config))
     server.decorate('request', 'udaruCore', udaru)
-  }
 
-  server.decorate('server', 'udaruConfig', config)
-
-  const authorization = buildAuthorization(config)
-  const HapiAuthService = buildHapiAuthService(authorization)
-  const authValidation = buildAuthValidation(authorization)
-
-  server.register(
-    [
-      {
-        register: require('./routes/public/users')
-      },
-      {
-        register: require('./routes/public/policies')
-      },
-      {
-        register: require('./routes/public/teams')
-      },
-      {
-        register: require('./routes/public/authorization')
-      },
-      {
-        register: require('./routes/public/organizations')
-      },
-      {
-        register: require('./routes/public/monitor')
-      },
-      {
-        register: require('./routes/private/policies')
-      },
+    await server.register([
+      require('./lib/routes/users'),
+      require('./lib/routes/policies'),
+      require('./lib/routes/teams'),
+      require('./lib/routes/authorization'),
+      require('./lib/routes/organizations'),
+      require('./lib/routes/monitor'),
       HapiAuthService
-    ],
-    function (err) {
-      if (err) {
-        return next(err)
-      }
+    ])
 
-      server.auth.strategy('default', 'service', 'required', {
-        validateFunc: authValidation.bind(null, {})
-      })
-
-      return next()
-    }
-  )
-}
-
-module.exports.register = register
-
-module.exports.register.attributes = {
-  pkg: require('./../../package')
+    server.auth.strategy('udaru', 'udaru')
+    server.auth.default({ mode: 'required', strategy: 'udaru' })
+  }
 }

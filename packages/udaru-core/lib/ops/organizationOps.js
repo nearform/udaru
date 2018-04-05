@@ -445,13 +445,13 @@ function buildOrganizationOps (db, config) {
      * @param  {Function} cb
      */
     addOrganizationPolicies: function addOrganizationPolicies (params, cb) {
-      let promise = null
-      if (typeof cb !== 'function') [promise, cb] = asyncify()
-
       const { id, policies } = params
       if (policies.length <= 0) {
         return organizationOps.readById(id, cb)
       }
+
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
 
       const tasks = [
         (job, next) => {
