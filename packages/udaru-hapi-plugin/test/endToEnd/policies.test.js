@@ -7,6 +7,7 @@ const lab = exports.lab = Lab.script()
 const utils = require('../../../udaru-core/test/testUtils')
 const server = require('../test-server')
 const udaru = require('@nearform/udaru-core')()
+const Factory = require('../../../udaru-core/test/factory')
 
 const statements = { Statement: [{ Effect: 'Allow', Action: ['documents:Read'], Resource: ['wonka:documents:/public/*'] }] }
 const policyCreateData = {
@@ -27,6 +28,32 @@ lab.experiment('Policies - get/list', () => {
       expect(response.statusCode).to.equal(200)
       expect(response.result.page).to.equal(1)
       expect(response.result.limit).greaterThan(1)
+      done()
+    })
+  })
+
+  lab.test('search policies', (done) => {
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: '/authorization/policies/search?query=acc'
+    })
+
+    server.inject(options, (response) => {
+      expect(response.statusCode).to.equal(200)
+      expect(response.result.total).to.equal(2)
+      done()
+    })
+  })
+
+  lab.test('search shared policies', (done) => {
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: '/authorization/shared-policies/search?query=pol'
+    })
+
+    server.inject(options, (response) => {
+      expect(response.statusCode).to.equal(200)
+      expect(response.result.total).to.equal(2)
       done()
     })
   })
@@ -687,6 +714,102 @@ lab.experiment('Shared policies - get/list', () => {
       expect(response.statusCode).to.equal(200)
       expect(result).to.equal(sharedPolicyCreateData)
 
+      done()
+    })
+  })
+})
+
+lab.experiment('Policies - variables', () => {
+  Factory(lab, {
+    organizations: {
+      org1: {
+        id: 'org1',
+        name: 'Test Organization',
+        description: 'Test Organization',
+        policies: ['pol1']
+      }
+    },
+    users: {
+      user1: {
+        id: 'user1',
+        name: 'Test User1',
+        organizationId: 'org1'
+      }
+    },
+    policies: {
+      pol1: {
+        id: 'pol1',
+        name: 'Policy',
+        organizationId: 'org1',
+        statements: {
+          Statement: [
+            {
+              Effect: 'Allow',
+              Action: ['read'],
+              Resource: ['$' + '{var1}', '$' + '{var2}', '$' + '{var3}']
+            }
+          ]
+        }
+      }
+    },
+    sharedPolicies: {
+      spol1: {
+        id: 'spol1',
+        name: 'Shared Policy',
+        organizationId: 'org1',
+        statements: {
+          Statement: [
+            {
+              Effect: 'Allow',
+              Action: ['read'],
+              Resource: ['$' + '{varA}', '$' + '{varB}', '$' + '{udaru.userId}', '$' + '{request.x}']
+            }
+          ]
+        }
+      }
+    }
+  }, udaru)
+
+  lab.test('Correct policy variables returned', (done) => {
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: `/authorization/policies/pol1/variables`,
+      headers: {
+        authorization: 'ROOTid',
+        org: 'org1'
+      }
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(200)
+      expect(result.length).to.equal(3)
+      expect(result).to.contain('$' + '{var1}')
+      expect(result).to.contain('$' + '{var2}')
+      expect(result).to.contain('$' + '{var3}')
+
+      done()
+    })
+  })
+
+  lab.test('Correct shared policy variables returned', (done) => {
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: `/authorization/shared-policies/spol1/variables`,
+      headers: {
+        authorization: 'ROOTid',
+        org: 'org1'
+      }
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(200)
+      expect(result.length).to.equal(2)
+      expect(result).to.contain('$' + '{varA}')
+      expect(result).to.contain('$' + '{varB}')
       done()
     })
   })

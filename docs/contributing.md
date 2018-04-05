@@ -22,7 +22,7 @@ We are currently supporting node 6.
 8.  Run `npm run update:all` to get all non breaking updates. We have a policy of using '^' for all dependencies in the package.json and using npm shrinkwrap for each release.
 9.  Run `npm run outdated:all` again to review possible breaking and major revision updates.
 10. Create a github issue for any major update where appropriate.
-11. Run `npm test` and ensure testing and linting passes.
+11. Run `npm test:commit-check` and ensure testing and linting passes, and that there are no dependency issues.
 12. Run `npm shrinkwrap`.
 13. Run `npm run swagger-gen` to regenerate the Swagger documentation for the Udaru [documentation site][docs-site].
 14. Run `git add` and `git commit` to commit any version and documentation changes if there are any.

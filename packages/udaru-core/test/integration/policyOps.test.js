@@ -253,6 +253,42 @@ lab.experiment('PolicyOps', () => {
             }]
           }
         },
+        policyWithVariablesAndContext: {
+          name: 'policyWithVariablesAndContext',
+          id: 'policyWithVariablesAndContext',
+          organizationId: orgId,
+          statements: {
+            Statement: [{
+              Effect: 'Allow',
+              Action: ['dummy'],
+              Resource: ['${varX}', '${varY}', '${udaru.userId}', '${request.currentTime}']
+            }]
+          }
+        },
+        policyWithJustContextVars: {
+          name: 'policyWithJustContextVars',
+          id: 'policyWithJustContextVars',
+          organizationId: orgId,
+          statements: {
+            Statement: [{
+              Effect: 'Allow',
+              Action: ['dummy'],
+              Resource: ['${udaru.userId}', '${request.currentTime}']
+            }]
+          }
+        },
+        policyWithResource: {
+          name: 'policyWithResource',
+          id: 'policyWithResource',
+          organizationId: orgId,
+          statements: {
+            Statement: [{
+              Effect: 'Allow',
+              Action: ['dummy'],
+              Resource: ['xyz']
+            }]
+          }
+        },
         policyWithoutVariables: {
           name: 'policyWithoutVariables',
           organizationId: orgId,
@@ -267,7 +303,18 @@ lab.experiment('PolicyOps', () => {
       },
       sharedPolicies: {
         sharedPolicy: { name: 'sharedPolicy1' },
-        unusedPolicy: { name: 'unusedPolicy1' }
+        unusedPolicy: { name: 'unusedPolicy1' },
+        sharedPolicyWithVariablesAndContext: {
+          name: 'sharedPolicyWithVariablesAndContext',
+          id: 'sharedPolicyWithVariablesAndContext',
+          statements: {
+            Statement: [{
+              Effect: 'Allow',
+              Action: ['dummy'],
+              Resource: ['${varA}', '${varB}', '${udaru.userId}', '${request.currentTime}']
+            }]
+          }
+        }
       }
     }, udaru)
 
@@ -279,6 +326,74 @@ lab.experiment('PolicyOps', () => {
       policyOps.listAllUserPolicies({ userId: records.called.id, organizationId: orgId }, (err, results) => {
         if (err) return done(err)
         expect(results).to.have.length(9)
+        done()
+      })
+    })
+
+    lab.test('lists correct policy variables', (done) => {
+      policyOps.readPolicyVariables({ id: 'policyWithVariablesAndContext', organizationId: orgId }, (err, results) => {
+        if (err) return done(err)
+        expect(results).to.have.length(2)
+        expect(results).to.contain('${varX}')
+        expect(results).to.contain('${varY}')
+
+        policyOps.readPolicyVariables({ id: 'policyWithJustContextVars', organizationId: orgId }, (err, results) => {
+          if (err) return done(err)
+          expect(results).to.have.length(0)
+
+          policyOps.readPolicyVariables({ id: 'policyWithResource', organizationId: orgId }, (err, results) => {
+            if (err) return done(err)
+            expect(results).to.have.length(0)
+            done()
+          })
+        })
+      })
+    })
+
+    lab.test('lists correct shared policy variables', (done) => {
+      policyOps.readPolicyVariables({ id: 'sharedPolicyWithVariablesAndContext', organizationId: orgId, type: 'shared' }, (err, results) => {
+        if (err) return done(err)
+        expect(results).to.have.length(2)
+        expect(results).to.contain('${varA}')
+        expect(results).to.contain('${varB}')
+        done()
+      })
+    })
+
+    lab.test('search policies, no results', (done) => {
+      policyOps.search({ organizationId: 'WONKA', query: 'bibbidybobbedy' }, (err, results) => {
+        if (err) return done(err)
+        expect(results).to.have.length(0)
+        done()
+      })
+    })
+
+    lab.test('search policies', (done) => {
+      policyOps.search({ organizationId: 'WONKA', query: 'acc' }, (err, results) => {
+        if (err) return done(err)
+        expect(results).to.have.length(2)
+        expect(results[0].name.toLowerCase()).to.contain('acc')
+        expect(results[1].name.toLowerCase()).to.contain('acc')
+        done()
+      })
+    })
+
+    lab.test('search shared policies', (done) => {
+      policyOps.search({ organizationId: 'WONKA', query: 'pol', type: 'shared' }, (err, results) => {
+        if (err) return done(err)
+        expect(results).to.have.length(1)
+        expect(results[0].name.toLowerCase()).to.contain('pol')
+        done()
+      })
+    })
+
+    lab.test('search all policies', (done) => {
+      policyOps.search({ organizationId: 'WONKA', query: 'a', type: 'all' }, (err, results) => {
+        if (err) return done(err)
+        expect(results).to.have.length(14)
+        expect(results[0].name.toLowerCase()).to.contain('a')
+        expect(results[6].name.toLowerCase()).to.contain('a')
+        expect(results[12].name.toLowerCase()).to.contain('a')
         done()
       })
     })

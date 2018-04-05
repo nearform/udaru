@@ -16,9 +16,9 @@ Udaru effectively has two interfaces:
 *   An API for managing Organizations, Teams, Users, and associated Policies - this is called the _Management_ API
 *   An API for managing Authorization access itself - this is called the _Authorization_ API
 
-Both have different use cases and are used in a Platform in a fundamentally different manner; the Management API is used to administer your Organization, Users, Teams, and Policies, while the Authorization API is used at run time for checking who has access to what.
+Both have separate use cases and are used in a Platform in a fundamentally different manner; the Management API is used to administer your Organization, Users, Teams, and Policies, while the Authorization API is used at run time for checking who has access to what.
 
-All requests to Udaru need to attach a User ID to all endpoint requests. The User ID must be passed in the http headers as the `authorization` field. Knowing the User ID, Udaru retrieves internally data about the User: the Organization ID to which the User belongs to, the Teams to which the User belongs to, the Policies attached directly to the User or inherited via their associated Teams. This data is used at middleware level to authorize the User to access the endpoint and then evaluate the endpoint request, i.e. to manage the authorization model or to check if an Action can be performed over a Resource.
+All requests to Udaru need to attach a User ID to all endpoint requests. The User ID must be passed in the http headers as the `authorization` field. Knowing the User ID, Udaru retrieves data about the User internally, i.e. the Organization ID to which the User belongs to, the Teams to which the User belongs to, the Policies attached directly to the User or inherited via their associated Teams. This data is used at middleware level to authorize the User to access the endpoint and then evaluate the endpoint request, e.g. to manage the authorization model or to check if an Action can be performed over a Resource.
 
 ## Management API 
 
@@ -28,54 +28,64 @@ The Management API is used to build sophisticated Administration Tools and Appli
 ![Udaru Management API](./udaru/Management.png)
 
 In the example above:
-*   An administration tool (or tools) are built to mange aspects of the platform. These can be User facing or internal platform configuration, and they are always solution specific. 
+*   An administration tool (or tools) are built to manage aspects of the platform. These can be User facing or internal platform configuration, and they are always solution specific. 
 *   These admin tools typically manage Users; their account details, and optionally which Teams and Organizations they belong to - again this is always solution specific
-*   These admin tools also typically manage a Users access rights and permissions, although typically not directly via Policies, i.e. there might be an option to allow a User access to a specific part of the solution, this would be encapsulated in a high level api call (e.g. `allowFooAccessToBar`) which in its implementation attaches platform specific Policies to the User under the hood.
+*   These admin tools also typically manage a User's access rights and permissions, although typically not directly via Policies, i.e. there might be an option to allow a User access to a specific part of the solution, this would be encapsulated in a high level api call (e.g. `allowFooAccessToBar`), which, in its implementation, attaches platform specific Policies to the User under the hood.
 
 A brief overview of the Management API calls are as follows, see the [Swagger Documentation](swagger/index.html ":ignore") documentation for full details:
 
-|Method|Endpoint|Description|
-|------|--------|-----------|
-|get|/authorization/organizations|List all the organizations|
-|post|/authorization/organizations|Create an organization|
-|get|/authorization/policies|Fetch all the defined policies|
-|post|/authorization/policies|Create a policy for the current user organization|
-|get|/authorization/teams|Fetch all teams from the current user organization|
-|post|/authorization/teams|Create a team|
-|get|/authorization/users|Fetch all users from the current user organization|
-|post|/authorization/users|Create a new user|
-|get|/authorization/organizations/{id}|Get organization|
-|delete|/authorization/organizations/{id}|DELETE an organization|
-|put|/authorization/organizations/{id}|Update an organization|
-|get|/authorization/teams/{id}|Fetch a team given its identifier|
-|delete|/authorization/teams/{id}|Delete a team|
-|put|/authorization/teams/{id}|Update a team|
-|get|/authorization/users/{id}|Fetch a user given its identifier|
-|delete|/authorization/users/{id}|Delete a user|
-|put|/authorization/users/{id}|Update a user|
-|get|/authorization/teams/{id}/users|Fetch team users given its identifier|
-|post|/authorization/teams/{id}/users|Replace team users with the given ones|
-|delete|/authorization/teams/{id}/users|Delete all team users|
-|put|/authorization/teams/{id}/users|Add team users|
-|post|/authorization/organizations/{id}/policies|Clear and replace the policies of an organization|
-|delete|/authorization/organizations/{id}/policies|Clear all policies of the organization|
-|put|/authorization/organizations/{id}/policies|Add one or more policies to an organization|
-|post|/authorization/teams/{id}/policies|Clear and replace policies for a team|
-|delete|/authorization/teams/{id}/policies|Clear all team policies|
-|put|/authorization/teams/{id}/policies|Add one or more policies to a team|
-|post|/authorization/users/{id}/policies|Clear and replace policies for a user|
-|delete|/authorization/users/{id}/policies|Clear all user's policies|
-|put|/authorization/users/{id}/policies|Add one or more policies to a user|
-|post|/authorization/users/{id}/teams|Clear and replace user teams|
-|delete|/authorization/users/{id}/teams|Delete teams for a user|
-|delete|/authorization/organizations/{id}/policies/{policyId}|Remove a policy from one organization|
-|delete|/authorization/teams/{teamId}/policies/{policyId}|Remove a team policy|
-|delete|/authorization/teams/{id}/users/{userId}|Delete one team member|
-|delete|/authorization/users/{userId}/policies/{policyId}|Remove a user's policy|
-|put|/authorization/teams/{id}/nest|Nest a team|
-|put|/authorization/teams/{id}/unnest|Unnest a team|
-
-
+|Path|Method|Summary|
+|/authorization/organizations|GET|List all the organizations|
+|/authorization/organizations|POST|Create an organization|
+|/authorization/organizations/{id}|DELETE|DELETE an organization|
+|/authorization/organizations/{id}|GET|Get organization|
+|/authorization/organizations/{id}|PUT|Update an organization|
+|/authorization/organizations/{id}/policies|DELETE|Clear all policies of the organization|
+|/authorization/organizations/{id}/policies|POST|Clear and replace the policies of an organization|
+|/authorization/organizations/{id}/policies|PUT|Add one or more policies to an organization|
+|/authorization/organizations/{id}/policies/{policyId}|DELETE|Remove a policy associated with an organization|
+|/authorization/policies|GET|Fetch all the defined policies|
+|/authorization/policies/search|GET|Search for policies by name|
+|/authorization/policies/{id}|GET|Fetch a single policy by ID|
+|/authorization/policies/{id}/variables|GET|Fetch a template policy's variables by ID|
+|/authorization/shared-policies|GET|Fetch all the defined shared policies|
+|/authorization/shared-policies/search|GET|Search for shared policies by name|
+|/authorization/shared-policies/{id}|GET|Fetch a single shared policy|
+|/authorization/shared-policies/{id}/variables|GET|Fetch a template shared policy's variables by ID|
+|/authorization/teams|POST|Create a team|
+|/authorization/teams|GET|Fetch all teams from the current user organization|
+|/authorization/teams/search|GET|Search for teams from the current user organization|
+|/authorization/teams/{id}|DELETE|Delete a team|
+|/authorization/teams/{id}|PUT|Update a team|
+|/authorization/teams/{id}|GET|Fetch a team given its identifier|
+|/authorization/teams/{id}/nest|PUT|Nest a team|
+|/authorization/teams/{id}/nested|GET|Fetch a nested team given its identifier|
+|/authorization/teams/{id}/policies|PUT|Add one or more policies to a team|
+|/authorization/teams/{id}/policies|DELETE|Clear all team policies|
+|/authorization/teams/{id}/policies|POST|Clear and replace policies for a team|
+|/authorization/teams/{id}/unnest|PUT|Unnest a team|
+|/authorization/teams/{id}/users|PUT|Add team users|
+|/authorization/teams/{id}/users|GET|Fetch team users given its identifier|
+|/authorization/teams/{id}/users|DELETE|Delete all team users|
+|/authorization/teams/{id}/users|POST|Replace team users with the given ones|
+|/authorization/teams/{id}/users/search|GET|Search for users in a team from the current user organization|
+|/authorization/teams/{id}/users/{userId}|DELETE|Delete one team member|
+|/authorization/teams/{teamId}/policies/{policyId}|DELETE|Remove a policy associated with a team|
+|/authorization/users|POST|Create a new user|
+|/authorization/users|GET|Fetch all users from the current user organization|
+|/authorization/users/search|GET|Search for users from the current organization|
+|/authorization/users/{id}|GET|Fetch a user given its identifier|
+|/authorization/users/{id}|DELETE|Delete a user|
+|/authorization/users/{id}|PUT|Update a user|
+|/authorization/users/{id}/policies|DELETE|Clear all user's policies|
+|/authorization/users/{id}/policies|PUT|Add one or more policies to a user|
+|/authorization/users/{id}/policies|POST|Clear and replace policies for a user|
+|/authorization/users/{id}/teams|DELETE|Delete teams for a user|
+|/authorization/users/{id}/teams|POST|Clear and replace user teams|
+|/authorization/users/{id}/teams|GET|Fetch all teams to which the user belongs to. Does not fetch parent teams.|
+|/authorization/users/{userId}/policies/{policyId}|DELETE|Remove a policy associated with a user|
+|/ping|GET|Ping endpoint|
+cs
 ## Authorization API
 
 The Authorization API is used to check User permissions as they access Platform resources. This API is intended to be called from a trusted service; they should never be called directly by a User facing API. One suggested usage pattern is to call the Authorization API from your public API Gateway, i.e. for each protected call through your gateway, check if the User is firstly Authenticated, then check if they are Authorized, e.g.
@@ -91,17 +101,19 @@ In the example above:
 
 These trusted calls are made possible by the use of a _service key_, e.g. the Gateway in our example above is configured to pass a secret service key to Udaru; it's not possible to access any of the Authorization API without this service key. You must also use the special root User id when making these service calls, this is an additional security measure. 
 
-A brief overview of the Authorization API calls are as follows, see the live [Swagger](../README.md) documentation for full details:
+A brief overview of the Authorization API calls are as follows, see the live [Swagger Documentation](swagger/index.html ":ignore") documentation for full details:
 
 |Method|Endpoint|Description|
 |------|--------|-----------|
-|get|/authorization/access/{userId}/{action}/{resource*}|Authorize user action against a resource|
-|get|/authorization/policies/{id}|Fetch all the defined policies|
-|delete|/authorization/policies/{id}|Delete a policy|
-|put|/authorization/policies/{id}|Update a policy of the current user organization|
-|get|/authorization/list/{userId}/{resource*}|List all the actions a user can perform on a resource|
-|get|/authorization/list/{userId}|List all the actions a user can perform on a given list of resources|
-
+|/authorization/access/{userId}/{action}/{resource*}|GET|Authorize user action against a resource|
+|/authorization/list/{userId}|GET|List all the actions a user can perform on a list of resources|
+|/authorization/list/{userId}/{resource*}|GET|List all the actions a user can perform on a resource|
+|/authorization/policies|POST|Create a policy for the current user organization|
+|/authorization/policies/{id}|DELETE|Delete a policy|
+|/authorization/policies/{id}|PUT|Update a policy of the current user organization|
+|/authorization/shared-policies|POST|Create a policy shared across organizations|
+|/authorization/shared-policies/{id}|DELETE|Delete a shared policy|
+|/authorization/shared-policies/{id}|PUT|Update a shared policy|
 
 ## How the Authorization model works
 
@@ -248,7 +260,7 @@ A Shared Policy is equal in concept to a regular Policy, but is visibile to ever
 
 They can also be Policy Templates. In fact, they are designed to work together so that the Shared Policies can be customized for the need of a specific Organization.
 
-Shared Policies work exactly as regular Policies, they just can be created (or updated, deleted) once for every Organizations.
+Shared Policies work exactly as regular Policies, except that they can be created (or updated, deleted) once for all Organizations.
 
 ## Super User
 

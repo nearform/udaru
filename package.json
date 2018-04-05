@@ -45,7 +45,7 @@
     "start": "node packages/udaru-server/start.js",
     "test": "lerna run test",
     "test:commit-check": "npm run doc:lint && npm run lint && npm run depcheck && npm run test",
-    "swagger-gen": "node scripts/getSwaggerJson.js | swagger-gen -d docs/swagger && node scripts/injectUdaruSwaggerCss.js"
+    "swagger-gen": "node scripts/getSwaggerJson.js > docs/swagger/swagger.json && swagger-gen docs/swagger/udaru.json -d docs/swagger && node scripts/injectUdaruSwaggerCss.js"
   },
   "remarkConfig": {
     "plugins": [
