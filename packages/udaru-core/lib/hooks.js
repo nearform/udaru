@@ -1,10 +1,28 @@
 module.exports = function buildHooks () {
   const registered = {}
 
-  function runHook (hook, error, args, result) {
-    const hooks = registered[hook]
+  function runHandlersCallback (done, waiting, err) {
+    if (err) { // Errored
+      if (waiting > 0) { // No errors propagated yet
+        waiting = -1
+        done(err)
+      }
 
-    return Promise.all(hooks.map(h => h(error, args, result))) // Execute all hooks, in parallels
+      return
+    }
+
+    waiting--
+
+    if (waiting === 0) done() // No other waiting, complete
+  }
+
+  function runHandlers (name, error, args, results, done) {
+    const hooks = registered[name]
+    const cb = runHandlersCallback.bind(null, done, hooks.length)
+
+    for (const hook of hooks) {
+      hook(error, args, results, cb)
+    }
   }
 
   function wrapWithCallback (name, original, args) {
@@ -15,36 +33,28 @@ module.exports = function buildHooks () {
       const cbArgs = Array.prototype.slice.call(arguments)
 
       // The setImmediate call here otherwise any error in the originalCallback will trigger an unhandledRejection
-      runHook(name, cbArgs[0], args, cbArgs.slice(1))
-        .then(() => {
-          cbArgs.unshift(originalCallback)
-          setImmediate.apply(null, cbArgs)
-        })
-        .catch(err => {
-          cbArgs[0] = err
+      runHandlers(name, cbArgs[0], args, cbArgs.slice(1), err => {
+        if (err) cbArgs[0] = err
 
-          cbArgs.unshift(originalCallback)
-          setImmediate.apply(null, cbArgs)
-        })
+        originalCallback.apply(null, cbArgs)
+      })
     }))
   }
 
   function wrapWithPromise (name, original, args) {
-    let hooksExecuted = false
+    return new Promise((resolve, reject) => {
+      return original.apply(this, args) // Execute the original method
+        .then((result) => {
+          runHandlers(name, null, args, result, err => {
+            if (err) return reject(err)
 
-    return original.apply(this, args) // Execute the original method
-      .then((result) => {
-        // Now execute hooks
-        hooksExecuted = true
-        return runHook(name, null, args, result).then(() => result)
-      })
-      .catch(error => {
-        // Hooks are already executed, it means they threw an error, otherwise it comes from the original method
-        const promise = hooksExecuted ? Promise.resolve() : runHook(name, error, args, null)
-
-        // Once hooks execution is completed, return any error
-        return promise.then(() => Promise.reject(error))
-      })
+            resolve(result)
+          })
+        })
+        .catch(error => {
+          runHandlers(name, error, args, null, err => reject(err || error))
+        })
+    })
   }
 
   return {
@@ -56,27 +66,11 @@ module.exports = function buildHooks () {
       if (typeof handler !== 'function') throw new TypeError('The hook callback must be a function')
       if (!registered.hasOwnProperty(hook)) throw new Error(`${hook} hook not supported`)
 
-      // Make sure the hooks is in promises form
-      const finalHandler = function (error, args, result, done) {
-        let promiseResolve
-        let promiseReject
-
-        const promise = new Promise((resolve, reject) => {
-          promiseResolve = resolve
-          promiseReject = reject
-        })
-
-        const handlerValue = handler(error, args, result, err => {
-          if (err) return promiseReject(err)
-
-          promiseResolve()
-        })
-
-        return (handlerValue && typeof handlerValue.then === 'function') ? handlerValue : promise
-      }
-
-      // Add the handler to the list of registered handlers
-      registered[hook].push(finalHandler)
+      // Wrap the handler so that we can handle both callback and promises
+      registered[hook].push(function (error, args, result, done) {
+        const handlerValue = handler(error, args, result, done)
+        if (handlerValue && typeof handlerValue.then === 'function') handlerValue.then(done).catch(done)
+      })
     },
 
     clear: function clear (name) {
@@ -91,9 +85,9 @@ module.exports = function buildHooks () {
       return function () {
         const args = Array.prototype.slice.call(arguments)
 
-        if (registered[name].length === 0) {
+        if (registered[name].length === 0) { // No hooks registered, just call the function
           return original.apply(this, args)
-        } else if (typeof args[args.length - 1] !== 'function') {
+        } else if (typeof args[args.length - 1] !== 'function') { // Promise style
           return wrapWithPromise(name, original, args)
         }
 

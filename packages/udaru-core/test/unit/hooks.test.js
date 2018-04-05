@@ -112,8 +112,10 @@ lab.experiment('Hooks', () => {
         let handlerArgs = {}
 
         const handler = function (error, input, result, cb) {
-          handlerArgs = [error, input, result]
-          cb(new Error('ERROR'))
+          setImmediate(() => {
+            handlerArgs = [error, input, result]
+            cb(new Error('ERROR'))
+          })
         }
 
         const otherHandler = function (_u1, _u2, _u3, cb) {
