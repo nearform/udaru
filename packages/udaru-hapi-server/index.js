@@ -55,7 +55,10 @@ server.register(
 
 server.start((err) => {
   if (err) {
-    return logMessage(`Failed to start server: ${err.message}`)
+    logMessage(`Failed to start server: ${err.message}`)
+    process.exit(1)
   }
   logMessage('Server started on: ' + server.info.uri.toLowerCase())
 })
+
+module.exports = server
