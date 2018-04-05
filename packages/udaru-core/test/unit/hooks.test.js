@@ -11,7 +11,7 @@ const organizationId = 'WONKA'
 lab.experiment('Hooks', () => {
   let testUserId
 
-  lab.before((done) => {
+  lab.before(done => {
     udaru.policies.list({organizationId}, (err, policies) => {
       if (err) return done(err)
 
@@ -24,145 +24,376 @@ lab.experiment('Hooks', () => {
     })
   })
 
-  lab.after((done) => {
+  lab.after(done => {
     udaru.users.delete({id: testUserId, organizationId: 'WONKA'}, done)
   })
 
-  lab.afterEach((done) => {
-    udaru.clearHook('authorize:isUserAuthorized')
+  lab.afterEach(done => {
+    udaru.hooks.clear('users:list')
     done()
   })
 
-  lab.test('requires hook name to be a string', (done) => {
-    expect(() => {
-      udaru.addHook([], (...args) => args.pop()())
-    }).to.throw(TypeError, 'The hook name must be a string')
+  lab.experiment('validation', () => {
+    lab.test('requires hook name to be a string', done => {
+      expect(() => {
+        udaru.hooks.add([], (...args) => args.pop()())
+      }).to.throw(TypeError, 'The hook name must be a string')
 
-    done()
-  })
+      done()
+    })
 
-  lab.test('requires hook name to be valid', (done) => {
-    expect(() => {
-      udaru.addHook('invalid', (...args) => args.pop()())
-    }).to.throw(Error, 'invalid hook not supported')
+    lab.test('requires hook name to be valid', done => {
+      expect(() => {
+        udaru.hooks.add('invalid', (...args) => args.pop()())
+      }).to.throw(Error, 'invalid hook not supported')
 
-    done()
-  })
+      done()
+    })
 
-  lab.test('requires hook handler to be a function', (done) => {
-    expect(() => {
-      udaru.addHook('authorize:isUserAuthorized', {})
-    }).to.throw(TypeError, 'The hook callback must be a function')
-
-    done()
-  })
-
-  lab.test('should execute a hook with both input and output handler', (done) => {
-    let handlerArgs = {}
-
-    const handler = function (error, input, result, cb) {
-      handlerArgs = [error, input, result]
-      cb()
-    }
-
-    udaru.addHook('authorize:isUserAuthorized', handler)
-
-    udaru.authorize.isUserAuthorized({userId: testUserId, resource: 'database:pg01:balancesheet', action: 'finance:ReadBalanceSheet', organizationId}, (err, result) => {
-      if (err) return done(err)
-
-      expect(err).to.not.exist()
-      expect(result).to.exist()
-      expect(result.access).to.be.true()
-      expect(handlerArgs).to.equal([
-        null,
-        [{userId: testUserId, resource: 'database:pg01:balancesheet', action: 'finance:ReadBalanceSheet', organizationId}],
-        [{access: true}]
-      ])
+    lab.test('requires hook handler to be a function', done => {
+      expect(() => {
+        udaru.hooks.add('authorize:isUserAuthorized', {})
+      }).to.throw(TypeError, 'The hook callback must be a function')
 
       done()
     })
   })
 
-  lab.test('should execute a hook even if the original method threw an error', (done) => {
-    let handlerArgs = {}
+  lab.experiment('on callback style udaru methods', () => {
+    lab.experiment('using callback style hooks', () => {
+      lab.test('should execute hooks and propagate the success', done => {
+        let handlerArgs = {}
 
-    const handler = function (error, input, result, cb) {
-      handlerArgs = [error, input, result]
-      cb()
-    }
+        const handler = function (error, input, result, cb) {
+          handlerArgs = [error, input, result]
+          cb()
+        }
 
-    udaru.addHook('authorize:isUserAuthorized', handler)
+        udaru.hooks.add('users:list', handler)
 
-    udaru.authorize.isUserAuthorized({userId: testUserId, organizationId}, (err, result) => {
-      expect(err).to.exist()
-      expect(handlerArgs[0]).to.be.an.error('child "action" fails because ["action" is required]')
+        udaru.users.list({organizationId: 'WONKA'}, (err, data, total) => {
+          expect(err).to.not.exist()
+          expect(data).to.exist()
+          expect(total).to.greaterThan(1)
 
-      done()
-    })
-  })
+          expect(handlerArgs[0]).to.equal(err)
+          expect(handlerArgs[1]).to.equal([{organizationId: 'WONKA'}])
+          expect(handlerArgs[2][0]).to.equal(data)
+          expect(handlerArgs[2][1]).to.equal(total)
 
-  lab.test('should execute all hooks and handle their errors', (done) => {
-    let handlerArgs
-    const handler = function (error, input, result, cb) {
-      handlerArgs = [error, input, result]
-      cb()
-    }
+          done()
+        })
+      })
 
-    udaru.addHook('authorize:isUserAuthorized', handler)
+      lab.test('should execute hooks and get udaru errors', done => {
+        let handlerArgs = {}
 
-    udaru.addHook('authorize:isUserAuthorized', (...args) => {
-      args.pop()(new Error('hook error'))
-    })
+        const handler = function (error, input, result, cb) {
+          handlerArgs = [error, input, result]
+          cb()
+        }
 
-    udaru.authorize.isUserAuthorized({userId: testUserId, resource: 'database:pg01:balancesheet', action: 'finance:ReadBalanceSheet', organizationId}, (err, result) => {
-      expect(err).to.be.an.error('hook error')
+        udaru.hooks.add('users:list', handler)
 
-      expect(handlerArgs).to.equal([
-        null,
-        [{userId: testUserId, resource: 'database:pg01:balancesheet', action: 'finance:ReadBalanceSheet', organizationId}],
-        [{access: true}]
-      ])
+        udaru.users.list({invalid: 'WONKA'}, (err, data, total) => {
+          expect(err).to.be.a.error()
+          expect(data).not.to.exist()
+          expect(total).not.to.exist()
 
-      done()
-    })
-  })
+          expect(handlerArgs[0]).to.be.a.error()
+          expect(handlerArgs[1]).to.equal([{invalid: 'WONKA'}])
+          expect(handlerArgs[2]).to.equal([])
 
-  lab.test('should support promise based hooks that resolves', (done) => {
-    let handlerArgs
+          done()
+        })
+      })
 
-    udaru.addHook('authorize:isUserAuthorized', function (error, input, result) {
-      return new Promise(resolve => {
-        handlerArgs = [error, input, result]
-        resolve()
+      lab.test('should execute all hooks and propagate the first hooks error', done => {
+        let handlerArgs = {}
+
+        const handler = function (error, input, result, cb) {
+          handlerArgs = [error, input, result]
+          cb(new Error('ERROR'))
+        }
+
+        const otherHandler = function (_u1, _u2, _u3, cb) {
+          otherHandler.called = true
+          cb()
+        }
+
+        udaru.hooks.add('users:list', handler)
+        udaru.hooks.add('users:list', otherHandler)
+
+        udaru.users.list({organizationId: 'WONKA'}, (err, data, total) => {
+          expect(err).to.be.error(Error, 'ERROR')
+          expect(data).to.exist()
+          expect(total).to.greaterThan(1)
+
+          expect(otherHandler.called).to.equal(true)
+          expect(handlerArgs[0]).not.to.exist()
+          expect(handlerArgs[1]).to.equal([{organizationId: 'WONKA'}])
+          expect(handlerArgs[2][0]).to.equal(data)
+          expect(handlerArgs[2][1]).to.equal(total)
+
+          done()
+        })
       })
     })
 
-    udaru.authorize.isUserAuthorized({userId: testUserId, resource: 'database:pg01:balancesheet', action: 'finance:ReadBalanceSheet', organizationId}, (err, result) => {
-      if (err) return done(err)
+    lab.experiment('using promise style hooks', () => {
+      lab.test('should execute hooks and propagate the success', done => {
+        let handlerArgs = {}
 
-      expect(err).to.not.exist()
-      expect(result).to.exist()
-      expect(result.access).to.be.true()
-      expect(handlerArgs).to.equal([
-        null,
-        [{userId: testUserId, resource: 'database:pg01:balancesheet', action: 'finance:ReadBalanceSheet', organizationId}],
-        [{access: true}]
-      ])
+        const handler = function (error, input, result) {
+          return new Promise(resolve => {
+            handlerArgs = [error, input, result]
+            resolve()
+          })
+        }
 
-      done()
+        udaru.hooks.add('users:list', handler)
+
+        udaru.users.list({organizationId: 'WONKA'}, (err, data, total) => {
+          expect(err).to.not.exist()
+          expect(data).to.exist()
+          expect(total).to.greaterThan(1)
+
+          expect(handlerArgs[0]).to.equal(err)
+          expect(handlerArgs[1]).to.equal([{organizationId: 'WONKA'}])
+          expect(handlerArgs[2][0]).to.equal(data)
+          expect(handlerArgs[2][1]).to.equal(total)
+
+          done()
+        })
+      })
+
+      lab.test('should execute hooks and get udaru errors', done => {
+        let handlerArgs = {}
+
+        const handler = function (error, input, result) {
+          return new Promise(resolve => {
+            handlerArgs = [error, input, result]
+            resolve()
+          })
+        }
+
+        udaru.hooks.add('users:list', handler)
+
+        udaru.users.list({invalid: 'WONKA'}, (err, data, total) => {
+          expect(err).to.be.a.error()
+          expect(data).not.to.exist()
+          expect(total).not.to.exist()
+
+          expect(handlerArgs[0]).to.be.a.error()
+          expect(handlerArgs[1]).to.equal([{invalid: 'WONKA'}])
+          expect(handlerArgs[2]).to.equal([])
+
+          done()
+        })
+      })
+
+      lab.test('should execute all hooks and propagate hooks rejections', done => {
+        let handlerArgs = {}
+
+        const handler = function (error, input, result) {
+          handlerArgs = [error, input, result]
+          return Promise.reject(new Error('ERROR'))
+        }
+
+        const otherHandler = function (_u1, _u2, _u3) {
+          return new Promise(resolve => {
+            otherHandler.called = true
+            resolve()
+          })
+        }
+
+        udaru.hooks.add('users:list', handler)
+        udaru.hooks.add('users:list', otherHandler)
+
+        udaru.users.list({organizationId: 'WONKA'}, (err, data, total) => {
+          expect(err).to.be.error(Error, 'ERROR')
+          expect(data).to.exist()
+          expect(total).to.greaterThan(1)
+
+          expect(otherHandler.called).to.equal(true)
+          expect(handlerArgs[0]).not.to.exist()
+          expect(handlerArgs[1]).to.equal([{organizationId: 'WONKA'}])
+          expect(handlerArgs[2][0]).to.equal(data)
+          expect(handlerArgs[2][1]).to.equal(total)
+
+          done()
+        })
+      })
     })
   })
 
-  lab.test('should support promise based hooks that rejects', (done) => {
-    udaru.addHook('authorize:isUserAuthorized', function (_e, input, result) {
-      return new Promise(() => {
-        throw new Error('hook error')
+  lab.experiment('on promise style udaru methods', () => {
+    lab.experiment('using callback style hooks', () => {
+      lab.test('should execute hooks and resolve with the success', done => {
+        let handlerArgs = {}
+
+        const handler = function (error, input, result, cb) {
+          handlerArgs = [error, input, result]
+          cb()
+        }
+
+        udaru.hooks.add('users:list', handler)
+
+        udaru.users.list({organizationId: 'WONKA'})
+          .then(args => {
+            expect(args.data).to.exist()
+            expect(args.total).to.greaterThan(1)
+
+            expect(handlerArgs[0]).to.equal(null)
+            expect(handlerArgs[1]).to.equal([{organizationId: 'WONKA'}])
+            expect(handlerArgs[2].data).to.equal(args.data)
+            expect(handlerArgs[2].total).to.equal(args.total)
+
+            done()
+          })
+          .catch(done)
+      })
+
+      lab.test('should execute hooks with the rejected udaru errors, then reject', done => {
+        let handlerArgs = {}
+
+        const handler = function (error, input, result, cb) {
+          handlerArgs = [error, input, result]
+          cb()
+        }
+
+        udaru.hooks.add('users:list', handler)
+
+        udaru.users.list({invalid: 'WONKA'})
+          .catch(err => {
+            expect(err).to.be.a.error()
+
+            expect(handlerArgs[0]).to.equal(err)
+            expect(handlerArgs[1]).to.equal([{invalid: 'WONKA'}])
+            expect(handlerArgs[2]).to.equal(null)
+
+            done()
+          })
+          .catch(done)
+      })
+
+      lab.test('should execute all hooks and reject with the first hooks error', done => {
+        let handlerArgs = {}
+
+        const handler = function (error, input, result, cb) {
+          handlerArgs = [error, input, result]
+          cb(new Error('ERROR'))
+        }
+
+        const otherHandler = function (_u1, _u2, _u3, cb) {
+          otherHandler.called = true
+          cb()
+        }
+
+        udaru.hooks.add('users:list', handler)
+        udaru.hooks.add('users:list', otherHandler)
+
+        udaru.users.list({organizationId: 'WONKA'})
+          .catch(err => {
+            expect(err).to.be.error(Error, 'ERROR')
+
+            expect(otherHandler.called).to.equal(true)
+            expect(handlerArgs[0]).not.to.exist()
+            expect(handlerArgs[1]).to.equal([{organizationId: 'WONKA'}])
+            expect(handlerArgs[2].data).to.exist()
+            expect(handlerArgs[2].total).to.greaterThan(1)
+
+            done()
+          })
+          .catch(done)
       })
     })
 
-    udaru.authorize.isUserAuthorized({userId: testUserId, resource: 'database:pg01:balancesheet', action: 'finance:ReadBalanceSheet', organizationId}, (err, result) => {
-      expect(err).to.be.an.error('hook error')
-      done()
+    lab.experiment('using promise style hooks', () => {
+      lab.test('should execute hooks and resolve with the success', done => {
+        let handlerArgs = {}
+
+        const handler = function (error, input, result) {
+          return new Promise(resolve => {
+            handlerArgs = [error, input, result]
+            resolve()
+          })
+        }
+
+        udaru.hooks.add('users:list', handler)
+
+        udaru.users.list({organizationId: 'WONKA'})
+          .then(args => {
+            expect(args.data).to.exist()
+            expect(args.total).to.greaterThan(1)
+
+            expect(handlerArgs[0]).to.equal(null)
+            expect(handlerArgs[1]).to.equal([{organizationId: 'WONKA'}])
+            expect(handlerArgs[2].data).to.equal(args.data)
+            expect(handlerArgs[2].total).to.equal(args.total)
+
+            done()
+          })
+          .catch(done)
+      })
+
+      lab.test('should execute hooks and get udaru errors', done => {
+        let handlerArgs = {}
+
+        const handler = function (error, input, result) {
+          return new Promise(resolve => {
+            handlerArgs = [error, input, result]
+            resolve()
+          })
+        }
+
+        udaru.hooks.add('users:list', handler)
+
+        udaru.users.list({invalid: 'WONKA'})
+          .catch(err => {
+            expect(err).to.be.a.error()
+
+            expect(handlerArgs[0]).to.equal(err)
+            expect(handlerArgs[1]).to.equal([{invalid: 'WONKA'}])
+            expect(handlerArgs[2]).to.be.null()
+
+            done()
+          })
+          .catch(done)
+      })
+
+      lab.test('should execute all hooks propagate the first hooks error', done => {
+        let handlerArgs = {}
+
+        const handler = function (error, input, result) {
+          handlerArgs = [error, input, result]
+          return Promise.reject(new Error('ERROR'))
+        }
+
+        const otherHandler = function (_u1, _u2, _u3) {
+          return new Promise(resolve => {
+            otherHandler.called = true
+            resolve()
+          })
+        }
+
+        udaru.hooks.add('users:list', handler)
+        udaru.hooks.add('users:list', otherHandler)
+
+        udaru.users.list({organizationId: 'WONKA'})
+          .catch(err => {
+            expect(err).to.be.error(Error, 'ERROR')
+
+            expect(otherHandler.called).to.equal(true)
+            expect(handlerArgs[0]).not.to.exist()
+            expect(handlerArgs[1]).to.equal([{organizationId: 'WONKA'}])
+            expect(handlerArgs[2].data).to.exist()
+            expect(handlerArgs[2].total).to.greaterThan(1)
+
+            done()
+          })
+          .catch(done)
+      })
     })
   })
 })

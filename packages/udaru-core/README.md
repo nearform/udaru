@@ -39,7 +39,7 @@ udaru.organizations.list({}, (err, orgs) => {
 
 ## Hooks
 
-Hooks are registered using the `udaru.addHook` method and allow you to listen to specific events in udaru.
+Hooks are registered using the `udaru.hooks.add` method and allow you to listen to specific events in udaru.
 
 Each udaru method exposes a namespaced hook (e.g.: the `udaru.authorize.isUserAuthorized` method exposes the `authorize:isUserAuthorized` hook).
 
@@ -52,7 +52,7 @@ Simple example taken from [examples/hooks.js](examples/hooks.js):
 ```
 const udaru = require('@nearform/udaru')()
 
-udaru.addHook('authorize:isUserAuthorized', function (error, args, result, done) {
+udaru.hooks.add('authorize:isUserAuthorized', function (error, args, result, done) {
   if (error) {
     console.error(`Authorization errored: ${error}`)
     return done(error)
