@@ -244,6 +244,11 @@ const policies = {
     id: validationRules.policyId,
     organizationId: validationRules.organizationId
   },
+  readPolicyVariables: {
+    id: validationRules.policyId,
+    organizationId: validationRules.organizationId,
+    type: Joi.string().optional().allow('shared', 'organization').description('Flag to denote policy type, defaults to organization')
+  },
   createPolicy: {
     id: validationRules.policyId.allow('').optional(),
     version: validationRules.version,
@@ -283,6 +288,11 @@ const policies = {
     version: validationRules.version,
     name: validationRules.policyName,
     statements: validationRules.statements
+  },
+  searchPolicy: {
+    organizationId: validationRules.organizationId,
+    query: requiredString,
+    type: Joi.string().optional().allow('shared', 'organization', 'all').description('Flag to denote search for shared policy, defaults to organization wide search')
   }
 }
 
