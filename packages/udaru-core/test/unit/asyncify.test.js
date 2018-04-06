@@ -21,7 +21,7 @@ function wrapFileOpening (path, names, cb) {
 lab.experiment('asyncify', () => {
   lab.test('Using callback without errors', (done) => {
     wrapFileOpening('../../package.json', [], (err, contents) => {
-      expect(err).not.to.exist()
+      expect(err).to.not.exist()
       expect(contents).be.buffer()
       done()
     })
@@ -30,7 +30,7 @@ lab.experiment('asyncify', () => {
   lab.test('Using callback with a error', (done) => {
     wrapFileOpening('../../package.json-123', [], (err, contents) => {
       expect(err.message).to.startWith('ENOENT: no such file or directory')
-      expect(contents).not.to.exist()
+      expect(contents).to.not.exist()
       done()
     })
   })

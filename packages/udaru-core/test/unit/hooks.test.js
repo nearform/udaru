@@ -109,8 +109,8 @@ lab.experiment('Hooks', () => {
 
         udaru.users.list({invalid: 'WONKA'}, (err, data, total) => {
           expect(err).to.be.a.error()
-          expect(data).not.to.exist()
-          expect(total).not.to.exist()
+          expect(data).to.not.exist()
+          expect(total).to.not.exist()
 
           expect(handlerArgs[0]).to.be.a.error()
           expect(handlerArgs[1]).to.equal([{invalid: 'WONKA'}])
@@ -120,7 +120,7 @@ lab.experiment('Hooks', () => {
         })
       })
 
-      lab.test('should execute all hooks and propagate the first hooks error', done => {
+      lab.test('should execute all hooks and ignore hooks errors by default', done => {
         let handlerArgs = {}
 
         const handler = function (error, input, result, cb) {
@@ -139,16 +139,51 @@ lab.experiment('Hooks', () => {
         udaru.hooks.add('users:list', otherHandler)
 
         udaru.users.list({organizationId: 'WONKA'}, (err, data, total) => {
+          expect(err).to.not.exist()
+          expect(data).to.exist()
+          expect(total).to.greaterThan(1)
+
+          expect(otherHandler.called).to.equal(true)
+          expect(handlerArgs[0]).to.not.exist()
+          expect(handlerArgs[1]).to.equal([{organizationId: 'WONKA'}])
+          expect(handlerArgs[2][0]).to.equal(data)
+          expect(handlerArgs[2][1]).to.equal(total)
+
+          done()
+        })
+      })
+
+      lab.test('should execute all hooks and propagate the first hooks error if asked to', done => {
+        let handlerArgs = {}
+
+        const handler = function (error, input, result, cb) {
+          setImmediate(() => {
+            handlerArgs = [error, input, result]
+            cb(new Error('ERROR'))
+          })
+        }
+
+        const otherHandler = function (_u1, _u2, _u3, cb) {
+          otherHandler.called = true
+          cb()
+        }
+
+        udaru.hooks.add('users:list', handler)
+        udaru.hooks.add('users:list', otherHandler)
+        udaru.fullConfig.get('hooks').propagateErrors = true
+
+        udaru.users.list({organizationId: 'WONKA'}, (err, data, total) => {
           expect(err).to.be.error(Error, 'ERROR')
           expect(data).to.exist()
           expect(total).to.greaterThan(1)
 
           expect(otherHandler.called).to.equal(true)
-          expect(handlerArgs[0]).not.to.exist()
+          expect(handlerArgs[0]).to.not.exist()
           expect(handlerArgs[1]).to.equal([{organizationId: 'WONKA'}])
           expect(handlerArgs[2][0]).to.equal(data)
           expect(handlerArgs[2][1]).to.equal(total)
 
+          udaru.fullConfig.get('hooks').propagateErrors = false
           done()
         })
       })
@@ -195,8 +230,8 @@ lab.experiment('Hooks', () => {
 
         udaru.users.list({invalid: 'WONKA'}, (err, data, total) => {
           expect(err).to.be.a.error()
-          expect(data).not.to.exist()
-          expect(total).not.to.exist()
+          expect(data).to.not.exist()
+          expect(total).to.not.exist()
 
           expect(handlerArgs[0]).to.be.a.error()
           expect(handlerArgs[1]).to.equal([{invalid: 'WONKA'}])
@@ -206,7 +241,7 @@ lab.experiment('Hooks', () => {
         })
       })
 
-      lab.test('should execute all hooks and propagate hooks rejections', done => {
+      lab.test('should execute all hooks and ignore hooks rejections by default', done => {
         let handlerArgs = {}
 
         const handler = function (error, input, result) {
@@ -225,16 +260,51 @@ lab.experiment('Hooks', () => {
         udaru.hooks.add('users:list', otherHandler)
 
         udaru.users.list({organizationId: 'WONKA'}, (err, data, total) => {
+          expect(err).to.not.exists()
+          expect(data).to.exist()
+          expect(total).to.greaterThan(1)
+
+          expect(otherHandler.called).to.equal(true)
+          expect(handlerArgs[0]).to.not.exist()
+          expect(handlerArgs[1]).to.equal([{organizationId: 'WONKA'}])
+          expect(handlerArgs[2][0]).to.equal(data)
+          expect(handlerArgs[2][1]).to.equal(total)
+
+          done()
+        })
+      })
+
+      lab.test('should execute all hooks and reject the first hooks rejection if asked to', done => {
+        let handlerArgs = {}
+
+        const handler = function (error, input, result) {
+          handlerArgs = [error, input, result]
+          return Promise.reject(new Error('ERROR'))
+        }
+
+        const otherHandler = function (_u1, _u2, _u3) {
+          return new Promise(resolve => {
+            otherHandler.called = true
+            resolve()
+          })
+        }
+
+        udaru.hooks.add('users:list', handler)
+        udaru.hooks.add('users:list', otherHandler)
+        udaru.fullConfig.get('hooks').propagateErrors = true
+
+        udaru.users.list({organizationId: 'WONKA'}, (err, data, total) => {
           expect(err).to.be.error(Error, 'ERROR')
           expect(data).to.exist()
           expect(total).to.greaterThan(1)
 
           expect(otherHandler.called).to.equal(true)
-          expect(handlerArgs[0]).not.to.exist()
+          expect(handlerArgs[0]).to.not.exist()
           expect(handlerArgs[1]).to.equal([{organizationId: 'WONKA'}])
           expect(handlerArgs[2][0]).to.equal(data)
           expect(handlerArgs[2][1]).to.equal(total)
 
+          udaru.fullConfig.get('hooks').propagateErrors = false
           done()
         })
       })
@@ -291,7 +361,7 @@ lab.experiment('Hooks', () => {
           .catch(done)
       })
 
-      lab.test('should execute all hooks and reject with the first hooks error', done => {
+      lab.test('should execute all hooks and ignore hooks error by default', done => {
         let handlerArgs = {}
 
         const handler = function (error, input, result, cb) {
@@ -308,15 +378,49 @@ lab.experiment('Hooks', () => {
         udaru.hooks.add('users:list', otherHandler)
 
         udaru.users.list({organizationId: 'WONKA'})
-          .catch(err => {
-            expect(err).to.be.error(Error, 'ERROR')
+          .then(args => {
+            expect(args.data).to.exist()
+            expect(args.total).to.greaterThan(1)
 
             expect(otherHandler.called).to.equal(true)
-            expect(handlerArgs[0]).not.to.exist()
+            expect(handlerArgs[0]).to.equal(null)
+            expect(handlerArgs[1]).to.equal([{organizationId: 'WONKA'}])
+            expect(handlerArgs[2].data).to.equal(args.data)
+            expect(handlerArgs[2].total).to.equal(args.total)
+
+            done()
+          })
+          .catch(done)
+      })
+
+      lab.test('should execute all hooks and reject with the first hooks error if asked to', done => {
+        let handlerArgs = {}
+
+        const handler = function (error, input, result, cb) {
+          handlerArgs = [error, input, result]
+          cb(new Error('ERROR'))
+        }
+
+        const otherHandler = function (_u1, _u2, _u3, cb) {
+          otherHandler.called = true
+          cb()
+        }
+
+        udaru.hooks.add('users:list', handler)
+        udaru.hooks.add('users:list', otherHandler)
+        udaru.fullConfig.get('hooks').propagateErrors = true
+
+        udaru.users.list({organizationId: 'WONKA'})
+          .catch(err => {
+            expect(err).to.be.a.error()
+
+            expect(otherHandler.called).to.equal(true)
+            expect(handlerArgs[0]).to.not.exist()
             expect(handlerArgs[1]).to.equal([{organizationId: 'WONKA'}])
             expect(handlerArgs[2].data).to.exist()
             expect(handlerArgs[2].total).to.greaterThan(1)
 
+            udaru.fullConfig.get('hooks').propagateErrors = false
             done()
           })
           .catch(done)
@@ -376,7 +480,7 @@ lab.experiment('Hooks', () => {
           .catch(done)
       })
 
-      lab.test('should execute all hooks and propagate the first hooks error', done => {
+      lab.test('should execute all hooks and ignore hooks error by default', done => {
         let handlerArgs = {}
 
         const handler = function (error, input, result) {
@@ -395,15 +499,51 @@ lab.experiment('Hooks', () => {
         udaru.hooks.add('users:list', otherHandler)
 
         udaru.users.list({organizationId: 'WONKA'})
+          .then(args => {
+            expect(args.data).to.exist()
+            expect(args.total).to.greaterThan(1)
+
+            expect(otherHandler.called).to.equal(true)
+            expect(handlerArgs[0]).to.equal(null)
+            expect(handlerArgs[1]).to.equal([{organizationId: 'WONKA'}])
+            expect(handlerArgs[2].data).to.equal(args.data)
+            expect(handlerArgs[2].total).to.equal(args.total)
+
+            done()
+          })
+          .catch(done)
+      })
+
+      lab.test('should execute all hooks and reject the first hooks error if asked to', done => {
+        let handlerArgs = {}
+
+        const handler = function (error, input, result) {
+          handlerArgs = [error, input, result]
+          return Promise.reject(new Error('ERROR'))
+        }
+
+        const otherHandler = function (_u1, _u2, _u3) {
+          return new Promise(resolve => {
+            otherHandler.called = true
+            resolve()
+          })
+        }
+
+        udaru.hooks.add('users:list', handler)
+        udaru.hooks.add('users:list', otherHandler)
+        udaru.fullConfig.get('hooks').propagateErrors = true
+
+        udaru.users.list({organizationId: 'WONKA'})
           .catch(err => {
             expect(err).to.be.error(Error, 'ERROR')
 
             expect(otherHandler.called).to.equal(true)
-            expect(handlerArgs[0]).not.to.exist()
+            expect(handlerArgs[0]).to.not.exist()
             expect(handlerArgs[1]).to.equal([{organizationId: 'WONKA'}])
             expect(handlerArgs[2].data).to.exist()
             expect(handlerArgs[2].total).to.greaterThan(1)
 
+            udaru.fullConfig.get('hooks').propagateErrors = false
             done()
           })
           .catch(done)

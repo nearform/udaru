@@ -19,10 +19,12 @@ function buildUdaruCore (dbPool, config) {
   const teamOps = buildTeamOps(db, fullConfig)
   const policyOps = buildPolicyOps(db, fullConfig)
 
-  const hooks = buildHooks()
+  const hooks = buildHooks(fullConfig)
 
   return {
     config,
+    fullConfig,
+
     getUserOrganizationId: hooks.wrap('users:getUserOrganizationId', userOps.getUserOrganizationId),
 
     db: {

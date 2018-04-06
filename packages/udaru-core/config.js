@@ -21,6 +21,9 @@ const defaultConfig = {
       level: 'info'
     }
   },
+  hooks: {
+    propagateErrors: false
+  },
   authorization: {
     defaultPageSize: 100,
     organizations: {

@@ -21,7 +21,9 @@ module.exports = {
         handlers = handlers.filter(f => typeof f === 'function')
 
         // Register each handler
-        for (const handler of handlers) udaru.hooks.add(hook, handler)
+        for (const handler of handlers) {
+          udaru.hooks.add(hook, handler)
+        }
       }
     }
 

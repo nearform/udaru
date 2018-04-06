@@ -1,4 +1,4 @@
-module.exports = function buildHooks () {
+module.exports = function buildHooks (config) {
   const registered = {}
 
   function toArray (input) {
@@ -12,6 +12,7 @@ module.exports = function buildHooks () {
   }
 
   function runHandlers (name, error, args, results, done) {
+    const propagateErrors = config.get('hooks.propagateErrors')
     const hooks = registered[name]
     const hooksNum = hooks.length
     let finished = 0
@@ -22,7 +23,7 @@ module.exports = function buildHooks () {
 
         if (!done || (!err && finished < hooksNum)) return // The callback has been called or other calls are pending, return
 
-        done(err)
+        done(propagateErrors && err)
         done = null
       })
     }
@@ -45,8 +46,10 @@ module.exports = function buildHooks () {
   }
 
   function wrapWithPromise (name, original, args) {
+    const propagateErrors = config.get('hooks.propagateErrors')
+
     return new Promise((resolve, reject) => {
-      return original.apply(this, args) // Execute the original method
+      original.apply(this, args) // Execute the original method
         .then((result) => {
           runHandlers(name, null, args, result, err => {
             if (err) return reject(err)
@@ -55,7 +58,7 @@ module.exports = function buildHooks () {
           })
         })
         .catch(error => {
-          runHandlers(name, error, args, null, err => reject(err || error))
+          runHandlers(name, error, args, null, err => reject(propagateErrors && err ? err : error))
         })
     })
   }

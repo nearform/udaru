@@ -47,6 +47,8 @@ The hook is a node-style callback with three arguments: the method arguments, th
 
 If the hook returns a promise, the execution will await its completion.
 
+Hooks errors or rejections are ignored unless the `hooks.propagateErrors` configuration variable is set to `true`.
+
 Simple example taken from [examples/hooks.js](examples/hooks.js):
 
 ```
