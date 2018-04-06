@@ -22,7 +22,7 @@ module.exports = {
 
         // Register each handler
         for (const handler of handlers) {
-          udaru.addHook(hook, handler)
+          udaru.hooks.add(hook, handler)
         }
       }
     }

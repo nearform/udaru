@@ -1,7 +1,7 @@
 // if using outside this repo, use require('@nearform/udaru-core')
 const udaru = require('../index.js')()
 
-udaru.addHook('authorize:isUserAuthorized', function (error, args, result, done) {
+udaru.hooks.add('authorize:isUserAuthorized', function (error, args, result, done) {
   if (error) {
     console.error(`Authorization errored: ${error}`)
     return done(error)

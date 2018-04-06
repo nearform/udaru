@@ -1,84 +1,102 @@
-const async = require('async')
-const asyncify = require('./asyncify')
-const registeredHooks = {}
+module.exports = function buildHooks (config) {
+  const registered = {}
 
-function runHook (hook, error, args, result, done) {
-  let promise = null
-  if (typeof done !== 'function') [promise, done] = asyncify()
+  function runHandlers (name, error, args, results, done) {
+    const propagateErrors = config.get('hooks.propagateErrors')
+    const hooks = registered[name]
+    const hooksNum = hooks.length
+    let finished = 0
 
-  async.each(
-    registeredHooks[hook],
-    (handler, next) => { // For each registered hook
-      // Call the handler
-      const handlerValue = handler(error, args, result, next)
+    for (var i = 0; i < hooksNum; i++) {
+      hooks[i](error, args, results, err => {
+        finished++
 
-      // Handle promise returns
-      if (handlerValue && typeof handlerValue.then === 'function') handlerValue.then(next).catch(next)
+        if (!done || (!err && finished < hooksNum)) return // The callback has been called or other calls are pending, return
+
+        done(propagateErrors && err)
+        done = null
+      })
+    }
+  }
+
+  function wrapWithCallback (name, original, args) {
+    const originalCallback = args.pop() // Save the original callback
+
+    // Call the original method with a new callback which will invoke runHook
+    original.apply(this, args.concat(function () {
+      const cbArgs = new Array(arguments.length)
+
+      for (let i = 0; i < cbArgs.length; i++) {
+        cbArgs[i] = arguments[i]
+      }
+
+      // The setImmediate call here otherwise any error in the originalCallback will trigger an unhandledRejection
+      runHandlers(name, cbArgs[0], args, cbArgs.slice(1), err => {
+        if (err) cbArgs[0] = err
+
+        originalCallback.apply(null, cbArgs)
+      })
+    }))
+  }
+
+  function wrapWithPromise (name, original, args) {
+    const propagateErrors = config.get('hooks.propagateErrors')
+
+    return new Promise((resolve, reject) => {
+      original.apply(this, args) // Execute the original method
+        .then((result) => {
+          runHandlers(name, null, args, result, err => {
+            if (err) return reject(err)
+
+            resolve(result)
+          })
+        })
+        .catch(error => {
+          runHandlers(name, error, args, null, err => reject(propagateErrors && err ? err : error))
+        })
+    })
+  }
+
+  return {
+    registered,
+
+    add: function add (hook, handler) {
+      // Validate the arguments
+      if (typeof hook !== 'string') throw new TypeError('The hook name must be a string')
+      if (typeof handler !== 'function') throw new TypeError('The hook callback must be a function')
+      if (!registered.hasOwnProperty(hook)) throw new Error(`${hook} hook not supported`)
+
+      // Wrap the handler so that we can handle both callback and promises
+      registered[hook].push(function (error, args, result, done) {
+        const handlerValue = handler(error, args, result, done)
+        if (handlerValue && typeof handlerValue.then === 'function') handlerValue.then(done).catch(done)
+      })
     },
-    done // Finish the call
-  )
 
-  return promise
-}
+    clear: function clear (name) {
+      registered[name] = []
+    },
 
-function wrapWithCallback (name, original, args) {
-  const originalCallback = args.pop() // Save the original callback
-  const originalArgs = Array.from(args) // Save the original arguments
+    wrap: function wrap (name, original) {
+      // Add the name to the list of supported hooks
+      registered[name] = []
 
-  args.push((error, ...result) => { // Add the new callback to the udaru method
-    runHook(name, error, originalArgs, result, (err) => { // Run all hooks
-      originalCallback(error || err, ...result) // Call the original callback with the error either from the udaru method or from one of the hooks
-    })
-  })
+      // Return a wrapped function
+      return function () {
+        const args = new Array(arguments.length)
 
-  // Call the original method
-  original(...args)
-}
+        for (let i = 0; i < args.length; i++) {
+          args[i] = arguments[i]
+        }
 
-function wrapWithPromise (name, original, args) {
-  let hooksExecuted = false
+        if (registered[name].length === 0) { // No hooks registered, just call the function
+          return original.apply(this, args)
+        } else if (typeof args[args.length - 1] !== 'function') { // Promise style
+          return wrapWithPromise(name, original, args)
+        }
 
-  return original(...args) // Execute the original method
-    .then((result) => {
-      // Now execute hooks
-      hooksExecuted = true
-      return runHook(name, null, args, result).then(() => result)
-    })
-    .catch(error => {
-      // Hooks are already executed, it means they threw an error, otherwise it comes from the original method
-      const promise = hooksExecuted ? Promise.resolve() : runHook(name, error, args, null)
-
-      // Once hooks execution is completed, return any error
-      return promise.then(() => Promise.reject(error))
-    })
-}
-
-module.exports = {
-  registeredHooks,
-
-  addHook: function addHook (hook, handler) {
-    // Validate the arguments
-    if (typeof hook !== 'string') throw new TypeError('The hook name must be a string')
-    if (typeof handler !== 'function') throw new TypeError('The hook callback must be a function')
-    if (!registeredHooks.hasOwnProperty(hook)) throw new Error(`${hook} hook not supported`)
-
-    // Add the handler to the list of registered handlers
-    registeredHooks[hook].push(handler)
-  },
-
-  clearHook: function clearHook (name) {
-    registeredHooks[name] = []
-  },
-
-  wrap: function wrap (name, original) {
-    // Add the name to the list of supported hooks
-    registeredHooks[name] = []
-
-    // Return a wrapped function
-    return function (...args) {
-      if (typeof args[args.length - 1] !== 'function') return wrapWithPromise(name, original, args)
-
-      wrapWithCallback(name, original, args)
+        return wrapWithCallback(name, original, args)
+      }
     }
   }
 }

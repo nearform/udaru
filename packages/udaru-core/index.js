@@ -7,7 +7,7 @@ const buildTeamOps = require('./lib/ops/teamOps')
 const buildPolicyOps = require('./lib/ops/policyOps')
 const buildDb = require('./lib/db')
 const buildConfig = require('./config')
-const hooks = require('./lib/hooks')
+const buildHooks = require('./lib/hooks')
 
 function buildUdaruCore (dbPool, config) {
   const fullConfig = buildConfig(config)
@@ -19,16 +19,22 @@ function buildUdaruCore (dbPool, config) {
   const teamOps = buildTeamOps(db, fullConfig)
   const policyOps = buildPolicyOps(db, fullConfig)
 
+  const hooks = buildHooks(fullConfig)
+
   return {
     config,
-    getUserOrganizationId: hooks.wrap('user:getUserOrganizationId', userOps.getUserOrganizationId),
+    fullConfig,
+
+    getUserOrganizationId: hooks.wrap('users:getUserOrganizationId', userOps.getUserOrganizationId),
 
     db: {
       close: db.shutdown
     },
 
-    addHook: hooks.addHook,
-    clearHook: hooks.clearHook,
+    hooks: {
+      add: hooks.add,
+      clear: hooks.clear
+    },
 
     authorize: {
       isUserAuthorized: hooks.wrap('authorize:isUserAuthorized', authorizeOps.isUserAuthorized),
@@ -85,19 +91,19 @@ function buildUdaruCore (dbPool, config) {
     },
 
     users: {
-      list: hooks.wrap('user:list', userOps.listOrgUsers),
-      create: hooks.wrap('user:create', userOps.createUser),
-      read: hooks.wrap('user:read', userOps.readUser),
-      update: hooks.wrap('user:update', userOps.updateUser),
-      delete: hooks.wrap('user:delete', userOps.deleteUser),
-      replacePolicies: hooks.wrap('user:replacePolicies', userOps.replaceUserPolicies),
-      addPolicies: hooks.wrap('user:addPolicies', userOps.addUserPolicies),
-      deletePolicies: hooks.wrap('user:deletePolicies', userOps.deleteUserPolicies),
-      deletePolicy: hooks.wrap('user:deletePolicy', userOps.deleteUserPolicy),
-      listUserTeams: hooks.wrap('user:listUserTeams', userOps.listUserTeams),
-      replaceTeams: hooks.wrap('user:replaceTeams', userOps.replaceUserTeams),
-      deleteTeams: hooks.wrap('user:deleteTeams', userOps.deleteUserFromTeams),
-      search: hooks.wrap('user:search', userOps.search)
+      list: hooks.wrap('users:list', userOps.listOrgUsers),
+      create: hooks.wrap('users:create', userOps.createUser),
+      read: hooks.wrap('users:read', userOps.readUser),
+      update: hooks.wrap('users:update', userOps.updateUser),
+      delete: hooks.wrap('users:delete', userOps.deleteUser),
+      replacePolicies: hooks.wrap('users:replacePolicies', userOps.replaceUserPolicies),
+      addPolicies: hooks.wrap('users:addPolicies', userOps.addUserPolicies),
+      deletePolicies: hooks.wrap('users:deletePolicies', userOps.deleteUserPolicies),
+      deletePolicy: hooks.wrap('users:deletePolicy', userOps.deleteUserPolicy),
+      listUserTeams: hooks.wrap('users:listUserTeams', userOps.listUserTeams),
+      replaceTeams: hooks.wrap('users:replaceTeams', userOps.replaceUserTeams),
+      deleteTeams: hooks.wrap('users:deleteTeams', userOps.deleteUserFromTeams),
+      search: hooks.wrap('users:search', userOps.search)
     }
   }
 }

@@ -745,7 +745,7 @@ lab.experiment('Users - manage policies', () => {
           expect(response.statusCode).to.equal(204)
 
           udaru.users.read({ id: 'ModifyId', organizationId: 'WONKA' }, (err, user) => {
-            expect(err).not.to.exist()
+            expect(err).to.not.exist()
             expect(user.policies).to.equal([])
 
             udaru.policies.delete({ id: p.id, organizationId: 'WONKA' }, done)
@@ -795,7 +795,7 @@ lab.experiment('Users - manage policies', () => {
           expect(response.statusCode).to.equal(204)
 
           udaru.users.read({ id: 'ModifyId', organizationId: 'WONKA' }, (err, user) => {
-            expect(err).not.to.exist()
+            expect(err).to.not.exist()
             expect(user.policies).to.equal([])
 
             udaru.policies.delete({ id: p.id, organizationId: 'WONKA' }, done)
