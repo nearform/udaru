@@ -24,7 +24,11 @@ module.exports = function buildHooks (config) {
 
     // Call the original method with a new callback which will invoke runHook
     original.apply(this, args.concat(function () {
-      const cbArgs = Array.prototype.slice.call(arguments)
+      const cbArgs = new Array(arguments.length)
+
+      for (let i = 0; i < cbArgs.length; i++) {
+        cbArgs[i] = arguments[i]
+      }
 
       // The setImmediate call here otherwise any error in the originalCallback will trigger an unhandledRejection
       runHandlers(name, cbArgs[0], args, cbArgs.slice(1), err => {
