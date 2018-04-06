@@ -1,23 +1,13 @@
 module.exports = function buildHooks (config) {
   const registered = {}
 
-  function toArray (input) {
-    const output = new Array(input.length)
-
-    for (let i = 0; i < output.length; i++) {
-      output[i] = input[i]
-    }
-
-    return output
-  }
-
   function runHandlers (name, error, args, results, done) {
     const propagateErrors = config.get('hooks.propagateErrors')
     const hooks = registered[name]
     const hooksNum = hooks.length
     let finished = 0
 
-    for (let i = 0; i < hooksNum; i++) {
+    for (var i = 0; i < hooksNum; i++) {
       hooks[i](error, args, results, err => {
         finished++
 
@@ -89,7 +79,11 @@ module.exports = function buildHooks (config) {
 
       // Return a wrapped function
       return function () {
-        const args = toArray(arguments)
+        const args = new Array(arguments.length)
+
+        for (let i = 0; i < args.length; i++) {
+          args[i] = arguments[i]
+        }
 
         if (registered[name].length === 0) { // No hooks registered, just call the function
           return original.apply(this, args)
