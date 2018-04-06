@@ -1,27 +1,30 @@
 module.exports = function buildHooks () {
   const registered = {}
 
-  function runHandlersCallback (done, waiting, err) {
-    if (err) { // Errored
-      if (waiting > 0) { // No errors propagated yet
-        waiting = -1
-        done(err)
-      }
+  function toArray (input) {
+    const output = new Array(input.length)
 
-      return
+    for (let i = 0; i < output.length; i++) {
+      output[i] = input[i]
     }
 
-    waiting--
-
-    if (waiting === 0) done() // No other waiting, complete
+    return output
   }
 
   function runHandlers (name, error, args, results, done) {
     const hooks = registered[name]
-    const cb = runHandlersCallback.bind(null, done, hooks.length)
+    const hooksNum = hooks.length
+    let finished = 0
 
-    for (const hook of hooks) {
-      hook(error, args, results, cb)
+    for (let i = 0; i < hooksNum; i++) {
+      hooks[i](error, args, results, err => {
+        finished++
+
+        if (!done || (!err && finished < hooksNum)) return // The callback has been called or other calls are pending, return
+
+        done(err)
+        done = null
+      })
     }
   }
 
@@ -83,7 +86,7 @@ module.exports = function buildHooks () {
 
       // Return a wrapped function
       return function () {
-        const args = Array.prototype.slice.call(arguments)
+        const args = toArray(arguments)
 
         if (registered[name].length === 0) { // No hooks registered, just call the function
           return original.apply(this, args)

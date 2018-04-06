@@ -63,13 +63,20 @@ lab.experiment('Hooks', () => {
     lab.experiment('using callback style hooks', () => {
       lab.test('should execute hooks and propagate the success', done => {
         let handlerArgs = {}
+        let otherHandlerArgs = {}
 
         const handler = function (error, input, result, cb) {
           handlerArgs = [error, input, result]
           cb()
         }
 
+        const otherHandler = function (error, input, result, cb) {
+          otherHandlerArgs = [error, input, result]
+          cb()
+        }
+
         udaru.hooks.add('users:list', handler)
+        udaru.hooks.add('users:list', otherHandler)
 
         udaru.users.list({organizationId: 'WONKA'}, (err, data, total) => {
           expect(err).to.not.exist()
@@ -80,6 +87,11 @@ lab.experiment('Hooks', () => {
           expect(handlerArgs[1]).to.equal([{organizationId: 'WONKA'}])
           expect(handlerArgs[2][0]).to.equal(data)
           expect(handlerArgs[2][1]).to.equal(total)
+
+          expect(otherHandlerArgs[0]).to.equal(err)
+          expect(otherHandlerArgs[1]).to.equal([{organizationId: 'WONKA'}])
+          expect(otherHandlerArgs[2][0]).to.equal(data)
+          expect(otherHandlerArgs[2][1]).to.equal(total)
 
           done()
         })
@@ -364,7 +376,7 @@ lab.experiment('Hooks', () => {
           .catch(done)
       })
 
-      lab.test('should execute all hooks propagate the first hooks error', done => {
+      lab.test('should execute all hooks and propagate the first hooks error', done => {
         let handlerArgs = {}
 
         const handler = function (error, input, result) {
