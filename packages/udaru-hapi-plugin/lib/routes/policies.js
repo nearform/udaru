@@ -69,6 +69,60 @@ module.exports = {
     })
 
     server.route({
+      method: 'GET',
+      path: '/authorization/policies/{id}/variables',
+      async handler (request) {
+        const { organizationId } = request.udaru
+        const { id } = request.params
+
+        return request.udaruCore.policies.readPolicyVariables({ id, organizationId, type: 'organization' })
+      },
+      config: {
+        validate: {
+          params: pick(validation.readPolicy, ['id']),
+          headers
+        },
+        description: 'Fetch a template policy\'s variables',
+        notes: 'The GET /authorization/policies/{id}/variables endpoint returns policy variables based on its ID.\n',
+        tags: ['api', 'policies'],
+        plugins: {
+          auth: {
+            action: Action.ReadPolicyVariables,
+            getParams: (request) => ({ policyId: request.params.id })
+          }
+        },
+        response: { schema: swagger.TemplatePolicyVariables }
+      }
+    })
+
+    server.route({
+      method: 'GET',
+      path: '/authorization/shared-policies/{id}/variables',
+      async handler (request) {
+        const { organizationId } = request.udaru
+        const { id } = request.params
+
+        return request.udaruCore.policies.readPolicyVariables({ id, organizationId, type: 'shared' })
+      },
+      config: {
+        validate: {
+          params: pick(validation.readPolicy, ['id']),
+          headers
+        },
+        description: 'Fetch a template shared policy\'s variables',
+        notes: 'The GET /authorization/policies/{id}/variables endpoint returns shared policy variables based on its ID.\n',
+        tags: ['api', 'policies'],
+        plugins: {
+          auth: {
+            action: Action.ReadPolicyVariables,
+            getParams: (request) => ({ policyId: request.params.id })
+          }
+        },
+        response: { schema: swagger.TemplatePolicyVariables }
+      }
+    })
+
+    server.route({
       method: 'POST',
       path: '/authorization/policies',
       async handler (request, h) {
@@ -185,6 +239,65 @@ module.exports = {
         validate: {
           headers,
           query: pick(validation.listSharedPolicies, ['page', 'limit'])
+        },
+        response: { schema: swagger.PagedPolicies }
+      }
+    })
+
+    server.route({
+      method: 'GET',
+      path: '/authorization/policies/search',
+      async handler (request) {
+        const { organizationId } = request.udaru
+        const query = request.query.query
+
+        return request.udaruCore.policies.search({
+          organizationId,
+          query,
+          type: 'organization'})
+      },
+      config: {
+        description: 'Search for organization policies',
+        notes: 'The GET /authorization/policies/search endpoint returns a filtered list of policies.\n\n',
+        tags: ['api', 'teams'],
+        plugins: {
+          auth: {
+            action: Action.SearchPolicies
+          }
+        },
+        validate: {
+          headers,
+          query: pick(validation.searchPolicy, ['query'])
+        },
+        response: { schema: swagger.PagedPolicies }
+      }
+    })
+
+    server.route({
+      method: 'GET',
+      path: '/authorization/shared-policies/search',
+      async handler (request) {
+        const { organizationId } = request.udaru
+        const query = request.query.query
+
+        return request.udaruCore.policies.search({
+          organizationId,
+          query,
+          type: 'shared'
+        })
+      },
+      config: {
+        description: 'Search for shared policies',
+        notes: 'The GET /authorization/shared-policies/search endpoint returns a filtered list of shared policies.\n\n',
+        tags: ['api', 'teams'],
+        plugins: {
+          auth: {
+            action: Action.SearchPolicies
+          }
+        },
+        validate: {
+          headers,
+          query: pick(validation.searchPolicy, ['query'])
         },
         response: { schema: swagger.PagedPolicies }
       }

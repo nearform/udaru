@@ -65,6 +65,8 @@ const Actions = {
   ReadPolicy: 'authorization:policies:read',
   DeletePolicy: 'authorization:policies:delete',
   ListPolicies: 'authorization:policies:list',
+  SearchPolicies: 'authorization:policies:search',
+  ReadPolicyVariables: 'authorization:policies:variables',
   AllPolicy: 'authorization:policies:*',
 
   // authorization
