@@ -46,6 +46,22 @@ lab.experiment('Policies - get/list', () => {
     })
   })
 
+  lab.test('search policy: error handling', (done) => {
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: '/authorization/policies/search?query=acc'
+    })
+
+    const stub = sinon.stub(server.udaru.policies, 'search').yields(new Error('ERROR'))
+
+    server.inject(options, (response) => {
+      stub.restore()
+
+      expect(response.statusCode).to.equal(500)
+      done()
+    })
+  })
+
   lab.test('search shared policies', (done) => {
     const options = utils.requestOptions({
       method: 'GET',
@@ -55,6 +71,22 @@ lab.experiment('Policies - get/list', () => {
     server.inject(options, (response) => {
       expect(response.statusCode).to.equal(200)
       expect(response.result.total).to.equal(2)
+      done()
+    })
+  })
+
+  lab.test('search policy: error handling', (done) => {
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: '/authorization/shared-policies/search?query=pol'
+    })
+
+    const stub = sinon.stub(server.udaru.policies, 'search').yields(new Error('ERROR'))
+
+    server.inject(options, (response) => {
+      stub.restore()
+
+      expect(response.statusCode).to.equal(500)
       done()
     })
   })
