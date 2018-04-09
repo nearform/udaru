@@ -51,7 +51,8 @@ function buildUdaruCore (dbPool, config) {
       addPolicies: hooks.wrap('organization:addPolicies', organizationOps.addOrganizationPolicies),
       replacePolicies: hooks.wrap('organization:replacePolicies', organizationOps.replaceOrganizationPolicies),
       deletePolicies: hooks.wrap('organization:deletePolicies', organizationOps.deleteOrganizationAttachedPolicies),
-      deletePolicy: hooks.wrap('organization:deletePolicy', organizationOps.deleteOrganizationAttachedPolicy)
+      deletePolicy: hooks.wrap('organization:deletePolicy', organizationOps.deleteOrganizationAttachedPolicy),
+      listPolicies: hooks.wrap('team:listPolicies', organizationOps.listOrganizationPolicies)
     },
 
     policies: {
@@ -87,7 +88,8 @@ function buildUdaruCore (dbPool, config) {
       deleteMember: hooks.wrap('team:deleteMember', teamOps.deleteTeamMember),
       listNestedTeams: hooks.wrap('team:listNestedTeams', teamOps.listNestedTeams),
       search: hooks.wrap('team:search', teamOps.search),
-      searchUsers: hooks.wrap('team:searchUsers', teamOps.searchUsers)
+      searchUsers: hooks.wrap('team:searchUsers', teamOps.searchUsers),
+      listPolicies: hooks.wrap('team:listPolicies', teamOps.listTeamPolicies)
     },
 
     users: {
@@ -103,7 +105,8 @@ function buildUdaruCore (dbPool, config) {
       listUserTeams: hooks.wrap('users:listUserTeams', userOps.listUserTeams),
       replaceTeams: hooks.wrap('users:replaceTeams', userOps.replaceUserTeams),
       deleteTeams: hooks.wrap('users:deleteTeams', userOps.deleteUserFromTeams),
-      search: hooks.wrap('users:search', userOps.search)
+      search: hooks.wrap('users:search', userOps.search),
+      listPolicies: hooks.wrap('users:listPolicies', userOps.listUserPolicies)
     }
   }
 }

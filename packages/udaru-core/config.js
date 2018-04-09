@@ -63,6 +63,11 @@ const defaultConfig = {
                 Effect: 'Allow',
                 Action: [Action.ReadPolicyVariables],
                 Resource: [resources.policies({ organizationId: ':organizationId' })]
+              },
+              {
+                Effect: 'Allow',
+                Action: [Action.ListPolicies],
+                Resource: [resources.policies({ organizationId: ':organizationId' })]
               }
             ]
           }

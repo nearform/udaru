@@ -434,6 +434,40 @@ exports.register = function (server, options, next) {
   })
 
   server.route({
+    method: 'GET',
+    path: '/authorization/teams/{id}/policies',
+    handler: function (request, reply) {
+      const { id } = request.params
+      const { organizationId } = request.udaru
+      const limit = request.query.limit || server.udaruConfig.get('authorization.defaultPageSize')
+      const page = request.query.page || 1
+
+      request.udaruCore.teams.read({ id, organizationId }, (err) => {
+        if (err) return reply(err)
+
+        request.udaruCore.teams.listPolicies({ id, page, limit, organizationId }, reply)
+      })
+    },
+    config: {
+      validate: {
+        params: _.pick(validation.listTeamPolicies, ['id']),
+        query: _.pick(validation.listTeamPolicies, ['page', 'limit']),
+        headers
+      },
+      description: 'Fetch team policies given its identifier',
+      notes: 'The GET /authorization/teams/{id}/policies endpoint returns the team policies.\n',
+      tags: ['api', 'teams'],
+      plugins: {
+        auth: {
+          action: Action.ListTeamPolicies,
+          getParams: (request) => ({ teamId: request.params.id })
+        }
+      },
+      response: { schema: swagger.PagedPolicyRefs }
+    }
+  })
+
+  server.route({
     method: 'PUT',
     path: '/authorization/teams/{id}/users',
     handler: function (request, reply) {

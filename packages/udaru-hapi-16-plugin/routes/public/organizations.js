@@ -197,6 +197,40 @@ exports.register = function (server, options, next) {
   })
 
   server.route({
+    method: 'GET',
+    path: '/authorization/organizations/{id}/policies',
+    handler: function (request, reply) {
+      const { id } = request.params
+      const { organizationId } = request.udaru
+      const limit = request.query.limit || server.udaruConfig.get('authorization.defaultPageSize')
+      const page = request.query.page || 1
+
+      request.udaruCore.organizations.read(id, (err) => {
+        if (err) return reply(err)
+
+        request.udaruCore.organizations.listPolicies({ id, page, limit, organizationId }, reply)
+      })
+    },
+    config: {
+      validate: {
+        params: _.pick(validation.listOrganizationPolicies, ['id']),
+        query: _.pick(validation.listOrganizationPolicies, ['page', 'limit']),
+        headers
+      },
+      description: 'Fetch organization policies given its identifier',
+      notes: 'The GET /authorization/organization/{id}/policies endpoint returns the organization policies.\n',
+      tags: ['api', 'organizations'],
+      plugins: {
+        auth: {
+          action: Action.ListOrganizationPolicies,
+          getParams: (request) => ({ orgId: request.params.id })
+        }
+      },
+      response: { schema: swagger.PagedPolicyRefs }
+    }
+  })
+
+  server.route({
     method: 'POST',
     path: '/authorization/organizations/{id}/policies',
     handler: function (request, reply) {

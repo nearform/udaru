@@ -113,6 +113,7 @@ const List = (data) => {
 }
 
 const PagedPolicies = List(Policies).label('PagedPolicies')
+const PagedPolicyRefs = List(PolicyRefs).label('PagedPolicyRefs')
 const PagedTeams = List(Teams).label('PagedTeams').description('Note: teams users and policies are not populated in paged teams list')
 const NestedPagedTeams = List(NestedTeams).label('NestedPagedTeams').description('Note: teams users and policies are not populated in nested paged teams list')
 const PagedTeamRefs = List(TeamRefs).label('PagedTeamRefs')
@@ -162,6 +163,8 @@ module.exports = {
   PagedUsers,
   PagedOrganizations,
   PolicyRef,
+  PolicyRefs,
+  PagedPolicyRefs,
   Organization,
   OrganizationAndUser,
   PolicyStatements,
