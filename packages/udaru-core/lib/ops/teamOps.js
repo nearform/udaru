@@ -290,7 +290,6 @@ function buildTeamOps (db, config) {
       if (err) return next(Boom.badImplementation(err))
 
       job.totalPoliciesCount = result.rowCount > 0 ? parseInt(result.rows[0].total_policies_count, 10) : 0
-      job.team.policiesCount = result.rowCount
       job.team.policies = result.rows.map(mapping.policy.simple)
       next()
     })

@@ -681,6 +681,80 @@ lab.experiment('Organizations', () => {
     })
   })
 
+  lab.test('List organization policies', (done) => {
+    let options = utils.requestOptions({
+      method: 'POST',
+      url: `/authorization/organizations/WONKA/policies`,
+      payload: {policies: [{
+        id: 'policyId2',
+        variables: {var1: 'value1'}
+      }, {
+        id: 'policyId2',
+        variables: {var2: 'value2'}
+      }, {
+        id: 'policyId2',
+        variables: {var3: 'value3'}
+      }]}
+    })
+
+    server.inject(options, (response) => {
+      const { result } = response
+
+      expect(response.statusCode).to.equal(200)
+      expect(result.policies.length).to.equal(3)
+
+      options = utils.requestOptions({
+        method: 'GET',
+        url: `/authorization/organizations/WONKA/policies`
+      })
+
+      server.inject(options, (response) => {
+        const { result } = response
+
+        expect(response.statusCode).to.equal(200)
+        expect(result.total).to.equal(3)
+        expect(utils.PoliciesWithoutInstance(result.data)).to.contain([ {
+          id: 'policyId2',
+          name: 'Accountant',
+          version: '0.1',
+          variables: {var2: 'value2'}
+        }])
+
+        options = utils.requestOptions({
+          method: 'GET',
+          url: `/authorization/organizations/WONKA/policies?limit=100&page=1`
+        })
+
+        server.inject(options, (response) => {
+          const { result } = response
+
+          expect(response.statusCode).to.equal(200)
+          expect(result.total).to.equal(3)
+          expect(utils.PoliciesWithoutInstance(result.data)).to.contain([{
+            id: 'policyId2',
+            name: 'Accountant',
+            version: '0.1',
+            variables: {var1: 'value1'}
+          }])
+
+          udaru.organizations.replacePolicies({ id: 'WONKA', policies: [], organizationId: 'WONKA' }, done)
+        })
+      })
+    })
+  })
+
+  lab.test('get non existent organizations policies', (done) => {
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: '/authorization/organizations/doesnotexist/policies?limit=100&page=1'
+    })
+
+    server.inject(options, (response) => {
+      expect(response.statusCode).to.equal(404)
+      done()
+    })
+  })
+
   lab.test('add policies to an organization', (done) => {
     const options = utils.requestOptions({
       method: 'PUT',

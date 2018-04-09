@@ -334,7 +334,7 @@ const organizations = {
   },
   replaceOrganizationPolicies: {
     id: validationRules.organizationId,
-    policies: validationRules.policies.min(1)
+    policies: validationRules.policies
   },
   deleteOrganizationPolicies: {
     id: validationRules.organizationId
