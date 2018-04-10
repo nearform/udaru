@@ -615,11 +615,11 @@ lab.experiment('Organizations', () => {
     })
 
     response = await server.inject(options)
-    result = response.result
+    result = response.result.data
 
     expect(response.statusCode).to.equal(200)
-    expect(result.data.total).to.equal(3)
-    var policies = utils.PoliciesWithoutInstance(result.data.data)
+    expect(result.total).to.equal(3)
+    var policies = utils.PoliciesWithoutInstance(result.data)
     expect(policies).to.contain([{
       id: 'policyId2',
       name: 'Accountant',
@@ -633,18 +633,18 @@ lab.experiment('Organizations', () => {
     })
 
     response = await server.inject(options)
-    result = response.result
+    result = response.result.data
 
     expect(response.statusCode).to.equal(200)
-    expect(result.data.total).to.equal(3)
-    expect(utils.PoliciesWithoutInstance(result.data.data)).to.contain([{
+    expect(result.total).to.equal(3)
+    expect(utils.PoliciesWithoutInstance(result.data)).to.contain([{
       id: 'policyId2',
       name: 'Accountant',
       version: '0.1',
       variables: {var3: 'value3'}
     }])
 
-    response = await udaru.organizations.replacePolicies({ id: 'WONKA', policies: [], organizationId: 'WONKA' })
+    await udaru.organizations.replacePolicies({ id: 'WONKA', policies: [], organizationId: 'WONKA' })
   })
 
   lab.test('get non existent organizations policies', async () => {

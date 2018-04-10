@@ -270,12 +270,12 @@ module.exports = {
         const page = request.query.page || 1
 
         await request.udaruCore.users.read({ id, organizationId })
-        return { page, limit, ...(await request.udaruCore.users.listPolicies({ organizationId, id, limit, page })) }
+        return request.udaruCore.users.listPolicies({ organizationId, id, limit, page })
       },
       config: {
         validate: {
-          params: pick(validation.listOrganizationPolicies, ['id']),
-          query: pick(validation.listOrganizationPolicies, ['page', 'limit']),
+          params: pick(validation.listUserPolicies, ['id']),
+          query: pick(validation.listUserPolicies, ['page', 'limit']),
           headers
         },
         description: 'Fetch users policies given its identifier',
@@ -283,8 +283,8 @@ module.exports = {
         tags: ['api', 'organizations'],
         plugins: {
           auth: {
-            action: Action.ListOrganizationPolicies,
-            getParams: (request) => ({ orgId: request.params.id })
+            action: Action.ListUserPolicies,
+            getParams: (request) => ({ id: request.params.id })
           }
         },
         response: { schema: swagger.PagedPolicyRefs }

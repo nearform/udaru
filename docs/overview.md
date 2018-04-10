@@ -41,6 +41,7 @@ A brief overview of the Management API calls are as follows, see the [Swagger Do
 |/authorization/organizations/{id}|DELETE|DELETE an organization|
 |/authorization/organizations/{id}|GET|Get organization|
 |/authorization/organizations/{id}|PUT|Update an organization|
+|/authorization/organizations/{id}/policies|GET|List an organization's policies|
 |/authorization/organizations/{id}/policies|DELETE|Clear all policies of the organization|
 |/authorization/organizations/{id}/policies|POST|Clear and replace the policies of an organization|
 |/authorization/organizations/{id}/policies|PUT|Add one or more policies to an organization|
@@ -61,6 +62,7 @@ A brief overview of the Management API calls are as follows, see the [Swagger Do
 |/authorization/teams/{id}|GET|Fetch a team given its identifier|
 |/authorization/teams/{id}/nest|PUT|Nest a team|
 |/authorization/teams/{id}/nested|GET|Fetch a nested team given its identifier|
+|/authorization/teams/{id}/policies|GET|List a team's policies|
 |/authorization/teams/{id}/policies|PUT|Add one or more policies to a team|
 |/authorization/teams/{id}/policies|DELETE|Clear all team policies|
 |/authorization/teams/{id}/policies|POST|Clear and replace policies for a team|
@@ -78,6 +80,7 @@ A brief overview of the Management API calls are as follows, see the [Swagger Do
 |/authorization/users/{id}|GET|Fetch a user given its identifier|
 |/authorization/users/{id}|DELETE|Delete a user|
 |/authorization/users/{id}|PUT|Update a user|
+|/authorization/users/{id}/policies|GET|List a user's policies|
 |/authorization/users/{id}/policies|DELETE|Clear all user's policies|
 |/authorization/users/{id}/policies|PUT|Add one or more policies to a user|
 |/authorization/users/{id}/policies|POST|Clear and replace policies for a user|

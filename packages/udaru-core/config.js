@@ -110,6 +110,7 @@ const defaultConfig = {
                   Action.UpdateTeam,
                   Action.AddTeamMember,
                   Action.ReplaceTeamMember,
+                  Action.ListTeamPolicies,
                   Action.RemoveTeamMember
                 ],
                 Resource: [
