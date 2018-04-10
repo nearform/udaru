@@ -66,7 +66,6 @@
     "test:commit-check"
   ],
   "dependencies": {
-    "npm": "^5.8.0"
   },
   "devDependencies": {
     "depcheck": "^0.6.9",
