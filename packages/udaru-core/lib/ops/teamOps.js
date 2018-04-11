@@ -270,17 +270,26 @@ function buildTeamOps (db, config) {
   }
 
   function loadTeamPolicies (job, next) {
-    const { id } = job
+    const { id, offset, limit } = job
+
     const sql = SQL`
-      SELECT pol.id, pol.name, pol.version, tpol.variables, tpol.policy_instance
+      SELECT pol.id, pol.name, pol.version, tpol.variables, tpol.policy_instance, COUNT(*) OVER() AS total_policies_count
       FROM team_policies tpol, policies pol
       WHERE tpol.team_id = ${id}
       AND tpol.policy_id = pol.id
       ORDER BY UPPER(pol.name)
     `
+    if (limit) {
+      sql.append(SQL` LIMIT ${limit}`)
+    }
+    if (offset) {
+      sql.append(SQL` OFFSET ${offset}`)
+    }
+
     job.client.query(sql, function (err, result) {
       if (err) return next(Boom.badImplementation(err))
 
+      job.totalPoliciesCount = result.rowCount > 0 ? parseInt(result.rows[0].total_policies_count, 10) : 0
       job.team.policies = result.rows.map(mapping.policy.simple)
       next()
     })
@@ -424,6 +433,47 @@ function buildTeamOps (db, config) {
       db.withTransaction(tasks, (err, res) => {
         if (err) return cb(err)
         teamOps.readTeam({ id: res.team.id, organizationId: params.organizationId }, cb)
+      })
+
+      return promise
+    },
+
+    /**
+     * Fetch a team's policies
+     *
+     * @param  {params}   params { id, page, limit }
+     * @param  {Function} cb
+     */
+    listTeamPolicies: function listTeamPolicies ({ id, page = 1, limit, organizationId }, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
+      Joi.validate({ id, page, limit, organizationId }, validationRules.listTeamPolicies, function (err) {
+        if (err) return cb(Boom.badRequest(err))
+
+        const pageLimit = limit || _.get(config, 'authorization.defaultPageSize')
+        const offset = (page - 1) * pageLimit
+
+        const job = {
+          id: id,
+          organizationId: organizationId,
+          offset: offset,
+          limit: pageLimit,
+          team: {},
+          client: db
+        }
+
+        loadTeamPolicies(job, (err) => {
+          if (err) return cb(err)
+          const pageSize = pageLimit || job.totalPoliciesCount
+          const result = {
+            page: page,
+            limit: pageSize,
+            total: job.totalPoliciesCount,
+            data: job.team.policies
+          }
+          return cb(null, result)
+        })
       })
 
       return promise
@@ -1041,6 +1091,7 @@ function buildTeamOps (db, config) {
   teamOps.addTeamPolicies.validate = validationRules.addTeamPolicies
   teamOps.listNestedTeams.validate = validationRules.listNestedTeams
   teamOps.searchUsers.validate = validationRules.searchUsers
+  teamOps.listTeamPolicies.validate = validationRules.listTeamPolicies
 
   return teamOps
 }

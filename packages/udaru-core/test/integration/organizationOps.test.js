@@ -713,23 +713,6 @@ lab.experiment('OrganizationOps', () => {
     async.series(tasks, done)
   })
 
-  lab.test('replace organization policies with empty policy array', (done) => {
-    const tasks = []
-
-    tasks.push((next) => {
-      udaru.organizations.replacePolicies({id: organizationId, policies: []}, (err, res) => {
-        expect(err).to.exist()
-        expect(res).to.not.exist()
-        next(err, res)
-      })
-    })
-
-    async.series(tasks, (err) => {
-      expect(err).to.exist()
-      done()
-    })
-  })
-
   lab.test('replace organization policies with shared policies', (done) => {
     const tasks = []
 
@@ -1065,6 +1048,97 @@ lab.experiment('OrganizationOps', () => {
           expect(res).to.exist()
           expect(res.policies.length).to.equal(2)
           expect(u.PoliciesWithoutInstance(res.policies)).to.include([{
+            id: testPolicy.id,
+            name: testPolicy.name,
+            version: testPolicy.version,
+            variables: {var1: 'value1'}
+          }, {
+            id: testPolicy.id,
+            name: testPolicy.name,
+            version: testPolicy.version,
+            variables: {var1: 'value2'}
+          }])
+
+          next(err, res)
+        })
+      })
+
+      async.series(tasks, done)
+    })
+
+    lab.test('list policies', (done) => {
+      const tasks = []
+
+      tasks.push((next) => {
+        udaru.policies.list({organizationId}, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res).to.exist()
+          expect(res.length).to.equal(defaultPoliciesNames.length + 2)
+          next(err, res)
+        })
+      })
+      tasks.push((next) => {
+        udaru.organizations.listPolicies({id: organizationId, organizationId}, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res).to.exist()
+          expect(res.data.length).to.equal(0)
+          next(err, res)
+        })
+      })
+      tasks.push((next) => {
+        const policies = [{
+          id: testPolicy.id,
+          variables: {var1: 'value1'}
+        }]
+        udaru.organizations.addPolicies({id: organizationId, policies}, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res).to.exist()
+          expect(res.id).to.equal(organizationId)
+          expect(res.policies.length).to.equal(1)
+          expect(res.policies[0].id).to.equal(testPolicy.id)
+          expect(res.policies[0].name).to.equal(testPolicy.name)
+          expect(res.policies[0].version).to.equal(testPolicy.version)
+          expect(res.policies[0].variables).to.equal({var1: 'value1'})
+          next(err, res)
+        })
+      })
+      tasks.push((next) => {
+        udaru.organizations.listPolicies({id: organizationId, organizationId}, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res).to.exist()
+          expect(res.data.length).to.equal(1)
+          expect(res.data[0].id).to.equal(testPolicy.id)
+          expect(res.data[0].name).to.equal(testPolicy.name)
+          expect(res.data[0].version).to.equal(testPolicy.version)
+          expect(res.data[0].variables).to.equal({var1: 'value1'})
+          next(err, res)
+        })
+      })
+      tasks.push((next) => {
+        const policies = [{
+          id: testPolicy.id,
+          variables: {var1: 'value2'}
+        }]
+        udaru.organizations.addPolicies({id: organizationId, policies}, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res).to.exist()
+          expect(res.id).to.equal(organizationId)
+          expect(res.policies.length).to.equal(2)
+          expect(u.PoliciesWithoutInstance(res.policies)).to.include([{
+            id: testPolicy.id,
+            name: testPolicy.name,
+            version: testPolicy.version,
+            variables: {var1: 'value2'}
+          }])
+          next(err, res)
+        })
+      })
+      tasks.push((next) => {
+        udaru.organizations.listPolicies({ organizationId, id: organizationId, page: 1, limit: 100 }, (err, res) => {
+          expect(err).to.not.exist()
+          expect(res).to.exist()
+          expect(res.data.length).to.equal(2)
+          expect(u.PoliciesWithoutInstance(res.data)).to.include([{
             id: testPolicy.id,
             name: testPolicy.name,
             version: testPolicy.version,

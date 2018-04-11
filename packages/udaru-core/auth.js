@@ -24,6 +24,7 @@ const Actions = {
   AddOrganizationPolicy: 'authorization:organizations:policy:add',
   ReplaceOrganizationPolicy: 'authorization:organizations:policy:replace',
   RemoveOrganizationPolicy: 'authorization:organizations:policy:remove',
+  ListOrganizationPolicies: 'authorization:organizations:policies',
   AllOrganization: 'authorization:organizations:*',
 
   // team
@@ -43,6 +44,7 @@ const Actions = {
   RemoveTeamMember: 'authorization:teams:user:remove',
   AllTeam: 'authorization:teams:*',
   ListNestedTeams: 'authorization:teams:nestedlist',
+  ListTeamPolicies: 'authorization:teams:policies',
 
   // user
   CreateUser: 'authorization:users:create',
@@ -58,6 +60,7 @@ const Actions = {
   ReplaceUserTeams: 'authorization:users:teams:replace',
   DeleteUserTeams: 'authorization:users:teams:remove',
   AllUser: 'authorization:users:*',
+  ListUserPolicies: 'authorization:users:policies',
 
   // policy
   CreatePolicy: 'authorization:policies:create',

@@ -59,6 +59,33 @@ function buildUserOps (db, config) {
     })
   }
 
+  function readUserPolicies (job, next) {
+    const { id, offset, limit } = job
+
+    const sql = SQL`
+      SELECT pol.id, pol.name, pol.version, upol.variables, upol.policy_instance, COUNT(*) OVER() AS total_policies_count
+      FROM user_policies upol, policies pol
+      WHERE upol.user_id = ${id}
+      AND upol.policy_id = pol.id
+      ORDER BY UPPER(pol.name)
+    `
+    if (limit) {
+      sql.append(SQL` LIMIT ${limit}`)
+    }
+    if (offset) {
+      sql.append(SQL` OFFSET ${offset}`)
+    }
+
+    job.client.query(sql, function (err, result) {
+      if (err) return next(Boom.badImplementation(err))
+
+      job.totalPoliciesCount = result.rowCount > 0 ? parseInt(result.rows[0].total_policies_count, 10) : 0
+      job.user.policiesCount = result.rowCount
+      job.user.policies = result.rows.map(mapping.policy.simple)
+      next()
+    })
+  }
+
   function clearUserTeams (job, next) {
     const { id } = job
 
@@ -662,6 +689,46 @@ function buildUserOps (db, config) {
     },
 
     /**
+     * List a users policies
+     * Does not go recursively to parent teams
+     *
+     * @param  {Object}   params { id, organizationId, limit, page }
+     * @param  {Function} cb
+     */
+    listUserPolicies: function listUserPolicies ({ id, organizationId, page = 1, limit }, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
+      Joi.validate({ id, organizationId, page, limit }, validationRules.listUserPolicies, function (err) {
+        if (err) return cb(Boom.badRequest(err))
+
+        const offset = (page - 1) * limit
+        const job = {
+          id,
+          organizationId,
+          offset,
+          limit,
+          user: {},
+          client: db
+        }
+
+        readUserPolicies(job, (err) => {
+          if (err) return cb(err)
+          const pageSize = limit || job.totalPoliciesCount
+          const result = {
+            page: page,
+            limit: pageSize,
+            total: job.totalPoliciesCount,
+            data: job.user.policies
+          }
+          return cb(null, result)
+        })
+      })
+
+      return promise
+    },
+
+    /**
      * Return the user organizationId
      *
      * @param  {Object}   params { id, teams, organizationId }
@@ -782,6 +849,7 @@ function buildUserOps (db, config) {
   userOps.listUserTeams.validate = validationRules.listUserTeams
   userOps.deleteUserFromTeams.validate = validationRules.deleteUserFromTeams
   userOps.search.validate = validationRules.searchUser
+  userOps.listUserPolicies.validate = validationRules.listUserPolicies
 
   return userOps
 }

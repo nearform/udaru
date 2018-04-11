@@ -122,6 +122,12 @@ const users = {
     page: validationRules.page,
     limit: validationRules.limit
   },
+  listUserPolicies: {
+    id: validationRules.teamId,
+    page: validationRules.page,
+    limit: validationRules.limit,
+    organizationId: validationRules.organizationId
+  },
   replaceUserTeams: {
     id: validationRules.userId,
     teams: validationRules.teams,
@@ -199,6 +205,12 @@ const teams = {
     instance: validationRules.policyInstance
   },
   readTeamUsers: {
+    id: validationRules.teamId,
+    page: validationRules.page,
+    limit: validationRules.limit,
+    organizationId: validationRules.organizationId
+  },
+  listTeamPolicies: {
     id: validationRules.teamId,
     page: validationRules.page,
     limit: validationRules.limit,
@@ -322,7 +334,7 @@ const organizations = {
   },
   replaceOrganizationPolicies: {
     id: validationRules.organizationId,
-    policies: validationRules.policies.min(1)
+    policies: validationRules.policies
   },
   deleteOrganizationPolicies: {
     id: validationRules.organizationId
@@ -331,6 +343,12 @@ const organizations = {
     id: validationRules.organizationId,
     policyId: validationRules.policyId,
     instance: validationRules.policyInstance
+  },
+  listOrganizationPolicies: {
+    id: validationRules.teamId,
+    page: validationRules.page,
+    limit: validationRules.limit,
+    organizationId: validationRules.organizationId
   }
 }
 

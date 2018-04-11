@@ -1019,7 +1019,6 @@ lab.experiment('TeamOps', () => {
             version: policies[0].version,
             variables: { var2: 'value2' }
           }])
-
           udaru.teams.deletePolicy({ teamId: team.id,
             policyId: policies[0].id,
             instance: firstInstance,
@@ -1051,6 +1050,89 @@ lab.experiment('TeamOps', () => {
             })
           })
         })
+      })
+    })
+
+    lab.test('get policies list from team,', (done) => {
+      const policiesParam = [{
+        id: policies[0].id,
+        variables: { var1: 'value1' }
+      }, {
+        id: policies[0].id,
+        variables: { var2: 'value2' }
+      }, {
+        id: policies[0].id,
+        variables: {}
+      }]
+
+      udaru.teams.addPolicies({ id: testTeam.id, policies: policiesParam, organizationId: 'WONKA' }, (err, team) => {
+        expect(err).to.not.exist()
+        expect(team).to.exist()
+        expect(team.policies).to.have.length(3)
+
+        udaru.teams.listPolicies({ id: team.id, organizationId: 'WONKA' }, (err, list) => {
+          expect(err).to.not.exist()
+          expect(list.data).to.exist()
+          expect(list.data.length).to.equal(3)
+          expect(u.PoliciesWithoutInstance(list.data)).to.only.include([{
+            id: policies[0].id,
+            name: policies[0].name,
+            version: policies[0].version,
+            variables: { var1: 'value1' }
+          }, {
+            id: policies[0].id,
+            name: policies[0].name,
+            version: policies[0].version,
+            variables: {}
+          }, {
+            id: policies[0].id,
+            name: policies[0].name,
+            version: policies[0].version,
+            variables: { var2: 'value2' }
+          }])
+
+          // again with pagination params
+          udaru.teams.listPolicies({ id: team.id, organizationId: 'WONKA', limit: 100, page: 1 }, (err, list) => {
+            expect(err).to.not.exist()
+            expect(list.data).to.exist()
+            expect(list.data.length).to.equal(3)
+            expect(u.PoliciesWithoutInstance(list.data)).to.only.include([{
+              id: policies[0].id,
+              name: policies[0].name,
+              version: policies[0].version,
+              variables: { var1: 'value1' }
+            }, {
+              id: policies[0].id,
+              name: policies[0].name,
+              version: policies[0].version,
+              variables: {}
+            }, {
+              id: policies[0].id,
+              name: policies[0].name,
+              version: policies[0].version,
+              variables: { var2: 'value2' }
+            }])
+
+            udaru.teams.deletePolicy({ teamId: team.id,
+              policyId: policies[0].id,
+              organizationId: 'WONKA'
+            }, (err, team) => {
+              expect(err).to.not.exist()
+              expect(team).to.exist()
+              expect(team.policies).to.have.length(0)
+              done()
+            })
+          })
+        })
+      })
+    })
+
+    lab.test('get policies list from non existant team', (done) => {
+      udaru.teams.listPolicies({ id: 'doesntexist', organizationId: 'WONKA' }, (err, list) => {
+        expect(err).to.not.exist()
+        expect(list.data).to.exist()
+        expect(list.data).to.have.length(0)
+        done()
       })
     })
 

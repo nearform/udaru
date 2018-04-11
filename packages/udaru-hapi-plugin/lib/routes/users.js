@@ -261,6 +261,37 @@ module.exports = {
     })
 
     server.route({
+      method: 'GET',
+      path: '/authorization/users/{id}/policies',
+      async handler  (request) {
+        const { id } = request.params
+        const { organizationId } = request.udaru
+        const limit = request.query.limit || server.udaruConfig.get('authorization.defaultPageSize')
+        const page = request.query.page || 1
+
+        await request.udaruCore.users.read({ id, organizationId })
+        return request.udaruCore.users.listPolicies({ organizationId, id, limit, page })
+      },
+      config: {
+        validate: {
+          params: pick(validation.listUserPolicies, ['id']),
+          query: pick(validation.listUserPolicies, ['page', 'limit']),
+          headers
+        },
+        description: 'Fetch users policies given its identifier',
+        notes: 'The GET /authorization/users/{id}/policies endpoint returns the users policies.\n',
+        tags: ['api', 'organizations'],
+        plugins: {
+          auth: {
+            action: Action.ListUserPolicies,
+            getParams: (request) => ({ id: request.params.id })
+          }
+        },
+        response: { schema: swagger.PagedPolicyRefs }
+      }
+    })
+
+    server.route({
       method: 'DELETE',
       path: '/authorization/users/{userId}/policies/{policyId}',
       async handler (request, h) {

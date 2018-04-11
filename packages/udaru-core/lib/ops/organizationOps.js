@@ -132,6 +132,33 @@ function buildOrganizationOps (db, config) {
     })
   }
 
+  function loadOrganizationPolicies (job, next) {
+    const { id, offset, limit } = job
+
+    const sql = SQL`
+      SELECT pol.id, pol.name, pol.version, opol.variables, opol.policy_instance, COUNT(*) OVER() AS total_policies_count
+      FROM organization_policies opol, policies pol
+      WHERE opol.org_id = ${id}
+      AND opol.policy_id = pol.id
+      ORDER BY UPPER(pol.name)
+    `
+    if (limit) {
+      sql.append(SQL` LIMIT ${limit}`)
+    }
+    if (offset) {
+      sql.append(SQL` OFFSET ${offset}`)
+    }
+
+    job.client.query(sql, function (err, result) {
+      if (err) return next(Boom.badImplementation(err))
+
+      job.totalPoliciesCount = result.rowCount > 0 ? parseInt(result.rows[0].total_policies_count, 10) : 0
+      job.organization.policiesCount = result.rowCount
+      job.organization.policies = result.rows.map(mapping.policy.simple)
+      next()
+    })
+  }
+
   /**
    * Insert a new user and attach to it the organization admin policy
    *
@@ -580,6 +607,45 @@ function buildOrganizationOps (db, config) {
       client.query(sqlQuery, utils.boomErrorWrapper(cb))
 
       return promise
+    },
+
+    /**
+     * List an organizations policies
+     *
+     * @param  {Object}   params { id, organizationId, limit, page }
+     * @param  {Function} cb
+     */
+    listOrganizationPolicies: function listOrganizationPolicies ({ id, organizationId, page = 1, limit }, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
+      Joi.validate({ id, organizationId, page, limit }, validationRules.listOrganizationPolicies, function (err) {
+        if (err) return cb(Boom.badRequest(err))
+
+        const offset = (page - 1) * limit
+        const job = {
+          id,
+          organizationId,
+          offset,
+          limit,
+          organization: {},
+          client: db
+        }
+
+        loadOrganizationPolicies(job, (err) => {
+          if (err) return cb(err)
+          const pageSize = limit || job.totalPoliciesCount
+          const result = {
+            page: page,
+            limit: pageSize,
+            total: job.totalPoliciesCount,
+            data: job.organization.policies
+          }
+          return cb(null, result)
+        })
+      })
+
+      return promise
     }
   }
 
@@ -592,6 +658,7 @@ function buildOrganizationOps (db, config) {
   organizationOps.replaceOrganizationPolicies.validate = validationRules.replaceOrganizationPolicies
   organizationOps.deleteOrganizationAttachedPolicies.validate = validationRules.deleteOrganizationPolicies
   organizationOps.deleteOrganizationAttachedPolicy.validate = validationRules.deleteOrganizationPolicy
+  organizationOps.listOrganizationPolicies.validate = validationRules.listOrganizationPolicies
 
   return organizationOps
 }

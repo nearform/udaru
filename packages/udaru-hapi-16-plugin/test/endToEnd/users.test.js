@@ -653,6 +653,80 @@ lab.experiment('Users - manage policies', () => {
     })
   })
 
+  lab.test('List user policies', (done) => {
+    let options = utils.requestOptions({
+      method: 'POST',
+      url: '/authorization/users/VerucaId/policies',
+      payload: {policies: [{
+        id: 'policyId2',
+        variables: {var1: 'value1'}
+      }, {
+        id: 'policyId2',
+        variables: {var2: 'value2'}
+      }, {
+        id: 'policyId2',
+        variables: {var3: 'value3'}
+      }]}
+    })
+
+    server.inject(options, (response) => {
+      const { result } = response
+
+      expect(response.statusCode).to.equal(200)
+      expect(result.policies.length).to.equal(3)
+
+      options = utils.requestOptions({
+        method: 'GET',
+        url: '/authorization/users/VerucaId/policies'
+      })
+
+      server.inject(options, (response) => {
+        const { result } = response
+
+        expect(response.statusCode).to.equal(200)
+        expect(result.total).to.equal(3)
+        expect(utils.PoliciesWithoutInstance(result.data)).to.contain([{
+          id: 'policyId2',
+          name: 'Accountant',
+          version: '0.1',
+          variables: {var1: 'value1'}
+        }])
+
+        options = utils.requestOptions({
+          method: 'GET',
+          url: '/authorization/users/VerucaId/policies?limit=100&page=1'
+        })
+
+        server.inject(options, (response) => {
+          const { result } = response
+
+          expect(response.statusCode).to.equal(200)
+          expect(result.total).to.equal(3)
+          expect(utils.PoliciesWithoutInstance(result.data)).to.contain([ {
+            id: 'policyId2',
+            name: 'Accountant',
+            version: '0.1',
+            variables: {var2: 'value2'}
+          }])
+
+          udaru.users.replacePolicies({ id: 'VerucaId', policies: ['policyId2'], organizationId: 'WONKA' }, done)
+        })
+      })
+    })
+  })
+
+  lab.test('get non existent users policies', (done) => {
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: '/authorization/users/doesnotexist/policies?limit=100&page=1'
+    })
+
+    server.inject(options, (response) => {
+      expect(response.statusCode).to.equal(404)
+      done()
+    })
+  })
+
   lab.test('add policy with invalid ID to a user', (done) => {
     const options = utils.requestOptions({
       method: 'PUT',

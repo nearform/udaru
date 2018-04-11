@@ -345,6 +345,37 @@ module.exports = {
     })
 
     server.route({
+      method: 'GET',
+      path: '/authorization/teams/{id}/policies',
+      async handler  (request) {
+        const { id } = request.params
+        const { organizationId } = request.udaru
+        const limit = request.query.limit || server.udaruConfig.get('authorization.defaultPageSize')
+        const page = request.query.page || 1
+
+        await request.udaruCore.teams.read({ id, organizationId })
+        return request.udaruCore.teams.listPolicies({ organizationId, id, limit, page })
+      },
+      config: {
+        validate: {
+          params: pick(validation.listTeamPolicies, ['id']),
+          query: pick(validation.listTeamPolicies, ['page', 'limit']),
+          headers
+        },
+        description: 'Fetch team policies given its identifier',
+        notes: 'The GET /authorization/teams/{id}/policies endpoint returns the teams policies.\n',
+        tags: ['api', 'organizations'],
+        plugins: {
+          auth: {
+            action: Action.ListTeamPolicies,
+            getParams: (request) => ({ id: request.params.id })
+          }
+        },
+        response: { schema: swagger.PagedPolicyRefs }
+      }
+    })
+
+    server.route({
       method: 'DELETE',
       path: '/authorization/teams/{teamId}/policies/{policyId}',
       async handler (request, h) {

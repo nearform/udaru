@@ -1212,6 +1212,76 @@ lab.experiment('Teams - manage policies', () => {
     })
   })
 
+  lab.test('List multiple policies', (done) => {
+    let options = utils.requestOptions({
+      method: 'PUT',
+      url: '/authorization/teams/1/policies',
+      payload: {
+        policies: ['policyId4', 'policyId5', 'policyId6']
+      }
+    })
+
+    server.inject(options, (response) => {
+      const { result } = response
+
+      expect(response.statusCode).to.equal(200)
+      expect(utils.PoliciesWithoutInstance(result.policies)).to.equal([
+        { id: 'policyId5', name: 'DB Admin', version: '0.1', variables: {} },
+        { id: 'policyId6', name: 'DB Only Read', version: '0.1', variables: {} },
+        { id: 'policyId1', name: 'Director', version: '0.1', variables: {} },
+        { id: 'policyId4', name: 'Finance Director', version: '0.1', variables: {} }
+      ])
+
+      options = utils.requestOptions({
+        method: 'GET',
+        url: '/authorization/teams/1/policies'
+      })
+
+      server.inject(options, (response) => {
+        const { result } = response
+
+        expect(response.statusCode).to.equal(200)
+        expect(utils.PoliciesWithoutInstance(result.data)).to.equal([
+          { id: 'policyId5', name: 'DB Admin', version: '0.1', variables: {} },
+          { id: 'policyId6', name: 'DB Only Read', version: '0.1', variables: {} },
+          { id: 'policyId1', name: 'Director', version: '0.1', variables: {} },
+          { id: 'policyId4', name: 'Finance Director', version: '0.1', variables: {} }
+        ])
+
+        options = utils.requestOptions({
+          method: 'GET',
+          url: '/authorization/teams/1/policies?limit=100&page=1'
+        })
+
+        server.inject(options, (response) => {
+          const { result } = response
+
+          expect(response.statusCode).to.equal(200)
+          expect(utils.PoliciesWithoutInstance(result.data)).to.equal([
+            { id: 'policyId5', name: 'DB Admin', version: '0.1', variables: {} },
+            { id: 'policyId6', name: 'DB Only Read', version: '0.1', variables: {} },
+            { id: 'policyId1', name: 'Director', version: '0.1', variables: {} },
+            { id: 'policyId4', name: 'Finance Director', version: '0.1', variables: {} }
+          ])
+
+          udaru.teams.replacePolicies({ id: '1', policies: ['policyId1'], organizationId: 'WONKA' }, done)
+        })
+      })
+    })
+  })
+
+  lab.test('get non existent teams policies', (done) => {
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: '/authorization/teams/X/policies?limit=100&page=1'
+    })
+
+    server.inject(options, (response) => {
+      expect(response.statusCode).to.equal(404)
+      done()
+    })
+  })
+
   lab.test('Replace team policies', (done) => {
     const options = utils.requestOptions({
       method: 'POST',
