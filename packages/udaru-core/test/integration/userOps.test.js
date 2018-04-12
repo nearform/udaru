@@ -847,6 +847,7 @@ lab.experiment('UserOps', () => {
             version: directorPolicy.version,
             variables: {var2: 'value2'}
           }])
+
           udaru.users.replacePolicies({ id: 'VerucaId', policies: [accountantPolicy.id], organizationId: 'WONKA' }, (err, user) => {
             expect(err).to.not.exist()
             done()
