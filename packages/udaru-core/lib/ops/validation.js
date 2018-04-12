@@ -7,10 +7,12 @@ const requiredStringId = Joi.string().required().max(128)
 const MetaData = Joi.object().optional().description('Metadata').label('MetaData')
 
 const PolicyIdString = requiredStringId.description('Policy Id String').label('PolicyIdString')
+const PolicyInstanceId = Joi.number().integer().optional().description('Optional Policy Instance Id')
 
 const PolicyIdObject = Joi.object({
   id: PolicyIdString,
-  variables: Joi.object().pattern(/^(?!(udaru)|(request)).*$/igm, requiredString).description('A list of the variables with their fixed values').label('variables')
+  variables: Joi.object().pattern(/^(?!(udaru)|(request)).*$/igm, requiredString).description('A list of the variables with their fixed values').label('variables'),
+  instance: PolicyInstanceId
 }).required().description('Policy Id Object').label('PolicyIdObject')
 
 // it would be ideal to put the policyid object first, however it causes a swagger doc error
@@ -50,7 +52,7 @@ const validationRules = {
   userId: requiredStringId.description('User ID'),
   teamId: requiredStringId.description('Team ID'),
   organizationId: requiredStringId.description('Organization ID'),
-  policyInstance: Joi.number().integer().optional().description('Policy Instance Id'),
+  policyInstance: PolicyInstanceId,
   page: Joi.number().integer().min(1).description('Page number, starts from 1'),
   limit: Joi.number().integer().min(1).description('Items per page'),
   version: requiredString.description('Version number'),
@@ -102,6 +104,11 @@ const users = {
     organizationId: validationRules.organizationId
   },
   addUserPolicies: {
+    id: validationRules.userId,
+    policies: validationRules.policies,
+    organizationId: validationRules.organizationId
+  },
+  amendUserPolicies: {
     id: validationRules.userId,
     policies: validationRules.policies,
     organizationId: validationRules.organizationId
@@ -185,6 +192,11 @@ const teams = {
     organizationId: validationRules.organizationId
   },
   addTeamPolicies: {
+    id: validationRules.teamId,
+    policies: validationRules.policies,
+    organizationId: validationRules.organizationId
+  },
+  amendTeamPolicies: {
     id: validationRules.teamId,
     policies: validationRules.policies,
     organizationId: validationRules.organizationId
@@ -329,6 +341,10 @@ const organizations = {
     metadata: validationRules.metadata
   },
   addOrganizationPolicies: {
+    id: validationRules.organizationId,
+    policies: validationRules.policies
+  },
+  amendOrganizationPolicies: {
     id: validationRules.organizationId,
     policies: validationRules.policies
   },

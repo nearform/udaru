@@ -877,8 +877,8 @@ lab.experiment('TeamOps', () => {
     })
   })
 
-  lab.experiment('add policies twice', () => {
-    lab.test('without variables do nothing', (done) => {
+  lab.experiment('multiple policy tests  - ', () => {
+    lab.test('same policy instances without variables 409 conflict', (done) => {
       udaru.teams.addPolicies({ id: testTeam.id, policies: [policies[0].id, policies[1].id], organizationId: 'WONKA' }, (err, team) => {
         expect(err).to.not.exist()
         expect(team).to.exist()
@@ -896,26 +896,14 @@ lab.experiment('TeamOps', () => {
         }])
 
         udaru.teams.addPolicies({ id: team.id, policies: [policies[1].id], organizationId: 'WONKA' }, (err, team) => {
-          expect(err).to.not.exist()
-          expect(team).to.exist()
-          expect(team.policies).to.have.length(2)
-          expect(u.PoliciesWithoutInstance(team.policies)).to.only.include([{
-            id: policies[0].id,
-            name: policies[0].name,
-            version: policies[0].version,
-            variables: {}
-          }, {
-            id: policies[1].id,
-            name: policies[1].name,
-            version: policies[1].version,
-            variables: {}
-          }])
+          expect(err).to.exist()
+          expect(err.output.statusCode).to.equal(409)
           done()
         })
       })
     })
 
-    lab.test('with different variables add twice', (done) => {
+    lab.test('same policy instances with different variables add twice', (done) => {
       const policiesParam = [{
         id: policies[0].id,
         variables: { var1: 'value1' }
@@ -1053,6 +1041,110 @@ lab.experiment('TeamOps', () => {
       })
     })
 
+    lab.test('amend policies', (done) => {
+      const policiesParam = [{
+        id: policies[0].id,
+        variables: { var1: 'value1' }
+      }, {
+        id: policies[0].id,
+        variables: { var2: 'value2' }
+      }]
+
+      udaru.teams.addPolicies({ id: testTeam.id, policies: policiesParam, organizationId: 'WONKA' }, (err, team) => {
+        expect(err).to.not.exist()
+        expect(team).to.exist()
+        expect(team.policies).to.have.length(2)
+        expect(u.PoliciesWithoutInstance(team.policies)).to.only.include([{
+          id: policies[0].id,
+          name: policies[0].name,
+          version: policies[0].version,
+          variables: { var1: 'value1' }
+        }, {
+          id: policies[0].id,
+          name: policies[0].name,
+          version: policies[0].version,
+          variables: { var2: 'value2' }
+        }])
+
+        const instance1 = team.policies[0].instance
+        const instance2 = team.policies[1].instance
+        const policiesParam = [{
+          id: policies[0].id,
+          instance: instance1,
+          variables: { var1: 'valuex' }
+        }, {
+          id: policies[0].id,
+          instance: instance2,
+          variables: { var2: 'valuey' }
+        }]
+
+        udaru.teams.amendPolicies({ id: team.id, policies: policiesParam, organizationId: 'WONKA' }, (err, team) => {
+          expect(err).to.not.exist()
+          expect(team).to.exist()
+          expect(team.policies).to.have.length(2)
+          expect(team.policies).to.only.include([{
+            id: policies[0].id,
+            name: policies[0].name,
+            version: policies[0].version,
+            variables: { var1: 'valuex' },
+            instance: instance1
+          }, {
+            id: policies[0].id,
+            name: policies[0].name,
+            version: policies[0].version,
+            variables: { var2: 'valuey' },
+            instance: instance2
+          }])
+          done()
+        })
+      })
+    })
+
+    lab.test('amend policies 409 conflict', (done) => {
+      const policiesParam = [{
+        id: policies[0].id,
+        variables: { var1: 'value1' }
+      }, {
+        id: policies[0].id,
+        variables: { var2: 'value2' }
+      }]
+
+      udaru.teams.addPolicies({ id: testTeam.id, policies: policiesParam, organizationId: 'WONKA' }, (err, team) => {
+        expect(err).to.not.exist()
+        expect(team).to.exist()
+        expect(team.policies).to.have.length(2)
+        expect(u.PoliciesWithoutInstance(team.policies)).to.only.include([{
+          id: policies[0].id,
+          name: policies[0].name,
+          version: policies[0].version,
+          variables: { var1: 'value1' }
+        }, {
+          id: policies[0].id,
+          name: policies[0].name,
+          version: policies[0].version,
+          variables: { var2: 'value2' }
+        }])
+
+        const instance1 = team.policies[0].instance
+        const instance2 = team.policies[1].instance
+        const policiesParam = [{
+          id: policies[0].id,
+          instance: instance1,
+          variables: { var1: 'value1' }
+        }, {
+          id: policies[0].id,
+          instance: instance2,
+          variables: { var1: 'value1' }
+        }]
+
+        udaru.teams.amendPolicies({ id: team.id, policies: policiesParam, organizationId: 'WONKA' }, (err, team) => {
+          expect(err).to.exist()
+          expect(err.output.statusCode).to.equal(409)
+          done()
+        })
+      })
+    })
+
     lab.test('get policies list from team,', (done) => {
       const policiesParam = [{
         id: policies[0].id,
@@ -1136,7 +1228,7 @@ lab.experiment('TeamOps', () => {
       })
     })
 
-    lab.test('with same variables do nothing', (done) => {
+    lab.test('with same variables 409 conflict', (done) => {
       const policiesParam = [{
         id: policies[0].id,
         variables: { var1: 'value1' }
@@ -1167,20 +1259,8 @@ lab.experiment('TeamOps', () => {
         }]
 
         udaru.teams.addPolicies({ id: team.id, policies: policiesParam, organizationId: 'WONKA' }, (err, team) => {
-          expect(err).to.not.exist()
-          expect(team).to.exist()
-          expect(team.policies).to.have.length(2)
-          expect(u.PoliciesWithoutInstance(team.policies)).to.only.include([{
-            id: policies[0].id,
-            name: policies[0].name,
-            version: policies[0].version,
-            variables: { var1: 'value1' }
-          }, {
-            id: policies[1].id,
-            name: policies[1].name,
-            version: policies[1].version,
-            variables: { var2: 'value2' }
-          }])
+          expect(err).to.exist()
+          expect(err.output.statusCode).to.equal(409)
           done()
         })
       })

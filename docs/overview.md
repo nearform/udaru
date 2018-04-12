@@ -44,7 +44,7 @@ A brief overview of the Management API calls are as follows, see the [Swagger Do
 |/authorization/organizations/{id}/policies|GET|List an organization's policies|
 |/authorization/organizations/{id}/policies|DELETE|Clear all policies of the organization|
 |/authorization/organizations/{id}/policies|POST|Clear and replace the policies of an organization|
-|/authorization/organizations/{id}/policies|PUT|Add one or more policies to an organization|
+|/authorization/organizations/{id}/policies|PUT|Add/Edit organization policies|
 |/authorization/organizations/{id}/policies/{policyId}|DELETE|Remove a policy associated with an organization|
 |/authorization/policies|GET|Fetch all the defined policies|
 |/authorization/policies/search|GET|Search for policies by name|
@@ -63,7 +63,7 @@ A brief overview of the Management API calls are as follows, see the [Swagger Do
 |/authorization/teams/{id}/nest|PUT|Nest a team|
 |/authorization/teams/{id}/nested|GET|Fetch a nested team given its identifier|
 |/authorization/teams/{id}/policies|GET|List a team's policies|
-|/authorization/teams/{id}/policies|PUT|Add one or more policies to a team|
+|/authorization/teams/{id}/policies|PUT|Add/Edit team policies|
 |/authorization/teams/{id}/policies|DELETE|Clear all team policies|
 |/authorization/teams/{id}/policies|POST|Clear and replace policies for a team|
 |/authorization/teams/{id}/unnest|PUT|Unnest a team|
@@ -82,7 +82,7 @@ A brief overview of the Management API calls are as follows, see the [Swagger Do
 |/authorization/users/{id}|PUT|Update a user|
 |/authorization/users/{id}/policies|GET|List a user's policies|
 |/authorization/users/{id}/policies|DELETE|Clear all user's policies|
-|/authorization/users/{id}/policies|PUT|Add one or more policies to a user|
+|/authorization/users/{id}/policies|PUT|Add/Edit user policies|
 |/authorization/users/{id}/policies|POST|Clear and replace policies for a user|
 |/authorization/users/{id}/teams|DELETE|Delete teams for a user|
 |/authorization/users/{id}/teams|POST|Clear and replace user teams|
@@ -199,7 +199,7 @@ For a detailed description of the condition operators see the [AWS Policy Condit
 
 ### Template Policies
 
-In order to reduce complexity and duplication Udaru introduces template Policies.
+In order to reduce complexity and duplication Udaru introduces Policy Templates.
 
 For an example let's assume we want to create a generic Policy "can read document".
 
@@ -220,7 +220,7 @@ The regular way to do it would be with something like
 
 This will work, but is fixed to "document-1".
 
-With Template Policies you could create
+With Policies Templates you could create
 
 ```javascript
 {
@@ -252,7 +252,18 @@ When a Policy is assigned to a User (or a Team) an additional object can be prov
 
 Currently we support variables in the Resource part of the Policy statement (similar to what PBAC already does).
 
-Once a policy instance is created, it is assigned an instance id, which is returned as a property of the policy instance in the policies array. This can be used to identify and delete that single instance of the policy using the query param 'instance' using the same endpoints to disassociate policies from users, teams and organizations.
+Once a Policy Instance is created, it is auto-assigned an instance ID, which is returned as a property of the Policy Instance in the policies array. This can be used to identify and delete that single instance of the Policy Template using the query param 'instance' using the same endpoints to disassociate policies from users, teams and organizations.
+
+Policy Instances can be updated by specifying the instance ID in the PUT payload on organizations, teams and users as follows.
+
+```javascript
+{
+  id: 'Policy ID',
+  variables: {documentId: 'document-1'},
+  instance: 1
+}
+```
+Omitting an instance id will either cause a the creation of a new policy instance or cause a violation constraint if the variable already exists with the same value.
 
 ## Shared Policies
 
