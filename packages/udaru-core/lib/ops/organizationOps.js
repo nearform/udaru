@@ -737,45 +737,6 @@ function buildOrganizationOps (db, config) {
       })
 
       return promise
-    },
-
-    /**
-     * List an organizations policies
-     *
-     * @param  {Object}   params { id, organizationId, limit, page }
-     * @param  {Function} cb
-     */
-    listOrganizationPolicies: function listOrganizationPolicies ({ id, organizationId, page = 1, limit }, cb) {
-      let promise = null
-      if (typeof cb !== 'function') [promise, cb] = asyncify()
-
-      Joi.validate({ id, organizationId, page, limit }, validationRules.listOrganizationPolicies, function (err) {
-        if (err) return cb(Boom.badRequest(err))
-
-        const offset = (page - 1) * limit
-        const job = {
-          id,
-          organizationId,
-          offset,
-          limit,
-          organization: {},
-          client: db
-        }
-
-        loadOrganizationPolicies(job, (err) => {
-          if (err) return cb(err)
-          const pageSize = limit || job.totalPoliciesCount
-          const result = {
-            page: page,
-            limit: pageSize,
-            total: job.totalPoliciesCount,
-            data: job.organization.policies
-          }
-          return cb(null, result)
-        })
-      })
-
-      return promise
     }
   }
 
