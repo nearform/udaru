@@ -789,7 +789,7 @@ function buildUserOps (db, config) {
      */
     listUserPolicies: function listUserPolicies ({ id, organizationId, page = 1, limit }, cb) {
       let promise = null
-      if (typeof cb !== 'function') [promise, cb] = asyncify('data', 'total')
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
 
       Joi.validate({ id, organizationId, page, limit }, validationRules.listUserPolicies, function (err) {
         if (err) return cb(Boom.badRequest(err))

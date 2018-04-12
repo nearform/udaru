@@ -631,7 +631,7 @@ lab.experiment('Users - manage policies', () => {
     })
 
     response = await server.inject(options)
-    result = response.result.data
+    result = response.result
 
     expect(response.statusCode).to.equal(200)
     expect(result.total).to.equal(3)
@@ -648,7 +648,7 @@ lab.experiment('Users - manage policies', () => {
     })
 
     response = await server.inject(options)
-    result = response.result.data
+    result = response.result
 
     expect(response.statusCode).to.equal(200)
     expect(result.total).to.equal(3)
