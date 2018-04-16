@@ -293,8 +293,7 @@ function buildPolicyOps (db, config) {
           UNION
           SELECT 'organization' as entity_type, org_id as entity_id, variables, policy_instance, policy_id
           FROM organization_policies
-          WHERE policy_id = ${id}
-          ORDER BY entity_type) as policy_instances
+          WHERE policy_id = ${id}) as policy_instances
           INNER JOIN policies 
           ON policies.id = policy_instances.policy_id
         `
@@ -304,10 +303,11 @@ function buildPolicyOps (db, config) {
         } else {
           sqlQuery.append(SQL` WHERE org_id=${organizationId}`)
         }
+        sqlQuery.append(SQL` ORDER BY entity_type, policy_instance`)
 
         db.query(sqlQuery, function (err, result) {
           if (err) return cb(Boom.badImplementation(err))
-          if (result.rowCount === 0) return cb(Boom.notFound())
+          if (result.rowCount === 0) return cb(null, [])
           return cb(null, result.rows.map(mapping.policy.instances))
         })
       })
