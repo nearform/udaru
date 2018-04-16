@@ -131,6 +131,60 @@ exports.register = function (server, options, next) {
 
   server.route({
     method: 'GET',
+    path: '/authorization/policies/{id}/instances',
+    handler: function (request, reply) {
+      const { organizationId } = request.udaru
+      const { id } = request.params
+
+      request.udaruCore.policies.listPolicyInstances({ id, organizationId, type: 'organization' }, reply)
+    },
+    config: {
+      validate: {
+        params: _.pick(validation.readPolicy, ['id']),
+        headers
+      },
+      description: 'List the instances of a policy assigned to users/teams and orgs',
+      notes: 'The GET /authorization/policies/{id}/instances endpoint lists the instances of the policy specified.\n',
+      tags: ['api', 'policies'],
+      plugins: {
+        auth: {
+          action: Action.ListPolicyInstances,
+          getParams: (request) => ({ policyId: request.params.id })
+        }
+      },
+      response: { schema: swagger.PolicyInstances }
+    }
+  })
+
+  server.route({
+    method: 'GET',
+    path: '/authorization/shared-policies/{id}/instances',
+    handler: function (request, reply) {
+      const { organizationId } = request.udaru
+      const { id } = request.params
+
+      request.udaruCore.policies.listPolicyInstances({ id, organizationId, type: 'shared' }, reply)
+    },
+    config: {
+      validate: {
+        params: _.pick(validation.readPolicy, ['id']),
+        headers
+      },
+      description: 'List the instances of a shared policy assigned to users/teams and orgs',
+      notes: 'The GET /authorization/shared-policies/{id}/instances endpoint lists the instances of the shared policy specified.\n',
+      tags: ['api', 'policies'],
+      plugins: {
+        auth: {
+          action: Action.ListPolicyInstances,
+          getParams: (request) => ({ policyId: request.params.id })
+        }
+      },
+      response: { schema: swagger.PolicyRefs }
+    }
+  })
+
+  server.route({
+    method: 'GET',
     path: '/authorization/shared-policies',
     handler: function (request, reply) {
       const limit = request.query.limit || server.udaruConfig.get('authorization.defaultPageSize')

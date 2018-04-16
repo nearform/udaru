@@ -59,8 +59,18 @@ function mapPolicySimple (row) {
   }
 }
 
+function mapPolicyInstances (row) {
+  return {
+    entityType: row.entity_type,
+    entityId: row.entity_id,
+    instance: row.policy_instance,
+    variables: row.variables || {}
+  }
+}
+
 mapPolicy.iam = mapIamPolicy
 mapPolicy.simple = mapPolicySimple
+mapPolicy.instances = mapPolicyInstances
 
 function mapUser (row) {
   var user = { id: row.id,

@@ -273,6 +273,11 @@ const policies = {
     organizationId: validationRules.organizationId,
     type: Joi.string().optional().allow('shared', 'organization').description('Flag to denote policy type, defaults to organization')
   },
+  listPolicyInstances: {
+    id: validationRules.policyId,
+    organizationId: validationRules.organizationId,
+    type: Joi.string().optional().allow('shared', 'organization').description('Flag to denote policy type, defaults to organization')
+  },
   createPolicy: {
     id: validationRules.policyId.allow('').optional(),
     version: validationRules.version,

@@ -68,7 +68,8 @@ function buildUdaruCore (dbPool, config) {
       deleteShared: hooks.wrap('policy:deleteShared', policyOps.deleteSharedPolicy),
       readShared: hooks.wrap('policy:readShared', policyOps.readSharedPolicy),
       search: hooks.wrap('policy:search', policyOps.search),
-      readPolicyVariables: hooks.wrap('policy:variables', policyOps.readPolicyVariables)
+      readPolicyVariables: hooks.wrap('policy:variables', policyOps.readPolicyVariables),
+      listPolicyInstances: hooks.wrap('policy:variables', policyOps.listPolicyInstances)
     },
 
     teams: {
