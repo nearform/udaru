@@ -308,8 +308,6 @@ See the [sqlmap][] repository for more details.
 
 ## License
 
-Copyright nearForm Ltd 2017. Licensed under [MIT][license].
-
 [license]: ./LICENSE.md
 [travis-badge]: https://travis-ci.org/nearform/udaru-hapi-plugin.svg?branch=master
 [travis-url]: https://travis-ci.org/nearform/udaru-hapi-plugin
@@ -333,9 +331,7 @@ Copyright nearForm Ltd 2017. Licensed under [MIT][license].
 [npm-udaru-core]: https://www.npmjs.com/package/@nearform/udaru-core
 [udaru-hapi-plugin]: https://www.npmjs.com/package/udaru/@nearform/udaru-hapi-plugin
 [udaru-hapi-16-plugin]: https://www.npmjs.com/package/udaru/@nearform/udaru-hapi-16-plugin
-[udaru-hapi-server]: https://www.npmjs.com/package/udaru/@nearform/udaru-hapi-server
-
-## License
+[udaru-hapi-server]: https://www.npmjs.com/package/udaru/@nearform/udaru-hapi-serve
 
 Copyright nearForm Ltd 2017-2018. Licensed under [MIT license](https://choosealicense.com/licenses/mit).
 
