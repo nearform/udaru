@@ -31,6 +31,14 @@ const PolicyRef = Joi.object({
 }).label('PolicyRef')
 const PolicyRefs = Joi.array().items(PolicyRef).description('Policy Refs').label('PolicyRefs')
 
+const PolicyInstance = Joi.object({
+  entityType: Joi.string().optional().allow('organization', 'team', 'user').description('The type of entity this policy is assigned to'),
+  entityId: Joi.string().optional('The id of the entity this policy is assigned to'),
+  variables: Joi.object().description('List of fixed values for variables').label('Variables'),
+  instance: Joi.number().integer().description('Policy unique instance')
+}).label('PolicyRef')
+const PolicyInstances = Joi.array().items(PolicyInstance).description('Policy Instances').label('Policy Instances')
+
 const PolicyTemplateVariables = Joi.array().items(Joi.string()).description('Policy Template Variable Placeholders').label('Policy Template Variables')
 
 const UserRef = Joi.object({
@@ -162,6 +170,9 @@ module.exports = {
   PagedUsers,
   PagedOrganizations,
   PolicyRef,
+  PolicyRefs,
+  PolicyInstance,
+  PolicyInstances,
   Organization,
   OrganizationAndUser,
   PolicyStatements,
