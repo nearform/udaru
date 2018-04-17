@@ -50,10 +50,12 @@ A brief overview of the Management API calls are as follows, see the [Swagger Do
 |/authorization/policies/search|GET|Search for policies by name|
 |/authorization/policies/{id}|GET|Fetch a single policy by ID|
 |/authorization/policies/{id}/variables|GET|Fetch a template policy's variables by ID|
+|/authorization/policies/{id}/instances|GET|Fetch instances of a policy by ID|
 |/authorization/shared-policies|GET|Fetch all the defined shared policies|
 |/authorization/shared-policies/search|GET|Search for shared policies by name|
 |/authorization/shared-policies/{id}|GET|Fetch a single shared policy|
 |/authorization/shared-policies/{id}/variables|GET|Fetch a template shared policy's variables by ID|
+|/authorization/shared-policies/{id}/instances|GET|Fetch instances of a shared policy by ID|
 |/authorization/teams|POST|Create a team|
 |/authorization/teams|GET|Fetch all teams from the current user organization|
 |/authorization/teams/search|GET|Search for teams from the current user organization|
@@ -255,6 +257,10 @@ Currently we support variables in the Resource part of the Policy statement (sim
 Once a Policy Instance is created, it is auto-assigned an instance ID, which is returned as a property of the Policy Instance in the policies array. This can be used to identify and delete that single instance of the Policy Template using the query param 'instance' using the same endpoints to disassociate policies from users, teams and organizations.
 
 Policy Instances can be updated by specifying the instance ID in the PUT payload on organizations, teams and users as follows.
+
+Policy Variables can be listed using the variables endpoint on the policies and shared-policies routes.
+
+Policy Instances associated with a Policy Template can be listed using the instances endpoint one the policies and shared-policies routes
 
 ```javascript
 {

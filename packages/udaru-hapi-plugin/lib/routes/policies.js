@@ -280,11 +280,12 @@ module.exports = {
         const { organizationId } = request.udaru
         const { id } = request.params
 
+        await request.udaruCore.policies.read({ id, organizationId })
         return request.udaruCore.policies.listPolicyInstances({ id, organizationId, type: 'organization' })
       },
       config: {
         validate: {
-          params: pick(validation.readPolicy, ['id']),
+          params: pick(validation.listPolicyInstances, ['id']),
           headers
         },
         description: 'List the instances of a policy assigned to users/teams and orgs',
@@ -307,11 +308,12 @@ module.exports = {
         const { organizationId } = request.udaru
         const { id } = request.params
 
+        await request.udaruCore.policies.readShared({ id })
         return request.udaruCore.policies.listPolicyInstances({ id, organizationId, type: 'shared' })
       },
       config: {
         validate: {
-          params: pick(validation.readPolicy, ['id']),
+          params: pick(validation.listPolicyInstances, ['id']),
           headers
         },
         description: 'List the instances of a shared policy assigned to users/teams and orgs',

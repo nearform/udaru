@@ -136,11 +136,14 @@ exports.register = function (server, options, next) {
       const { organizationId } = request.udaru
       const { id } = request.params
 
-      request.udaruCore.policies.listPolicyInstances({ id, organizationId, type: 'organization' }, reply)
+      request.udaruCore.policies.read({ id, organizationId }, (err, data) => {
+        if (err) return reply(err)
+        request.udaruCore.policies.listPolicyInstances({ id, organizationId, type: 'organization' }, reply)
+      })
     },
     config: {
       validate: {
-        params: _.pick(validation.readPolicy, ['id']),
+        params: _.pick(validation.listPolicyInstances, ['id']),
         headers
       },
       description: 'List the instances of a policy assigned to users/teams and orgs',
@@ -163,11 +166,14 @@ exports.register = function (server, options, next) {
       const { organizationId } = request.udaru
       const { id } = request.params
 
-      request.udaruCore.policies.listPolicyInstances({ id, organizationId, type: 'shared' }, reply)
+      request.udaruCore.policies.readShared({ id }, (err, data) => {
+        if (err) return reply(err)
+        request.udaruCore.policies.listPolicyInstances({ id, organizationId, type: 'shared' }, reply)
+      })
     },
     config: {
       validate: {
-        params: _.pick(validation.readPolicy, ['id']),
+        params: _.pick(validation.listPolicyInstances, ['id']),
         headers
       },
       description: 'List the instances of a shared policy assigned to users/teams and orgs',
@@ -179,7 +185,7 @@ exports.register = function (server, options, next) {
           getParams: (request) => ({ policyId: request.params.id })
         }
       },
-      response: { schema: swagger.PolicyRefs }
+      response: { schema: swagger.PolicyInstances }
     }
   })
 

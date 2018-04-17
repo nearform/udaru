@@ -165,13 +165,11 @@ lab.experiment('PolicyOps', () => {
         org: {
           id: orgId,
           name: 'org name',
-          policies: [{key: 'organizationPolicy'}, {
-            key: 'policyWithVariablesMulti',
-            variables: { var21: 'org21', var22: 'org22' }
-          }, {
-            key: 'sharedPolicyWithVariablesAndContext',
-            variables: { varA: 'x' }
-          }],
+          policies: [
+            { key: 'organizationPolicy' },
+            { key: 'policyWithVariablesMulti', variables: { var21: 'org21', var22: 'org22' } },
+            { key: 'sharedPolicyWithVariablesAndContext', variables: { varA: 'x' } }
+          ],
           description: 'org description'
         },
         alienOrg: {
