@@ -251,7 +251,7 @@ exports.register = function (server, options, next) {
     config: {
       description: 'Search for organization policies',
       notes: 'The GET /authorization/policies/search endpoint returns a filtered list of policies.\n\n',
-      tags: ['api', 'teams'],
+      tags: ['api', 'policies'],
       plugins: {
         auth: {
           action: Action.SearchPolicies
@@ -289,7 +289,7 @@ exports.register = function (server, options, next) {
     config: {
       description: 'Search for shared policies',
       notes: 'The GET /authorization/shared-policies/search endpoint returns a filtered list of shared policies.\n\n',
-      tags: ['api', 'teams'],
+      tags: ['api', 'policies'],
       plugins: {
         auth: {
           action: Action.SearchPolicies
