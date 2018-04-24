@@ -275,6 +275,62 @@ module.exports = {
 
     server.route({
       method: 'GET',
+      path: '/authorization/policies/{id}/instances',
+      async handler (request) {
+        const { organizationId } = request.udaru
+        const { id } = request.params
+
+        await request.udaruCore.policies.read({ id, organizationId })
+        return request.udaruCore.policies.listPolicyInstances({ id, organizationId, type: 'organization' })
+      },
+      config: {
+        validate: {
+          params: pick(validation.listPolicyInstances, ['id']),
+          headers
+        },
+        description: 'List the instances of a policy assigned to users/teams and orgs',
+        notes: 'The GET /authorization/policies/{id}/instances endpoint lists the instances of the policy specified.\n',
+        tags: ['api', 'policies'],
+        plugins: {
+          auth: {
+            action: Action.ListPolicyInstances,
+            getParams: (request) => ({ policyId: request.params.id })
+          }
+        },
+        response: { schema: swagger.PolicyInstances }
+      }
+    })
+
+    server.route({
+      method: 'GET',
+      path: '/authorization/shared-policies/{id}/instances',
+      async handler (request) {
+        const { organizationId } = request.udaru
+        const { id } = request.params
+
+        await request.udaruCore.policies.readShared({ id })
+        return request.udaruCore.policies.listPolicyInstances({ id, organizationId, type: 'shared' })
+      },
+      config: {
+        validate: {
+          params: pick(validation.listPolicyInstances, ['id']),
+          headers
+        },
+        description: 'List the instances of a shared policy assigned to users/teams and orgs',
+        notes: 'The GET /authorization/policies/{id}/instances endpoint lists the instances of the shared policy specified.\n',
+        tags: ['api', 'policies'],
+        plugins: {
+          auth: {
+            action: Action.ListPolicyInstances,
+            getParams: (request) => ({ policyId: request.params.id })
+          }
+        },
+        response: { schema: swagger.PolicyInstances }
+      }
+    })
+
+    server.route({
+      method: 'GET',
       path: '/authorization/shared-policies/search',
       async handler (request) {
         const { organizationId } = request.udaru

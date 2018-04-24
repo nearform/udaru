@@ -131,6 +131,66 @@ exports.register = function (server, options, next) {
 
   server.route({
     method: 'GET',
+    path: '/authorization/policies/{id}/instances',
+    handler: function (request, reply) {
+      const { organizationId } = request.udaru
+      const { id } = request.params
+
+      request.udaruCore.policies.read({ id, organizationId }, (err, data) => {
+        if (err) return reply(err)
+        request.udaruCore.policies.listPolicyInstances({ id, organizationId, type: 'organization' }, reply)
+      })
+    },
+    config: {
+      validate: {
+        params: _.pick(validation.listPolicyInstances, ['id']),
+        headers
+      },
+      description: 'List the instances of a policy assigned to users/teams and orgs',
+      notes: 'The GET /authorization/policies/{id}/instances endpoint lists the instances of the policy specified.\n',
+      tags: ['api', 'policies'],
+      plugins: {
+        auth: {
+          action: Action.ListPolicyInstances,
+          getParams: (request) => ({ policyId: request.params.id })
+        }
+      },
+      response: { schema: swagger.PolicyInstances }
+    }
+  })
+
+  server.route({
+    method: 'GET',
+    path: '/authorization/shared-policies/{id}/instances',
+    handler: function (request, reply) {
+      const { organizationId } = request.udaru
+      const { id } = request.params
+
+      request.udaruCore.policies.readShared({ id }, (err, data) => {
+        if (err) return reply(err)
+        request.udaruCore.policies.listPolicyInstances({ id, organizationId, type: 'shared' }, reply)
+      })
+    },
+    config: {
+      validate: {
+        params: _.pick(validation.listPolicyInstances, ['id']),
+        headers
+      },
+      description: 'List the instances of a shared policy assigned to users/teams and orgs',
+      notes: 'The GET /authorization/shared-policies/{id}/instances endpoint lists the instances of the shared policy specified.\n',
+      tags: ['api', 'policies'],
+      plugins: {
+        auth: {
+          action: Action.ListPolicyInstances,
+          getParams: (request) => ({ policyId: request.params.id })
+        }
+      },
+      response: { schema: swagger.PolicyInstances }
+    }
+  })
+
+  server.route({
+    method: 'GET',
     path: '/authorization/shared-policies',
     handler: function (request, reply) {
       const limit = request.query.limit || server.udaruConfig.get('authorization.defaultPageSize')
@@ -191,7 +251,7 @@ exports.register = function (server, options, next) {
     config: {
       description: 'Search for organization policies',
       notes: 'The GET /authorization/policies/search endpoint returns a filtered list of policies.\n\n',
-      tags: ['api', 'teams'],
+      tags: ['api', 'policies'],
       plugins: {
         auth: {
           action: Action.SearchPolicies
@@ -229,7 +289,7 @@ exports.register = function (server, options, next) {
     config: {
       description: 'Search for shared policies',
       notes: 'The GET /authorization/shared-policies/search endpoint returns a filtered list of shared policies.\n\n',
-      tags: ['api', 'teams'],
+      tags: ['api', 'policies'],
       plugins: {
         auth: {
           action: Action.SearchPolicies

@@ -73,6 +73,7 @@ const Actions = {
   ListPolicies: 'authorization:policies:list',
   SearchPolicies: 'authorization:policies:search',
   ReadPolicyVariables: 'authorization:policies:variables',
+  ListPolicyInstances: 'authorization:policies:instances',
   AllPolicy: 'authorization:policies:*',
 
   // authorization

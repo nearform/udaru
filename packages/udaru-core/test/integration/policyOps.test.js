@@ -165,7 +165,11 @@ lab.experiment('PolicyOps', () => {
         org: {
           id: orgId,
           name: 'org name',
-          policies: ['organizationPolicy'],
+          policies: [
+            { key: 'organizationPolicy' },
+            { key: 'policyWithVariablesMulti', variables: { var21: 'org21', var22: 'org22' } },
+            { key: 'sharedPolicyWithVariablesAndContext', variables: { varA: 'x' } }
+          ],
           description: 'org description'
         },
         alienOrg: {
@@ -185,7 +189,7 @@ lab.experiment('PolicyOps', () => {
             key: 'teamPolicy'
           }, {
             key: 'policyWithVariablesMulti',
-            variables: { var21: 'value21', var22: 'value22' }
+            variables: { var21: 'team21', var22: 'team22' }
           }],
           parent: 'parentTeam'
         },
@@ -218,7 +222,7 @@ lab.experiment('PolicyOps', () => {
             },
             {
               key: 'policyWithVariablesMulti',
-              variables: { var21: 'value21', var22: 'value22' }
+              variables: { var21: 'user21', var22: 'user22' }
             },
             {
               key: 'sharedPolicy'
@@ -233,6 +237,7 @@ lab.experiment('PolicyOps', () => {
         alienPolicy: { name: 'alienPolicy', organizationId: alienOrgId },
         policyWithVariables: {
           name: 'policyWithVariables',
+          id: 'policyWithVariables',
           organizationId: orgId,
           statements: {
             Statement: [{
@@ -244,6 +249,7 @@ lab.experiment('PolicyOps', () => {
         },
         policyWithVariablesMulti: {
           name: 'policyWithVariablesMulti',
+          id: 'policyWithVariablesMulti',
           organizationId: orgId,
           statements: {
             Statement: [{
@@ -325,7 +331,7 @@ lab.experiment('PolicyOps', () => {
     lab.test('loads correct number of policies', (done) => {
       policyOps.listAllUserPolicies({ userId: records.called.id, organizationId: orgId }, (err, results) => {
         if (err) return done(err)
-        expect(results).to.have.length(9)
+        expect(results).to.have.length(12)
         done()
       })
     })
@@ -394,6 +400,66 @@ lab.experiment('PolicyOps', () => {
         expect(results[0].name.toLowerCase()).to.contain('a')
         expect(results[6].name.toLowerCase()).to.contain('a')
         expect(results[12].name.toLowerCase()).to.contain('a')
+        done()
+      })
+    })
+
+    lab.test('list policy instances', (done) => {
+      policyOps.listPolicyInstances({ id: 'policyWithVariablesMulti', organizationId: orgId, type: 'organization' }, (err, results) => {
+        if (err) return done(err)
+        expect(results.length).to.equal(3)
+        expect(results[0].entityType).to.equal('organization')
+        expect(results[0].variables).to.equal({var21: 'org21', var22: 'org22'})
+        expect(results[1].entityType).to.equal('team')
+        expect(results[1].variables).to.equal({var21: 'team21', var22: 'team22'})
+        expect(results[2].entityType).to.equal('user')
+        expect(results[2].variables).to.equal({var21: 'user21', var22: 'user22'})
+        expect(results.length).to.equal(3)
+
+        let x = 0
+        let y = 1
+        if (x === y) {
+
+        }
+
+        done()
+      })
+    })
+
+    lab.test('list policy instances, just user', (done) => {
+      policyOps.listPolicyInstances({ id: 'policyWithVariables', organizationId: orgId, type: 'organization' }, (err, results) => {
+        if (err) return done(err)
+        expect(results.length).to.equal(2)
+        expect(results[0].entityType).to.equal('user')
+        expect(results[0].variables).to.equal({var1: 'value1'})
+        expect(results[1].entityType).to.equal('user')
+        expect(results[1].variables).to.equal({var1: 'value11'})
+        done()
+      })
+    })
+
+    lab.test('list policy instances not found', (done) => {
+      policyOps.listPolicyInstances({ id: 'policyWithVariablesMulti1', organizationId: orgId, type: 'organization' }, (err, results) => {
+        if (err) return done(err)
+        expect(results.length).to.equal(0)
+        done()
+      })
+    })
+
+    lab.test('list shared policy instances', (done) => {
+      policyOps.listPolicyInstances({ id: 'sharedPolicyWithVariablesAndContext', organizationId: orgId, type: 'shared' }, (err, results) => {
+        if (err) return done(err)
+        expect(results.length).to.equal(1)
+        expect(results[0].entityType).to.equal('organization')
+        expect(results[0].variables).to.equal({varA: 'x'})
+        done()
+      })
+    })
+
+    lab.test('list shared policy instances not found', (done) => {
+      policyOps.listPolicyInstances({ id: 'sharedPolicy1', organizationId: orgId, type: 'shared' }, (err, results) => {
+        if (err) return done(err)
+        expect(results.length).to.equal(0)
         done()
       })
     })
@@ -495,7 +561,7 @@ lab.experiment('PolicyOps', () => {
         expect(statements).to.include([{
           Effect: 'Allow',
           Action: ['dummy'],
-          Resource: ['value21', 'value22']
+          Resource: ['user21', 'user22']
         }
         ])
 

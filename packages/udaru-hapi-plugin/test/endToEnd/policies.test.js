@@ -671,14 +671,33 @@ lab.experiment('Policies - variables', () => {
         id: 'org1',
         name: 'Test Organization',
         description: 'Test Organization',
-        policies: ['pol1']
+        policies: [
+          { key: 'pol1', variables: { var1: 'org1', var2: 'org2', var3: 'org3' } },
+          { key: 'spol1', variables: { varA: 'orgA', varB: 'orgB' } }
+        ]
       }
     },
     users: {
       user1: {
         id: 'user1',
         name: 'Test User1',
-        organizationId: 'org1'
+        organizationId: 'org1',
+        policies: [
+          { key: 'pol1', variables: { var1: 'user1', var2: 'user2', var3: 'user3' } },
+          { key: 'spol1', variables: { varA: 'userA', varB: 'userB' } }
+        ]
+      }
+    },
+    teams: {
+      team1: {
+        id: 'team1',
+        name: 'Team1',
+        description: 'Test Team 1',
+        organizationId: 'org1',
+        policies: [
+          { key: 'pol1', variables: { var1: 'team1', var2: 'team2', var3: 'team3' } },
+          { key: 'spol1', variables: { varA: 'teamA', varB: 'teamB' } }
+        ]
       }
     },
     policies: {
@@ -752,5 +771,77 @@ lab.experiment('Policies - variables', () => {
     expect(result.length).to.equal(2)
     expect(result).to.contain('$' + '{varA}')
     expect(result).to.contain('$' + '{varB}')
+  })
+
+  lab.test('get shared policy instances: error handling', async () => {
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: '/authorization/shared-policies/spol2/instances',
+      headers: {
+        authorization: 'ROOTid',
+        org: 'org1'
+      }
+    })
+
+    const response = await server.inject(options)
+    expect(response.statusCode).to.equal(404)
+  })
+
+  lab.test('get policy instances: error handling', async () => {
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: '/authorization/policies/pol2/instances',
+      headers: {
+        authorization: 'ROOTid',
+        org: 'org1'
+      }
+    })
+
+    const response = await server.inject(options)
+    expect(response.statusCode).to.equal(404)
+  })
+
+  lab.test('get policy instances', async () => {
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: '/authorization/policies/pol1/instances',
+      headers: {
+        authorization: 'ROOTid',
+        org: 'org1'
+      }
+    })
+
+    const response = await server.inject(options)
+    const result = response.result
+    expect(response.statusCode).to.equal(200)
+    expect(result.length).to.equal(3)
+    expect(result[0].entityType).to.equal('organization')
+    expect(result[0].variables).to.equal({ var1: 'org1', var2: 'org2', var3: 'org3' })
+    expect(result[1].entityType).to.equal('team')
+    expect(result[1].variables).to.equal({ var1: 'team1', var2: 'team2', var3: 'team3' })
+    expect(result[2].entityType).to.equal('user')
+    expect(result[2].variables).to.equal({ var1: 'user1', var2: 'user2', var3: 'user3' })
+  })
+
+  lab.test('get shared policy instances', async () => {
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: '/authorization/shared-policies/spol1/instances',
+      headers: {
+        authorization: 'ROOTid',
+        org: 'org1'
+      }
+    })
+
+    const response = await server.inject(options)
+    const result = response.result
+    expect(response.statusCode).to.equal(200)
+    expect(result.length).to.equal(3)
+    expect(result[0].entityType).to.equal('organization')
+    expect(result[0].variables).to.equal({ varA: 'orgA', varB: 'orgB' })
+    expect(result[1].entityType).to.equal('team')
+    expect(result[1].variables).to.equal({ varA: 'teamA', varB: 'teamB' })
+    expect(result[2].entityType).to.equal('user')
+    expect(result[2].variables).to.equal({ varA: 'userA', varB: 'userB' })
   })
 })

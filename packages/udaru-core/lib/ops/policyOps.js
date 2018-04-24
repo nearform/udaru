@@ -269,6 +269,52 @@ function buildPolicyOps (db, config) {
     },
 
     /**
+     * list policy instances in their respective entities
+     *
+     * @param  {Object}   params { id, organizationId, type } "type" is optional, defaults to organization policies
+     * @param  {Function} cb
+     */
+    listPolicyInstances: function listPolicyInstances ({ id, organizationId, type }, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
+      Joi.validate({ id, organizationId, type }, validationRules.listPolicyInstances, function (err) {
+        if (err) return cb(Boom.badRequest(err))
+
+        const sqlQuery = SQL`          
+          SELECT entity_type, entity_id, policy_instance, variables, policy_id FROM
+          (SELECT 'user' as entity_type, user_id as entity_id, variables, policy_instance, policy_id
+          FROM user_policies
+          WHERE policy_id = ${id}
+          UNION
+          SELECT 'team' as entity_type, team_id as entity_id, variables, policy_instance, policy_id
+          FROM team_policies
+          WHERE policy_id = ${id}
+          UNION
+          SELECT 'organization' as entity_type, org_id as entity_id, variables, policy_instance, policy_id
+          FROM organization_policies
+          WHERE policy_id = ${id}) as policy_instances
+          INNER JOIN policies 
+          ON policies.id = policy_instances.policy_id
+        `
+
+        if (type === 'shared') {
+          sqlQuery.append(SQL` WHERE org_id is NULL`)
+        } else {
+          sqlQuery.append(SQL` WHERE org_id=${organizationId}`)
+        }
+        sqlQuery.append(SQL` ORDER BY entity_type, policy_instance`)
+
+        db.query(sqlQuery, function (err, result) {
+          if (err) return cb(Boom.badImplementation(err))
+          if (result.rowCount === 0) return cb(null, [])
+          return cb(null, result.rows.map(mapping.policy.instances))
+        })
+      })
+      return promise
+    },
+
+    /**
      * Creates a new policy
      *
      * @param  {Object}   params { id, version, name, organizationId, statements }
@@ -788,6 +834,7 @@ function buildPolicyOps (db, config) {
   policyOps.deletePolicy.validate = validationRules.deletePolicy
   policyOps.search.validate = validationRules.searchPolicy
   policyOps.readPolicyVariables.validate = validationRules.readPolicyVariables
+  policyOps.listPolicyInstances.validate = validationRules.listPolicyInstances
 
   policyOps.listSharedPolicies.validate = validationRules.listSharedPolicies
   policyOps.readSharedPolicy.validate = validationRules.readSharedPolicy
