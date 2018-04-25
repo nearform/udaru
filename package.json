@@ -5,23 +5,84 @@
   "license": "MIT",
   "author": "nearForm Ltd",
   "contributors": [
-    "Andrew Cashmore (https://github.com/andrewcashmore)",
-    "Damian Beresford (https://github.com/dberesford)",
-    "Dean McDonnell (https://github.com/mcdonnelldean)",
-    "Filippo De Santis (https://github.com/p16)",
-    "Florian Traverse (https://github.com/temsa)",
-    "Mihai Dima (https://github.com/mihaidma)",
-    "Paolo Chiodi (https://github.com/paolochiodi)",
-    "Paolo Insogna (https://github.com/ShogunPanda)",
-    "Paul Negrutiu (https://github.com/floridemai)",
-    "Mark Ireland (https://github.com/irelandm)",
-    "Michael O'Brien (https://github.com/mobri3n)",
-    "Michele Capra (https://github.com/piccoloaiutante)",
-    "Nicolas Herment (https://github.com/nherment)",
-    "Salman Mitha (https://github.com/salmanm)",
-    "William Riley-Land (https://github.com/wprl)"
+    {
+      "name": "Jimmy Mintzer",
+      "url": "https://github.com/jimmymintzer"
+    },
+    {
+      "name": "Nicolas Herment",
+      "url": "https://github.com/nherment"
+    },
+    {
+      "name": "Damian Beresford",
+      "url": "https://github.com/dberesford"
+    },
+    {
+      "name": "Mark Ireland",
+      "url": "https://github.com/irelandm"
+    },
+    {
+      "name": "Ron Litzenberger",
+      "url": "https://github.com/litzenberger"
+    },
+    {
+      "name": "Cian Foley",
+      "url": "https://github.com/cianfoley-nearform"
+    },
+    {
+      "name": "Dara Hayes",
+      "url": "https://github.com/darahayes"
+    },
+    {
+      "name": "Andrew Cashmore",
+      "url": "https://github.com/andrewcashmore"
+    },
+    {
+      "name": "Dean McDonnell",
+      "url": "https://github.com/mcdonnelldean"
+    },
+    {
+      "name": "Paul Negrutiu",
+      "url": "https://github.com/floridemai"
+    },
+    {
+      "name": "Salman Mitha",
+      "url": "https://github.com/salmanm"
+    },
+    {
+      "name": "Michael O'Brien",
+      "url": "https://github.com/mobri3n"
+    },
+    {
+      "name": "Michele Capra",
+      "url": "https://github.com/piccoloaiutante"
+    },
+    {
+      "name": "Filippo De Santis",
+      "url": "https://github.com/p16"
+    },
+    {
+      "name": "Mihai Dima",
+      "url": "https://github.com/mihaidma"
+    },
+    {
+      "name": "Paolo Chiodi",
+      "url": "https://github.com/paolochiodi"
+    },
+    {
+      "name": "Brian Cameron",
+      "url": "https://github.com/bcameron"
+    },
+    {
+      "name": "Paolo Insogna",
+      "url": "https://github.com/ShogunPanda"
+    },
+    {
+      "name": "William Riley-Land",
+      "url": "https://github.com/ShogunPanda"
+    }
   ],
-  "homepage": "https://github.com/nearform/udaru#readme",
+  "homepage": "https://nearform.github.io/udaru",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/nearform/udaru.git"
