@@ -33,6 +33,19 @@
   "engines": {
     "node": ">=8.9.0"
   },
+  "keywords": [
+    "access",
+    "authorization",
+    "iam",
+    "policies",
+    "pbac",
+    "roles",
+    "rbac",
+    "permissions",
+    "user management",
+    "acl",
+    "hapi"
+  ],
   "scripts": {
     "coverage": "UDARU_SERVICE_logger_pino_level=silent lab -c -t 96 -r html -o coverage/coverage.html",
     "coveralls": "UDARU_SERVICE_logger_pino_level=silent lab -c -t 96 -r lcov | COVERALLS_REPO_TOKEN='?' coveralls",

@@ -36,6 +36,18 @@
   "engines": {
     "node": ">=6.0.0"
   },
+  "keywords": [
+    "access",
+    "authorization",
+    "iam",
+    "policies",
+    "pbac",
+    "roles",
+    "rbac",
+    "permissions",
+    "user management",
+    "acl"
+  ],
   "scripts": {
     "bench": "node ./bench/util/runner.js",
     "bench:volume": "node ./bench/util/volumeRunner.js",

@@ -32,6 +32,19 @@
   "engines": {
     "node": ">=6.0.0"
   },
+  "keywords": [
+    "access",
+    "authorization",
+    "iam",
+    "policies",
+    "pbac",
+    "roles",
+    "rbac",
+    "permissions",
+    "user management",
+    "acl"
+  ],
+
   "main": "index.js",
   "bin": {
     "udaru-migrate": "./database/migrate.js",
