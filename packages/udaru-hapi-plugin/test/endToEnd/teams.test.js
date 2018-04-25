@@ -880,7 +880,7 @@ lab.experiment('Teams - manage users', () => {
     await udaru.teams.replacePolicies({ id: result.id, policies: ['policyId1'], organizationId: result.organizationId })
   })
 
-  lab.test('Policy instance addition and removal', async () => {
+  lab.test('Policy instance addition, edit and removal', async () => {
     let options = utils.requestOptions({
       method: 'PUT',
       url: '/authorization/teams/2/policies',
@@ -905,6 +905,10 @@ lab.experiment('Teams - manage users', () => {
     options.payload = {
       policies: [{
         id: 'policyId2',
+        variables: {var1: 'valueX'},
+        instance: firstInstance
+      }, {
+        id: 'policyId2',
         variables: {var2: 'value2'}
       }, {
         id: 'policyId2',
@@ -918,6 +922,8 @@ lab.experiment('Teams - manage users', () => {
     expect(response.statusCode).to.equal(200)
     expect(result.policies.length).to.equal(3)
     expect(utils.PoliciesWithoutInstance(result.policies)).to.contain([
+      { id: 'policyId2', name: 'Accountant', version: '0.1', variables: {var1: 'valueX'} },
+      { id: 'policyId2', name: 'Accountant', version: '0.1', variables: {var2: 'value2'} },
       { id: 'policyId2', name: 'Accountant', version: '0.1', variables: {var3: 'value3'} }
     ])
 

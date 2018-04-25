@@ -711,8 +711,8 @@ lab.experiment('UserOps', () => {
     })
   })
 
-  lab.experiment('add policies twice', () => {
-    lab.test('without variables should do nothing', (done) => {
+  lab.experiment('multiple instance tests', () => {
+    lab.test('same policy without variables should 409 conflict', (done) => {
       let accountantPolicy = u.findPick(wonkaPolicies, {name: 'Accountant'}, ['id', 'name', 'version'])
       let directorPolicy = u.findPick(wonkaPolicies, {name: 'Director'}, ['id', 'name', 'version'])
       let sysadminPolicy = u.findPick(wonkaPolicies, {name: 'Sys admin'}, ['id', 'name', 'version'])
@@ -736,25 +736,8 @@ lab.experiment('UserOps', () => {
           ],
           organizationId: 'WONKA'
         }, (err, user) => {
-          expect(err).to.not.exist()
-          expect(user).to.exist()
-          expect(user.policies.length).to.equal(3)
-          expect(u.PoliciesWithoutInstance(user.policies)).to.contain([{
-            id: accountantPolicy.id,
-            name: accountantPolicy.name,
-            version: accountantPolicy.version,
-            variables: {}
-          }, {
-            id: directorPolicy.id,
-            name: directorPolicy.name,
-            version: directorPolicy.version,
-            variables: {}
-          }, {
-            id: sysadminPolicy.id,
-            name: sysadminPolicy.name,
-            version: sysadminPolicy.version,
-            variables: {}
-          }])
+          expect(err).to.exist()
+          expect(err.output.statusCode).to.equal(409)
 
           udaru.users.replacePolicies({ id: 'VerucaId', policies: [accountantPolicy.id], organizationId: 'WONKA' }, (err, user) => {
             expect(err).to.not.exist()
@@ -764,7 +747,7 @@ lab.experiment('UserOps', () => {
       })
     })
 
-    lab.test('with different variables should add twice', (done) => {
+    lab.test('same policy with different variables should 409 conflict', (done) => {
       const accountantPolicy = u.findPick(wonkaPolicies, {name: 'Accountant'}, ['id', 'name', 'version'])
       const directorPolicy = u.findPick(wonkaPolicies, {name: 'Director'}, ['id', 'name', 'version'])
 
@@ -864,6 +847,7 @@ lab.experiment('UserOps', () => {
             version: directorPolicy.version,
             variables: {var2: 'value2'}
           }])
+
           udaru.users.replacePolicies({ id: 'VerucaId', policies: [accountantPolicy.id], organizationId: 'WONKA' }, (err, user) => {
             expect(err).to.not.exist()
             done()
@@ -872,7 +856,151 @@ lab.experiment('UserOps', () => {
       })
     })
 
-    lab.test('with same variables should do nothing', (done) => {
+    lab.test('amend instances', (done) => {
+      const accountantPolicy = u.findPick(wonkaPolicies, {name: 'Accountant'}, ['id', 'name', 'version'])
+
+      udaru.users.replacePolicies({ id: 'VerucaId', policies: [], organizationId: 'WONKA' }, (err, user) => {
+        expect(err).to.not.exist()
+        expect(user.policies.length).to.equal(0)
+
+        const policies = [{
+          id: accountantPolicy.id,
+          variables: {var1: 'value1'}
+        }, {
+          id: accountantPolicy.id,
+          variables: {var2: 'value2'}
+        }]
+
+        udaru.users.addPolicies({
+          id: 'VerucaId',
+          policies,
+          organizationId: 'WONKA'
+        }, (err, user) => {
+          expect(err).to.not.exist()
+          expect(user).to.exist()
+          expect(user.policies.length).to.equal(2)
+          expect(u.PoliciesWithoutInstance(user.policies)).to.contain([{
+            id: accountantPolicy.id,
+            name: accountantPolicy.name,
+            version: accountantPolicy.version,
+            variables: {var1: 'value1'}
+          }, {
+            id: accountantPolicy.id,
+            name: accountantPolicy.name,
+            version: accountantPolicy.version,
+            variables: {var2: 'value2'}
+          }])
+
+          const instance1 = user.policies[0].instance
+          const instance2 = user.policies[1].instance
+
+          const policies = [{
+            id: accountantPolicy.id,
+            instance: instance1,
+            variables: {var1: 'valuex'}
+          }, {
+            id: accountantPolicy.id,
+            instance: instance2,
+            variables: {var2: 'valuey'}
+          }]
+
+          udaru.users.amendPolicies({
+            id: 'VerucaId',
+            policies,
+            organizationId: 'WONKA'
+          }, (err, user) => {
+            expect(err).to.not.exist()
+            expect(user).to.exist()
+            expect(user.policies.length).to.equal(2)
+            expect(user.policies).to.contain([{
+              id: accountantPolicy.id,
+              name: accountantPolicy.name,
+              version: accountantPolicy.version,
+              variables: {var1: 'valuex'},
+              instance: instance1
+            }, {
+              id: accountantPolicy.id,
+              name: accountantPolicy.name,
+              version: accountantPolicy.version,
+              variables: {var2: 'valuey'},
+              instance: instance2
+            }])
+
+            udaru.users.replacePolicies({ id: 'VerucaId', policies: [accountantPolicy.id], organizationId: 'WONKA' }, (err, user) => {
+              expect(err).to.not.exist()
+              done()
+            })
+          })
+        })
+      })
+    })
+
+    lab.test('amend instances 409', (done) => {
+      const accountantPolicy = u.findPick(wonkaPolicies, {name: 'Accountant'}, ['id', 'name', 'version'])
+
+      udaru.users.replacePolicies({ id: 'VerucaId', policies: [], organizationId: 'WONKA' }, (err, user) => {
+        expect(err).to.not.exist()
+        expect(user.policies.length).to.equal(0)
+
+        const policies = [{
+          id: accountantPolicy.id,
+          variables: {var1: 'value1'}
+        }, {
+          id: accountantPolicy.id,
+          variables: {var2: 'value2'}
+        }]
+
+        udaru.users.addPolicies({
+          id: 'VerucaId',
+          policies,
+          organizationId: 'WONKA'
+        }, (err, user) => {
+          expect(err).to.not.exist()
+          expect(user).to.exist()
+          expect(user.policies.length).to.equal(2)
+          expect(u.PoliciesWithoutInstance(user.policies)).to.contain([{
+            id: accountantPolicy.id,
+            name: accountantPolicy.name,
+            version: accountantPolicy.version,
+            variables: {var1: 'value1'}
+          }, {
+            id: accountantPolicy.id,
+            name: accountantPolicy.name,
+            version: accountantPolicy.version,
+            variables: {var2: 'value2'}
+          }])
+
+          const instance1 = user.policies[0].instance
+          const instance2 = user.policies[1].instance
+
+          const policies = [{
+            id: accountantPolicy.id,
+            instance: instance1,
+            variables: {var1: 'value1'}
+          }, {
+            id: accountantPolicy.id,
+            instance: instance2,
+            variables: {var1: 'value1'}
+          }]
+
+          udaru.users.amendPolicies({
+            id: 'VerucaId',
+            policies,
+            organizationId: 'WONKA'
+          }, (err, user) => {
+            expect(err).to.exist()
+            expect(err.output.statusCode).to.equal(409)
+
+            udaru.users.replacePolicies({ id: 'VerucaId', policies: [accountantPolicy.id], organizationId: 'WONKA' }, (err, user) => {
+              expect(err).to.not.exist()
+              done()
+            })
+          })
+        })
+      })
+    })
+
+    lab.test('with same variables should 409 conflict', (done) => {
       const accountantPolicy = u.findPick(wonkaPolicies, {name: 'Accountant'}, ['id', 'name', 'version'])
 
       udaru.users.read({ id: 'VerucaId', organizationId: 'WONKA' }, (err, user) => {
@@ -915,20 +1043,8 @@ lab.experiment('UserOps', () => {
             policies,
             organizationId: 'WONKA'
           }, (err, user) => {
-            expect(err).to.not.exist()
-            expect(user).to.exist()
-            expect(user.policies.length).to.equal(2)
-            expect(u.PoliciesWithoutInstance(user.policies)).to.contain([{
-              id: accountantPolicy.id,
-              name: accountantPolicy.name,
-              version: accountantPolicy.version,
-              variables: {}
-            }, {
-              id: accountantPolicy.id,
-              name: accountantPolicy.name,
-              version: accountantPolicy.version,
-              variables: {var1: 'value1'}
-            }])
+            expect(err).to.exist()
+            expect(err.output.statusCode).to.equal(409)
 
             udaru.users.replacePolicies({ id: 'VerucaId', policies: [accountantPolicy.id], organizationId: 'WONKA' }, (err, user) => {
               expect(err).to.not.exist()

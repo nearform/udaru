@@ -49,6 +49,7 @@ function buildUdaruCore (dbPool, config) {
       delete: hooks.wrap('organization:delete', organizationOps.deleteById),
       update: hooks.wrap('organization:update', organizationOps.update),
       addPolicies: hooks.wrap('organization:addPolicies', organizationOps.addOrganizationPolicies),
+      amendPolicies: hooks.wrap('organization:amendPolicies', organizationOps.amendOrganizationPolicies),
       replacePolicies: hooks.wrap('organization:replacePolicies', organizationOps.replaceOrganizationPolicies),
       deletePolicies: hooks.wrap('organization:deletePolicies', organizationOps.deleteOrganizationAttachedPolicies),
       deletePolicy: hooks.wrap('organization:deletePolicy', organizationOps.deleteOrganizationAttachedPolicy),
@@ -67,7 +68,8 @@ function buildUdaruCore (dbPool, config) {
       deleteShared: hooks.wrap('policy:deleteShared', policyOps.deleteSharedPolicy),
       readShared: hooks.wrap('policy:readShared', policyOps.readSharedPolicy),
       search: hooks.wrap('policy:search', policyOps.search),
-      readPolicyVariables: hooks.wrap('policy:variables', policyOps.readPolicyVariables)
+      readPolicyVariables: hooks.wrap('policy:variables', policyOps.readPolicyVariables),
+      listPolicyInstances: hooks.wrap('policy:variables', policyOps.listPolicyInstances)
     },
 
     teams: {
@@ -80,6 +82,7 @@ function buildUdaruCore (dbPool, config) {
       listUsers: hooks.wrap('team:listUsers', teamOps.readTeamUsers),
       replacePolicies: hooks.wrap('team:replacePolicies', teamOps.replaceTeamPolicies),
       addPolicies: hooks.wrap('team:addPolicies', teamOps.addTeamPolicies),
+      amendPolicies: hooks.wrap('team:amendPolicies', teamOps.amendTeamPolicies),
       deletePolicies: hooks.wrap('team:deletePolicies', teamOps.deleteTeamPolicies),
       deletePolicy: hooks.wrap('team:deletePolicy', teamOps.deleteTeamPolicy),
       addUsers: hooks.wrap('team:addUsers', teamOps.addUsersToTeam),
@@ -100,6 +103,7 @@ function buildUdaruCore (dbPool, config) {
       delete: hooks.wrap('users:delete', userOps.deleteUser),
       replacePolicies: hooks.wrap('users:replacePolicies', userOps.replaceUserPolicies),
       addPolicies: hooks.wrap('users:addPolicies', userOps.addUserPolicies),
+      amendPolicies: hooks.wrap('users:amendPolicies', userOps.amendUserPolicies),
       deletePolicies: hooks.wrap('users:deletePolicies', userOps.deleteUserPolicies),
       deletePolicy: hooks.wrap('users:deletePolicy', userOps.deleteUserPolicy),
       listUserTeams: hooks.wrap('users:listUserTeams', userOps.listUserTeams),

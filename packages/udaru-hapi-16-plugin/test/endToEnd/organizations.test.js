@@ -580,7 +580,7 @@ lab.experiment('Organizations', () => {
     })
   })
 
-  lab.test('Policy instance addition and removal', (done) => {
+  lab.test('Policy instance addition, edit and removal', (done) => {
     let options = utils.requestOptions({
       method: 'PUT',
       url: `/authorization/organizations/${organizationId}/policies`,
@@ -608,6 +608,7 @@ lab.experiment('Organizations', () => {
         const { result } = response
 
         expect(response.statusCode).to.equal(200)
+        expect(result.policies.length).to.equal(1)
         expect(utils.PoliciesWithoutInstance(result.policies)).to.contain([
           { id: testPolicy.id, name: testPolicy.name, version: testPolicy.version, variables: {var1: 'value1'} }
         ])
@@ -616,6 +617,10 @@ lab.experiment('Organizations', () => {
 
         options.payload = {
           policies: [{
+            id: testPolicy.id,
+            variables: {varX: 'valueY'},
+            instance: firstInstance
+          }, {
             id: testPolicy.id,
             variables: {var2: 'value2'}
           }, {
@@ -630,6 +635,8 @@ lab.experiment('Organizations', () => {
           expect(response.statusCode).to.equal(200)
           expect(result.policies.length).to.equal(3)
           expect(utils.PoliciesWithoutInstance(result.policies)).to.contain([
+            { id: testPolicy.id, name: testPolicy.name, version: testPolicy.version, variables: {varX: 'valueY'} },
+            { id: testPolicy.id, name: testPolicy.name, version: testPolicy.version, variables: {var2: 'value2'} },
             { id: testPolicy.id, name: testPolicy.name, version: testPolicy.version, variables: {var3: 'value3'} }
           ])
 
@@ -651,7 +658,7 @@ lab.experiment('Organizations', () => {
               expect(response.statusCode).to.equal(200)
               expect(result.policies.length).to.equal(2)
               expect(utils.PoliciesWithoutInstance(result.policies)).to.not.contain([
-                { id: testPolicy.id, name: testPolicy.name, version: testPolicy.version, variables: {var1: 'value1'} }
+                { id: testPolicy.id, name: testPolicy.name, version: testPolicy.version, variables: {varX: 'valueY'} }
               ])
 
               options = utils.requestOptions({
@@ -822,27 +829,23 @@ lab.experiment('Organizations', () => {
   })
 
   lab.test('replace the policies of an organization', (done) => {
-    udaru.organizations.addPolicies({ id: organizationId, policies: [testPolicy.id] }, (err, res) => {
-      expect(err).to.not.exist()
+    const options = utils.requestOptions({
+      method: 'POST',
+      url: `/authorization/organizations/${organizationId}/policies`,
+      payload: {
+        policies: [testPolicy2.id]
+      }
+    })
 
-      const options = utils.requestOptions({
-        method: 'POST',
-        url: `/authorization/organizations/${organizationId}/policies`,
-        payload: {
-          policies: [testPolicy2.id]
-        }
-      })
+    server.inject(options, (response) => {
+      const result = response.result
 
-      server.inject(options, (response) => {
-        const result = response.result
+      expect(response.statusCode).to.equal(200)
+      expect(result.policies).to.exist()
+      expect(result.policies.length).to.equal(1)
+      expect(result.policies[0].id).to.equal(testPolicy2.id)
 
-        expect(response.statusCode).to.equal(200)
-        expect(result.policies).to.exist()
-        expect(result.policies.length).to.equal(1)
-        expect(result.policies[0].id).to.equal(testPolicy2.id)
-
-        done()
-      })
+      done()
     })
   })
 
@@ -862,23 +865,19 @@ lab.experiment('Organizations', () => {
   })
 
   lab.test('delete the policies of an organization', (done) => {
-    udaru.organizations.addPolicies({ id: organizationId, policies: [testPolicy.id, testPolicy2.id] }, (err, res) => {
-      expect(err).to.not.exist()
+    const options = utils.requestOptions({
+      method: 'DELETE',
+      url: `/authorization/organizations/${organizationId}/policies`
+    })
 
-      const options = utils.requestOptions({
-        method: 'DELETE',
-        url: `/authorization/organizations/${organizationId}/policies`
-      })
+    server.inject(options, (response) => {
+      expect(response.statusCode).to.equal(204)
 
-      server.inject(options, (response) => {
-        expect(response.statusCode).to.equal(204)
+      udaru.organizations.read(organizationId, (err, res) => {
+        expect(err).to.not.exist()
+        expect(res.policies.length).to.equal(0)
 
-        udaru.organizations.read(organizationId, (err, res) => {
-          expect(err).to.not.exist()
-          expect(res.policies.length).to.equal(0)
-
-          done()
-        })
+        done()
       })
     })
   })
@@ -927,22 +926,18 @@ lab.experiment('Organizations', () => {
   })
 
   lab.test('delete the policy of an organization should handle server errors', (done) => {
-    udaru.organizations.addPolicies({ id: organizationId, policies: [testPolicy.id, testPolicy2.id] }, (err, res) => {
-      expect(err).to.not.exist()
+    const options = utils.requestOptions({
+      method: 'DELETE',
+      url: `/authorization/organizations/${organizationId}/policies/${testPolicy2.id}`
+    })
 
-      const options = utils.requestOptions({
-        method: 'DELETE',
-        url: `/authorization/organizations/${organizationId}/policies/${testPolicy2.id}`
-      })
+    const stub = sinon.stub(server.udaru.organizations, 'deletePolicy').yields(new Error('ERROR'))
 
-      const stub = sinon.stub(server.udaru.organizations, 'deletePolicy').yields(new Error('ERROR'))
+    server.inject(options, (response) => {
+      stub.restore()
 
-      server.inject(options, (response) => {
-        stub.restore()
-
-        expect(response.statusCode).to.equal(500)
-        udaru.organizations.deletePolicies({ id: organizationId, policies: [testPolicy.id, testPolicy2.id] }, done)
-      })
+      expect(response.statusCode).to.equal(500)
+      udaru.organizations.deletePolicies({ id: organizationId, policies: [testPolicy.id, testPolicy2.id] }, done)
     })
   })
 })

@@ -65,8 +65,7 @@
   "pre-commit": [
     "test:commit-check"
   ],
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "depcheck": "^0.6.9",
     "joi": "^13.1.2",

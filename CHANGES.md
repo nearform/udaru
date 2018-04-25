@@ -7,9 +7,10 @@ Features, enhancements:
 -   Promises support [commit](https://github.com/nearform/udaru/pull/508)
 -   Hooks support [commit](https://github.com/nearform/udaru/pull/503)
 -   Policy instance now returned when associating policy with user,team,org, which can be passed as param to DELETE to delete a specific instance
--   Policy context variables added, which can be used in policy resources and policy condition elements
--   Policy search endpoint added
+-   Policy context variables support added, which can be used in policy resources and policy condition elements
+-   GET Policy search endpoint added
 -   GET Policy variables endpoint added
+-   GET Policy instances endpoint added
 -   GET Policy endpoints added to users, teams and organizations
 
 ## 4.1.0 - March 12, 2018

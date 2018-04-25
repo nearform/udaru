@@ -175,20 +175,20 @@ exports.register = function (server, options, next) {
       const { id } = request.params
       const { policies } = request.payload
 
-      request.udaruCore.organizations.addPolicies({ id, policies }, reply)
+      request.udaruCore.organizations.amendPolicies({ id, policies }, reply)
     },
     config: {
       validate: {
-        params: _.pick(validation.addOrganizationPolicies, ['id']),
-        payload: Joi.object(_.pick(validation.addOrganizationPolicies, ['policies'])).label('AddPoliciesToOrgPayload'),
+        params: _.pick(validation.amendOrganizationPolicies, ['id']),
+        payload: Joi.object(_.pick(validation.amendOrganizationPolicies, ['policies'])).label('AddPoliciesToOrgPayload'),
         headers
       },
-      description: 'Add one or more policies to an organization',
-      notes: 'The PUT /authorization/organizations/{id}/policies endpoint adds one or more policies to an organization.',
+      description: 'Add/update organization policy associations (specify instance to update)',
+      notes: 'The PUT /authorization/organizations/{id}/policies endpoint adds/updates the to the collection of policies associated with an organization',
       tags: ['api', 'organizations'],
       plugins: {
         auth: {
-          action: Action.AddOrganizationPolicy,
+          action: Action.AmendOrganizationPolicies,
           getParams: (request) => ({ organizationId: request.params.id })
         }
       },

@@ -1,5 +1,6 @@
 'use strict'
 
+const _ = require('lodash')
 const Joi = require('joi')
 const Boom = require('boom')
 const async = require('async')
@@ -120,6 +121,11 @@ function buildUserOps (db, config) {
   function insertUserPolicies (job, next) {
     const { id: userId, policies } = job
     userOps.insertPolicies(job.client, userId, policies, utils.boomErrorWrapper(next))
+  }
+
+  function updateUserPolicies (job, next) {
+    const { id: userId, policies } = job
+    userOps.updatePolicies(job.client, userId, policies, utils.boomErrorWrapper(next))
   }
 
   function insertUserTeams (job, next) {
@@ -460,6 +466,52 @@ function buildUserOps (db, config) {
     },
 
     /**
+     * Amends one or more user policies, (will only update items with instance specified)
+     *
+     * @param  {Object}   params { id, organizationId, policies }
+     * @param  {Function} cb
+     */
+    amendUserPolicies: function amendUserPolicies (params, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
+      const { id, organizationId, policies } = params
+      if (policies.length <= 0) {
+        return userOps.readUser({ id, organizationId }, cb)
+      }
+
+      const tasks = [
+        (job, next) => {
+          Joi.validate({ id, organizationId, policies }, validationRules.amendUserPolicies, (err) => {
+            if (err) return next(Boom.badRequest(err))
+            next()
+          })
+        },
+        (job, next) => {
+          job.id = id
+          job.policies = utils.preparePolicies(policies)
+          job.organizationId = organizationId
+
+          next()
+        },
+        checkUserOrg,
+        (job, next) => {
+          utils.checkPoliciesOrg(job.client, job.policies, job.organizationId, next)
+        },
+        insertUserPolicies,
+        updateUserPolicies
+      ]
+
+      db.withTransaction(tasks, (err, res) => {
+        if (err) return cb(err)
+
+        userOps.readUser({ id, organizationId }, cb)
+      })
+
+      return promise
+    },
+
+    /**
      * Rmove all user's policies
      *
      * @param  {Object}   params { id, organizationId }
@@ -594,20 +646,60 @@ function buildUserOps (db, config) {
       let promise = null
       if (typeof cb !== 'function') [promise, cb] = asyncify()
 
-      const sqlQuery = SQL`
+      const newPolicies = _.filter(policies, function (p) { if (!p.instance) return true })
+
+      if (newPolicies.length > 0) {
+        const sqlQuery = SQL`
         INSERT INTO user_policies (
           policy_id, user_id, variables
         ) VALUES
       `
 
-      sqlQuery.append(SQL`(${policies[0].id}, ${id}, ${policies[0].variables})`)
-      policies.slice(1).forEach((policy) => {
-        sqlQuery.append(SQL`, (${policy.id}, ${id}, ${policy.variables})`)
-      })
-      sqlQuery.append(SQL` ON CONFLICT ON CONSTRAINT user_policy_link DO NOTHING`)
+        sqlQuery.append(SQL`(${newPolicies[0].id}, ${id}, ${newPolicies[0].variables})`)
+        newPolicies.slice(1).forEach((policy) => {
+          sqlQuery.append(SQL`, (${policy.id}, ${id}, ${policy.variables})`)
+        })
 
-      client.query(sqlQuery, utils.boomErrorWrapper(cb))
+        client.query(sqlQuery, (err, result) => {
+          if (utils.isUniqueViolationError(err)) return cb(Boom.conflict(err.detail))
+          if (err) return cb(Boom.badImplementation(err))
+          cb(null, result)
+        })
+      } else {
+        cb()
+      }
+      return promise
+    },
 
+    updatePolicies: function updatePolicies (client, id, policies, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
+      // we only want to update if instance value is set
+      const policiesToUpdate = _.filter(policies, function (p) { if (p.instance) return true })
+
+      if (policiesToUpdate.length > 0) {
+        const sqlQuery = SQL`
+          UPDATE user_policies AS upol SET variables = inst.variables FROM ( VALUES
+        `
+        sqlQuery.append(SQL`(${policiesToUpdate[0].id}, ${policiesToUpdate[0].instance}, ${id}, ${policiesToUpdate[0].variables}::JSONB) \n`)
+        policiesToUpdate.slice(1).forEach((policy) => {
+          sqlQuery.append(SQL`, (${policy.id}, ${policy.instance}, ${id}, ${policy.variables}::JSONB) \n`)
+        })
+
+        sqlQuery.append(SQL`) AS inst(policy_id, policy_instance, user_id, variables)  
+          WHERE (upol.policy_id = inst.policy_id 
+          AND upol.policy_instance::integer = inst.policy_instance::integer
+          AND upol.user_id = inst.user_id);`) // constraint prevents insertion of policy with same variable set
+
+        client.query(sqlQuery, (err, result) => {
+          if (utils.isUniqueViolationError(err)) return cb(Boom.conflict(err.detail))
+          if (err) return cb(Boom.badImplementation(err))
+          cb(null, result)
+        })
+      } else {
+        cb()
+      }
       return promise
     },
 
@@ -843,6 +935,7 @@ function buildUserOps (db, config) {
   userOps.updateUser.validate = validationRules.updateUser
   userOps.replaceUserPolicies.validate = validationRules.replaceUserPolicies
   userOps.addUserPolicies.validate = validationRules.addUserPolicies
+  userOps.amendUserPolicies.validate = validationRules.amendUserPolicies
   userOps.deleteUserPolicies.validate = validationRules.deleteUserPolicies
   userOps.deleteUserPolicy.validate = validationRules.deleteUserPolicy
   userOps.replaceUserTeams.validate = validationRules.replaceUserTeams

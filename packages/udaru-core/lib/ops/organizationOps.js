@@ -1,5 +1,6 @@
 'use strict'
 
+const _ = require('lodash')
 const Joi = require('joi')
 const Boom = require('boom')
 const async = require('async')
@@ -50,6 +51,12 @@ function buildOrganizationOps (db, config) {
     const { id, policies } = job
 
     organizationOps.insertPolicies(job.client, id, policies, utils.boomErrorWrapper(next))
+  }
+
+  function updateOrgPolicies (job, next) {
+    const { id, policies } = job
+
+    organizationOps.updatePolicies(job.client, id, policies, utils.boomErrorWrapper(next))
   }
 
   function fetchOrganizationTeams (job, next) {
@@ -510,6 +517,51 @@ function buildOrganizationOps (db, config) {
     },
 
     /**
+     * Amends organization policies, (will only update items with instance specified)
+     *
+     * @param  {Object}   params { id, policies }
+     * @param  {Function} cb
+     */
+    amendOrganizationPolicies: function amendOrganizationPolicies (params, cb) {
+      const { id, policies } = params
+      if (policies.length <= 0) {
+        return organizationOps.readById(id, cb)
+      }
+
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
+      const tasks = [
+        (job, next) => {
+          Joi.validate({ id, policies }, validationRules.amendOrganizationPolicies, (err) => {
+            if (err) return next(Boom.badRequest(err))
+            next()
+          })
+        },
+        (job, next) => {
+          job.id = id
+          job.policies = utils.preparePolicies(policies)
+
+          next()
+        },
+        checkOrg,
+        (job, next) => {
+          utils.checkPoliciesOrg(job.client, job.policies, job.id, next)
+        },
+        insertOrgPolicies,
+        updateOrgPolicies
+      ]
+
+      db.withTransaction(tasks, (err, res) => {
+        if (err) return cb(err)
+
+        organizationOps.readById(id, cb)
+      })
+
+      return promise
+    },
+
+    /**
      * Rmove all organization's attached policies
      *
      * @param  {Object}   params { id, organizationId }
@@ -584,7 +636,9 @@ function buildOrganizationOps (db, config) {
     },
 
     insertPolicies: function insertPolicies (client, id, policies, cb) {
-      if (policies.length === 0) {
+      const newPolicies = _.filter(policies, function (p) { if (!p.instance) return true })
+
+      if (newPolicies.length === 0) {
         if (typeof cb !== 'function') return Promise.resolve()
 
         return cb()
@@ -598,13 +652,50 @@ function buildOrganizationOps (db, config) {
           policy_id, org_id, variables
         ) VALUES
       `
-      sqlQuery.append(SQL`(${policies[0].id}, ${id}, ${policies[0].variables})`)
-      policies.slice(1).forEach((policy) => {
+      sqlQuery.append(SQL`(${newPolicies[0].id}, ${id}, ${newPolicies[0].variables})`)
+      newPolicies.slice(1).forEach((policy) => {
         sqlQuery.append(SQL`, (${policy.id}, ${id}, ${policy.variables})`)
       })
-      sqlQuery.append(SQL` ON CONFLICT ON CONSTRAINT org_policy_link DO NOTHING`)
 
-      client.query(sqlQuery, utils.boomErrorWrapper(cb))
+      client.query(sqlQuery, (err, result) => {
+        if (utils.isUniqueViolationError(err)) return cb(Boom.conflict(err.detail))
+        if (err) return cb(Boom.badImplementation(err))
+        return cb(null, result)
+      })
+
+      return promise
+    },
+
+    updatePolicies: function updatePolicies (client, orgId, policies, cb) {
+      const policiesToUpdate = _.filter(policies, function (p) { if (p.instance) return true })
+
+      if (policiesToUpdate.length === 0) {
+        if (typeof cb !== 'function') return Promise.resolve()
+
+        return cb()
+      }
+
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
+      const sqlQuery = SQL`
+        UPDATE organization_policies AS opol SET variables = inst.variables FROM ( VALUES
+      `
+      sqlQuery.append(SQL`(${policiesToUpdate[0].id}, ${policiesToUpdate[0].instance}, ${orgId}, ${policiesToUpdate[0].variables}::JSONB) \n`)
+      policiesToUpdate.slice(1).forEach((policy) => {
+        sqlQuery.append(SQL`, (${policy.id}, ${policy.instance}, ${orgId}, ${policy.variables}::JSONB) \n`)
+      })
+
+      sqlQuery.append(SQL`) AS inst(policy_id, policy_instance, org_id, variables)  
+        WHERE (opol.policy_id = inst.policy_id 
+        AND opol.policy_instance::integer = inst.policy_instance::integer
+        AND opol.org_id = inst.org_id);`) // constraint prevents insertion of policy with same variable set
+
+      client.query(sqlQuery, (err, result) => {
+        if (utils.isUniqueViolationError(err)) return cb(Boom.conflict(err.detail))
+        if (err) return cb(Boom.badImplementation(err))
+        return cb(null, result)
+      })
 
       return promise
     },
@@ -655,6 +746,7 @@ function buildOrganizationOps (db, config) {
   organizationOps.deleteById.validate = validationRules.deleteById
   organizationOps.update.validate = validationRules.update
   organizationOps.addOrganizationPolicies.validate = validationRules.addOrganizationPolicies
+  organizationOps.amendOrganizationPolicies.validate = validationRules.amendOrganizationPolicies
   organizationOps.replaceOrganizationPolicies.validate = validationRules.replaceOrganizationPolicies
   organizationOps.deleteOrganizationAttachedPolicies.validate = validationRules.deleteOrganizationPolicies
   organizationOps.deleteOrganizationAttachedPolicy.validate = validationRules.deleteOrganizationPolicy

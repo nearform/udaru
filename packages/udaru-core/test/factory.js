@@ -256,9 +256,13 @@ function Factory (lab, data, udaru) {
         policies: []
       }
 
-      _.each(organization.policies, (policyKey) => {
+      _.each(organization.policies, (policy) => {
+        const policyKey = policy.key || policy
         const policyId = records[policyKey].id
-        list[orgId].policies.push(policyId)
+        list[orgId].policies.push({
+          id: policyId,
+          variables: policy.variables || {}
+        })
       })
     })
 

@@ -277,20 +277,20 @@ exports.register = function (server, options, next) {
         organizationId,
         policies
       }
-      request.udaruCore.teams.addPolicies(params, reply)
+      request.udaruCore.teams.amendPolicies(params, reply)
     },
     config: {
       validate: {
-        params: _.pick(validation.addTeamPolicies, ['id']),
-        payload: Joi.object(_.pick(validation.addTeamPolicies, ['policies'])).label('AddPoliciesToTeamPayload'),
+        params: _.pick(validation.amendTeamPolicies, ['id']),
+        payload: Joi.object(_.pick(validation.amendTeamPolicies, ['policies'])).label('AddPoliciesToTeamPayload'),
         headers
       },
-      description: 'Add one or more policies to a team',
-      notes: 'The PUT /authorization/teams/{id}/policies endpoint adds one or more new policies to a team.\n',
+      description: 'Add/update team policy associations (specify instance to update)',
+      notes: 'The PUT /authorization/teams/{id}/policies endpoint adds/updates the to the collection of policies associated with a team.\n',
       tags: ['api', 'teams'],
       plugins: {
         auth: {
-          action: Action.AddTeamPolicy,
+          action: Action.AmendTeamPolicies,
           getParams: (request) => ({ teamId: request.params.id })
         }
       },

@@ -139,15 +139,48 @@ function buildTeamOps (db, config) {
     const policies = job.policies
     const teamId = job.teamId
 
-    if (policies.length === 0) return next()
+    const newPolicies = _.filter(policies, function (p) { if (!p.instance) return true })
+
+    if (newPolicies.length === 0) return next()
 
     const sql = SQL`INSERT INTO team_policies (policy_id, team_id, variables) VALUES `
-    sql.append(SQL`(${policies[0].id},${teamId},${policies[0].variables})`)
-    policies.slice(1).forEach((policy) => {
+    sql.append(SQL`(${newPolicies[0].id},${teamId},${newPolicies[0].variables})`)
+    newPolicies.slice(1).forEach((policy) => {
       sql.append(SQL`, (${policy.id},${teamId}, ${policy.variables})`)
     })
-    sql.append(SQL` ON CONFLICT ON CONSTRAINT team_policy_link DO NOTHING`)
-    job.client.query(sql, utils.boomErrorWrapper(next))
+    job.client.query(sql, (err, result) => {
+      if (utils.isUniqueViolationError(err)) return next(Boom.conflict(err.detail))
+      if (err) return next(Boom.badImplementation(err))
+      return next(null, result)
+    })
+  }
+
+  function updateTeamPolicies (job, next) {
+    const policies = job.policies
+    const teamId = job.teamId
+
+    const policiesToUpdate = _.filter(policies, function (p) { if (p.instance) return true })
+
+    if (policiesToUpdate.length === 0) return next()
+
+    const sqlQuery = SQL`
+      UPDATE team_policies AS tpol SET variables = inst.variables FROM ( VALUES
+    `
+    sqlQuery.append(SQL`(${policiesToUpdate[0].id}, ${policiesToUpdate[0].instance}, ${teamId}, ${policiesToUpdate[0].variables}::JSONB) \n`)
+    policiesToUpdate.slice(1).forEach((policy) => {
+      sqlQuery.append(SQL`, (${policy.id}, ${policy.instance}, ${teamId}, ${policy.variables}::JSONB) \n`)
+    })
+
+    sqlQuery.append(SQL`) AS inst(policy_id, policy_instance, team_id, variables)  
+      WHERE (tpol.policy_id = inst.policy_id 
+      AND tpol.policy_instance::integer = inst.policy_instance::integer
+      AND tpol.team_id = inst.team_id);`) // constraint prevents insertion of policy with same variable set
+
+    job.client.query(sqlQuery, (err, result) => {
+      if (utils.isUniqueViolationError(err)) return next(Boom.conflict(err.detail))
+      if (err) return next(Boom.badImplementation(err))
+      return next(null, result)
+    })
   }
 
   function moveTeamSql (job, next) {
@@ -713,6 +746,39 @@ function buildTeamOps (db, config) {
     },
 
     /**
+     * Amends one or more policies belonging to a team, (will only update items with instance specified)
+     *
+     * @param  {Object}   params { id, organizationId, policies }
+     * @param  {Function} cb
+     */
+    amendTeamPolicies: function amendTeamPolicies (params, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
+      const { id, organizationId } = params
+
+      Joi.validate({ id, organizationId, policies: params.policies }, validationRules.amendTeamPolicies, function (err) {
+        if (err) return cb(Boom.badRequest(err))
+
+        const policies = utils.preparePolicies(params.policies)
+
+        utils.checkPoliciesOrg(db, policies, organizationId, (err) => {
+          if (err) return cb(err)
+
+          insertTeamPolicies({ client: db, teamId: id, policies }, (err, res) => {
+            if (err) return cb(err)
+            updateTeamPolicies({ client: db, teamId: id, policies }, (err, res) => {
+              if (err) return cb(err)
+              teamOps.readTeam({ id, organizationId }, cb)
+            })
+          })
+        })
+      })
+
+      return promise
+    },
+
+    /**
      * Replace team poilicies
      *
      * @param  {Object}   params { id, organizationId, policies }
@@ -1089,6 +1155,7 @@ function buildTeamOps (db, config) {
   teamOps.deleteTeam.validate = validationRules.deleteTeam
   teamOps.moveTeam.validate = validationRules.moveTeam
   teamOps.addTeamPolicies.validate = validationRules.addTeamPolicies
+  teamOps.amendTeamPolicies.validate = validationRules.amendTeamPolicies
   teamOps.listNestedTeams.validate = validationRules.listNestedTeams
   teamOps.searchUsers.validate = validationRules.searchUsers
   teamOps.listTeamPolicies.validate = validationRules.listTeamPolicies

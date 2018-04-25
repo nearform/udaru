@@ -297,20 +297,20 @@ module.exports = {
         const { organizationId } = request.udaru
         const { policies } = request.payload
 
-        return request.udaruCore.teams.addPolicies({ id, organizationId, policies })
+        return request.udaruCore.teams.amendPolicies({ id, organizationId, policies })
       },
       config: {
         validate: {
-          params: pick(validation.addTeamPolicies, ['id']),
-          payload: Joi.object(pick(validation.addTeamPolicies, ['policies'])).label('AddPoliciesToTeamPayload'),
+          params: pick(validation.amendTeamPolicies, ['id']),
+          payload: Joi.object(pick(validation.amendTeamPolicies, ['policies'])).label('AddPoliciesToTeamPayload'),
           headers
         },
-        description: 'Add one or more policies to a team',
-        notes: 'The PUT /authorization/teams/{id}/policies endpoint adds one or more new policies to a team.\n',
+        description: 'Add/update team policy associations (specify instance to update, omit to add)',
+        notes: 'The PUT /authorization/teams/{id}/policies endpoint adds/updates the to the collection of policies associated with a team.\n',
         tags: ['api', 'teams'],
         plugins: {
           auth: {
-            action: Action.AddTeamPolicy,
+            action: Action.AmendTeamPolicies,
             getParams: (request) => ({ teamId: request.params.id })
           }
         },

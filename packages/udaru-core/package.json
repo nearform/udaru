@@ -48,7 +48,7 @@
     "test": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -c -t 90"
   },
   "dependencies": {
-    "@nearform/sql": "^1.0.0",
+    "@nearform/sql": "^1.0.1",
     "async": "^2.6.0",
     "boom": "^7.2.0",
     "joi": "^13.1.2",

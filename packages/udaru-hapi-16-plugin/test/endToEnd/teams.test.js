@@ -1065,7 +1065,7 @@ lab.experiment('Teams - manage policies', () => {
         { id: 'policyId1', name: 'Director', version: '0.1', variables: {} }
       ])
 
-      udaru.teams.replacePolicies({ id: result.id, policies: ['policyId1'], organizationId: result.organizationId }, done)
+      udaru.teams.deletePolicies({ id: result.id, organizationId: result.organizationId }, done)
     })
   })
 
@@ -1085,6 +1085,7 @@ lab.experiment('Teams - manage policies', () => {
       const { result } = response
 
       expect(response.statusCode).to.equal(200)
+      expect(result.policies.length).to.equal(1)
       expect(utils.PoliciesWithoutInstance(result.policies)).to.equal([
         { id: 'policyId2', name: 'Accountant', version: '0.1', variables: {var1: 'value1'} }
       ])
@@ -1093,6 +1094,10 @@ lab.experiment('Teams - manage policies', () => {
 
       options.payload = {
         policies: [{
+          id: 'policyId2',
+          variables: {var1: 'valuex'},
+          instance: firstInstance
+        }, {
           id: 'policyId2',
           variables: {var2: 'value2'}
         }, {
@@ -1107,7 +1112,11 @@ lab.experiment('Teams - manage policies', () => {
         expect(response.statusCode).to.equal(200)
         expect(result.policies.length).to.equal(3)
         expect(utils.PoliciesWithoutInstance(result.policies)).to.contain([
-          { id: 'policyId2', name: 'Accountant', version: '0.1', variables: {var3: 'value3'} }
+          { id: 'policyId2', name: 'Accountant', version: '0.1', variables: {var3: 'value3'} },
+          { id: 'policyId2', name: 'Accountant', version: '0.1', variables: {var2: 'value2'} }
+        ])
+        expect(result.policies).to.contain([
+          { id: 'policyId2', name: 'Accountant', version: '0.1', variables: {var1: 'valuex'}, instance: firstInstance }
         ])
 
         options = utils.requestOptions({
@@ -1204,7 +1213,6 @@ lab.experiment('Teams - manage policies', () => {
       expect(utils.PoliciesWithoutInstance(result.policies)).to.equal([
         { id: 'policyId5', name: 'DB Admin', version: '0.1', variables: {} },
         { id: 'policyId6', name: 'DB Only Read', version: '0.1', variables: {} },
-        { id: 'policyId1', name: 'Director', version: '0.1', variables: {} },
         { id: 'policyId4', name: 'Finance Director', version: '0.1', variables: {} }
       ])
 

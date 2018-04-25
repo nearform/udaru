@@ -185,20 +185,20 @@ exports.register = function (server, options, next) {
         organizationId,
         policies
       }
-      request.udaruCore.users.addPolicies(params, reply)
+      request.udaruCore.users.amendPolicies(params, reply)
     },
     config: {
       validate: {
-        params: _.pick(validation.addUserPolicies, ['id']),
-        payload: Joi.object(_.pick(validation.addUserPolicies, ['policies'])).label('AddUserPoliciesPayload'),
+        params: _.pick(validation.amendUserPolicies, ['id']),
+        payload: Joi.object(_.pick(validation.amendUserPolicies, ['policies'])).label('AddUserPoliciesPayload'),
         headers
       },
-      description: 'Add one or more policies to a user',
-      notes: 'The PUT /authorization/users/{id}/policies endpoint adds one or more policies to a user.\n',
+      description: 'Add/update user policy associations (specify instance to update)',
+      notes: 'The PUT /authorization/users/{id}/policies endpoint endpoint adds/updates the to the collection of policies associated with a user\n',
       tags: ['api', 'users'],
       plugins: {
         auth: {
-          action: Action.AddUserPolicy,
+          action: Action.AmendUserPolicies,
           getParams: (request) => ({ userId: request.params.id })
         }
       },

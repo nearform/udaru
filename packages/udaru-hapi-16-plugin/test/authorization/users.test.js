@@ -404,7 +404,7 @@ lab.experiment('Routes Authorizations', () => {
       endpoint.test('should authorize caller with policy for specific users')
         .withPolicy([{
           Effect: 'Allow',
-          Action: ['authorization:users:policy:add'],
+          Action: ['authorization:users:policy:amend'],
           Resource: ['/authorization/user/WONKA/*/{{called.id}}']
         }])
         .shouldRespond(200)
@@ -412,7 +412,7 @@ lab.experiment('Routes Authorizations', () => {
       endpoint.test('should authorize caller with policy for all users in specific team')
         .withPolicy([{
           Effect: 'Allow',
-          Action: ['authorization:users:policy:add'],
+          Action: ['authorization:users:policy:amend'],
           Resource: ['/authorization/user/WONKA/{{calledTeam.id}}/*']
         }])
         .shouldRespond(200)
@@ -420,7 +420,7 @@ lab.experiment('Routes Authorizations', () => {
       endpoint.test('should authorize caller with policy for all users')
         .withPolicy([{
           Effect: 'Allow',
-          Action: ['authorization:users:policy:add'],
+          Action: ['authorization:users:policy:amend'],
           Resource: ['/authorization/user/WONKA/*']
         }])
         .shouldRespond(200)
@@ -444,7 +444,7 @@ lab.experiment('Routes Authorizations', () => {
       endpoint.test('should not authorize caller without a correct policy (resource)')
         .withPolicy([{
           Effect: 'Allow',
-          Action: ['authorization:users:policy:add'],
+          Action: ['authorization:users:policy:amend'],
           Resource: ['/authorization/user/WONKA/*/dummy']
         }])
         .shouldRespond(403)

@@ -488,7 +488,7 @@ lab.experiment('Organizations', () => {
     })
   })
 
-  lab.test('Policy instance addition and removal', async () => {
+  lab.test('Policy instance addition, edit and removal', async () => {
     let options = utils.requestOptions({
       method: 'PUT',
       url: `/authorization/organizations/${organizationId}/policies`,
@@ -525,6 +525,10 @@ lab.experiment('Organizations', () => {
     options.payload = {
       policies: [{
         id: testPolicy.id,
+        variables: {var1: 'valueX'},
+        instance: firstInstance
+      }, {
+        id: testPolicy.id,
         variables: {var2: 'value2'}
       }, {
         id: testPolicy.id,
@@ -538,6 +542,8 @@ lab.experiment('Organizations', () => {
     expect(response.statusCode).to.equal(200)
     expect(result.policies.length).to.equal(3)
     expect(utils.PoliciesWithoutInstance(result.policies)).to.contain([
+      { id: testPolicy.id, name: testPolicy.name, version: testPolicy.version, variables: {var1: 'valueX'} },
+      { id: testPolicy.id, name: testPolicy.name, version: testPolicy.version, variables: {var2: 'value2'} },
       { id: testPolicy.id, name: testPolicy.name, version: testPolicy.version, variables: {var3: 'value3'} }
     ])
 
@@ -716,8 +722,6 @@ lab.experiment('Organizations', () => {
   })
 
   lab.test('replace the policies of an organization', async () => {
-    await udaru.organizations.addPolicies({id: organizationId, policies: [testPolicy.id]})
-
     const options = utils.requestOptions({
       method: 'POST',
       url: `/authorization/organizations/${organizationId}/policies`,
@@ -749,8 +753,6 @@ lab.experiment('Organizations', () => {
   })
 
   lab.test('delete the policies of an organization', async () => {
-    await udaru.organizations.addPolicies({id: organizationId, policies: [testPolicy.id, testPolicy2.id]})
-
     const options = utils.requestOptions({
       method: 'DELETE',
       url: `/authorization/organizations/${organizationId}/policies`

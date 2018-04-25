@@ -66,7 +66,7 @@ const defaultConfig = {
               },
               {
                 Effect: 'Allow',
-                Action: [Action.ListPolicies],
+                Action: [Action.ListPolicyInstances],
                 Resource: [resources.policies({ organizationId: ':organizationId' })]
               }
             ]

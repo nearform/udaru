@@ -426,7 +426,7 @@ lab.experiment('Routes Authorizations', () => {
       endpoint.test('should authorize user with policy for all teams')
         .withPolicy([{
           Effect: 'Allow',
-          Action: ['authorization:teams:policy:add'],
+          Action: ['authorization:teams:policy:amend'],
           Resource: ['/authorization/team/WONKA/*']
         }])
         .shouldRespond(200)
@@ -434,7 +434,7 @@ lab.experiment('Routes Authorizations', () => {
       endpoint.test('should authorize user with policy for specific team')
         .withPolicy([{
           Effect: 'Allow',
-          Action: ['authorization:teams:policy:add'],
+          Action: ['authorization:teams:policy:amend'],
           Resource: ['/authorization/team/WONKA/{{calledTeam.id}}']
         }])
         .shouldRespond(200)
@@ -450,7 +450,7 @@ lab.experiment('Routes Authorizations', () => {
       endpoint.test('should not authorize user with incorrect policy (resource)')
         .withPolicy([{
           Effect: 'Allow',
-          Action: ['authorization:teams:policy:add'],
+          Action: ['authorization:teams:policy:amend'],
           Resource: ['/authorization/team/WONKA/dummy']
         }])
         .shouldRespond(403)

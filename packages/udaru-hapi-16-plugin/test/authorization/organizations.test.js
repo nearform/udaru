@@ -313,7 +313,7 @@ lab.experiment('Routes Authorizations', () => {
       endpoint.test('should authorize caller with policy for specific organizations')
         .withPolicy([{
           Effect: 'Allow',
-          Action: ['authorization:organizations:policy:add'],
+          Action: ['authorization:organizations:policy:amend'],
           Resource: [`/authorization/organization/${organizationId}`]
         }])
         .shouldRespond(200)
@@ -321,7 +321,7 @@ lab.experiment('Routes Authorizations', () => {
       endpoint.test('should not authorize caller with policy that has different organization scope')
         .withPolicy([{
           Effect: 'Allow',
-          Action: ['authorization:organizations:policy:add'],
+          Action: ['authorization:organizations:policy:amend'],
           Resource: [`/authorization/organizations/${otherOrgId}`]
         }])
         .shouldRespond(403)
@@ -337,7 +337,7 @@ lab.experiment('Routes Authorizations', () => {
       endpoint.test('should authorize caller with policy for all organizations')
         .withPolicy([{
           Effect: 'Allow',
-          Action: ['authorization:organizations:policy:add'],
+          Action: ['authorization:organizations:policy:amend'],
           Resource: ['/authorization/organization/*']
         }])
         .shouldRespond(200)
@@ -361,7 +361,7 @@ lab.experiment('Routes Authorizations', () => {
       endpoint.test('should not authorize caller without a correct policy (resource)')
         .withPolicy([{
           Effect: 'Allow',
-          Action: ['authorization:organizations:policy:add'],
+          Action: ['authorization:organizations:policy:amend'],
           Resource: [`/authorization/organization/${organizationId}/*/dummy`]
         }])
         .shouldRespond(403)

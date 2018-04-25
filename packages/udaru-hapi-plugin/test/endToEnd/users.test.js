@@ -502,7 +502,7 @@ lab.experiment('Users - manage policies', () => {
     await udaru.policies.delete({ id: p.id, organizationId: 'WONKA' })
   })
 
-  lab.test('Policy instance addition and removal', async () => {
+  lab.test('Policy instance addition, editing and removal', async () => {
     let options = utils.requestOptions({
       method: 'POST',
       url: '/authorization/users/VerucaId/policies',
@@ -539,6 +539,10 @@ lab.experiment('Users - manage policies', () => {
     options.payload = {
       policies: [{
         id: 'policyId2',
+        variables: {var1: 'valueX'},
+        instance: firstInstance
+      }, {
+        id: 'policyId2',
         variables: {var2: 'value2'}
       }, {
         id: 'policyId2',
@@ -552,6 +556,8 @@ lab.experiment('Users - manage policies', () => {
     expect(response.statusCode).to.equal(200)
     expect(result.policies.length).to.equal(3)
     expect(utils.PoliciesWithoutInstance(result.policies)).to.contain([
+      { id: 'policyId2', name: 'Accountant', version: '0.1', variables: {var1: 'valueX'} },
+      { id: 'policyId2', name: 'Accountant', version: '0.1', variables: {var2: 'value2'} },
       { id: 'policyId2', name: 'Accountant', version: '0.1', variables: {var3: 'value3'} }
     ])
 
