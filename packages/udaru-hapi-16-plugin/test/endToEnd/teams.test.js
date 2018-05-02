@@ -574,7 +574,7 @@ lab.experiment('Teams - create', () => {
       method: 'POST',
       url: '/authorization/teams',
       payload: {
-        id: 'invalid-id',
+        id: 'invalid?id',
         name: 'Team B',
         description: 'This is Team B'
       }

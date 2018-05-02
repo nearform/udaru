@@ -1208,10 +1208,7 @@ lab.experiment('UserOps structure', () => {
 
   lab.test('Search sql injection org_id sanity check', (done) => {
     udaru.users.search({ query: 'Charlie', organizationId: 'WONKA||org_id<>-1' }, (err, data, total) => {
-      expect(err).to.not.exist()
-      expect(total).to.equal(0)
-      expect(data.length).to.equal(0)
-
+      expect(err).to.exist()
       done()
     })
   })

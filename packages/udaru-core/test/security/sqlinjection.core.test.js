@@ -60,9 +60,7 @@ lab.experiment('UserOps injection tests', () => {
 
   lab.test('list of org users inject organization ID', (done) => {
     udaru.users.list({ organizationId: '\'WONKA\' OR 1=1', page: 1, limit: 10 }, (err, result) => {
-      expect(err).to.not.exist()
-      expect(result).to.exist()
-      expect(result.length).to.equal(0)
+      expect(err).to.exist()
 
       done()
     })
@@ -163,11 +161,7 @@ lab.experiment('UserOps injection tests', () => {
 
   lab.test('Check authorization should return access false', (done) => {
     authorize.isUserAuthorized({ userId: '\'ManyPoliciesId\' OR 1=1', resource: 'resource_a', action: 'action_a', organizationId: 'WONKA' }, (err, result) => {
-      if (err) return done(err)
-
-      expect(err).to.not.exist()
-      expect(result).to.exist()
-      expect(result.access).to.be.false()
+      expect(err).to.exist()
 
       done()
     })
@@ -175,11 +169,7 @@ lab.experiment('UserOps injection tests', () => {
 
   lab.test('Check authorization should return access false', (done) => {
     authorize.isUserAuthorized({ userId: 'ManyPoliciesId', resource: 'resource_a', action: 'action_a', organizationId: '\'WONKA\' OR 1=1' }, (err, result) => {
-      if (err) return done(err)
-
-      expect(err).to.not.exist()
-      expect(result).to.exist()
-      expect(result.access).to.be.false()
+      expect(err).to.exist()
 
       done()
     })
