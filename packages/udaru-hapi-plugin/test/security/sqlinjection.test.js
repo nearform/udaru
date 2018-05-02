@@ -76,13 +76,8 @@ lab.experiment('get users SQL injection tests', () => {
     options.headers.org = '\'WONKA\' OR 1=1'
 
     const response = await server.inject(options)
-    const result = response.result
 
-    expect(response.statusCode).to.equal(200)
-    expect(result.page).to.equal(1)
-    expect(result.limit).to.equal(3)
-    expect(result.total).to.equal(0)
-    expect(result.data.length).to.equal(0)
+    expect(response.statusCode).to.equal(400)
   })
 
   lab.test('Try to use a long org name', async () => {
@@ -152,7 +147,7 @@ lab.experiment('get users SQL injection tests', () => {
         org: 'WONKA'
       },
       method: 'PUT',
-      url: '/authorization/users/*/policies',
+      url: '/authorization/users/x/policies',
       payload: {
         policies: [{id: p.id}]
       }

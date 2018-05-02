@@ -585,7 +585,7 @@ lab.experiment('Routes Authorizations', () => {
         .server(server)
         .endpoint({
           method: 'DELETE',
-          url: '/authorization/teams/{{calledTeam.id}}/policies/{{deletedPolicy.id}}',
+          url: '/authorization/teams/{{calledTeam.id}}/policies/deleted-policy-id',
           headers: { authorization: '{{caller.id}}' }
         })
 
@@ -875,7 +875,7 @@ lab.experiment('Routes Authorizations', () => {
         .server(server)
         .endpoint({
           method: 'DELETE',
-          url: '/authorization/teams/{{calledTeam.id}}/users/{{member.id}}',
+          url: '/authorization/teams/{{calledTeam.id}}/users/member-id',
           headers: { authorization: '{{caller.id}}' }
         })
 

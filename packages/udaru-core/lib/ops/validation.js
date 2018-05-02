@@ -3,7 +3,7 @@
 const Joi = require('joi')
 
 const requiredString = Joi.string().required()
-const requiredStringId = Joi.string().required().max(128)
+const requiredStringId = Joi.string().regex(/^[A-Za-z0-9_.\-~]+$/).required().max(128)
 const MetaData = Joi.object().optional().description('Metadata').label('MetaData')
 
 const PolicyIdString = requiredStringId.description('Policy Id String').label('PolicyIdString')
@@ -157,11 +157,11 @@ const teams = {
     id: validationRules.teamId
   },
   createTeam: {
-    id: Joi.string().regex(/^[0-9a-zA-Z_]+$/).max(128).description('The ID to be used for the new team. Only alphanumeric characters and underscore are supported'),
+    id: validationRules.teamId.optional().description('The ID to be used for the new team. Only alphanumeric characters and underscore are supported'),
     parentId: validationRules.teamId.optional().allow(null),
     name: validationRules.teamName,
-    description: validationRules.description,
     user: validationRules.user,
+    description: validationRules.description,
     organizationId: validationRules.organizationId,
     metadata: validationRules.metadata
   },
