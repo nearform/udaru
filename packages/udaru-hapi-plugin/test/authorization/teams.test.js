@@ -134,7 +134,7 @@ lab.experiment('Routes Authorizations', () => {
 
       lab.afterEach(async () => {
         try {
-          await udaru.teams.delete({id: 'created_team', organizationId})
+          await udaru.teams.delete({id: 'created-team', organizationId})
         } catch (e) {
           // This is needed to ignore the error (i.e. in case the team wasn't properly created)
         }
@@ -146,7 +146,7 @@ lab.experiment('Routes Authorizations', () => {
           method: 'POST',
           url: '/authorization/teams',
           payload: {
-            id: 'created_team',
+            id: 'created-team',
             name: 'called team',
             description: 'called team'
           },

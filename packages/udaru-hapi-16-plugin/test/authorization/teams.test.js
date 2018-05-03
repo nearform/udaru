@@ -133,7 +133,7 @@ lab.experiment('Routes Authorizations', () => {
       }, udaru)
 
       lab.afterEach((done) => {
-        udaru.teams.delete({ id: 'created_team', organizationId }, () => {
+        udaru.teams.delete({ id: 'created-team', organizationId }, () => {
           // ignore error
           done()
         })
@@ -145,7 +145,7 @@ lab.experiment('Routes Authorizations', () => {
           method: 'POST',
           url: '/authorization/teams',
           payload: {
-            id: 'created_team',
+            id: 'created-team',
             name: 'called team',
             description: 'called team'
           },
