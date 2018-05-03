@@ -441,7 +441,7 @@ lab.experiment('TeamOps', () => {
         udaru.teams.read({ id: childTeam.id, organizationId: 'WONKA' }, (err) => {
           expect(err).to.exist()
           expect(err.isBoom).to.be.true()
-          expect(err.message).to.match(/Team with id [a-zA-Z0-9_]+ could not be found/)
+          expect(err.message).to.match(/Team with id [a-zA-Z0-9-]+ could not be found/)
           done()
         })
       })

@@ -3,7 +3,7 @@
 const Joi = require('joi')
 
 const requiredString = Joi.string().required()
-const requiredStringId = Joi.string().regex(/^[A-Za-z0-9_.\-~]+$/).required().max(128)
+const requiredStringId = Joi.string().regex(/^[A-Za-z0-9-]+$/).required().max(128)
 const MetaData = Joi.object().optional().description('Metadata').label('MetaData')
 
 const PolicyIdString = requiredStringId.description('Policy Id String').label('PolicyIdString')
