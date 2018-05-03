@@ -134,6 +134,23 @@ lab.experiment('PolicyOps', () => {
     })
   })
 
+  lab.test('create policy with invalid id should fail', (done) => {
+    const policyData = {
+      id: 'invalid?=id',
+      version: '1',
+      name: 'Documents Admin',
+      organizationId: 'WONKA',
+      statements
+    }
+    udaru.policies.create(policyData, (err, policy) => {
+      expect(err).to.exist()
+      expect(err.output.statusCode).to.equal(400)
+      expect(err.message).to.equal('child "id" fails because ["id" with value "invalid?=id" fails to match the required pattern: /^[A-Za-z0-9-]+$/]')
+
+      done()
+    })
+  })
+
   lab.test('create a policy with long name should fail', (done) => {
     const policyName = 'a'.repeat(65)
     udaru.policies.create({ organizationId: 'WONKA', name: policyName, id: 'longtestid', version: '1', statements }, (err, result) => {

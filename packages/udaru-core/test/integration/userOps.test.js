@@ -126,6 +126,22 @@ lab.experiment('UserOps', () => {
     })
   })
 
+  lab.test('create a user with an invalid id should fail', (done) => {
+    const userData = {
+      id: 'id & with \\ invalid $ chars',
+      name: 'Mike Teavee',
+      organizationId: 'WONKA'
+    }
+
+    udaru.users.create(userData, (err, result) => {
+      expect(err).to.exist()
+      expect(err.output.statusCode).to.equal(400)
+      expect(err.message).to.equal('child "id" fails because ["id" with value "id & with \\ invalid $ chars" fails to match the required pattern: /^[A-Za-z0-9-]+$/]')
+
+      done()
+    })
+  })
+
   lab.test('create a user with long name should fail', (done) => {
     const userName = 'a'.repeat(256)
     udaru.users.create({ organizationId: 'WONKA', name: userName, id: 'longtestid' }, (err, result) => {
