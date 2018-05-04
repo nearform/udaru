@@ -37,14 +37,14 @@
 
     <script src="./swagger-ui-bundle.js"> </script>
     <script src="./swagger-ui-standalone-preset.js"> </script>
+    <script src='./swagger-json.js' type="text/javascript"></script>
     <script>
     window.onload = function() {
 
       // Build a system
       const ui = SwaggerUIBundle({
-        url: "http://petstore.swagger.io/v2/swagger.json",
+        spec: swaggerJSON,
         dom_id: '#swagger-ui',
-        deepLinking: true,
         presets: [
           SwaggerUIBundle.presets.apis,
           SwaggerUIStandalonePreset
@@ -57,6 +57,6 @@
 
       window.ui = ui
     }
-  </script>
+    </script>
   </body>
 </html>
