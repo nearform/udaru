@@ -16,7 +16,7 @@ const PolicyIdObject = Joi.object({
   instance: PolicyInstanceId
 }).description('Policy Id Object').label('PolicyIdObject')
 
-const PolicyIdsArray = Joi.array().required().items(PolicyIdObject).description('Array of Policy ID Objects {id, variables} OR Policy ID strings').label('PolicyIdsArray')
+const PolicyIdsArray = Joi.array().required().items(PolicyIdObject).description('Array of Policies/Policy Templates to associate with this entity (with optional Policy Instance variables)').label('PolicyIdsArray')
 const UsersArray = Joi.array().required().items(requiredString).description('User IDs').label('UsersArray')
 const TeamsArray = Joi.array().required().items(requiredString).description('Teams IDs').label('TeamsArray')
 const ResourcesArray = Joi.array().items(requiredString.description('A single resource')).single().required().description('A list of Resources').label('ResourcesArray')
