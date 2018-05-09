@@ -767,7 +767,7 @@ lab.experiment('Organizations', () => {
       method: 'PUT',
       url: `/authorization/organizations/${organizationId}/policies`,
       payload: {
-        policies: [testPolicy.id]
+        policies: [{id: testPolicy.id}]
       }
     })
 
@@ -818,7 +818,7 @@ lab.experiment('Organizations', () => {
       method: 'PUT',
       url: '/authorization/organizations/WONKA/policies',
       payload: {
-        policies: ['InvalidPolicyID']
+        policies: [{id: 'InvalidPolicyID'}]
       }
     })
 
@@ -833,7 +833,7 @@ lab.experiment('Organizations', () => {
       method: 'POST',
       url: `/authorization/organizations/${organizationId}/policies`,
       payload: {
-        policies: [testPolicy2.id]
+        policies: [{id: testPolicy2.id}]
       }
     })
 
@@ -854,7 +854,7 @@ lab.experiment('Organizations', () => {
       method: 'POST',
       url: '/authorization/organizations/WONKA/policies',
       payload: {
-        policies: ['InvalidPolicyID']
+        policies: [{id: 'InvalidPolicyID'}]
       }
     })
 
@@ -883,7 +883,7 @@ lab.experiment('Organizations', () => {
   })
 
   lab.test('delete the policies of an organization should handle server errors', (done) => {
-    udaru.organizations.addPolicies({ id: organizationId, policies: [testPolicy.id, testPolicy2.id] }, (err, res) => {
+    udaru.organizations.addPolicies({ id: organizationId, policies: [{id: testPolicy.id}, {id: testPolicy2.id}] }, (err, res) => {
       expect(err).to.not.exist()
 
       const options = utils.requestOptions({
@@ -903,7 +903,7 @@ lab.experiment('Organizations', () => {
   })
 
   lab.test('delete the policy of an organization', (done) => {
-    udaru.organizations.addPolicies({ id: organizationId, policies: [testPolicy.id, testPolicy2.id] }, (err, res) => {
+    udaru.organizations.addPolicies({ id: organizationId, policies: [{id: testPolicy.id}, {id: testPolicy2.id}] }, (err, res) => {
       expect(err).to.not.exist()
 
       const options = utils.requestOptions({
@@ -937,7 +937,7 @@ lab.experiment('Organizations', () => {
       stub.restore()
 
       expect(response.statusCode).to.equal(500)
-      udaru.organizations.deletePolicies({ id: organizationId, policies: [testPolicy.id, testPolicy2.id] }, done)
+      udaru.organizations.deletePolicies({ id: organizationId, policies: [{id: testPolicy.id}, {id: testPolicy2.id}] }, done)
     })
   })
 })

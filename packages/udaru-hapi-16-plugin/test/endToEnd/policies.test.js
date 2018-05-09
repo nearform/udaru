@@ -832,8 +832,8 @@ lab.experiment('Policies - variables & instances', () => {
         name: 'Test Organization',
         description: 'Test Organization',
         policies: [
-          { key: 'pol1', variables: { var1: 'org1', var2: 'org2', var3: 'org3' } },
-          { key: 'spol1', variables: { varA: 'orgA', varB: 'orgB' } }
+          { id: 'pol1', variables: { var1: 'org1', var2: 'org2', var3: 'org3' } },
+          { id: 'spol1', variables: { varA: 'orgA', varB: 'orgB' } }
         ]
       }
     },
@@ -843,8 +843,8 @@ lab.experiment('Policies - variables & instances', () => {
         name: 'Test User1',
         organizationId: 'org1',
         policies: [
-          { key: 'pol1', variables: { var1: 'user1', var2: 'user2', var3: 'user3' } },
-          { key: 'spol1', variables: { varA: 'userA', varB: 'userB' } }
+          { id: 'pol1', variables: { var1: 'user1', var2: 'user2', var3: 'user3' } },
+          { id: 'spol1', variables: { varA: 'userA', varB: 'userB' } }
         ]
       }
     },
@@ -855,8 +855,8 @@ lab.experiment('Policies - variables & instances', () => {
         description: 'Test Team 1',
         organizationId: 'org1',
         policies: [
-          { key: 'pol1', variables: { var1: 'team1', var2: 'team2', var3: 'team3' } },
-          { key: 'spol1', variables: { varA: 'teamA', varB: 'teamB' } }
+          { id: 'pol1', variables: { var1: 'team1', var2: 'team2', var3: 'team3' } },
+          { id: 'spol1', variables: { varA: 'teamA', varB: 'teamB' } }
         ]
       }
     },

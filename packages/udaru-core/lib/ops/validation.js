@@ -7,22 +7,16 @@ const requiredStringId = Joi.string().required().max(128)
 const MetaData = Joi.object().optional().description('Metadata').label('MetaData')
 
 const PolicyIdString = requiredStringId.description('Policy Id String').label('PolicyIdString')
+const PolicyVariables = Joi.object().optional().pattern(/^(?!(udaru)|(request)).*$/igm, requiredString).description('A list of the variables with their fixed values').label('variables')
 const PolicyInstanceId = Joi.number().integer().optional().description('Optional Policy Instance Id')
 
 const PolicyIdObject = Joi.object({
   id: PolicyIdString,
-  variables: Joi.object().pattern(/^(?!(udaru)|(request)).*$/igm, requiredString).description('A list of the variables with their fixed values').label('variables'),
+  variables: PolicyVariables,
   instance: PolicyInstanceId
-}).required().description('Policy Id Object').label('PolicyIdObject')
+}).description('Policy Id Object').label('PolicyIdObject')
 
-// it would be ideal to put the policyid object first, however it causes a swagger doc error
-// as swagger cannot interpret alternatives
-const requiredPolicy = Joi.alternatives().try([
-  PolicyIdString,
-  PolicyIdObject
-]).description('Policy ID object ({id, variables}) OR Policy ID string').label('RequiredPolicy')
-
-const PolicyIdsArray = Joi.array().required().items(requiredPolicy).description('Array of Policy ID Objects {id, variables} OR Policy ID strings').label('PolicyIdsArray')
+const PolicyIdsArray = Joi.array().required().items(PolicyIdObject).description('Array of Policy ID Objects {id, variables} OR Policy ID strings').label('PolicyIdsArray')
 const UsersArray = Joi.array().required().items(requiredString).description('User IDs').label('UsersArray')
 const TeamsArray = Joi.array().required().items(requiredString).description('Teams IDs').label('TeamsArray')
 const ResourcesArray = Joi.array().items(requiredString.description('A single resource')).single().required().description('A list of Resources').label('ResourcesArray')

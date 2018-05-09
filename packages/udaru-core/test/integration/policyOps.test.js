@@ -166,16 +166,16 @@ lab.experiment('PolicyOps', () => {
           id: orgId,
           name: 'org name',
           policies: [
-            { key: 'organizationPolicy' },
-            { key: 'policyWithVariablesMulti', variables: { var21: 'org21', var22: 'org22' } },
-            { key: 'sharedPolicyWithVariablesAndContext', variables: { varA: 'x' } }
+            { id: 'organizationPolicy' },
+            { id: 'policyWithVariablesMulti', variables: { var21: 'org21', var22: 'org22' } },
+            { id: 'sharedPolicyWithVariablesAndContext', variables: { varA: 'x' } }
           ],
           description: 'org description'
         },
         alienOrg: {
           id: alienOrgId,
           name: 'alien org name',
-          policies: ['alienPolicy'],
+          policies: [{id: 'alienPolicy'}],
           description: 'org description'
         }
       },
@@ -186,9 +186,9 @@ lab.experiment('PolicyOps', () => {
           organizationId: orgId,
           users: ['called'],
           policies: [{
-            key: 'teamPolicy'
+            id: 'teamPolicy'
           }, {
-            key: 'policyWithVariablesMulti',
+            id: 'policyWithVariablesMulti',
             variables: { var21: 'team21', var22: 'team22' }
           }],
           parent: 'parentTeam'
@@ -197,7 +197,7 @@ lab.experiment('PolicyOps', () => {
           name: 'parent team',
           description: 'parent team',
           organizationId: orgId,
-          policies: ['parentPolicy']
+          policies: [{id: 'parentPolicy'}]
         }
       },
       users: {
@@ -207,31 +207,31 @@ lab.experiment('PolicyOps', () => {
           organizationId: orgId,
           policies: [
             {
-              key: 'userPolicy'
+              id: 'userPolicy'
             },
             {
-              key: 'policyWithoutVariables'
+              id: 'policyWithoutVariables'
             },
             {
-              key: 'policyWithVariables',
+              id: 'policyWithVariables',
               variables: { var1: 'value1' }
             },
             {
-              key: 'policyWithVariables',
+              id: 'policyWithVariables',
               variables: { var1: 'value11' }
             },
             {
-              key: 'policyWithVariablesMulti',
+              id: 'policyWithVariablesMulti',
               variables: { var21: 'user21', var22: 'user22' }
             },
             {
-              key: 'sharedPolicy'
+              id: 'sharedPolicy'
             }]
         }
       },
       policies: {
         userPolicy: { name: 'userPolicy', organizationId: orgId },
-        teamPolicy: { name: 'teamPolicy', organizationId: orgId },
+        teamPolicy: { name: 'teamPolicy', id: 'teamPolicy', organizationId: orgId },
         organizationPolicy: { name: 'organizationPolicy', organizationId: orgId },
         parentPolicy: { name: 'parentPolicy', organizationId: orgId },
         alienPolicy: { name: 'alienPolicy', organizationId: alienOrgId },
@@ -611,7 +611,7 @@ lab.experiment('PolicyOps', () => {
           id: organizationId,
           name: 'org',
           description: 'org',
-          policies: ['organizationPolicy']
+          policies: [{id: 'organizationPolicy'}]
         }
       },
       teams: {
@@ -620,14 +620,14 @@ lab.experiment('PolicyOps', () => {
           description: 'user team',
           organizationId: organizationId,
           users: ['called'],
-          policies: ['teamPolicy']
+          policies: [{id: 'teamPolicy'}]
         }
       },
       users: {
         called: {
           name: 'called',
           organizationId: organizationId,
-          policies: ['userPolicy']
+          policies: [{id: 'userPolicy'}]
         }
       },
       policies: {
@@ -771,14 +771,14 @@ lab.experiment('PolicyOps', () => {
           description: 'user team',
           organizationId: organizationId,
           users: ['called'],
-          policies: ['testPolicy']
+          policies: [{id: 'testPolicy'}]
         }
       },
       users: {
         called: {
           name: 'called',
           organizationId: organizationId,
-          policies: ['testPolicy']
+          policies: [{id: 'testPolicy'}]
         }
       },
       policies: {
@@ -1043,7 +1043,7 @@ lab.experiment('Policies - root user impersonating', () => {
         id: newOrgId,
         name: 'Test Organization',
         description: 'Test Organization',
-        policies: ['testPolicy']
+        policies: [{id: 'testPolicy'}]
       }
     },
     users: {
@@ -1051,7 +1051,7 @@ lab.experiment('Policies - root user impersonating', () => {
         id: rootUserId,
         name: 'Root User',
         organizationId: rootOrgId,
-        policies: ['rootUserPolicy']
+        policies: [{id: 'rootUserPolicy'}]
       }
     },
     policies: {

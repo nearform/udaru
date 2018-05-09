@@ -562,7 +562,7 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('add policies from another org to team', (done) => {
-    udaru.teams.addPolicies({ id: testTeam.id, policies: [policies[2].id], organizationId: 'WONKA' }, (err, team) => {
+    udaru.teams.addPolicies({ id: testTeam.id, policies: [{id: policies[2].id}], organizationId: 'WONKA' }, (err, team) => {
       expect(err).to.exist()
       expect(err.message).to.equal('Some policies [testPolicyId-1234] were not found')
 
@@ -571,7 +571,7 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('add policies to team', (done) => {
-    udaru.teams.addPolicies({ id: testTeam.id, policies: [policies[0].id, policies[1].id], organizationId: 'WONKA' }, (err, team) => {
+    udaru.teams.addPolicies({ id: testTeam.id, policies: [{id: policies[0].id}, {id: policies[1].id}], organizationId: 'WONKA' }, (err, team) => {
       expect(err).to.not.exist()
       expect(team).to.exist()
       expect(team.policies).to.have.length(2)
@@ -621,7 +621,7 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('add shared policies to team', (done) => {
-    udaru.teams.addPolicies({ id: testTeam.id, policies: ['sharedPolicyId1'], organizationId: 'WONKA' }, (err, team) => {
+    udaru.teams.addPolicies({ id: testTeam.id, policies: [{id: 'sharedPolicyId1'}], organizationId: 'WONKA' }, (err, team) => {
       expect(err).to.not.exist()
       expect(team).to.exist()
       expect(team.policies).to.have.length(1)
@@ -640,12 +640,12 @@ lab.experiment('TeamOps', () => {
     udaru.teams.addPolicies({
       id: testTeam.id,
       organizationId: 'WONKA',
-      policies: [policies[0].id]
+      policies: [{id: policies[0].id}]
     }, (err, team) => {
       expect(err).to.not.exist()
       expect(team).to.exist()
 
-      udaru.teams.replacePolicies({ id: team.id, policies: [policies[1].id], organizationId: 'WONKA' }, (err, team) => {
+      udaru.teams.replacePolicies({ id: team.id, policies: [{id: policies[1].id}], organizationId: 'WONKA' }, (err, team) => {
         expect(err).to.not.exist()
         expect(team).to.exist()
         expect(team.policies).to.have.length(1)
@@ -696,12 +696,12 @@ lab.experiment('TeamOps', () => {
     udaru.teams.addPolicies({
       id: testTeam.id,
       organizationId: 'WONKA',
-      policies: [policies[0].id]
+      policies: [{id: policies[0].id}]
     }, (err, team) => {
       expect(err).to.not.exist()
       expect(team).to.exist()
 
-      udaru.teams.replacePolicies({ id: team.id, policies: ['sharedPolicyId1'], organizationId: 'WONKA' }, (err, team) => {
+      udaru.teams.replacePolicies({ id: team.id, policies: [{id: 'sharedPolicyId1'}], organizationId: 'WONKA' }, (err, team) => {
         expect(err).to.not.exist()
         expect(team).to.exist()
         expect(team.policies).to.have.length(1)
@@ -717,7 +717,7 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('delete team policies', (done) => {
-    udaru.teams.addPolicies({ id: testTeam.id, policies: [policies[0].id, policies[1].id], organizationId: 'WONKA' }, (err, team) => {
+    udaru.teams.addPolicies({ id: testTeam.id, policies: [{id: policies[0].id}, {id: policies[1].id}], organizationId: 'WONKA' }, (err, team) => {
       expect(err).to.not.exist()
       expect(team).to.exist()
       expect(team.policies).to.have.length(2)
@@ -732,7 +732,7 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.test('delete specific team policy', (done) => {
-    udaru.teams.addPolicies({ id: testTeam.id, policies: [policies[0].id, policies[1].id], organizationId: 'WONKA' }, (err, team) => {
+    udaru.teams.addPolicies({ id: testTeam.id, policies: [{id: policies[0].id}, {id: policies[1].id}], organizationId: 'WONKA' }, (err, team) => {
       expect(err).to.not.exist()
       expect(team).to.exist()
       expect(team.policies).to.have.length(2)
@@ -879,7 +879,7 @@ lab.experiment('TeamOps', () => {
 
   lab.experiment('multiple policy tests  - ', () => {
     lab.test('same policy instances without variables 409 conflict', (done) => {
-      udaru.teams.addPolicies({ id: testTeam.id, policies: [policies[0].id, policies[1].id], organizationId: 'WONKA' }, (err, team) => {
+      udaru.teams.addPolicies({ id: testTeam.id, policies: [{id: policies[0].id}, {id: policies[1].id}], organizationId: 'WONKA' }, (err, team) => {
         expect(err).to.not.exist()
         expect(team).to.exist()
         expect(team.policies).to.have.length(2)
@@ -895,7 +895,7 @@ lab.experiment('TeamOps', () => {
           variables: {}
         }])
 
-        udaru.teams.addPolicies({ id: team.id, policies: [policies[1].id], organizationId: 'WONKA' }, (err, team) => {
+        udaru.teams.addPolicies({ id: team.id, policies: [{id: policies[1].id}], organizationId: 'WONKA' }, (err, team) => {
           expect(err).to.exist()
           expect(err.output.statusCode).to.equal(409)
           done()

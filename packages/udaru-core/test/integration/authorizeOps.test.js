@@ -59,7 +59,7 @@ lab.experiment('AuthorizeOps', () => {
           udaru.teams.addUsers({ id: managersTeamId, users: [testUserId], organizationId }, (err, result) => {
             if (err) return done(err)
 
-            udaru.users.replacePolicies({ id: testUserId, policies: [_.find(wonkaPolicies, {name: 'Director'}).id], organizationId }, done)
+            udaru.users.replacePolicies({ id: testUserId, policies: [{id: _.find(wonkaPolicies, {name: 'Director'}).id}], organizationId }, done)
           })
         })
       })
@@ -87,7 +87,7 @@ lab.experiment('AuthorizeOps', () => {
   })
 
   lab.test('authorize isUserAuthorized - check on a resource and action with wildcards both in action and resource', (done) => {
-    udaru.users.replacePolicies({ id: testUserId, policies: ['policyId5'], organizationId }, (err, result) => {
+    udaru.users.replacePolicies({ id: testUserId, policies: [{id: 'policyId5'}], organizationId }, (err, result) => {
       if (err) return done(err)
 
       authorize.isUserAuthorized({ userId: testUserId, resource: 'database:pg01:balancesheet', action: 'database:dropTable', organizationId }, (err, result) => {
@@ -103,7 +103,7 @@ lab.experiment('AuthorizeOps', () => {
   })
 
   lab.test('authorize isUserAuthorized - check on a resource and action with wildcards only for resource', (done) => {
-    udaru.users.replacePolicies({ id: testUserId, policies: ['policyId6'], organizationId }, (err, result) => {
+    udaru.users.replacePolicies({ id: testUserId, policies: [{id: 'policyId6'}], organizationId }, (err, result) => {
       if (err) return done(err)
 
       authorize.isUserAuthorized({ userId: testUserId, resource: 'database:pg01:balancesheet', action: 'database:Read', organizationId }, (err, result) => {
@@ -119,7 +119,7 @@ lab.experiment('AuthorizeOps', () => {
   })
 
   lab.test('authorize isUserAuthorized - check on a resource and action with wildcards only for action', (done) => {
-    udaru.users.replacePolicies({ id: testUserId, policies: ['policyId7'], organizationId }, (err, result) => {
+    udaru.users.replacePolicies({ id: testUserId, policies: [{id: 'policyId7'}], organizationId }, (err, result) => {
       if (err) return done(err)
 
       authorize.isUserAuthorized({ userId: testUserId, resource: 'database:pg01:balancesheet', action: 'database:Delete', organizationId }, (err, result) => {
@@ -135,7 +135,7 @@ lab.experiment('AuthorizeOps', () => {
   })
 
   lab.test('authorize isUserAuthorized - check on a resource and action with wildcards for URL resource', (done) => {
-    udaru.users.replacePolicies({ id: testUserId, policies: ['policyId8'], organizationId }, (err, result) => {
+    udaru.users.replacePolicies({ id: testUserId, policies: [{id: 'policyId8'}], organizationId }, (err, result) => {
       if (err) return done(err)
 
       authorize.isUserAuthorized({ userId: testUserId, resource: '/my/site/i/should/read/this', action: 'Read', organizationId }, (err, result) => {
@@ -151,7 +151,7 @@ lab.experiment('AuthorizeOps', () => {
   })
 
   lab.test('authorize isUserAuthorized - should return false if the policies has a wildcard on the resource but we are asking for the wrong action', (done) => {
-    udaru.users.replacePolicies({ id: testUserId, policies: ['policyId6'], organizationId }, (err, result) => {
+    udaru.users.replacePolicies({ id: testUserId, policies: [{id: 'policyId6'}], organizationId }, (err, result) => {
       if (err) return done(err)
 
       authorize.isUserAuthorized({ userId: testUserId, resource: 'database:pg01:balancesheet', action: 'database:Write', organizationId }, (err, result) => {
@@ -167,7 +167,7 @@ lab.experiment('AuthorizeOps', () => {
   })
 
   lab.test('authorize isUserAuthorized - should return false if the policies has a wildcard on the action but we are asking for the wrong resource', (done) => {
-    udaru.users.replacePolicies({ id: testUserId, policies: ['policyId6'], organizationId }, (err, result) => {
+    udaru.users.replacePolicies({ id: testUserId, policies: [{id: 'policyId6'}], organizationId }, (err, result) => {
       if (err) return done(err)
 
       authorize.isUserAuthorized({ userId: testUserId, resource: 'database:pg01:notMyTable', action: 'database:Write', organizationId }, (err, result) => {
@@ -194,7 +194,7 @@ lab.experiment('AuthorizeOps', () => {
     udaru.policies.create(testPolicy, (err, result) => {
       if (err) return done(err)
 
-      udaru.users.replacePolicies({ id: testUserId, policies: ['userContextPolicy'], organizationId }, (err, result) => {
+      udaru.users.replacePolicies({ id: testUserId, policies: [{id: 'userContextPolicy'}], organizationId }, (err, result) => {
         if (err) return done(err)
 
         authorize.isUserAuthorized({ userId: testUserId, resource: 'org:documents/' + testUserId, action: 'read', organizationId }, (err, result) => {
@@ -225,7 +225,7 @@ lab.experiment('AuthorizeOps', () => {
     udaru.policies.create(testPolicy, (err, result) => {
       if (err) return done(err)
 
-      udaru.users.replacePolicies({ id: testUserId, policies: ['userContextPolicy'], organizationId }, (err, result) => {
+      udaru.users.replacePolicies({ id: testUserId, policies: [{id: 'userContextPolicy'}], organizationId }, (err, result) => {
         if (err) return done(err)
 
         authorize.isUserAuthorized({ userId: testUserId, resource: 'org:documents/' + organizationId, action: 'read', organizationId }, (err, result) => {
@@ -256,7 +256,7 @@ lab.experiment('AuthorizeOps', () => {
     udaru.policies.create(testPolicy, (err, result) => {
       if (err) return done(err)
 
-      udaru.users.replacePolicies({ id: testUserId, policies: ['userContextPolicy'], organizationId }, (err, result) => {
+      udaru.users.replacePolicies({ id: testUserId, policies: [{id: 'userContextPolicy'}], organizationId }, (err, result) => {
         if (err) return done(err)
 
         authorize.isUserAuthorized({ userId: testUserId, resource: 'org:documents/' + testUserId, action: 'read', organizationId }, (err, result) => {
@@ -287,7 +287,7 @@ lab.experiment('AuthorizeOps', () => {
     udaru.policies.create(testPolicy, (err, result) => {
       if (err) return done(err)
 
-      udaru.teams.replacePolicies({ id: managersTeamId, policies: ['teamContextPolicy'], organizationId }, (err, result) => {
+      udaru.teams.replacePolicies({ id: managersTeamId, policies: [{id: 'teamContextPolicy'}], organizationId }, (err, result) => {
         if (err) return done(err)
 
         authorize.isUserAuthorized({ userId: testUserId, resource: 'org:documents/' + testUserId, action: 'read', organizationId }, (err, result) => {
@@ -318,7 +318,7 @@ lab.experiment('AuthorizeOps', () => {
     udaru.policies.create(testPolicy, (err, result) => {
       if (err) return done(err)
 
-      udaru.organizations.replacePolicies({ id: organizationId, policies: ['orgContextPolicy'] }, (err, result) => {
+      udaru.organizations.replacePolicies({ id: organizationId, policies: [{id: 'orgContextPolicy'}] }, (err, result) => {
         if (err) return done(err)
 
         authorize.isUserAuthorized({ userId: testUserId, resource: 'org:documents/' + testUserId, action: 'read', organizationId }, (err, result) => {
@@ -349,7 +349,7 @@ lab.experiment('AuthorizeOps', () => {
     udaru.policies.create(testPolicy, (err, result) => {
       if (err) return done(err)
 
-      udaru.users.replacePolicies({ id: testUserId, policies: ['userContextPolicy'], organizationId }, (err, result) => {
+      udaru.users.replacePolicies({ id: testUserId, policies: [{id: 'userContextPolicy'}], organizationId }, (err, result) => {
         if (err) return done(err)
 
         authorize.isUserAuthorized({ userId: testUserId, resource: 'org:documents/' + organizationId, action: 'read', organizationId }, (err, result) => {
@@ -382,7 +382,7 @@ lab.experiment('AuthorizeOps', () => {
     udaru.policies.create(testPolicy, (err, result) => {
       if (err) return done(err)
 
-      udaru.users.replacePolicies({ id: testUserId, policies: ['userContextPolicy'], organizationId }, (err, result) => {
+      udaru.users.replacePolicies({ id: testUserId, policies: [{id: 'userContextPolicy'}], organizationId }, (err, result) => {
         if (err) return done(err)
 
         authorize.isUserAuthorized({ userId: testUserId, resource: 'org:documents/' + testUserId, action: 'read', organizationId }, (err, result) => {
@@ -415,7 +415,7 @@ lab.experiment('AuthorizeOps', () => {
     udaru.policies.create(testPolicy, (err, result) => {
       if (err) return done(err)
 
-      udaru.users.replacePolicies({ id: testUserId, policies: ['userContextPolicy'], organizationId }, (err, result) => {
+      udaru.users.replacePolicies({ id: testUserId, policies: [{id: 'userContextPolicy'}], organizationId }, (err, result) => {
         if (err) return done(err)
 
         authorize.isUserAuthorized({ userId: testUserId, resource: 'org:documents/' + testUserId, action: 'read', organizationId }, (err, result) => {
@@ -448,7 +448,7 @@ lab.experiment('AuthorizeOps', () => {
     udaru.policies.create(testPolicy, (err, result) => {
       if (err) return done(err)
 
-      udaru.users.replacePolicies({ id: testUserId, policies: ['userContextPolicy'], organizationId }, (err, result) => {
+      udaru.users.replacePolicies({ id: testUserId, policies: [{id: 'userContextPolicy'}], organizationId }, (err, result) => {
         if (err) return done(err)
 
         authorize.isUserAuthorized({ userId: testUserId, resource: 'org:documents/' + testUserId, action: 'read', organizationId }, (err, result) => {
@@ -481,7 +481,7 @@ lab.experiment('AuthorizeOps', () => {
     udaru.policies.create(testPolicy, (err, result) => {
       if (err) return done(err)
 
-      udaru.users.replacePolicies({ id: testUserId, policies: ['userConditionPolicy'], organizationId }, (err, result) => {
+      udaru.users.replacePolicies({ id: testUserId, policies: [{id: 'userConditionPolicy'}], organizationId }, (err, result) => {
         if (err) return done(err)
 
         authorize.isUserAuthorized({ userId: testUserId, resource: 'org:documents/' + testUserId, action: 'write', organizationId }, (err, result) => {
@@ -514,7 +514,7 @@ lab.experiment('AuthorizeOps', () => {
     udaru.policies.create(testPolicy, (err, result) => {
       if (err) return done(err)
 
-      udaru.users.replacePolicies({ id: testUserId, policies: ['userConditionPolicy'], organizationId }, (err, result) => {
+      udaru.users.replacePolicies({ id: testUserId, policies: [{id: 'userConditionPolicy'}], organizationId }, (err, result) => {
         if (err) return done(err)
 
         authorize.isUserAuthorized({ userId: testUserId, resource: 'org:documents/' + testUserId, action: 'write', organizationId }, (err, result) => {
@@ -547,7 +547,7 @@ lab.experiment('AuthorizeOps', () => {
     udaru.policies.create(testPolicy, (err, result) => {
       if (err) return done(err)
 
-      udaru.users.replacePolicies({ id: testUserId, policies: ['userContextPolicy'], organizationId }, (err, result) => {
+      udaru.users.replacePolicies({ id: testUserId, policies: [{id: 'userContextPolicy'}], organizationId }, (err, result) => {
         if (err) return done(err)
 
         authorize.isUserAuthorized({ userId: testUserId, resource: 'org:documents/' + testUserId, action: 'read', organizationId }, (err, result) => {
@@ -580,7 +580,7 @@ lab.experiment('AuthorizeOps', () => {
     udaru.policies.create(testPolicy, (err, result) => {
       if (err) return done(err)
 
-      udaru.users.replacePolicies({ id: testUserId, policies: ['userContextPolicy'], organizationId }, (err, result) => {
+      udaru.users.replacePolicies({ id: testUserId, policies: [{id: 'userContextPolicy'}], organizationId }, (err, result) => {
         if (err) return done(err)
 
         authorize.isUserAuthorized({ userId: testUserId, resource: 'org:documents/' + testUserId, action: 'read', organizationId }, (err, result) => {
@@ -687,7 +687,7 @@ lab.experiment('AuthorizeOps', () => {
     tasks.push((result, cb) => {
       udaru.users.replacePolicies({
         id: testUserId,
-        policies: [_.find(wonkaPolicies, {name: 'Sys admin'}).id],
+        policies: [{id: _.find(wonkaPolicies, {name: 'Sys admin'}).id}],
         organizationId
       }, cb)
     })
@@ -713,7 +713,7 @@ lab.experiment('AuthorizeOps', () => {
     tasks.push((result, cb) => {
       udaru.users.replacePolicies({
         id: testUserId,
-        policies: [_.find(wonkaPolicies, {name: 'Finance Director'}).id],
+        policies: [{id: _.find(wonkaPolicies, {name: 'Finance Director'}).id}],
         organizationId
       }, cb)
     })
@@ -767,7 +767,7 @@ lab.experiment('AuthorizeOps - list and access with multiple policies', () => {
   })
 
   lab.test('check list simple action', (done) => {
-    udaru.users.replacePolicies({ id: adminId, organizationId, policies: [ savedPolicies[0].id ] }, (err, res) => {
+    udaru.users.replacePolicies({ id: adminId, organizationId, policies: [{id: savedPolicies[0].id}] }, (err, res) => {
       if (err) return done(err)
 
       authorize.listActions({
@@ -787,7 +787,7 @@ lab.experiment('AuthorizeOps - list and access with multiple policies', () => {
     udaru.users.replacePolicies({
       id: adminId,
       organizationId,
-      policies: [ savedPolicies[0].id, savedPolicies[1].id ]
+      policies: [ {id: savedPolicies[0].id}, {id: savedPolicies[1].id} ]
     }, (err, res) => {
       if (err) return done(err)
 
@@ -808,7 +808,7 @@ lab.experiment('AuthorizeOps - list and access with multiple policies', () => {
     udaru.users.replacePolicies({
       id: adminId,
       organizationId,
-      policies: [ savedPolicies[4].id, savedPolicies[5].id ]
+      policies: [ {id: savedPolicies[4].id}, {id: savedPolicies[5].id} ]
     }, (err, res) => {
       if (err) return done(err)
 
@@ -854,7 +854,7 @@ lab.experiment('AuthorizeOps - test inherited policies', () => {
       org: {
         id: orgId,
         name: 'org name',
-        policies: ['organizationPolicy'],
+        policies: [{id: 'organizationPolicy'}],
         description: 'org description'
       }
     },
@@ -864,14 +864,14 @@ lab.experiment('AuthorizeOps - test inherited policies', () => {
         description: 'user team',
         organizationId: orgId,
         users: ['called'],
-        policies: ['teamPolicy'],
+        policies: [{id: 'teamPolicy'}],
         parent: 'parentTeam'
       },
       parentTeam: {
         name: 'parent team',
         description: 'parent team',
         organizationId: orgId,
-        policies: ['parentPolicy']
+        policies: [{id: 'parentPolicy'}]
       }
     },
     users: {
@@ -880,26 +880,30 @@ lab.experiment('AuthorizeOps - test inherited policies', () => {
         name: 'called',
         description: 'called',
         organizationId: orgId,
-        policies: ['userPolicy']
+        policies: [{id: 'userPolicy'}]
       }
     },
     policies: {
       userPolicy: {
+        id: 'userPolicy',
         name: 'userPolicy',
         organizationId: orgId,
         statements: Statements('action:user:read', 'resource:user')
       },
       teamPolicy: {
+        id: 'teamPolicy',
         name: 'teamPolicy',
         organizationId: orgId,
         statements: Statements('action:team:read', 'resource:team')
       },
       organizationPolicy: {
+        id: 'organizationPolicy',
         name: 'organizationPolicy',
         organizationId: orgId,
         statements: Statements('action:organization:read', 'resource:organization')
       },
       parentPolicy: {
+        id: 'parentPolicy',
         name: 'parentPolicy',
         organizationId: orgId,
         statements: Statements('action:parent:team:read', 'resource:parent:team')

@@ -668,7 +668,7 @@ lab.experiment('Organizations', () => {
       method: 'PUT',
       url: `/authorization/organizations/${organizationId}/policies`,
       payload: {
-        policies: [testPolicy.id]
+        policies: [{id: testPolicy.id}]
       }
     })
 
@@ -708,12 +708,12 @@ lab.experiment('Organizations', () => {
     })
   })
 
-  lab.test('add policy with invalid ID to an organization', async () => {
+  lab.test('add policy with non-existent ID to an organization', async () => {
     const options = utils.requestOptions({
       method: 'PUT',
       url: '/authorization/organizations/WONKA/policies',
       payload: {
-        policies: ['InvalidPolicyID']
+        policies: [{id: 'invalidPolicyId'}]
       }
     })
 
@@ -726,7 +726,7 @@ lab.experiment('Organizations', () => {
       method: 'POST',
       url: `/authorization/organizations/${organizationId}/policies`,
       payload: {
-        policies: [testPolicy2.id]
+        policies: [{id: testPolicy2.id}]
       }
     })
 
@@ -739,12 +739,12 @@ lab.experiment('Organizations', () => {
     expect(result.policies[0].id).to.equal(testPolicy2.id)
   })
 
-  lab.test('add policy with invalid ID to an organization', async () => {
+  lab.test('add policy with non-existant ID to an organization', async () => {
     const options = utils.requestOptions({
       method: 'POST',
       url: '/authorization/organizations/WONKA/policies',
       payload: {
-        policies: ['InvalidPolicyID']
+        policies: [{id: 'invalidPolicyId'}]
       }
     })
 
@@ -766,7 +766,7 @@ lab.experiment('Organizations', () => {
   })
 
   lab.test('delete the policy of an organization', async () => {
-    await udaru.organizations.addPolicies({id: organizationId, policies: [testPolicy.id, testPolicy2.id]})
+    await udaru.organizations.addPolicies({id: organizationId, policies: [{id: testPolicy.id}, {id: testPolicy2.id}]})
 
     const options = utils.requestOptions({
       method: 'DELETE',

@@ -252,7 +252,7 @@ lab.experiment('UserOps', () => {
 
       udaru.users.replacePolicies({
         id: 'VerucaId',
-        policies: [directorPolicy.id, sysadminPolicy.id],
+        policies: [{id: directorPolicy.id}, {id: sysadminPolicy.id}],
         organizationId: 'WONKA'
       }, (err, user) => {
         expect(err).to.not.exist()
@@ -270,7 +270,7 @@ lab.experiment('UserOps', () => {
           variables: {}
         }])
 
-        udaru.users.replacePolicies({ id: 'VerucaId', policies: [accountantPolicy.id], organizationId: 'WONKA' }, (err, user) => {
+        udaru.users.replacePolicies({ id: 'VerucaId', policies: [{id: accountantPolicy.id}], organizationId: 'WONKA' }, (err, user) => {
           expect(err).to.not.exist()
           done()
         })
@@ -318,7 +318,7 @@ lab.experiment('UserOps', () => {
           variables: {var1: 'value1'}
         }])
 
-        udaru.users.replacePolicies({ id: 'VerucaId', policies: [accountantPolicy.id], organizationId: 'WONKA' }, (err, user) => {
+        udaru.users.replacePolicies({ id: 'VerucaId', policies: [{id: accountantPolicy.id}], organizationId: 'WONKA' }, (err, user) => {
           expect(err).to.not.exist()
           done()
         })
@@ -341,7 +341,7 @@ lab.experiment('UserOps', () => {
 
       udaru.users.replacePolicies({
         id: 'VerucaId',
-        policies: ['sharedPolicyId1'],
+        policies: [{id: 'sharedPolicyId1'}],
         organizationId: 'WONKA'
       }, (err, user) => {
         expect(err).to.not.exist()
@@ -353,7 +353,7 @@ lab.experiment('UserOps', () => {
           variables: {}
         }])
 
-        udaru.users.replacePolicies({ id: 'VerucaId', policies: [accountantPolicy.id], organizationId: 'WONKA' }, (err, user) => {
+        udaru.users.replacePolicies({ id: 'VerucaId', policies: [{id: accountantPolicy.id}], organizationId: 'WONKA' }, (err, user) => {
           expect(err).to.not.exist()
           done()
         })
@@ -376,7 +376,7 @@ lab.experiment('UserOps', () => {
         variables: {}
       }])
 
-      udaru.users.addPolicies({ id: 'VerucaId', policies: [directorPolicy.id, sysadminPolicy.id], organizationId: 'WONKA' }, (err, user) => {
+      udaru.users.addPolicies({ id: 'VerucaId', policies: [{id: directorPolicy.id}, {id: sysadminPolicy.id}], organizationId: 'WONKA' }, (err, user) => {
         expect(err).to.not.exist()
         expect(user).to.exist()
         expect(u.PoliciesWithoutInstance(user.policies)).to.equal([{
@@ -396,7 +396,7 @@ lab.experiment('UserOps', () => {
           variables: {}
         }])
 
-        udaru.users.replacePolicies({ id: 'VerucaId', policies: [accountantPolicy.id], organizationId: 'WONKA' }, (err, user) => {
+        udaru.users.replacePolicies({ id: 'VerucaId', policies: [{id: accountantPolicy.id}], organizationId: 'WONKA' }, (err, user) => {
           expect(err).to.not.exist()
           done()
         })
@@ -447,7 +447,7 @@ lab.experiment('UserOps', () => {
           version: sysadminPolicy.version,
           variables: {var2: 'value2'}
         }])
-        udaru.users.replacePolicies({ id: 'VerucaId', policies: [accountantPolicy.id], organizationId: 'WONKA' }, (err, user) => {
+        udaru.users.replacePolicies({ id: 'VerucaId', policies: [{id: accountantPolicy.id}], organizationId: 'WONKA' }, (err, user) => {
           expect(err).to.not.exist()
           done()
         })
@@ -542,7 +542,7 @@ lab.experiment('UserOps', () => {
               variables: {var2: 'value2'}
             }])
 
-            udaru.users.replacePolicies({ id: 'VerucaId', policies: [accountantPolicy.id], organizationId: 'WONKA' }, (err, user) => {
+            udaru.users.replacePolicies({ id: 'VerucaId', policies: [{id: accountantPolicy.id}], organizationId: 'WONKA' }, (err, user) => {
               expect(err).to.not.exist()
               done()
             })
@@ -612,7 +612,7 @@ lab.experiment('UserOps', () => {
             expect(user).to.exist()
             expect(user.policies.length).to.equal(0)
 
-            udaru.users.replacePolicies({ id: 'VerucaId', policies: [accountantPolicy.id], organizationId: 'WONKA' }, (err, user) => {
+            udaru.users.replacePolicies({ id: 'VerucaId', policies: [{id: accountantPolicy.id}], organizationId: 'WONKA' }, (err, user) => {
               expect(err).to.not.exist()
               done()
             })
@@ -635,7 +635,7 @@ lab.experiment('UserOps', () => {
         variables: {}
       }])
 
-      udaru.users.addPolicies({ id: 'VerucaId', policies: ['sharedPolicyId1'], organizationId: 'WONKA' }, (err, user) => {
+      udaru.users.addPolicies({ id: 'VerucaId', policies: [{id: 'sharedPolicyId1'}], organizationId: 'WONKA' }, (err, user) => {
         expect(err).to.not.exist()
         expect(user).to.exist()
         expect(user.policies.length).to.equal(2)
@@ -651,7 +651,7 @@ lab.experiment('UserOps', () => {
           variables: {}
         }])
 
-        udaru.users.replacePolicies({ id: 'VerucaId', policies: [accountantPolicy.id], organizationId: 'WONKA' }, (err, user) => {
+        udaru.users.replacePolicies({ id: 'VerucaId', policies: [{id: accountantPolicy.id}], organizationId: 'WONKA' }, (err, user) => {
           expect(err).to.not.exist()
           done()
         })
@@ -677,7 +677,7 @@ lab.experiment('UserOps', () => {
         expect(user).to.exist()
         expect(user.policies).to.equal([])
 
-        udaru.users.replacePolicies({ id: 'VerucaId', policies: [accountantPolicy.id], organizationId: 'WONKA' }, (err, user) => {
+        udaru.users.replacePolicies({ id: 'VerucaId', policies: [{id: accountantPolicy.id}], organizationId: 'WONKA' }, (err, user) => {
           expect(err).to.not.exist()
           done()
         })
@@ -703,7 +703,7 @@ lab.experiment('UserOps', () => {
         expect(user).to.exist()
         expect(user.policies).to.equal([])
 
-        udaru.users.replacePolicies({ id: 'VerucaId', policies: [accountantPolicy.id], organizationId: 'WONKA' }, (err, user) => {
+        udaru.users.replacePolicies({ id: 'VerucaId', policies: [{id: accountantPolicy.id}], organizationId: 'WONKA' }, (err, user) => {
           expect(err).to.not.exist()
           done()
         })
@@ -730,16 +730,16 @@ lab.experiment('UserOps', () => {
         udaru.users.addPolicies({
           id: 'VerucaId',
           policies: [
-            accountantPolicy.id,
-            directorPolicy.id,
-            sysadminPolicy.id
+            {id: accountantPolicy.id},
+            {id: directorPolicy.id},
+            {id: sysadminPolicy.id}
           ],
           organizationId: 'WONKA'
         }, (err, user) => {
           expect(err).to.exist()
           expect(err.output.statusCode).to.equal(409)
 
-          udaru.users.replacePolicies({ id: 'VerucaId', policies: [accountantPolicy.id], organizationId: 'WONKA' }, (err, user) => {
+          udaru.users.replacePolicies({ id: 'VerucaId', policies: [{id: accountantPolicy.id}], organizationId: 'WONKA' }, (err, user) => {
             expect(err).to.not.exist()
             done()
           })
@@ -793,7 +793,7 @@ lab.experiment('UserOps', () => {
             version: directorPolicy.version,
             variables: {var2: 'value2'}
           }])
-          udaru.users.replacePolicies({ id: 'VerucaId', policies: [accountantPolicy.id], organizationId: 'WONKA' }, (err, user) => {
+          udaru.users.replacePolicies({ id: 'VerucaId', policies: [{id: accountantPolicy.id}], organizationId: 'WONKA' }, (err, user) => {
             expect(err).to.not.exist()
             done()
           })
@@ -848,7 +848,7 @@ lab.experiment('UserOps', () => {
             variables: {var2: 'value2'}
           }])
 
-          udaru.users.replacePolicies({ id: 'VerucaId', policies: [accountantPolicy.id], organizationId: 'WONKA' }, (err, user) => {
+          udaru.users.replacePolicies({ id: 'VerucaId', policies: [{id: accountantPolicy.id}], organizationId: 'WONKA' }, (err, user) => {
             expect(err).to.not.exist()
             done()
           })
@@ -926,7 +926,7 @@ lab.experiment('UserOps', () => {
               instance: instance2
             }])
 
-            udaru.users.replacePolicies({ id: 'VerucaId', policies: [accountantPolicy.id], organizationId: 'WONKA' }, (err, user) => {
+            udaru.users.replacePolicies({ id: 'VerucaId', policies: [{id: accountantPolicy.id}], organizationId: 'WONKA' }, (err, user) => {
               expect(err).to.not.exist()
               done()
             })
@@ -991,7 +991,7 @@ lab.experiment('UserOps', () => {
             expect(err).to.exist()
             expect(err.output.statusCode).to.equal(409)
 
-            udaru.users.replacePolicies({ id: 'VerucaId', policies: [accountantPolicy.id], organizationId: 'WONKA' }, (err, user) => {
+            udaru.users.replacePolicies({ id: 'VerucaId', policies: [{id: accountantPolicy.id}], organizationId: 'WONKA' }, (err, user) => {
               expect(err).to.not.exist()
               done()
             })
@@ -1046,7 +1046,7 @@ lab.experiment('UserOps', () => {
             expect(err).to.exist()
             expect(err.output.statusCode).to.equal(409)
 
-            udaru.users.replacePolicies({ id: 'VerucaId', policies: [accountantPolicy.id], organizationId: 'WONKA' }, (err, user) => {
+            udaru.users.replacePolicies({ id: 'VerucaId', policies: [{id: accountantPolicy.id}], organizationId: 'WONKA' }, (err, user) => {
               expect(err).to.not.exist()
               done()
             })

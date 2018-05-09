@@ -102,7 +102,7 @@ lab.experiment('Edge cases', () => {
 lab.experiment('Authentication server errors', () => {
   const records = Factory(lab, {
     users: {
-      caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
+      caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] }
     },
     policies: {
       testedPolicy: Policy()
@@ -151,7 +151,7 @@ lab.experiment('Authentication server errors', () => {
 lab.experiment('invalid routes', () => {
   const records = Factory(lab, {
     users: {
-      caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
+      caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] }
     },
     policies: {
       testedPolicy: Policy()
@@ -179,7 +179,7 @@ lab.experiment('invalid routes', () => {
 lab.experiment('invalid validation resource', () => {
   const records = Factory(lab, {
     users: {
-      caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
+      caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] }
     },
     policies: {
       testedPolicy: Policy()
@@ -207,7 +207,7 @@ lab.experiment('invalid validation resource', () => {
 lab.experiment('invalid team validation resource', () => {
   const records = Factory(lab, {
     users: {
-      caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
+      caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] }
     },
     policies: {
       testedPolicy: Policy()
@@ -226,7 +226,7 @@ lab.experiment('invalid team validation resource', () => {
     .endpoint({
       method: 'POST',
       url: '/no/team-resource/{{caller.id}}',
-      payload: { policies: ['policy-to-add'] },
+      payload: { policies: [{id: 'policy-to-add'}] },
       headers: { authorization: '{{caller.id}}' }
     })
 
@@ -243,7 +243,7 @@ lab.experiment('invalid team validation resource', () => {
 lab.experiment('team validation resource authorization errors', () => {
   const records = Factory(lab, {
     users: {
-      caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
+      caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] }
     },
     policies: {
       testedPolicy: Policy()
@@ -278,7 +278,7 @@ lab.experiment('team validation resource authorization errors', () => {
 lab.experiment('team validation resource user errors', () => {
   const records = Factory(lab, {
     users: {
-      caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
+      caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] }
     },
     policies: {
       testedPolicy: Policy()
@@ -312,7 +312,7 @@ lab.experiment('team validation resource user errors', () => {
 lab.experiment('missing headers', () => {
   const records = Factory(lab, {
     users: {
-      caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
+      caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] }
     },
     policies: {
       testedPolicy: Policy()
@@ -340,7 +340,7 @@ lab.experiment('missing headers', () => {
 lab.experiment('resource not found', () => {
   const records = Factory(lab, {
     users: {
-      caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
+      caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] }
     },
     policies: {
       testedPolicy: Policy()
@@ -368,7 +368,7 @@ lab.experiment('resource not found', () => {
 lab.experiment('unhandled errors', () => {
   const records = Factory(lab, {
     users: {
-      caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
+      caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] }
     },
     policies: {
       testedPolicy: Policy()

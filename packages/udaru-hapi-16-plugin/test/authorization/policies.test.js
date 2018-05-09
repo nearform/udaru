@@ -42,7 +42,7 @@ lab.experiment('Routes Authorizations', () => {
     lab.experiment('GET /authorization/policies', () => {
       const records = Factory(lab, {
         users: {
-          caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
+          caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] }
         },
         policies: {
           testedPolicy: Policy()
@@ -85,7 +85,7 @@ lab.experiment('Routes Authorizations', () => {
     lab.experiment('GET /authorization/policies/{id}', () => {
       const records = Factory(lab, {
         users: {
-          caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
+          caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] }
         },
         policies: {
           testedPolicy: Policy(),
@@ -137,7 +137,7 @@ lab.experiment('Routes Authorizations', () => {
     lab.experiment('POST /authorization/policies', () => {
       const records = Factory(lab, {
         users: {
-          caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
+          caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] }
         },
         policies: {
           testedPolicy: Policy()
@@ -197,7 +197,7 @@ lab.experiment('Routes Authorizations', () => {
     lab.experiment('PUT /authorization/policies/{{id}}', () => {
       const records = Factory(lab, {
         users: {
-          caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
+          caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] }
         },
         policies: {
           testedPolicy: Policy(),
@@ -258,7 +258,7 @@ lab.experiment('Routes Authorizations', () => {
     lab.experiment('DELETE /authorization/policies/{{id}}', () => {
       const records = Factory(lab, {
         users: {
-          caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
+          caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] }
         },
         policies: {
           testedPolicy: Policy(),
@@ -312,7 +312,7 @@ lab.experiment('Routes Authorizations', () => {
     lab.experiment('GET /authorization/shared-policies', () => {
       const records = Factory(lab, {
         users: {
-          caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
+          caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] }
         },
         policies: {
           testedPolicy: Policy()
@@ -355,7 +355,7 @@ lab.experiment('Routes Authorizations', () => {
     lab.experiment('GET /authorization/shared-policies/{id}', () => {
       const records = Factory(lab, {
         users: {
-          caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
+          caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] }
         },
         policies: {
           testedPolicy: Policy()
@@ -409,7 +409,7 @@ lab.experiment('Routes Authorizations', () => {
     lab.experiment('POST /authorization/shared-policies', () => {
       const records = Factory(lab, {
         users: {
-          caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
+          caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] }
         },
         policies: {
           testedPolicy: Policy()
@@ -469,7 +469,7 @@ lab.experiment('Routes Authorizations', () => {
     lab.experiment('PUT /authorization/shared-policies/{{id}}', () => {
       const records = Factory(lab, {
         users: {
-          caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
+          caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] }
         },
         policies: {
           testedPolicy: Policy()
@@ -532,7 +532,7 @@ lab.experiment('Routes Authorizations', () => {
     lab.experiment('DELETE /authorization/shared-policies/{{id}}', () => {
       const records = Factory(lab, {
         users: {
-          caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
+          caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] }
         },
         policies: {
           testedPolicy: Policy()
