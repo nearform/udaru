@@ -1,0 +1,118 @@
+{
+  "_args": [
+    [
+      {
+        "raw": "swagger-ui-dist@^3.14.1",
+        "scope": null,
+        "escapedName": "swagger-ui-dist",
+        "name": "swagger-ui-dist",
+        "rawSpec": "^3.14.1",
+        "spec": ">=3.14.1 <4.0.0",
+        "type": "range"
+      },
+      "/Users/cianfoley/Documents/NearForm/dev/udaru/swagger-generation-issue/udaru"
+    ]
+  ],
+  "_from": "swagger-ui-dist@>=3.14.1 <4.0.0",
+  "_id": "swagger-ui-dist@3.14.1",
+  "_inCache": true,
+  "_location": "/swagger-ui-dist",
+  "_nodeVersion": "6.9.5",
+  "_npmOperationalInternal": {
+    "host": "s3://npm-registry-packages",
+    "tmp": "tmp/swagger-ui-dist_3.14.1_1525487810656_0.12588224658532243"
+  },
+  "_npmUser": {
+    "name": "swagger",
+    "email": "apiteam@swagger.io"
+  },
+  "_npmVersion": "3.10.10",
+  "_phantomChildren": {},
+  "_requested": {
+    "raw": "swagger-ui-dist@^3.14.1",
+    "scope": null,
+    "escapedName": "swagger-ui-dist",
+    "name": "swagger-ui-dist",
+    "rawSpec": "^3.14.1",
+    "spec": ">=3.14.1 <4.0.0",
+    "type": "range"
+  },
+  "_requiredBy": [
+    "/",
+    "/swagger-gen"
+  ],
+  "_resolved": "https://registry.npmjs.org/swagger-ui-dist/-/swagger-ui-dist-3.14.1.tgz",
+  "_shasum": "2fd6adcaa484133555d59cf55b11a704c1da1bc3",
+  "_shrinkwrap": null,
+  "_spec": "swagger-ui-dist@^3.14.1",
+  "_where": "/Users/cianfoley/Documents/NearForm/dev/udaru/swagger-generation-issue/udaru",
+  "bugs": {
+    "url": "https://github.com/swagger-api/swagger-ui/issues"
+  },
+  "contributors": [
+    {
+      "url": "in alphabetical order"
+    },
+    {
+      "name": "Anna Bodnia",
+      "email": "anna.bodnia@gmail.com"
+    },
+    {
+      "name": "Buu Nguyen",
+      "email": "buunguyen@gmail.com"
+    },
+    {
+      "name": "Josh Ponelat",
+      "email": "jponelat@gmail.com"
+    },
+    {
+      "name": "Kyle Shockey",
+      "email": "kyleshockey1@gmail.com"
+    },
+    {
+      "name": "Robert Barnwell",
+      "email": "robert@robertismy.name"
+    },
+    {
+      "name": "Sahar Jafari",
+      "email": "shr.jafari@gmail.com"
+    }
+  ],
+  "dependencies": {},
+  "description": "[![NPM version](https://badge.fury.io/js/swagger-ui-dist.svg)](http://badge.fury.io/js/swagger-ui-dist)",
+  "devDependencies": {},
+  "directories": {},
+  "dist": {
+    "shasum": "2fd6adcaa484133555d59cf55b11a704c1da1bc3",
+    "tarball": "https://registry.npmjs.org/swagger-ui-dist/-/swagger-ui-dist-3.14.1.tgz",
+    "fileCount": 17,
+    "unpackedSize": 11074075,
+    "npm-signature": "-----BEGIN PGP SIGNATURE-----\r\nVersion: OpenPGP.js v3.0.4\r\nComment: https://openpgpjs.org\r\n\r\nwsFcBAEBCAAQBQJa7RjECRA9TVsSAnZWagAA5vkP/3065QmnmYDMOqDbYBH0\neOtUGWYOtB1VEqI/p2js7v/v3qvbYRwmdc58qSCfNG5b2oRV3/GM14MsZS6q\nPem/xl6pPbvvMa63PKvHbLVYci3Hqp4kd0lQL3JIdzfRT43KBZMy/0EVYOoE\nRAw1aEiLo4OLv4LPVnt0bim2HrYqjZs24/7RECOHFJPrAg61GnqDhDIVXt5R\nilgMMZJ21G1r2egPZmk1PmD95V1njqdWrBrrppGhO2/TQwbmSolW+S01JiRo\n9tPw/SwoZfSbokL6ax7KoCv3abw3Em2DUgoIGJp5j6/2ljR11zQstWmVh648\nPkrhkGhDMJmrXPvwASDB2r4VtcxFfqVNzwYEJnG+OAJUiA2FdznvBRlmgPh7\nqyxLPICBcBBDJ/euAlF2XtavwcJD4lr/EEJIv0bNWxeLGlGrPw16kAoHtMzo\nmTT224PkYq0cufXSCARuawGfLV28/HgLDy1mPgvMasQG0VmR9vI8z6kpe0xo\ndEAlRBogj5q0f1bVEcCN/6/YYRVfqIHBc1ha+aep+SEqqYZBK1pJVmusMhAg\nDoFDCCgX+jVqEIPCwuUKa2H2uyZeXs5vlmHIhP1FdfOoOKdFZQnSrJP7Hgt4\nzzi0Lk5HNq3CzPP4QJz2U+8fRaC8Fa3OyWDYqOFWS4mrUpa2t1w6dZDYXsWt\npZdr\r\n=B4kH\r\n-----END PGP SIGNATURE-----\r\n"
+  },
+  "homepage": "https://github.com/swagger-api/swagger-ui#readme",
+  "license": "Apache-2.0",
+  "main": "index.js",
+  "maintainers": [
+    {
+      "name": "kyleshockey",
+      "email": "kyle.shockey1@gmail.com"
+    },
+    {
+      "name": "swagger",
+      "email": "apiteam@swagger.io"
+    },
+    {
+      "name": "swagger-api",
+      "email": "apiteam@swagger.io"
+    }
+  ],
+  "name": "swagger-ui-dist",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/swagger-api/swagger-ui.git"
+  },
+  "scripts": {},
+  "version": "3.14.1"
+}

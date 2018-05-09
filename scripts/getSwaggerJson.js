@@ -17,7 +17,12 @@ require('../packages/udaru-hapi-server').inject({method: 'GET', url: '/swagger.j
       console.error('Error validating swagger definition', err)
       process.exit(1)
     }
-    console.log(JSON.stringify(response.result))
+
+    if (process.argv.length === 2) {
+      console.log(JSON.stringify(response.result))
+    } else if (process.argv[2] === 'js') {
+      console.log('var swaggerJSON = ' + JSON.stringify(response.result))
+    }
     process.exit(0)
   })
 })

@@ -128,7 +128,7 @@
     "test": "lerna run test",
     "test:commit-check": "npm run doc:lint && npm run lint && npm run depcheck && npm run test",
     "test:security": "cd packages/udaru-hapi-server && npm run test:security",
-    "swagger-gen": "node scripts/getSwaggerJson.js > docs/swagger/swagger.json && swagger-gen docs/swagger/swagger.json -d docs/swagger && node scripts/injectUdaruSwaggerCss.js"
+    "swagger-gen": "node scripts/getSwaggerJson.js js > docs/swagger/swagger-json.js"
   },
   "remarkConfig": {
     "plugins": [
@@ -146,8 +146,7 @@
     "remark-cli": "^5.0.0",
     "remark-lint": "^6.0.1",
     "remark-preset-lint-recommended": "^3.0.1",
-    "standard": "^11.0.1",
-    "swagger-gen": "^1.1.3"
+    "standard": "^11.0.1"
   },
   "standard": {
     "ignore": [
