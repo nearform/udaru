@@ -438,7 +438,7 @@ lab.experiment('OrganizationOps', () => {
       })
     })
     tasks.push((next) => {
-      udaru.organizations.addPolicies({id: organizationId, policies: [testPolicy.id]}, (err, res) => {
+      udaru.organizations.addPolicies({id: organizationId, policies: [{id: testPolicy.id}]}, (err, res) => {
         expect(err).to.not.exist()
         expect(res).to.exist()
         expect(res.id).to.equal(organizationId)
@@ -552,7 +552,7 @@ lab.experiment('OrganizationOps', () => {
       })
     })
     tasks.push((next) => {
-      udaru.organizations.addPolicies({id: organizationId, policies: ['sharedPolicyId1']}, (err, res) => {
+      udaru.organizations.addPolicies({id: organizationId, policies: [{id: 'sharedPolicyId1'}]}, (err, res) => {
         expect(err).to.not.exist()
         expect(res).to.exist()
         expect(res.id).to.equal(organizationId)
@@ -590,7 +590,7 @@ lab.experiment('OrganizationOps', () => {
       })
     })
     tasks.push((next) => {
-      udaru.organizations.addPolicies({id: organizationId, policies: [testPolicy.id]}, (err, res) => {
+      udaru.organizations.addPolicies({id: organizationId, policies: [{id: testPolicy.id}]}, (err, res) => {
         expect(err).to.not.exist()
         expect(res).to.exist()
         expect(res.id).to.equal(organizationId)
@@ -613,7 +613,7 @@ lab.experiment('OrganizationOps', () => {
       })
     })
     tasks.push((next) => {
-      udaru.organizations.replacePolicies({id: organizationId, policies: [testPolicy2.id]}, (err, res) => {
+      udaru.organizations.replacePolicies({id: organizationId, policies: [{id: testPolicy2.id}]}, (err, res) => {
         expect(err).to.not.exist()
         expect(res).to.exist()
         expect(res.id).to.equal(organizationId)
@@ -725,7 +725,7 @@ lab.experiment('OrganizationOps', () => {
       })
     })
     tasks.push((next) => {
-      udaru.organizations.addPolicies({id: organizationId, policies: [testPolicy.id]}, (err, res) => {
+      udaru.organizations.addPolicies({id: organizationId, policies: [{id: testPolicy.id}]}, (err, res) => {
         expect(err).to.not.exist()
         expect(res).to.exist()
         expect(res.id).to.equal(organizationId)
@@ -748,7 +748,7 @@ lab.experiment('OrganizationOps', () => {
       })
     })
     tasks.push((next) => {
-      udaru.organizations.replacePolicies({id: organizationId, policies: ['sharedPolicyId1']}, (err, res) => {
+      udaru.organizations.replacePolicies({id: organizationId, policies: [{id: 'sharedPolicyId1'}]}, (err, res) => {
         expect(err).to.not.exist()
         expect(res).to.exist()
         expect(res.id).to.equal(organizationId)
@@ -778,7 +778,7 @@ lab.experiment('OrganizationOps', () => {
     const tasks = []
 
     tasks.push((next) => {
-      udaru.organizations.replacePolicies({id: organizationId, policies: ['InvalidID']}, (err, res) => {
+      udaru.organizations.replacePolicies({id: organizationId, policies: [{id: 'InvalidID'}]}, (err, res) => {
         expect(err).to.exist()
         expect(res).to.not.exist()
         next(err, res)
@@ -803,7 +803,7 @@ lab.experiment('OrganizationOps', () => {
       })
     })
     tasks.push((next) => {
-      udaru.organizations.addPolicies({ id: organizationId, policies: [testPolicy.id] }, (err, res) => {
+      udaru.organizations.addPolicies({ id: organizationId, policies: [{id: testPolicy.id}] }, (err, res) => {
         expect(err).to.not.exist()
         expect(res.id).to.equal(organizationId)
         next(err, res)
@@ -860,7 +860,7 @@ lab.experiment('OrganizationOps', () => {
       })
     })
     tasks.push((next) => {
-      udaru.organizations.addPolicies({id: organizationId, policies: [testPolicy.id]}, (err, res) => {
+      udaru.organizations.addPolicies({id: organizationId, policies: [{id: testPolicy.id}]}, (err, res) => {
         expect(err).to.not.exist()
         expect(res.id).to.equal(organizationId)
         next(err, res)
@@ -926,7 +926,7 @@ lab.experiment('OrganizationOps', () => {
         })
       })
       tasks.push((next) => {
-        udaru.organizations.addPolicies({id: organizationId, policies: [testPolicy.id]}, (err, res) => {
+        udaru.organizations.addPolicies({id: organizationId, policies: [{id: testPolicy.id}]}, (err, res) => {
           expect(err).to.not.exist()
           expect(res).to.exist()
           expect(res.id).to.equal(organizationId)
@@ -949,7 +949,7 @@ lab.experiment('OrganizationOps', () => {
         })
       })
       tasks.push((next) => {
-        udaru.organizations.addPolicies({id: organizationId, policies: [testPolicy.id]}, (err, res) => {
+        udaru.organizations.addPolicies({id: organizationId, policies: [{id: testPolicy.id}]}, (err, res) => {
           expect(err).to.exist()
           expect(err.output.statusCode).to.equal(409)
           next()

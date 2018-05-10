@@ -112,7 +112,7 @@ lab.experiment('get users SQL injection tests', () => {
       method: 'PUT',
       url: '/authorization/users/ManyPoliciesId/policies',
       payload: {
-        policies: [p.id]
+        policies: [{id: p.id}]
       }
     }
 
@@ -133,7 +133,7 @@ lab.experiment('get users SQL injection tests', () => {
       method: 'PUT',
       url: '/authorization/users/ManyPoliciesId/policies',
       payload: {
-        policies: [p.id]
+        policies: [{id: p.id}]
       }
     }
 
@@ -154,7 +154,7 @@ lab.experiment('get users SQL injection tests', () => {
       method: 'PUT',
       url: '/authorization/users/*/policies',
       payload: {
-        policies: [p.id]
+        policies: [{id: p.id}]
       }
     }
 

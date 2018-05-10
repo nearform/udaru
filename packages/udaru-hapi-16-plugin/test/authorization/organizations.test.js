@@ -26,7 +26,7 @@ lab.experiment('Routes Authorizations', () => {
     lab.experiment('GET ', () => {
       const records = Factory(lab, {
         users: {
-          caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
+          caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] }
         },
         policies: {
           testedPolicy: Policy()
@@ -61,7 +61,7 @@ lab.experiment('Routes Authorizations', () => {
     lab.experiment('GET /authorization/organizations/{id}', () => {
       const records = Factory(lab, {
         users: {
-          caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
+          caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] }
         },
         policies: {
           testedPolicy: Policy()
@@ -112,7 +112,7 @@ lab.experiment('Routes Authorizations', () => {
     lab.experiment('POST', () => {
       const records = Factory(lab, {
         users: {
-          caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
+          caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] }
         },
         policies: {
           testedPolicy: Policy()
@@ -167,7 +167,7 @@ lab.experiment('Routes Authorizations', () => {
     lab.experiment('DELETE', () => {
       const records = Factory(lab, {
         users: {
-          caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
+          caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] }
         },
         policies: {
           testedPolicy: Policy()
@@ -222,7 +222,7 @@ lab.experiment('Routes Authorizations', () => {
       const records = Factory(lab, {
 
         users: {
-          caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
+          caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] }
         },
         policies: {
           testedPolicy: Policy()
@@ -278,7 +278,7 @@ lab.experiment('Routes Authorizations', () => {
       const otherOrgId = 'OTHERORGID'
       const records = Factory(lab, {
         users: {
-          caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
+          caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] }
         },
         organizations: {
           testedOrg: { id: otherOrgId, name: 'other org', description: 'other org' }
@@ -306,7 +306,7 @@ lab.experiment('Routes Authorizations', () => {
         .endpoint({
           method: 'PUT',
           url: `/authorization/organizations/${organizationId}/policies`,
-          payload: { policies: ['policy-to-add'] },
+          payload: { policies: [{id: 'policy-to-add'}] },
           headers: { authorization: '{{caller.id}}' }
         })
 
@@ -371,7 +371,7 @@ lab.experiment('Routes Authorizations', () => {
       const otherOrgId = 'OTHERORGID'
       const records = Factory(lab, {
         users: {
-          caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
+          caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] }
         },
         organizations: {
           testedOrg: { id: otherOrgId, name: 'other org', description: 'other org' }
@@ -399,7 +399,7 @@ lab.experiment('Routes Authorizations', () => {
         .endpoint({
           method: 'POST',
           url: `/authorization/organizations/${organizationId}/policies`,
-          payload: { policies: ['policy-to-add'] },
+          payload: { policies: [{id: 'policy-to-add'}] },
           headers: { authorization: '{{caller.id}}' }
         })
 
@@ -464,10 +464,10 @@ lab.experiment('Routes Authorizations', () => {
       const otherOrgId = 'OTHERORGID'
       const records = Factory(lab, {
         users: {
-          caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
+          caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] }
         },
         organizations: {
-          testedOrg: { id: otherOrgId, name: 'other org', description: 'other org', policies: ['policyToAdd'] }
+          testedOrg: { id: otherOrgId, name: 'other org', description: 'other org', policies: [{id: 'policyToAdd'}] }
         },
         policies: {
           testedPolicy: Policy(),
@@ -558,10 +558,10 @@ lab.experiment('Routes Authorizations', () => {
       const policyId = 'policy-to-add'
       const records = Factory(lab, {
         users: {
-          caller: { name: 'caller', organizationId: otherOrgId, policies: ['testedPolicy'] }
+          caller: { name: 'caller', organizationId: otherOrgId, policies: [{id: 'testedPolicy'}] }
         },
         organizations: {
-          testedOrg: { id: otherOrgId, name: 'other org', description: 'other org', policies: ['policyToAdd'] }
+          testedOrg: { id: otherOrgId, name: 'other org', description: 'other org', policies: [{id: 'policyToAdd'}] }
         },
         policies: {
           testedPolicy: {

@@ -1027,7 +1027,7 @@ lab.experiment('Teams - manage policies', () => {
       method: 'PUT',
       url: '/authorization/teams/1/policies',
       payload: {
-        policies: ['policyId2']
+        policies: [{id: 'policyId2'}]
       }
     })
 
@@ -1040,7 +1040,7 @@ lab.experiment('Teams - manage policies', () => {
         { id: 'policyId1', name: 'Director', version: '0.1', variables: {} }
       ])
 
-      udaru.teams.replacePolicies({ id: result.id, policies: ['policyId1'], organizationId: result.organizationId }, done)
+      udaru.teams.replacePolicies({ id: result.id, policies: [{id: 'policyId1'}], organizationId: result.organizationId }, done)
     })
   })
 
@@ -1172,7 +1172,7 @@ lab.experiment('Teams - manage policies', () => {
       method: 'PUT',
       url: '/authorization/teams/1/policies',
       payload: {
-        policies: ['InvalidID']
+        policies: [{id: 'InvalidID'}]
       }
     })
 
@@ -1187,7 +1187,7 @@ lab.experiment('Teams - manage policies', () => {
       method: 'PUT',
       url: '/authorization/teams/1/policies',
       payload: {
-        policies: ['policyId9']
+        policies: [{id: 'policyId9'}]
       }
     })
 
@@ -1202,7 +1202,7 @@ lab.experiment('Teams - manage policies', () => {
       method: 'PUT',
       url: '/authorization/teams/1/policies',
       payload: {
-        policies: ['policyId4', 'policyId5', 'policyId6']
+        policies: [{id: 'policyId4'}, {id: 'policyId5'}, {id: 'policyId6'}]
       }
     })
 
@@ -1216,7 +1216,7 @@ lab.experiment('Teams - manage policies', () => {
         { id: 'policyId4', name: 'Finance Director', version: '0.1', variables: {} }
       ])
 
-      udaru.teams.replacePolicies({ id: result.id, policies: ['policyId1'], organizationId: result.organizationId }, done)
+      udaru.teams.replacePolicies({ id: result.id, policies: [{id: 'policyId1'}], organizationId: result.organizationId }, done)
     })
   })
 
@@ -1225,7 +1225,7 @@ lab.experiment('Teams - manage policies', () => {
       method: 'PUT',
       url: '/authorization/teams/1/policies',
       payload: {
-        policies: ['policyId4', 'policyId5', 'policyId6']
+        policies: [{id: 'policyId4'}, {id: 'policyId5'}, {id: 'policyId6'}]
       }
     })
 
@@ -1272,7 +1272,7 @@ lab.experiment('Teams - manage policies', () => {
             { id: 'policyId4', name: 'Finance Director', version: '0.1', variables: {} }
           ])
 
-          udaru.teams.replacePolicies({ id: '1', policies: ['policyId1'], organizationId: 'WONKA' }, done)
+          udaru.teams.replacePolicies({ id: '1', policies: [{id: 'policyId1'}], organizationId: 'WONKA' }, done)
         })
       })
     })
@@ -1295,7 +1295,7 @@ lab.experiment('Teams - manage policies', () => {
       method: 'POST',
       url: '/authorization/teams/1/policies',
       payload: {
-        policies: ['policyId6']
+        policies: [{id: 'policyId6'}]
       }
     })
 
@@ -1310,7 +1310,7 @@ lab.experiment('Teams - manage policies', () => {
         variables: {}
       }])
 
-      udaru.teams.replacePolicies({ id: result.id, policies: ['policyId1'], organizationId: result.organizationId }, done)
+      udaru.teams.replacePolicies({ id: result.id, policies: [{id: 'policyId1'}], organizationId: result.organizationId }, done)
     })
   })
 
@@ -1319,7 +1319,7 @@ lab.experiment('Teams - manage policies', () => {
       method: 'POST',
       url: '/authorization/teams/1/policies',
       payload: {
-        policies: ['InvalidID']
+        policies: [{id: 'InvalidID'}]
       }
     })
 
@@ -1329,12 +1329,12 @@ lab.experiment('Teams - manage policies', () => {
     })
   })
 
-  lab.test('Replace team policies from another org should return an error', (done) => {
+  lab.test(' from another org should return an error', (done) => {
     const options = utils.requestOptions({
       method: 'POST',
       url: '/authorization/teams/1/policies',
       payload: {
-        policies: ['policyId9']
+        policies: [{id: 'policyId9'}]
       }
     })
 
@@ -1353,7 +1353,7 @@ lab.experiment('Teams - manage policies', () => {
     server.inject(options, (response) => {
       expect(response.statusCode).to.equal(204)
 
-      udaru.teams.replacePolicies({ id: '1', policies: ['policyId1'], organizationId: 'WONKA' }, done)
+      udaru.teams.replacePolicies({ id: '1', policies: [{id: 'policyId1'}], organizationId: 'WONKA' }, done)
     })
   })
 
@@ -1369,7 +1369,7 @@ lab.experiment('Teams - manage policies', () => {
       stub.restore()
 
       expect(response.statusCode).to.equal(500)
-      udaru.teams.replacePolicies({ id: '1', policies: ['policyId1'], organizationId: 'WONKA' }, done)
+      udaru.teams.replacePolicies({ id: '1', policies: [{id: 'policyId1'}], organizationId: 'WONKA' }, done)
     })
   })
 
@@ -1382,7 +1382,7 @@ lab.experiment('Teams - manage policies', () => {
     server.inject(options, (response) => {
       expect(response.statusCode).to.equal(204)
 
-      udaru.teams.replacePolicies({ id: '1', policies: ['policyId1'], organizationId: 'WONKA' }, done)
+      udaru.teams.replacePolicies({ id: '1', policies: [{id: 'policyId1'}], organizationId: 'WONKA' }, done)
     })
   })
 
@@ -1398,7 +1398,7 @@ lab.experiment('Teams - manage policies', () => {
       stub.restore()
 
       expect(response.statusCode).to.equal(500)
-      udaru.teams.replacePolicies({ id: '1', policies: ['policyId1'], organizationId: 'WONKA' }, done)
+      udaru.teams.replacePolicies({ id: '1', policies: [{id: 'policyId1'}], organizationId: 'WONKA' }, done)
     })
   })
 })

@@ -30,7 +30,7 @@ lab.experiment('Routes Authorizations', () => {
           calledTeam: { name: 'called team', description: 'desc', organizationId, users: ['called'] }
         },
         users: {
-          caller: { name: 'caller', organizationId, policies: ['testedPolicy'] },
+          caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] },
           called: { name: 'called', organizationId }
         },
         policies: {
@@ -101,7 +101,7 @@ lab.experiment('Routes Authorizations', () => {
           calledTeam: { name: 'called team', description: 'desc', organizationId, users: ['called'] }
         },
         users: {
-          caller: { name: 'caller', organizationId, policies: ['testedPolicy'] },
+          caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] },
           called: { name: 'called', organizationId }
         },
         policies: {
@@ -162,7 +162,7 @@ lab.experiment('Routes Authorizations', () => {
           calledTeam: { name: 'called team', description: 'desc', organizationId }
         },
         users: {
-          caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
+          caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] }
         },
         policies: {
           testedPolicy: Policy()
@@ -225,7 +225,7 @@ lab.experiment('Routes Authorizations', () => {
           calledTeam: { name: 'called team', description: 'desc', organizationId, users: ['called'] }
         },
         users: {
-          caller: { name: 'caller', organizationId, policies: ['testedPolicy'] },
+          caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] },
           called: { name: 'called', organizationId }
         },
         policies: {
@@ -300,7 +300,7 @@ lab.experiment('Routes Authorizations', () => {
           calledTeam: { name: 'called team', description: 'desc', organizationId, users: ['called'] }
         },
         users: {
-          caller: { name: 'caller', organizationId, policies: ['testedPolicy'] },
+          caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] },
           called: { name: 'called', organizationId }
         },
         policies: {
@@ -372,13 +372,13 @@ lab.experiment('Routes Authorizations', () => {
           calledTeam: { name: 'called team', description: 'desc', organizationId, users: ['called'] }
         },
         users: {
-          caller: { name: 'caller', organizationId, policies: ['testedPolicy'] },
+          caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] },
           called: { name: 'called', organizationId }
         },
         policies: {
           testedPolicy: Policy(),
           policyToAdd: {
-            id: 'policy-to-add',
+            id: 'policyToAdd',
             version: '2016-07-01',
             name: 'Policy To Add',
             statements: {
@@ -398,7 +398,7 @@ lab.experiment('Routes Authorizations', () => {
         .endpoint({
           method: 'PUT',
           url: '/authorization/users/{{called.id}}/policies',
-          payload: { policies: ['policy-to-add'] },
+          payload: { policies: [{id: 'policyToAdd'}] },
           headers: { authorization: '{{caller.id}}' }
         })
 
@@ -457,13 +457,13 @@ lab.experiment('Routes Authorizations', () => {
           calledTeam: { name: 'called team', description: 'desc', organizationId, users: ['called'] }
         },
         users: {
-          caller: { name: 'caller', organizationId, policies: ['testedPolicy'] },
+          caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] },
           called: { name: 'called', organizationId }
         },
         policies: {
           testedPolicy: Policy(),
           policyToAdd: {
-            id: 'policy-to-add',
+            id: 'policyToAdd',
             version: '2016-07-01',
             name: 'Policy To Add',
             statements: {
@@ -483,7 +483,7 @@ lab.experiment('Routes Authorizations', () => {
         .endpoint({
           method: 'POST',
           url: '/authorization/users/{{called.id}}/policies',
-          payload: { policies: ['policy-to-add'] },
+          payload: { policies: [{id: 'policyToAdd'}] },
           headers: { authorization: '{{caller.id}}' }
         })
 
@@ -542,13 +542,13 @@ lab.experiment('Routes Authorizations', () => {
           calledTeam: { name: 'called team', description: 'desc', organizationId, users: ['called'] }
         },
         users: {
-          caller: { name: 'caller', organizationId, policies: ['testedPolicy'] },
-          called: { name: 'called', organizationId, policies: ['policyToDelete'] }
+          caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] },
+          called: { name: 'called', organizationId, policies: [{id: 'policyToDelete'}] }
         },
         policies: {
           testedPolicy: Policy(),
           policyToDelete: {
-            id: 'policy-to-delete',
+            id: 'policyToDelete',
             version: '2016-07-01',
             name: 'Policy To Delete',
             statements: {
@@ -626,13 +626,13 @@ lab.experiment('Routes Authorizations', () => {
           calledTeam: { name: 'called team', description: 'desc', organizationId, users: ['called'] }
         },
         users: {
-          caller: { name: 'caller', organizationId, policies: ['testedPolicy'] },
-          called: { name: 'called', organizationId, policies: ['policyToDelete'] }
+          caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] },
+          called: { name: 'called', organizationId, policies: [{id: 'policyToDelete'}] }
         },
         policies: {
           testedPolicy: Policy(),
           policyToDelete: {
-            id: 'policy-to-delete',
+            id: 'policyToDelete',
             version: '2016-07-01',
             name: 'Policy To Delete',
             statements: {
@@ -651,7 +651,7 @@ lab.experiment('Routes Authorizations', () => {
         .server(server)
         .endpoint({
           method: 'DELETE',
-          url: '/authorization/users/{{called.id}}/policies/policy-to-add',
+          url: '/authorization/users/{{called.id}}/policies/policyToAdd',
           headers: { authorization: '{{caller.id}}' }
         })
 
@@ -711,7 +711,7 @@ lab.experiment('Routes Authorizations', () => {
           calledTeam2: { name: 'called team 2', description: 'desc', organizationId, users: ['called'] }
         },
         users: {
-          caller: { name: 'caller', organizationId, policies: ['testedPolicy'] },
+          caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] },
           called: { name: 'called', organizationId }
         },
         policies: {
@@ -795,7 +795,7 @@ lab.experiment('Routes Authorizations', () => {
           calledTeam2: { name: 'called team 2', description: 'desc', organizationId, users: ['called'] }
         },
         users: {
-          caller: { name: 'caller', organizationId, policies: ['testedPolicy'] },
+          caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] },
           called: { name: 'called', organizationId }
         },
         policies: {

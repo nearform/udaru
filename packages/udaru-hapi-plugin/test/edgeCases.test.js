@@ -38,7 +38,7 @@ lab.experiment('Edge cases', () => {
   lab.experiment('single hook', async () => {
     const records = Factory(lab, {
       users: {
-        caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
+        caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] }
       },
       policies: {
         testedPolicy: Policy()
@@ -75,7 +75,7 @@ lab.experiment('Edge cases', () => {
   lab.experiment('multiple hooks', async () => {
     const records = Factory(lab, {
       users: {
-        caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
+        caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] }
       },
       policies: {
         testedPolicy: Policy()
@@ -112,7 +112,7 @@ lab.experiment('Edge cases', () => {
   lab.experiment('invalid routes', () => {
     const records = Factory(lab, {
       users: {
-        caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
+        caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] }
       },
       policies: {
         testedPolicy: Policy()
@@ -140,7 +140,7 @@ lab.experiment('Edge cases', () => {
   lab.experiment('invalid validation resource', () => {
     const records = Factory(lab, {
       users: {
-        caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
+        caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] }
       },
       policies: {
         testedPolicy: Policy()
@@ -168,7 +168,7 @@ lab.experiment('Edge cases', () => {
   lab.experiment('invalid team validation resource', () => {
     const records = Factory(lab, {
       users: {
-        caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
+        caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] }
       },
       policies: {
         testedPolicy: Policy()
@@ -194,7 +194,7 @@ lab.experiment('Edge cases', () => {
       .endpoint({
         method: 'POST',
         url: '/no/team-resource/{{caller.id}}',
-        payload: { policies: ['policy-to-add'] },
+        payload: { policies: [{id: 'policyToAdd'}] },
         headers: { authorization: '{{caller.id}}' }
       })
 
@@ -211,7 +211,7 @@ lab.experiment('Edge cases', () => {
   lab.experiment('missing headers', () => {
     const records = Factory(lab, {
       users: {
-        caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
+        caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] }
       },
       policies: {
         testedPolicy: Policy()
@@ -239,7 +239,7 @@ lab.experiment('Edge cases', () => {
   lab.experiment('resource not found', () => {
     const records = Factory(lab, {
       users: {
-        caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
+        caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] }
       },
       policies: {
         testedPolicy: Policy()
@@ -267,7 +267,7 @@ lab.experiment('Edge cases', () => {
   lab.experiment('unhandled errors', () => {
     const records = Factory(lab, {
       users: {
-        caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
+        caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] }
       },
       policies: {
         testedPolicy: Policy()

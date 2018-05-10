@@ -26,7 +26,7 @@ lab.experiment('Routes Authorizations', () => {
     lab.experiment('GET /authorization/access/{userId}/{action}/{resource*}', () => {
       const records = Factory(lab, {
         users: {
-          caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
+          caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] }
         },
         policies: {
           testedPolicy: Policy()
@@ -69,7 +69,7 @@ lab.experiment('Routes Authorizations', () => {
     lab.experiment('GET /authorization/list/{userId}/{resource*}', () => {
       const records = Factory(lab, {
         users: {
-          caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
+          caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] }
         },
         policies: {
           testedPolicy: Policy()
@@ -112,7 +112,7 @@ lab.experiment('Routes Authorizations', () => {
     lab.experiment('GET /authorization/list/{userId}', () => {
       const records = Factory(lab, {
         users: {
-          caller: { name: 'caller', organizationId, policies: ['testedPolicy'] }
+          caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] }
         },
         policies: {
           testedPolicy: Policy()

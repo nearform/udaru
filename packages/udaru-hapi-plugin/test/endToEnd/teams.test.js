@@ -839,7 +839,7 @@ lab.experiment('Teams - manage users', () => {
         method: 'PUT',
         url: '/authorization/teams/1/policies',
         payload: {
-          policies: ['policyId2']
+          policies: [{id: 'policyId2'}]
         }
       })
 
@@ -852,7 +852,7 @@ lab.experiment('Teams - manage users', () => {
         { id: 'policyId1', name: 'Director', version: '0.1', variables: {} }
       ])
 
-      await udaru.teams.replacePolicies({ id: result.id, policies: ['policyId1'], organizationId: result.organizationId })
+      await udaru.teams.replacePolicies({ id: result.id, policies: [{id: 'policyId1'}], organizationId: result.organizationId })
     })
   })
 
@@ -877,7 +877,7 @@ lab.experiment('Teams - manage users', () => {
       { id: 'policyId1', name: 'Director', version: '0.1', variables: {} }
     ])
 
-    await udaru.teams.replacePolicies({ id: result.id, policies: ['policyId1'], organizationId: result.organizationId })
+    await udaru.teams.replacePolicies({ id: result.id, policies: [{id: 'policyId1'}], organizationId: result.organizationId })
   })
 
   lab.test('Policy instance addition, edit and removal', async () => {
@@ -966,7 +966,7 @@ lab.experiment('Teams - manage users', () => {
     expect(response.statusCode).to.equal(200)
     expect(result.policies.length).to.equal(0)
 
-    await udaru.teams.replacePolicies({ id: result.id, policies: ['policyId1'], organizationId: result.organizationId })
+    await udaru.teams.replacePolicies({ id: result.id, policies: [{id: 'policyId1'}], organizationId: result.organizationId })
   })
 
   lab.test('Add to one team a policy with invalid ID should return an error', async () => {
@@ -974,7 +974,7 @@ lab.experiment('Teams - manage users', () => {
       method: 'PUT',
       url: '/authorization/teams/1/policies',
       payload: {
-        policies: ['InvalidID']
+        policies: [{id: 'InvalidID'}]
       }
     })
 
@@ -987,7 +987,7 @@ lab.experiment('Teams - manage users', () => {
       method: 'PUT',
       url: '/authorization/teams/1/policies',
       payload: {
-        policies: ['policyId9']
+        policies: [{id: 'policyId9'}]
       }
     })
 
@@ -1000,7 +1000,7 @@ lab.experiment('Teams - manage users', () => {
       method: 'PUT',
       url: '/authorization/teams/1/policies',
       payload: {
-        policies: ['policyId4', 'policyId5', 'policyId6']
+        policies: [{id: 'policyId4'}, {id: 'policyId5'}, {id: 'policyId6'}]
       }
     })
 
@@ -1015,7 +1015,7 @@ lab.experiment('Teams - manage users', () => {
       { id: 'policyId4', name: 'Finance Director', version: '0.1', variables: {} }
     ])
 
-    await udaru.teams.replacePolicies({ id: result.id, policies: ['policyId1'], organizationId: result.organizationId })
+    await udaru.teams.replacePolicies({ id: result.id, policies: [{id: 'policyId1'}], organizationId: result.organizationId })
   })
 
   lab.test('List multiple policies', async () => {
@@ -1023,7 +1023,7 @@ lab.experiment('Teams - manage users', () => {
       method: 'PUT',
       url: '/authorization/teams/1/policies',
       payload: {
-        policies: ['policyId4', 'policyId5', 'policyId6']
+        policies: [{id: 'policyId4'}, {id: 'policyId5'}, {id: 'policyId6'}]
       }
     })
 
@@ -1069,7 +1069,7 @@ lab.experiment('Teams - manage users', () => {
       { id: 'policyId4', name: 'Finance Director', version: '0.1', variables: {} }
     ])
 
-    await udaru.teams.replacePolicies({ id: '1', policies: ['policyId1'], organizationId: 'WONKA' })
+    await udaru.teams.replacePolicies({ id: '1', policies: [{id: 'policyId1'}], organizationId: 'WONKA' })
   })
 
   lab.test('get non existent teams policies', async () => {
@@ -1087,7 +1087,7 @@ lab.experiment('Teams - manage users', () => {
       method: 'POST',
       url: '/authorization/teams/1/policies',
       payload: {
-        policies: ['policyId6']
+        policies: [{id: 'policyId6'}]
       }
     })
 
@@ -1102,7 +1102,7 @@ lab.experiment('Teams - manage users', () => {
       variables: {}
     }])
 
-    await udaru.teams.replacePolicies({ id: result.id, policies: ['policyId1'], organizationId: result.organizationId })
+    await udaru.teams.replacePolicies({ id: result.id, policies: [{id: 'policyId1'}], organizationId: result.organizationId })
   })
 
   lab.test('Replace team policies with a policy with invalid ID should return an error', async () => {
@@ -1110,7 +1110,7 @@ lab.experiment('Teams - manage users', () => {
       method: 'POST',
       url: '/authorization/teams/1/policies',
       payload: {
-        policies: ['InvalidID']
+        policies: [{id: 'InvalidID'}]
       }
     })
 
@@ -1123,7 +1123,7 @@ lab.experiment('Teams - manage users', () => {
       method: 'POST',
       url: '/authorization/teams/1/policies',
       payload: {
-        policies: ['policyId9']
+        policies: [{id: 'policyId9'}]
       }
     })
 
@@ -1140,7 +1140,7 @@ lab.experiment('Teams - manage users', () => {
     const response = await server.inject(options)
     expect(response.statusCode).to.equal(204)
 
-    await udaru.teams.replacePolicies({ id: '1', policies: ['policyId1'], organizationId: 'WONKA' })
+    await udaru.teams.replacePolicies({ id: '1', policies: [{id: 'policyId1'}], organizationId: 'WONKA' })
   })
 
   lab.test('Delete specific team policy', async () => {
@@ -1152,7 +1152,7 @@ lab.experiment('Teams - manage users', () => {
     const response = await server.inject(options)
     expect(response.statusCode).to.equal(204)
 
-    await udaru.teams.replacePolicies({ id: '1', policies: ['policyId1'], organizationId: 'WONKA' })
+    await udaru.teams.replacePolicies({ id: '1', policies: [{id: 'policyId1'}], organizationId: 'WONKA' })
   })
 })
 

@@ -87,13 +87,6 @@ function checkOrg (db, organizationId, cb) {
 }
 
 function preparePolicy (policy) {
-  if (_.isString(policy)) {
-    return {
-      id: policy,
-      variables: {}
-    }
-  }
-
   policy.variables = policy.variables || {}
 
   return policy

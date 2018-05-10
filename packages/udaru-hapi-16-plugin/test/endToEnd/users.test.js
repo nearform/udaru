@@ -501,7 +501,7 @@ lab.experiment('Users - manage policies', () => {
         method: 'PUT',
         url: '/authorization/users/ModifyId/policies',
         payload: {
-          policies: [p.id]
+          policies: [{id: p.id}]
         }
       })
 
@@ -664,7 +664,7 @@ lab.experiment('Users - manage policies', () => {
                     expect(response.statusCode).to.equal(200)
                     expect(result.policies.length).to.equal(0)
 
-                    udaru.users.replacePolicies({ id: result.id, policies: ['policyId2'], organizationId: result.organizationId }, done)
+                    udaru.users.replacePolicies({ id: result.id, policies: [{id: 'policyId2'}], organizationId: result.organizationId }, done)
                   })
                 })
               })
@@ -731,7 +731,7 @@ lab.experiment('Users - manage policies', () => {
             variables: {var2: 'value2'}
           }])
 
-          udaru.users.replacePolicies({ id: 'VerucaId', policies: ['policyId2'], organizationId: 'WONKA' }, done)
+          udaru.users.replacePolicies({ id: 'VerucaId', policies: [{id: 'policyId2'}], organizationId: 'WONKA' }, done)
         })
       })
     })
@@ -754,7 +754,7 @@ lab.experiment('Users - manage policies', () => {
       method: 'PUT',
       url: '/authorization/users/ModifyId/policies',
       payload: {
-        policies: ['InvalidPolicyID']
+        policies: [{id: 'InvalidPolicyId'}]
       }
     })
 
@@ -769,7 +769,7 @@ lab.experiment('Users - manage policies', () => {
       method: 'POST',
       url: '/authorization/users/ModifyId/policies',
       payload: {
-        policies: ['InvalidPolicyID']
+        policies: [{id: 'InvalidPolicyId'}]
       }
     })
 
@@ -787,7 +787,7 @@ lab.experiment('Users - manage policies', () => {
         method: 'POST',
         url: '/authorization/users/ModifyId/policies',
         payload: {
-          policies: [p.id]
+          policies: [{id: p.id}]
         }
       })
 
@@ -801,7 +801,7 @@ lab.experiment('Users - manage policies', () => {
         udaru.policies.create(policyCreateData, (err, newP) => {
           expect(err).to.not.exist()
 
-          options.payload.policies = [newP.id]
+          options.payload.policies = [{id: newP.id}]
 
           server.inject(options, (response) => {
             const result = response.result
@@ -834,7 +834,7 @@ lab.experiment('Users - manage policies', () => {
     udaru.policies.create(policyCreateData, (err, p) => {
       expect(err).to.not.exist()
 
-      udaru.users.addPolicies({ id: 'ModifyId', organizationId: 'WONKA', policies: [p.id] }, (err) => {
+      udaru.users.addPolicies({ id: 'ModifyId', organizationId: 'WONKA', policies: [{id: p.id}] }, (err) => {
         expect(err).to.not.exist()
 
         server.inject(options, (response) => {
@@ -860,7 +860,7 @@ lab.experiment('Users - manage policies', () => {
     udaru.policies.create(policyCreateData, (err, p) => {
       expect(err).to.not.exist()
 
-      udaru.users.addPolicies({ id: 'ModifyId', organizationId: 'WONKA', policies: [p.id] }, (err) => {
+      udaru.users.addPolicies({ id: 'ModifyId', organizationId: 'WONKA', policies: [{id: p.id}] }, (err) => {
         expect(err).to.not.exist()
 
         const stub = sinon.stub(server.udaru.users, 'deletePolicies').yields(new Error('ERROR'))
@@ -879,7 +879,7 @@ lab.experiment('Users - manage policies', () => {
     udaru.policies.create(policyCreateData, (err, p) => {
       expect(err).to.not.exist()
 
-      udaru.users.addPolicies({ id: 'ModifyId', organizationId: 'WONKA', policies: [p.id] }, (err) => {
+      udaru.users.addPolicies({ id: 'ModifyId', organizationId: 'WONKA', policies: [{id: p.id}] }, (err) => {
         expect(err).to.not.exist()
 
         const options = utils.requestOptions({
@@ -905,7 +905,7 @@ lab.experiment('Users - manage policies', () => {
     udaru.policies.create(policyCreateData, (err, p) => {
       expect(err).to.not.exist()
 
-      udaru.users.addPolicies({ id: 'ModifyId', organizationId: 'WONKA', policies: [p.id] }, (err) => {
+      udaru.users.addPolicies({ id: 'ModifyId', organizationId: 'WONKA', policies: [{id: p.id}] }, (err) => {
         expect(err).to.not.exist()
 
         const options = utils.requestOptions({
@@ -958,7 +958,7 @@ lab.experiment('Users - checking org_id scoping', () => {
       method: 'PUT',
       url: '/authorization/users/ModifyId/policies',
       payload: {
-        policies: [policyId]
+        policies: [{id: policyId}]
       }
     })
 

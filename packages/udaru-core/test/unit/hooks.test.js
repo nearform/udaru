@@ -19,7 +19,7 @@ lab.experiment('Hooks', () => {
         if (err) return done(err)
 
         testUserId = result.id
-        udaru.users.replacePolicies({ id: testUserId, policies: [_.find(policies, {name: 'Director'}).id], organizationId }, done)
+        udaru.users.replacePolicies({ id: testUserId, policies: [{id: _.find(policies, {name: 'Director'}).id}], organizationId }, done)
       })
     })
   })

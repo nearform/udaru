@@ -36,7 +36,7 @@ const PolicyInstance = Joi.object({
   entityId: Joi.string().optional('The id of the entity this policy is assigned to'),
   variables: Joi.object().description('List of fixed values for variables').label('Variables'),
   instance: Joi.number().integer().description('Policy unique instance')
-}).label('PolicyRef')
+}).label('PolicyInstance')
 const PolicyInstances = Joi.array().items(PolicyInstance).description('Policy Instances').label('Policy Instances')
 
 const PolicyTemplateVariables = Joi.array().items(Joi.string()).description('Policy Template Variable Placeholders').label('Policy Template Variables')

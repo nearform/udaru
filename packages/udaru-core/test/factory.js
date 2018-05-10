@@ -225,7 +225,7 @@ function Factory (lab, data, udaru) {
       }
 
       _.each(team.policies, (policy) => {
-        const policyKey = policy.key || policy
+        const policyKey = policy.id || policy
         const policyId = records[policyKey].id
         list[teamId].policies.push({
           id: policyId,
@@ -257,7 +257,7 @@ function Factory (lab, data, udaru) {
       }
 
       _.each(organization.policies, (policy) => {
-        const policyKey = policy.key || policy
+        const policyKey = policy.id || policy
         const policyId = records[policyKey].id
         list[orgId].policies.push({
           id: policyId,
@@ -306,7 +306,7 @@ function Factory (lab, data, udaru) {
       }
 
       _.each(user.policies, (policy) => {
-        const policyKey = policy.key || policy
+        const policyKey = policy.id || policy
         const policyId = records[policyKey].id
         list[userId].policies.push({
           id: policyId,

@@ -463,7 +463,7 @@ lab.experiment('Users - manage policies', () => {
       method: 'PUT',
       url: '/authorization/users/ModifyId/policies',
       payload: {
-        policies: [p.id]
+        policies: [{id: p.id}]
       }
     })
 
@@ -600,7 +600,7 @@ lab.experiment('Users - manage policies', () => {
     expect(response.statusCode).to.equal(200)
     expect(result.policies.length).to.equal(0)
 
-    await udaru.users.replacePolicies({ id: result.id, policies: ['policyId2'], organizationId: result.organizationId })
+    await udaru.users.replacePolicies({ id: result.id, policies: [{id: 'policyId2'}], organizationId: result.organizationId })
   })
 
   lab.test('List user policies', async () => {
@@ -659,7 +659,7 @@ lab.experiment('Users - manage policies', () => {
       variables: {var2: 'value2'}
     }])
 
-    await udaru.users.replacePolicies({ id: 'VerucaId', policies: ['policyId2'], organizationId: 'WONKA' })
+    await udaru.users.replacePolicies({ id: 'VerucaId', policies: [{id: 'policyId2'}], organizationId: 'WONKA' })
   })
 
   lab.test('get non existent users policies', async () => {
@@ -677,7 +677,7 @@ lab.experiment('Users - manage policies', () => {
       method: 'PUT',
       url: '/authorization/users/ModifyId/policies',
       payload: {
-        policies: ['InvalidPolicyID']
+        policies: [{id: 'InvalidPolicyID'}]
       }
     })
 
@@ -690,7 +690,7 @@ lab.experiment('Users - manage policies', () => {
       method: 'POST',
       url: '/authorization/users/ModifyId/policies',
       payload: {
-        policies: ['InvalidPolicyID']
+        policies: [{id: 'InvalidPolicyID'}]
       }
     })
 
@@ -705,7 +705,7 @@ lab.experiment('Users - manage policies', () => {
       method: 'POST',
       url: '/authorization/users/ModifyId/policies',
       payload: {
-        policies: [p.id]
+        policies: [{id: p.id}]
       }
     })
 
@@ -718,7 +718,7 @@ lab.experiment('Users - manage policies', () => {
 
     const newP = await udaru.policies.create(policyCreateData)
 
-    options.payload.policies = [newP.id]
+    options.payload.policies = [{id: newP.id}]
 
     response = await server.inject(options)
     result = response.result
@@ -740,7 +740,7 @@ lab.experiment('Users - manage policies', () => {
 
     const p = await udaru.policies.create(policyCreateData)
 
-    await udaru.users.addPolicies({ id: 'ModifyId', organizationId: 'WONKA', policies: [p.id] })
+    await udaru.users.addPolicies({ id: 'ModifyId', organizationId: 'WONKA', policies: [{id: p.id}] })
 
     const response = await server.inject(options)
     expect(response.statusCode).to.equal(204)
@@ -754,7 +754,7 @@ lab.experiment('Users - manage policies', () => {
   lab.test('remove one user\'s policies', async () => {
     const p = await udaru.policies.create(policyCreateData)
 
-    await udaru.users.addPolicies({ id: 'ModifyId', organizationId: 'WONKA', policies: [p.id] })
+    await udaru.users.addPolicies({ id: 'ModifyId', organizationId: 'WONKA', policies: [{id: p.id}] })
 
     const options = utils.requestOptions({
       method: 'DELETE',
@@ -803,7 +803,7 @@ lab.experiment('Users - checking org_id scoping', () => {
       method: 'PUT',
       url: '/authorization/users/ModifyId/policies',
       payload: {
-        policies: [policyId]
+        policies: [{id: policyId}]
       }
     })
 
@@ -816,7 +816,7 @@ lab.experiment('Users - checking org_id scoping', () => {
       method: 'POST',
       url: '/authorization/users/ModifyId/policies',
       payload: {
-        policies: [policyId]
+        policies: [{id: policyId}]
       }
     })
 
