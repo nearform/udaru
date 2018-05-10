@@ -1,7 +1,7 @@
 'use strict'
 
 const _ = require('lodash')
-const swagger = require('./../../swagger')
+const swagger = require('@nearform/udaru-core/lib/ops/validation').swagger
 const headers = require('./../headers')
 const validation = require('@nearform/udaru-core/lib/ops/validation').policies
 
