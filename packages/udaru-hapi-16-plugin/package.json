@@ -1,6 +1,6 @@
 {
   "name": "@nearform/udaru-hapi-16-plugin",
-  "version": "5.0.0",
+  "version": "5.0.1-beta.0",
   "main": "index.js",
   "description": "Hapi plugin that allows using udaru for policy based authorization",
   "author": "nearForm Ltd",
@@ -117,12 +117,12 @@
     "test": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -c -t 96"
   },
   "dependencies": {
-    "@nearform/udaru-core": "^5.0.0",
+    "@nearform/udaru-core": "^5.0.1-beta.0",
     "async": "^2.6.0",
     "boom": "^7.2.0",
     "hapi": "^16.6.2",
     "hoek": "^5.0.3",
-    "joi": "^13.1.2",
+    "joi": "^13.2.0",
     "lodash": "^4.17.5"
   },
   "devDependencies": {
