@@ -3,7 +3,7 @@
 const Joi = require('joi')
 const pick = require('lodash/pick')
 const validation = require('@nearform/udaru-core/lib/ops/validation').teams
-const swagger = require('../swagger')
+const swagger = require('@nearform/udaru-core/lib/ops/validation').swagger
 const headers = require('../headers')
 
 module.exports = {

@@ -2,7 +2,7 @@
 
 const _ = require('lodash')
 const Joi = require('joi')
-const swagger = require('./../../swagger')
+const swagger = require('@nearform/udaru-core/lib/ops/validation').swagger
 const headers = require('./../headers')
 const validation = require('@nearform/udaru-core/lib/ops/validation').teams
 
