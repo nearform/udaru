@@ -1,3 +1,12 @@
+## 5.0.1 - May 11, 2018
+Features, enhancements
+-   Whitelist ID fields formats in users, teams, policies and organization [commit](https://github.com/nearform/udaru/pull/529)
+-   Node 10 check [commit](https://github.com/nearform/udaru/pull/533)
+-   Assignment of policies/instances to users, teams and groups must now use object format [commit](https://github.com/nearform/udaru/pull/535)
+-   Swagger generation mechanism updated [commit](https://github.com/nearform/udaru/pull/532)
+-   Swagger output validation merged with input validation in core [commit](https://github.com/nearform/udaru/pull/536)
+
+
 ## 5.0.0 - April 3, 2018
 Features, enhancements:
 -   Lerna package split, udaru-core, udaru-hapi-plugin, udaru-hapi-16-plugin and udaru-hapi-server now in separate npm packages [commit](https://github.com/nearform/udaru/pull/505)
@@ -6,12 +15,12 @@ Features, enhancements:
 -   SQL module extracted and placed in own npm module ([@nearform/sql](https://www.npmjs.com/package/@nearform/sql))
 -   Promises support [commit](https://github.com/nearform/udaru/pull/508)
 -   Hooks support [commit](https://github.com/nearform/udaru/pull/503)
--   Policy instance now returned when associating policy with user,team,org, which can be passed as param to DELETE to delete a specific instance
--   Policy context variables support added, which can be used in policy resources and policy condition elements
--   GET Policy search endpoint added
--   GET Policy variables endpoint added
--   GET Policy instances endpoint added
--   GET Policy endpoints added to users, teams and organizations
+-   Policy instance now returned when associating policy with user,team,org, which can be passed as param to DELETE to delete a specific instance [commit](https://github.com/nearform/udaru/pull/506)
+-   Policy context variables support added, which can be used in policy resources and policy condition elements [commit](https://github.com/nearform/udaru/pull/500)
+-   GET Policy search endpoint added [commit](https://github.com/nearform/udaru/pull/515)
+-   GET Policy variables endpoint added [commit](https://github.com/nearform/udaru/pull/515)
+-   GET Policy instances endpoint added [commit](https://github.com/nearform/udaru/pull/521)
+-   GET Policy endpoints added to users, teams and organizations [commit](https://github.com/nearform/udaru/pull/518)
 
 ## 4.1.0 - March 12, 2018
 Features, enhancements:
