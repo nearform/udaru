@@ -159,7 +159,7 @@ curl -X GET --header 'Accept: application/json' --header 'authorization: BruceWa
 *   Associate our new Policy ('AccessBatCave') with a user (Alfred)
 
 ```bash
-curl -X PUT --header 'Content-Type: application/json' --header 'Accept: application/json' --header 'authorization: BruceWayne'  -d '{"policies":["AccessBatCave"]}' 'http://localhost:8080/authorization/users/Alfred/policies'
+curl -X PUT --header 'Content-Type: application/json' --header 'Accept: application/json' --header 'authorization: BruceWayne'  -d '{"policies":[{"id": "AccessBatCave"}]}' 'http://localhost:8080/authorization/users/Alfred/policies'
 ```
 
 Again we can verify this Policy has been added: 
@@ -225,7 +225,7 @@ curl -X POST --header 'Content-Type: application/json' --header 'Accept: applica
 *   Associate these new policies with Alfred:
 
 ```bash
-curl -X PUT --header 'Content-Type: application/json' --header 'Accept: application/json' --header 'authorization: BruceWayne'  -d '{"policies":["DriveBatmobile", "DenyBatcomputer"]}' 'http://localhost:8080/authorization/users/Alfred/policies'
+curl -X PUT --header 'Content-Type: application/json' --header 'Accept: application/json' --header 'authorization: BruceWayne'  -d '{"policies":[{"id": "DriveBatmobile"}, {"id": "DenyBatcomputer"}]}' 'http://localhost:8080/authorization/users/Alfred/policies'
 ```
 
 *   Once more, verify the policies are associated with Alfred:
@@ -311,7 +311,7 @@ curl -X GET --header 'Accept: application/json' --header 'authorization: BruceWa
 Create our `Justice League` team:
 
 ```bash
-curl -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' --header 'authorization: ROOTid' --header 'org: WayneManor' -d '{"id":"justice_league","name":"Justice League","description":"The Justice League"' 'http://localhost:8080/authorization/teams'
+curl -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' --header 'authorization: ROOTid' --header 'org: WayneManor' -d '{"id":"justice-league","name":"Justice League","description":"The Justice League"}' 'http://localhost:8080/authorization/teams'
 ```
 
 Confirm it exists:
@@ -328,10 +328,10 @@ curl -X GET --header 'Accept: application/json' --header 'authorization: BruceWa
   "total": 1,
   "data": [
     {
-      "id": "justice_league",
+      "id": "justice-league",
       "name": "Justice League",
       "description": "The Justice League",
-      "path": "justice_league",
+      "path": "justice-league",
       "organizationId": "WayneManor",
       "usersCount": 0
     }
@@ -348,14 +348,14 @@ curl -X POST --header 'Content-Type: application/json' --header 'Accept: applica
 And nest it under the `Justice League` team:
 
 ```bash
-curl -X PUT --header 'Content-Type: application/json' --header 'Accept: application/json' --header 'authorization: ROOTid' --header 'org: WayneManor' -d '{"parentId":"justice_league"}' 'http://localhost:8080/authorization/teams/amazons/nest'
+curl -X PUT --header 'Content-Type: application/json' --header 'Accept: application/json' --header 'authorization: ROOTid' --header 'org: WayneManor' -d '{"parentId":"justice-league"}' 'http://localhost:8080/authorization/teams/amazons/nest'
 
 ```
 
 Verify that `Amazons` is a nested team of `Justice League`:
 
 ```bash
-curl -X GET --header 'Accept: application/json' --header 'authorization: BruceWayne' --header 'org: WayneManor' 'http://localhost:8080/authorization/teams/justice_league/nested'
+curl -X GET --header 'Accept: application/json' --header 'authorization: BruceWayne' --header 'org: WayneManor' 'http://localhost:8080/authorization/teams/justice-league/nested'
 ```
 
 ```js
@@ -365,8 +365,8 @@ curl -X GET --header 'Accept: application/json' --header 'authorization: BruceWa
       "id": "amazons",
       "name": "Amazons",
       "description": "The Justice League Amazons",
-      "parentId": "justice_league",
-      "path": "justice_league.amazons",
+      "parentId": "justice-league",
+      "path": "justice-league.amazons",
       "organizationId": "WayneManor",
       "usersCount": 0
     }
@@ -380,24 +380,24 @@ curl -X GET --header 'Accept: application/json' --header 'authorization: BruceWa
 Next, let's create a new user, `Wonder Woman`:
 
 ```bash
-curl -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' --header 'authorization: BruceWayne' -d '{"id":"wonder_woman","name":"Wonder Woman","metadata":{}}' 'http://localhost:8080/authorization/users'
+curl -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' --header 'authorization: BruceWayne' -d '{"id":"wonder-woman","name":"Wonder Woman","metadata":{}}' 'http://localhost:8080/authorization/users'
 ```
 
 And add her to the `Amazons` team:
 
 ```bash
-curl -X PUT --header 'Content-Type: application/json' --header 'Accept: application/json' --header 'authorization: BruceWayne' -d '{"users":["wonder_woman"]}' 'http://localhost:8080/authorization/teams/amazons/users'
+curl -X PUT --header 'Content-Type: application/json' --header 'Accept: application/json' --header 'authorization: BruceWayne' -d '{"users":["wonder-woman"]}' 'http://localhost:8080/authorization/teams/amazons/users'
 ```
 
 Let's verify `Wonder Woman` is in the `Amazons` team:
 
 ```bash
-curl -X GET --header 'Accept: application/json' --header 'authorization: BruceWayne' --header 'org: WayneManor' 'http://localhost:8080/authorization/users/wonder_woman'
+curl -X GET --header 'Accept: application/json' --header 'authorization: BruceWayne' --header 'org: WayneManor' 'http://localhost:8080/authorization/users/wonder-woman'
 ```
 
 ```js
 {
-  "id": "wonder_woman",
+  "id": "wonder-woman",
   "name": "Wonder Woman",
   "organizationId": "WayneManor",
   "metadata": {},
@@ -420,7 +420,7 @@ curl -X POST --header 'Content-Type: application/json' --header 'Accept: applica
 And let's add this policy to the `Amazons` team:
 
 ```bash
-curl -X PUT --header 'Content-Type: application/json' --header 'Accept: application/json' --header 'authorization: BruceWayne' -d '{"policies":["AccessAmazonMeetingRoom"]}' 'http://localhost:8080/authorization/teams/amazons/policies'
+curl -X PUT --header 'Content-Type: application/json' --header 'Accept: application/json' --header 'authorization: BruceWayne' -d '{"policies":[{"id": "AccessAmazonMeetingRoom"}]}' 'http://localhost:8080/authorization/teams/amazons/policies'
 ```
 
 ```js
@@ -428,12 +428,12 @@ curl -X PUT --header 'Content-Type: application/json' --header 'Accept: applicat
   "id": "amazons",
   "name": "Amazons",
   "description": "The Justice League Amazons",
-  "path": "justice_league.amazons",
+  "path": "justice-league.amazons",
   "organizationId": "WayneManor",
   "metadata": {},
   "users": [
     {
-      "id": "wonder_woman",
+      "id": "wonder-woman",
       "name": "Wonder Woman"
     }
   ],
@@ -452,7 +452,7 @@ curl -X PUT --header 'Content-Type: application/json' --header 'Accept: applicat
 Let's see what Actions `Wonder Woman` can perform on `/waynemanor/batcave/amazon_meeting_room`:
 
 ```bash
-curl -X GET --header 'Accept: application/json' --header 'authorization: ROOTid' --header 'org: WayneManor' 'http://localhost:8080/authorization/list/wonder_woman?resources=%2Fwaynemanor%2Fbatcave%2Famazon_meeting_room'
+curl -X GET --header 'Accept: application/json' --header 'authorization: ROOTid' --header 'org: WayneManor' 'http://localhost:8080/authorization/list/wonder-woman?resources=%2Fwaynemanor%2Fbatcave%2Famazon_meeting_room'
 ```
 
 ```js

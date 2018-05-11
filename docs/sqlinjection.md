@@ -86,10 +86,10 @@ The add policy to user endpoint request is the following:
 ### Endpoint `sqlmap` testing
 
 The command with which tested the endpoint for user ID injection:
-`python sqlmap.py -u "http://localhost:8080/authorization/users/CharlieId*/policies" --method=PUT --headers="authorization: CharlieId\norg: WONKA" --data="{\"policies\":[\"policyId9\"]}" --level=5 --risk=3 --dbms=postgresql --timeout 3 --flush-session`
+`python sqlmap.py -u "http://localhost:8080/authorization/users/CharlieId*/policies" --method=PUT --headers="authorization: CharlieId\norg: WONKA" --data="{\"policies\":[{\"id\": \"policyId9\"}]}" --level=5 --risk=3 --dbms=postgresql --timeout 3 --flush-session`
 
 The command with which tested the PUT payload injection:
-`python sqlmap.py -u "http://localhost:8080/authorization/users/CharlieId/policies" --method=PUT --headers="authorization: CharlieId\norg: WONKA" --data="{\"policies\":[\"policyId9*\"]}" --level=5 --ris
+`python sqlmap.py -u "http://localhost:8080/authorization/users/CharlieId/policies" --method=PUT --headers="authorization: CharlieId\norg: WONKA" --data="{\"policies\":[{\"id\": \"policyId9*\"}]}" --level=5 --ris
 k=3 --dbms=postgresql --timeout 3 --flush-session`
 
 In the endpoints used `*` after the `CharlieId` user ID and in the to specify `sqlmap` to try to inject that param.
