@@ -139,7 +139,7 @@ A Policy looks like:
 
 ```javascript
 {
-  id: 'Policy ID',
+  id: 'PolicyID',
   version: '2016-07-01',
   name: 'Policy name',
   statements: { Statement: [{
@@ -209,7 +209,7 @@ The regular way to do it would be with something like
 
 ```javascript
 {
-  id: 'Policy ID',
+  id: 'PolicyID',
   version: '2016-07-01',
   name: 'Read document 1',
   statements: { Statement: [{
@@ -226,7 +226,7 @@ With Policies Templates you could create
 
 ```javascript
 {
-  id: 'Policy ID',
+  id: 'PolicyID',
   version: '2016-07-01',
   name: 'Read generic document',
   statements: { Statement: [{
@@ -241,7 +241,7 @@ And then provide the value for `documentId` when assigning the Policy to a User 
 
 ```javascript
 {
-  id: 'Policy ID',
+  id: 'PolicyID',
   variables: {documentId: 'document-1'}
 }
 ```
@@ -264,7 +264,7 @@ Policy Instances associated with a Policy Template can be listed using the insta
 
 ```javascript
 {
-  id: 'Policy ID',
+  id: 'PolicyID',
   variables: {documentId: 'document-1'},
   instance: 1
 }
@@ -291,7 +291,7 @@ There is a special type of Udaru Users, SuperUsers, that belong to the 'ROOT' Or
 
 curl impersonation example in which a SuperUser impersonates an User belonging to the `WONKA` Organization:
 ```javascript
-curl -X PUT --header 'Content-Type: application/json' --header 'Accept: application/json' --header 'authorization: ROOTID' --header 'org: WONKA' -d '{"policies":["PolicyID"]}' 'http://localhost:8080/authorization/teams/TeamID/policies'
+curl -X PUT --header 'Content-Type: application/json' --header 'Accept: application/json' --header 'authorization: ROOTid' --header 'org: WONKA' -d '{"policies":[{"id": "PolicyId"}]}' 'http://localhost:8080/authorization/teams/TeamID/policies'
 ```
 
 ## Next Steps

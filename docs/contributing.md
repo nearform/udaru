@@ -12,10 +12,10 @@ It's a good idea to check that you have the latest version of npm installed befo
 
 Udaru consists of 4 individual packages. While they are all published in their own independent lifecycle, they are also dependencies between them:
 
-* `@nearform/udaru-core`
-* `@nearform/udaru-hapi-plugin` (depends on `udaru-core`)
-* `@nearform/udaru-hapi-16-plugin` (depends on `udaru-core`)
-* `@nearform/udaru-hapi-server` (depends on `udaru-hapi-16-plugin`)
+*   `@nearform/udaru-core`
+*   `@nearform/udaru-hapi-plugin` (depends on `udaru-core`)
+*   `@nearform/udaru-hapi-16-plugin` (depends on `udaru-core`)
+*   `@nearform/udaru-hapi-server` (depends on `udaru-hapi-16-plugin`)
 
 Be mindful of these dependencies when publishing, i.e. if you publish a new version of `udaru-core` you need to bump all the other packages also.
 
@@ -28,9 +28,9 @@ We are currently supporting node 6 and 8.
 5.  Ensure there are no outstanding commits and the branch is clean.
 6.  From root, run `npm test:commit-check` and sanity check testing and linting passes, and that there are no dependency issues.
 7.  From root, run `npm run outdated:all` and review all dependencies. For each outdated dependency, make a call whether to update or not.
-    -    Run `npm run update:all` to get all non breaking updates. We have a policy of using '^' for all dependencies in the package.json and using npm shrinkwrap for each release.
-    -    Run `npm run outdated:all` again to review possible breaking and major revision updates.
-    -    Create a github issue for any major update where appropriate.
+    -   Run `npm run update:all` to get all non breaking updates. We have a policy of using '^' for all dependencies in the package.json and using npm shrinkwrap for each release.
+    -   Run `npm run outdated:all` again to review possible breaking and major revision updates.
+    -   Create a github issue for any major update where appropriate.
 8.  In the order of dependencies above, for each package:
     -   Run `npm install` and verify that root level and package dependencies correctly install.
     -   Run `npm test` to verify the tests run locally within their own context (something that's not done by CI)
