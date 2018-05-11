@@ -14,8 +14,8 @@ const validationRules = require('./validation').teams
 const buildPolicyOps = require('./policyOps')
 const buildUserOps = require('./userOps')
 
-function generateId () {
-  return uuid().replace(/-/g, '_')
+function idToPath (id) {
+  return id.replace(/-/g, '_')
 }
 
 function getId (obj) {
@@ -27,10 +27,11 @@ function buildTeamOps (db, config) {
   const userOps = buildUserOps(db, config)
 
   function loadTeamDescendants (job, next) {
+    const teamPath = idToPath(job.teamId)
     const sql = SQL`
       SELECT id FROM teams WHERE
       org_id = ${job.organizationId}
-      AND path @ ${job.teamId.toString()}`
+      AND path @ ${teamPath.toString()}`
     job.client.query(sql, (err, res) => {
       if (err) return next(Boom.badImplementation(err))
       if (res.rowCount === 0) return next(Boom.notFound(`No team with ${job.teamId} has been found`))
@@ -41,7 +42,8 @@ function buildTeamOps (db, config) {
   }
 
   function insertTeam (job, next) {
-    const teamId = job.params.id || generateId()
+    const teamId = job.params.id || uuid()
+    const teamPath = idToPath(teamId)
 
     const sql = SQL`
       INSERT INTO teams (id, name, description, metadata, team_parent_id, org_id, path) VALUES (
@@ -54,10 +56,10 @@ function buildTeamOps (db, config) {
       `
     if (job.params.parentId) {
       sql.append(SQL`
-        (SELECT path FROM teams WHERE id = ${job.params.parentId}) || ${teamId.toString()}
+        (SELECT path FROM teams WHERE id = ${job.params.parentId}) || ${teamPath.toString()}
       `)
     } else {
-      sql.append(SQL`${teamId.toString()}`)
+      sql.append(SQL`${teamPath.toString()}`)
     }
 
     sql.append(SQL`)RETURNING id`)
@@ -189,10 +191,11 @@ function buildTeamOps (db, config) {
       UPDATE teams SET
       team_parent_id = ${parentId},
     `
+    const teamPath = idToPath(teamId)
     if (parentId) {
-      sql.append(SQL`path = ((SELECT path FROM teams WHERE id = ${parentId}) || ${teamId.toString()})`)
+      sql.append(SQL`path = ((SELECT path FROM teams WHERE id = ${parentId}) || ${teamPath.toString()})`)
     } else {
-      sql.append(SQL`path = text2ltree(${teamId.toString()})`)
+      sql.append(SQL`path = text2ltree(${teamPath.toString()})`)
     }
 
     sql.append(SQL`
@@ -203,10 +206,11 @@ function buildTeamOps (db, config) {
 
   function moveTeamDescendants (job, next) {
     const { id: teamId } = job.params
+    const teamPath = idToPath(teamId)
     const sql = SQL`
       UPDATE teams SET
-      path = (SELECT path FROM teams WHERE id = ${teamId}) || subpath(path, index(path, ${teamId.toString()})+1)
-      WHERE path ~ ${'*.' + teamId.toString() + '.*'}
+      path = (SELECT path FROM teams WHERE id = ${teamId}) || subpath(path, index(path, ${teamPath.toString()})+1)
+      WHERE path ~ ${'*.' + teamPath.toString() + '.*'}
       AND id != ${teamId}
     `
 

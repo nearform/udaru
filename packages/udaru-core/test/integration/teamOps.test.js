@@ -306,6 +306,23 @@ lab.experiment('TeamOps', () => {
     })
   })
 
+  lab.test('creating a team with invalid id should fail', (done) => {
+    let testTeam = {
+      id: 'id _ with ~ invalid / chars',
+      name: 'nearForm',
+      description: 'description',
+      organizationId: 'WONKA'
+    }
+
+    udaru.teams.create(testTeam, { createOnly: true }, (err, result) => {
+      expect(err).to.exist()
+      expect(err.output.statusCode).to.equal(400)
+      expect(err.message).to.equal('child "id" fails because ["id" with value "id _ with ~ invalid / chars" fails to match the required pattern: /^[A-Za-z0-9-]+$/]')
+
+      done()
+    })
+  })
+
   lab.test('create a team with long name should fail', (done) => {
     const teamName = 'a'.repeat(31)
     udaru.teams.create({ organizationId: 'WONKA', name: teamName, description: 'nearform description' }, (err, result) => {
@@ -372,7 +389,7 @@ lab.experiment('TeamOps', () => {
       name: 'test::teamOps:dfltAdmin:' + teamId,
       description: 'description',
       organizationId: 'WONKA',
-      user: { name: 'test:' + teamId, id: 'test:' + teamId }
+      user: { name: 'test:' + teamId, id: 'test-' + teamId }
     }
     setTimeout(() => {
       // TODO: delete team
@@ -441,7 +458,7 @@ lab.experiment('TeamOps', () => {
         udaru.teams.read({ id: childTeam.id, organizationId: 'WONKA' }, (err) => {
           expect(err).to.exist()
           expect(err.isBoom).to.be.true()
-          expect(err.message).to.match(/Team with id [a-zA-Z0-9_]+ could not be found/)
+          expect(err.message).to.match(/Team with id [a-zA-Z0-9-]+ could not be found/)
           done()
         })
       })
@@ -1364,11 +1381,7 @@ lab.experiment('TeamOps', () => {
 
     lab.test('nested team sql injection org_id sanity check', (done) => {
       udaru.teams.listNestedTeams({ organizationId: 'WONKA||org_id<>-1', id: '4' }, (err, result, total) => {
-        expect(err).to.not.exist()
-        expect(total).to.exist()
-        expect(result).to.exist()
-        expect(total).to.equal(0)
-        expect(result.length).to.equal(0)
+        expect(err).to.exist()
 
         done()
       })
@@ -1376,11 +1389,7 @@ lab.experiment('TeamOps', () => {
 
     lab.test('Search sql injection query sanity check', (done) => {
       udaru.teams.listNestedTeams({ id: '4\'); drop database authorization;', organizationId: 'WONKA' }, (err, result, total) => {
-        expect(err).to.not.exist()
-        expect(total).to.exist()
-        expect(result).to.exist()
-        expect(total).to.equal(0)
-        expect(result.length).to.equal(0)
+        expect(err).to.exist()
 
         done()
       })
@@ -1470,9 +1479,7 @@ lab.experiment('TeamOps', () => {
 
   lab.test('Search sql injection org_id sanity check', (done) => {
     udaru.teams.search({ query: 'Authors', organizationId: 'WONKA||org_id<>-1' }, (err, data, total) => {
-      expect(err).to.not.exist()
-      expect(total).to.equal(0)
-      expect(data.length).to.equal(0)
+      expect(err).to.exist()
 
       done()
     })
@@ -1592,11 +1599,7 @@ lab.experiment('TeamOps', () => {
         query: 'wonka',
         organizationId: 'WONKA||org_id<>-1'
       }, (err, data, total) => {
-        expect(err).to.not.exist()
-
-        expect(total).to.equal(0)
-        expect(data.length).to.equal(0)
-
+        expect(err).to.exist()
         done()
       })
     })
@@ -1619,10 +1622,7 @@ lab.experiment('TeamOps', () => {
         query: 'Willy Wonka',
         organizationId: 'WONKA'
       }, (err, data, total) => {
-        expect(err).to.not.exist()
-
-        expect(total).to.equal(0)
-        expect(data.length).to.equal(0)
+        expect(err).to.exist()
 
         done()
       })

@@ -458,7 +458,7 @@ lab.experiment('Teams - create', () => {
       method: 'POST',
       url: '/authorization/teams',
       payload: {
-        id: 'test_fixed_id',
+        id: 'test-fixed-id',
         name: 'Team B',
         description: 'This is Team B'
       }
@@ -469,8 +469,8 @@ lab.experiment('Teams - create', () => {
 
       expect(response.statusCode).to.equal(201)
       expect(result).to.contain({
-        id: 'test_fixed_id',
-        path: 'test_fixed_id'
+        id: 'test-fixed-id',
+        path: 'test-fixed-id'
       })
 
       udaru.teams.delete({ id: result.id, organizationId: result.organizationId }, done)
@@ -547,7 +547,7 @@ lab.experiment('Teams - create', () => {
       method: 'POST',
       url: '/authorization/teams',
       payload: {
-        id: 'test_meta_id',
+        id: 'test-meta-id',
         name: 'Team Meta',
         description: 'This is Team Meta',
         metadata: metadata
@@ -559,8 +559,8 @@ lab.experiment('Teams - create', () => {
 
       expect(response.statusCode).to.equal(201)
       expect(result).to.contain({
-        id: 'test_meta_id',
-        path: 'test_meta_id',
+        id: 'test-meta-id',
+        path: 'test-meta-id',
         description: 'This is Team Meta',
         metadata: metadata
       })
@@ -574,7 +574,7 @@ lab.experiment('Teams - create', () => {
       method: 'POST',
       url: '/authorization/teams',
       payload: {
-        id: 'invalid-id',
+        id: 'invalid?id',
         name: 'Team B',
         description: 'This is Team B'
       }

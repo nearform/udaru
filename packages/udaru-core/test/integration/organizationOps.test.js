@@ -124,6 +124,21 @@ lab.experiment('OrganizationOps', () => {
     })
   })
 
+  lab.test('create an organization with invalid id should fail', (done) => {
+    const organizationData = {
+      id: 'invalid?id',
+      name: 'nearForm',
+      description: 'nearForm description'
+    }
+    udaru.organizations.create(organizationData, { createOnly: true }, (err, result) => {
+      expect(err).to.exist()
+      expect(err.output.statusCode).to.equal(400)
+      expect(err.message).to.equal('child "id" fails because ["id" with value "invalid?id" fails to match the required pattern: /^[A-Za-z0-9-]+$/]')
+
+      done()
+    })
+  })
+
   lab.test('create an organization specifying a user should create the user and assign the OrgAdmin policy to it', (done) => {
     udaru.organizations.create({
       id: 'nearForm',
@@ -287,7 +302,7 @@ lab.experiment('OrganizationOps', () => {
   })
 
   lab.test('get a specific organization that does not exist', (done) => {
-    udaru.organizations.read('I_do_not_exist', (err, result) => {
+    udaru.organizations.read('I-do-not-exist', (err, result) => {
       expect(err).to.exist()
       expect(err.output.statusCode).to.equal(404)
       expect(result).to.not.exist()

@@ -52,8 +52,8 @@ lab.experiment('Organizations', () => {
     try {
       await Promise.all([
         udaru.organizations.delete('nearForm'),
-        udaru.organizations.delete('nearForm_Meta'),
-        udaru.organizations.delete('nearForm_Meta2')
+        udaru.organizations.delete('nearForm-Meta'),
+        udaru.organizations.delete('nearForm-Meta2')
       ])
     } catch (e) {
       // This is needed to ignore the error (i.e. in case the organizations weren't properly created)
@@ -195,11 +195,11 @@ lab.experiment('Organizations', () => {
   })
 
   lab.test('get a single org with meta', async () => {
-    await udaru.organizations.create({id: 'nearForm_Meta2', name: 'nearForm Meta2', description: 'nearForm org with Meta2', metadata: metadata})
+    await udaru.organizations.create({id: 'nearForm-Meta2', name: 'nearForm Meta2', description: 'nearForm org with Meta2', metadata: metadata})
 
     const options = utils.requestOptions({
       method: 'GET',
-      url: '/authorization/organizations/nearForm_Meta2'
+      url: '/authorization/organizations/nearForm-Meta2'
     })
 
     const response = await server.inject(options)
@@ -207,7 +207,7 @@ lab.experiment('Organizations', () => {
 
     expect(response.statusCode).to.equal(200)
     expect(result).to.equal({
-      id: 'nearForm_Meta2',
+      id: 'nearForm-Meta2',
       name: 'nearForm Meta2',
       description: 'nearForm org with Meta2',
       metadata: metadata,
@@ -265,7 +265,7 @@ lab.experiment('Organizations', () => {
 
   lab.test('create organization with metadata, return 201 for success', async () => {
     const organization = {
-      id: 'nearForm_Meta',
+      id: 'nearForm-Meta',
       name: 'nearForm_Meta',
       description: 'nearForm org with meta',
       metadata: metadata
@@ -283,7 +283,7 @@ lab.experiment('Organizations', () => {
     expect(response.statusCode).to.equal(201)
     expect(result).to.equal({
       organization: {
-        id: 'nearForm_Meta',
+        id: 'nearForm-Meta',
         name: 'nearForm_Meta',
         description: 'nearForm org with meta',
         metadata: metadata,
@@ -292,7 +292,7 @@ lab.experiment('Organizations', () => {
       user: undefined
     })
 
-    await udaru.organizations.delete('nearForm_Meta')
+    await udaru.organizations.delete('nearForm-Meta')
   })
 
   lab.test('create organization with no id', async () => {
@@ -464,7 +464,7 @@ lab.experiment('Organizations', () => {
   })
 
   lab.test('update organization with metadata should return 200 for success', async () => {
-    const res = await udaru.organizations.create({id: 'nearForm_Meta2', name: 'nearForm Meta2', description: 'nearForm org with Meta2'})
+    const res = await udaru.organizations.create({id: 'nearForm-Meta2', name: 'nearForm Meta2', description: 'nearForm org with Meta2'})
 
     const options = utils.requestOptions({
       method: 'PUT',
@@ -480,7 +480,7 @@ lab.experiment('Organizations', () => {
     const result = response.result
 
     expect(response.statusCode).to.equal(200)
-    expect(result).to.equal({ id: 'nearForm_Meta2',
+    expect(result).to.equal({ id: 'nearForm-Meta2',
       name: 'nearForm Meta2',
       description: 'nearForm org with Meta2',
       metadata: metadata,

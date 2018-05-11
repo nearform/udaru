@@ -1,4 +1,4 @@
 module.exports = {
     coverage: true,
-    threshold: 96
+    threshold: 100
 }
