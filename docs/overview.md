@@ -112,6 +112,7 @@ A brief overview of the Authorization API calls are as follows, see the live [Sw
 |Path|Method|Summary|
 |----|------|-------|
 |/authorization/access/{userId}/{action}/{resource*}|GET|Authorize user action against a resource|
+|/authorization/batchaccess/{userId}|POST|Authorize user actions against resources|
 |/authorization/list/{userId}|GET|List all the actions a user can perform on a list of resources|
 |/authorization/list/{userId}/{resource*}|GET|List all the actions a user can perform on a resource|
 |/authorization/policies|POST|Create a policy for the current user organization|

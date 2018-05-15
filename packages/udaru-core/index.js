@@ -39,7 +39,8 @@ function buildUdaruCore (dbPool, config) {
     authorize: {
       isUserAuthorized: hooks.wrap('authorize:isUserAuthorized', authorizeOps.isUserAuthorized),
       listActions: hooks.wrap('authorize:listActions', authorizeOps.listAuthorizations),
-      listAuthorizationsOnResources: hooks.wrap('authorize:listAuthorizationsOnResources', authorizeOps.listAuthorizationsOnResources)
+      listAuthorizationsOnResources: hooks.wrap('authorize:listAuthorizationsOnResources', authorizeOps.listAuthorizationsOnResources),
+      batchAuthorization: hooks.wrap('authorize:batchAuthorization', authorizeOps.batchAuthorization)
     },
 
     organizations: {

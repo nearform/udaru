@@ -234,6 +234,99 @@ lab.experiment('Authorization inherited org policies', () => {
     }
   }, udaru)
 
+  lab.test('batchcheck should return access allowed for the resource action pairs', (done) => {
+    const resourceBatch = [
+      {
+        resource: 'org:documents',
+        action: 'read'
+      },
+      {
+        resource: 'authorization/access',
+        action: 'authorization:authn:access'
+      },
+      {
+        resource: 'invalid_resource',
+        action: 'invalid_action'
+      }
+    ]
+
+    const actionsAllowed = [
+      {
+        resource: 'org:documents',
+        action: 'read',
+        access: true
+      },
+      {
+        resource: 'authorization/access',
+        action: 'authorization:authn:access',
+        access: true
+      },
+      {
+        resource: 'invalid_resource',
+        action: 'invalid_action',
+        access: false
+      }
+    ]
+
+    const options = utils.requestOptions({
+      method: 'POST',
+      url: '/authorization/batchaccess/' + testUserId1,
+      headers: {
+        authorization: 'ROOTid',
+        org: orgId1
+      },
+      payload: {
+        resourceBatch: resourceBatch
+      }
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+      expect(response.statusCode).to.equal(200)
+      expect(result).to.equal(actionsAllowed)
+
+      done()
+    })
+  })
+
+  lab.test('batchcheck empty payload', (done) => {
+    const options = utils.requestOptions({
+      method: 'POST',
+      url: '/authorization/batchaccess/' + testUserId1,
+      headers: {
+        authorization: 'ROOTid',
+        org: orgId1
+      },
+      payload: {
+        resourceBatch: []
+      }
+    })
+
+    server.inject(options, (response) => {
+      expect(response.statusCode).to.equal(400)
+      done()
+    })
+  })
+
+  lab.test('batchcheck invalid payload', (done) => {
+    const options = utils.requestOptions({
+      method: 'POST',
+      url: '/authorization/batchaccess/' + testUserId1,
+      headers: {
+        authorization: 'ROOTid',
+        org: orgId1
+      },
+      payload: {
+        resourceBatch: [ { resource: '', action: '' } ]
+      }
+    })
+
+    server.inject(options, (response) => {
+      expect(response.statusCode).to.equal(400)
+      done()
+    })
+  })
+
   lab.test('User authorized against policies inherited from its own organization', (done) => {
     const userId = testUserId1
     const options = utils.requestOptions({

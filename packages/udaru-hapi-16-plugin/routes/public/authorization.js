@@ -45,6 +45,43 @@ exports.register = function (server, options, next) {
   })
 
   server.route({
+    method: 'POST',
+    path: '/authorization/batchaccess/{userId}',
+    handler: function (request, reply) {
+      const { organizationId } = request.udaru
+      const { resourceBatch } = request.payload
+      const { userId } = request.params
+
+      const params = {
+        userId,
+        resourceBatch,
+        organizationId,
+        sourceIpAddress: request.info.remoteAddress,
+        sourcePort: request.info.remotePort
+      }
+
+      request.udaruCore.authorize.batchAuthorization(params, reply)
+    },
+    config: {
+      plugins: {
+        auth: {
+          action: Action.BatchAccess,
+          resource: 'authorization/batchaccess'
+        }
+      },
+      validate: {
+        params: _.pick(validation.batchAuthorization, ['userId']),
+        payload: _.pick(validation.batchAuthorization, ['resourceBatch']),
+        headers
+      },
+      description: 'Authorize user actions against resources',
+      notes: 'The POST /authorization/batchaccess/{userId} endpoint determines if a user has authorization to perform actions on a list of resources\n',
+      tags: ['api', 'authorization'],
+      response: { schema: swagger.BatchAccess }
+    }
+  })
+
+  server.route({
     method: 'GET',
     path: '/authorization/list/{userId}/{resource*}',
     handler: function (request, reply) {

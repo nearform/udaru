@@ -78,6 +78,7 @@ const Actions = {
 
   // authorization
   CheckAccess: 'authorization:authn:access',
+  BatchAccess: 'authorization:authn:batch:access',
   ListActions: 'authorization:authn:actions',
   ListActionsOnResources: 'authorization:authn:resources:actions'
 }

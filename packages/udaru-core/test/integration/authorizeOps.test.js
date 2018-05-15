@@ -766,6 +766,86 @@ lab.experiment('AuthorizeOps - list and access with multiple policies', () => {
     })
   })
 
+  lab.test('batch check resource actions', (done) => {
+    udaru.users.replacePolicies({ id: adminId, organizationId, policies: [{id: savedPolicies[0].id}, {id: savedPolicies[1].id}] }, (err, res) => {
+      if (err) return done(err)
+
+      const resourceBatch = [
+        {
+          resource: 'FOO:orga:CLOUDCUCKOO:scenario:bau-1',
+          action: 'FOO:scenario:read'
+        },
+        {
+          resource: 'FOO:orga:CLOUDCUCKOO:scenario:*:entity:usa-id',
+          action: 'FOO:scenario:filter'
+        },
+        {
+          resource: 'invalid_resource',
+          action: 'invalid_action'
+        }
+      ]
+
+      const access = [
+        {
+          resource: 'FOO:orga:CLOUDCUCKOO:scenario:bau-1',
+          action: 'FOO:scenario:read',
+          access: true
+        },
+        {
+          resource: 'FOO:orga:CLOUDCUCKOO:scenario:*:entity:usa-id',
+          action: 'FOO:scenario:filter',
+          access: true
+        },
+        {
+          resource: 'invalid_resource',
+          action: 'invalid_action',
+          access: false
+        }
+      ]
+
+      authorize.batchAuthorization({
+        userId: adminId,
+        resourceBatch: resourceBatch,
+        organizationId
+      }, (err, res) => {
+        expect(err).to.not.exist()
+        expect(res).to.equal(access)
+
+        done()
+      })
+    })
+  })
+
+  lab.test('batch check resource actions empty', (done) => {
+    udaru.users.replacePolicies({ id: adminId, organizationId, policies: [{id: savedPolicies[0].id}, {id: savedPolicies[1].id}] }, (err, res) => {
+      if (err) return done(err)
+      authorize.batchAuthorization({
+        userId: adminId,
+        resourceBatch: [],
+        organizationId
+      }, (err, res) => {
+        expect(err).to.exist()
+
+        done()
+      })
+    })
+  })
+
+  lab.test('batch check resource actions invalid', (done) => {
+    udaru.users.replacePolicies({ id: adminId, organizationId, policies: [{id: savedPolicies[0].id}, {id: savedPolicies[1].id}] }, (err, res) => {
+      if (err) return done(err)
+      authorize.batchAuthorization({
+        userId: adminId,
+        resourceBatch: [{resource: '', action: ''}],
+        organizationId
+      }, (err, res) => {
+        expect(err).to.exist()
+
+        done()
+      })
+    })
+  })
+
   lab.test('check list simple action', (done) => {
     udaru.users.replacePolicies({ id: adminId, organizationId, policies: [{id: savedPolicies[0].id}] }, (err, res) => {
       if (err) return done(err)
