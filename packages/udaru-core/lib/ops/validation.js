@@ -23,7 +23,7 @@ const condition = Joi.object().label('Condition operator used when evaluating ef
 const ResourceBatch = Joi.array().min(1).items(Joi.object({
   resource: resource,
   action: action
-})).required().description('A batch of resources and actions to check').label('Resource/Action Batch')
+}).label('ResourceAccess')).required().description('A batch of resources and actions to check').label('ResourceBatch')
 
 const PolicyIdsArray = Joi.array().required().items(PolicyIdObject).description('Array of Policies/Policy Templates to associate with this entity (with optional Policy Instance variables)').label('PolicyIdsArray')
 const UsersArray = Joi.array().required().items(requiredString).description('User IDs').label('UsersArray')
@@ -559,7 +559,7 @@ const BatchAccess = Joi.array().items(Joi.object({
   resource: resource,
   action: action,
   access: Joi.boolean()
-}))
+}).label('BatchAccess')).description('Array to determine if a user has access to perform actions on resources').label('BatchAccessList')
 
 const swagger = {
   List,

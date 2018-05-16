@@ -1,6 +1,7 @@
 'use strict'
 
 const _ = require('lodash')
+const Joi = require('joi')
 const headers = require('./../headers')
 const swagger = require('@nearform/udaru-core/lib/ops/validation').swagger
 const validation = require('@nearform/udaru-core/lib/ops/validation').authorize
@@ -71,7 +72,7 @@ exports.register = function (server, options, next) {
       },
       validate: {
         params: _.pick(validation.batchAuthorization, ['userId']),
-        payload: _.pick(validation.batchAuthorization, ['resourceBatch']),
+        payload: Joi.object(_.pick(validation.batchAuthorization, ['resourceBatch'])).label('ResourceBatchPayload'),
         headers
       },
       description: 'Authorize user actions against resources',
