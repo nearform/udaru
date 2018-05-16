@@ -47,7 +47,7 @@ exports.register = function (server, options, next) {
 
   server.route({
     method: 'POST',
-    path: '/authorization/batchaccess/{userId}',
+    path: '/authorization/access/{userId}',
     handler: function (request, reply) {
       const { organizationId } = request.udaru
       const { resourceBatch } = request.payload
@@ -75,8 +75,8 @@ exports.register = function (server, options, next) {
         payload: Joi.object(_.pick(validation.batchAuthorization, ['resourceBatch'])).label('ResourceBatchPayload'),
         headers
       },
-      description: 'Authorize user actions against resources',
-      notes: 'The POST /authorization/batchaccess/{userId} endpoint determines if a user has authorization to perform actions on a list of resources\n',
+      description: 'Authorize a batch of action/resource pairss',
+      notes: 'The POST /authorization/access/{userId} endpoint determines if a user has authorization on a batch of action/resource pairs\n',
       tags: ['api', 'authorization'],
       response: { schema: swagger.BatchAccess }
     }

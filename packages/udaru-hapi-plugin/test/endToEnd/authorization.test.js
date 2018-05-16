@@ -284,7 +284,7 @@ lab.experiment('Authorization inherited org policies', () => {
 
     const options = utils.requestOptions({
       method: 'POST',
-      url: '/authorization/batchaccess/' + testUserId1,
+      url: '/authorization/access/' + testUserId1,
       headers: {
         authorization: 'ROOTid',
         org: orgId1
@@ -304,7 +304,7 @@ lab.experiment('Authorization inherited org policies', () => {
   lab.test('batchcheck empty payload', async () => {
     const options = utils.requestOptions({
       method: 'POST',
-      url: '/authorization/batchaccess/' + testUserId1,
+      url: '/authorization/access/' + testUserId1,
       headers: {
         authorization: 'ROOTid',
         org: orgId1
@@ -322,7 +322,7 @@ lab.experiment('Authorization inherited org policies', () => {
   lab.test('batchcheck invalid payload', async () => {
     const options = utils.requestOptions({
       method: 'POST',
-      url: '/authorization/batchaccess/' + testUserId1,
+      url: '/authorization/access/' + testUserId1,
       headers: {
         authorization: 'ROOTid',
         org: orgId1
