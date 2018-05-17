@@ -1,4 +1,4 @@
-## 5.0.1 - May 16, 2018
+## 5.1.0 - May 16, 2018
 Features, enhancements
 -   Batch authorization checks on resource/action pairs [commit](https://github.com/nearform/udaru/pull/540)
 

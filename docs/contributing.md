@@ -37,7 +37,8 @@ We are currently supporting node 6 and 8.
 9.  For the `udaru-hapi-server` package only, run `npm shrinkwrap`.
 10. Run `npm run swagger-gen` to regenerate the Swagger documentation for the Udaru [documentation site][docs-site].
     -   Run `git add` and `git commit` to commit any version and documentation changes if there are any.
-11. Finally, from root, run `lerna publish` and choose the approriate version change type.  This will update each  package.json of modified packages as appropriate, create a new git commit and tag, and publish updated packages to npm.
+11. Finally, from root, log in to npm using `npm login`, run `lerna publish` and choose the approriate version change type.  This will update each  package.json of modified packages as appropriate, create a new git commit and tag, and publish updated packages to npm.
+    - Update root package.json to the correct version number and commit
 12. Go to the [Github release page][Releases] and hit 'Draft a new release'.
 13. Paste the Changelog content for this release and add additional release notes.
 14. Choose the tag version and a title matching the release and publish.
