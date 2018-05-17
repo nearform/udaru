@@ -157,5 +157,8 @@
     "ignore": [
       "docs/*"
     ]
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

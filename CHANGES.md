@@ -1,3 +1,7 @@
+## 5.0.1 - May 16, 2018
+Features, enhancements
+-   Batch authorization checks on resource/action pairs [commit](https://github.com/nearform/udaru/pull/540)
+
 ## 5.0.1 - May 11, 2018
 Features, enhancements
 -   Whitelist ID fields formats in users, teams, policies and organization [commit](https://github.com/nearform/udaru/pull/529)

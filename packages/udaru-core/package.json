@@ -142,5 +142,8 @@
     "minimist": "^1.2.0",
     "npx": "^10.0.1",
     "sinon": "^4.5.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
