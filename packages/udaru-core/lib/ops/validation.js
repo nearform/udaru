@@ -16,17 +16,26 @@ const PolicyIdObject = Joi.object({
   instance: PolicyInstanceId
 }).description('Policy Id Object').label('PolicyIdObject')
 
+const resource = requiredString.description('A resource to act upon').label('resource string')
+const action = requiredString.description('The action to check against a resource').label('action string')
+const effect = Joi.string().valid('Allow', 'Deny').label('Effect')
+const condition = Joi.object().label('Condition operator used when evaluating effect')
+const ResourceBatch = Joi.array().min(1).items(Joi.object({
+  resource: resource,
+  action: action
+}).label('ResourceAccess')).required().description('A batch of resources and actions to check').label('ResourceBatch')
+
 const PolicyIdsArray = Joi.array().required().items(PolicyIdObject).description('Array of Policies/Policy Templates to associate with this entity (with optional Policy Instance variables)').label('PolicyIdsArray')
 const UsersArray = Joi.array().required().items(requiredString).description('User IDs').label('UsersArray')
 const TeamsArray = Joi.array().required().items(requiredString).description('Teams IDs').label('TeamsArray')
-const ResourcesArray = Joi.array().items(requiredString.description('A single resource')).single().required().description('A list of Resources').label('ResourcesArray')
+const ResourcesArray = Joi.array().items(resource.description('A single resource')).single().required().description('A list of Resources').label('ResourcesArray')
 
 const StatementObject = Joi.object({
-  Effect: Joi.string().valid('Allow', 'Deny').label('Effect'),
-  Action: Joi.array().min(1).items(Joi.string()).label('Action'),
-  Resource: Joi.array().min(1).items(Joi.string()).label('Resource'),
+  Effect: effect,
+  Action: Joi.array().min(1).items(action).label('Action'),
+  Resource: Joi.array().min(1).items(resource).label('Resource'),
   Sid: Joi.string().label('Sid'),
-  Condition: Joi.object().label('Condition')
+  Condition: condition
 }).label('StatementObject')
 
 const StatementsArray = Joi.array().min(1).items(StatementObject).label('StatementsArray')
@@ -62,7 +71,10 @@ const validationRules = {
   users: UsersArray,
   policies: PolicyIdsArray,
   teams: TeamsArray,
+  resource: resource,
+  action: action,
   resources: ResourcesArray,
+  resourceBatch: ResourceBatch,
   statements: StatementsObject
 }
 
@@ -370,13 +382,18 @@ const organizations = {
 const authorize = {
   isUserAuthorized: {
     userId: validationRules.userId,
-    action: requiredString.description('The action to check'),
-    resource: requiredString.description('The resource that the user wants to perform the action on'),
+    action: validationRules.action,
+    resource: validationRules.resource,
+    organizationId: validationRules.organizationId
+  },
+  batchAuthorization: {
+    userId: validationRules.userId,
+    resourceBatch: validationRules.resourceBatch,
     organizationId: validationRules.organizationId
   },
   listAuthorizations: {
     userId: validationRules.userId,
-    resource: requiredString.description('The resource that the user wants to perform the action on'),
+    resource: validationRules.resource,
     organizationId: validationRules.organizationId
   },
   listAuthorizationsOnResources: {
@@ -389,11 +406,11 @@ const authorize = {
 // swagger stuff from here...
 const PolicyStatements = Joi.object({
   Statement: Joi.array().items(Joi.object({
-    Effect: Joi.string().valid('Allow', 'Deny').description('Statement result').label('Effect'),
-    Action: Joi.array().items(Joi.string()).description('Action to perform on resource').label('Actions'),
-    Resource: Joi.array().items(Joi.string()).description('Resource that the statement covers').label('Resources'),
+    Effect: effect,
+    Action: Joi.array().items(action).description('Action to perform on resource').label('Actions'),
+    Resource: Joi.array().items(resource).description('Resource that the statement covers').label('Resources'),
     Sid: Joi.string().description('Statement ID').label('Sid'),
-    Condition: Joi.object().description('Condition operator used when evaluating effect')
+    Condition: condition
   }).label('Statement')).label('Statements')
 }).label('PolicyStatements')
 
@@ -538,6 +555,12 @@ const UserActionsOnResources = Joi.array().items(Joi.object({
   actions: UserActionsArray
 }).label('UserActionOnResource')).label('UserActionsOnResources')
 
+const BatchAccess = Joi.array().items(Joi.object({
+  resource: resource,
+  action: action,
+  access: Joi.boolean()
+}).label('BatchAccess')).description('Array to determine if a user has access to perform actions on resources').label('BatchAccessList')
+
 const swagger = {
   List,
   User,
@@ -563,6 +586,7 @@ const swagger = {
   PolicyStatements,
   PolicyTemplateVariables,
   Access,
+  BatchAccess,
   Search,
   SearchUser,
   ShortTeam

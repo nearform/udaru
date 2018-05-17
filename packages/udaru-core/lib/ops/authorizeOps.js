@@ -74,6 +74,38 @@ function buildAuthorizeOps (db, config) {
     },
 
     /**
+     * Return if a user can perform an action on a certain resource
+     *
+     * @param  {Object}   options { resource, action, userId,  }
+     * @param  {Function} cb
+     */
+    batchAuthorization: function batchAuthorization ({ resourceBatch, userId, organizationId, sourceIpAddress, sourcePort }, cb) {
+      let promise = null
+      if (typeof cb !== 'function') [promise, cb] = asyncify()
+
+      async.waterfall([
+        function validate (next) {
+          Joi.validate({ resourceBatch, userId, organizationId }, validationRules.batchAuthorization, badRequestWrap(next))
+        },
+        function listPolicies (result, next) {
+          policyOps.listAllUserPolicies({ userId, organizationId }, badImplementationWrap(next))
+        },
+        function check (policies, next) {
+          let context = buildContext({userId, organizationId, sourceIpAddress, sourcePort})
+
+          resourceBatch.forEach((rb) => {
+            rb.access = iam(policies).isAuthorized({resource: rb.resource, action: rb.action, context})
+          })
+          next(null, resourceBatch)
+        }
+      ], function (err, access) {
+        cb(err, resourceBatch)
+      })
+
+      return promise
+    },
+
+    /**
      * List all user's actions on a given resource
      *
      * @param  {Object}   options { userId, resource }
@@ -131,6 +163,7 @@ function buildAuthorizeOps (db, config) {
   authorize.isUserAuthorized.validate = validationRules.isUserAuthorized
   authorize.listAuthorizations.validate = validationRules.listAuthorizations
   authorize.listAuthorizationsOnResources.validate = validationRules.listAuthorizationsOnResources
+  authorize.batchAuthorization.validate = validationRules.batchAuthorization
 
   return authorize
 }
