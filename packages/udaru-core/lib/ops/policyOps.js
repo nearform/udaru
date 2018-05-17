@@ -577,7 +577,7 @@ function buildPolicyOps (db, config) {
           SELECT *
           FROM policies
           WHERE (
-            to_tsvector(name) @@ to_tsquery(${query.split(' ').join(' & ') + ':*'})
+            to_tsvector(name) @@ to_tsquery(${utils.toTsQuery(query)})
             OR name LIKE(${'%' + query + '%'})
           )      
         `
