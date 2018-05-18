@@ -728,7 +728,7 @@ lab.experiment('UserOps', () => {
   })
 
   lab.experiment('multiple instance tests', () => {
-    lab.test('same policy without variables should 409 conflict', (done) => {
+    lab.test('same policy without variables should not conflict', (done) => {
       let accountantPolicy = u.findPick(wonkaPolicies, {name: 'Accountant'}, ['id', 'name', 'version'])
       let directorPolicy = u.findPick(wonkaPolicies, {name: 'Director'}, ['id', 'name', 'version'])
       let sysadminPolicy = u.findPick(wonkaPolicies, {name: 'Sys admin'}, ['id', 'name', 'version'])
@@ -752,8 +752,7 @@ lab.experiment('UserOps', () => {
           ],
           organizationId: 'WONKA'
         }, (err, user) => {
-          expect(err).to.exist()
-          expect(err.output.statusCode).to.equal(409)
+          expect(err).to.not.exist()
 
           udaru.users.replacePolicies({ id: 'VerucaId', policies: [{id: accountantPolicy.id}], organizationId: 'WONKA' }, (err, user) => {
             expect(err).to.not.exist()
@@ -1016,7 +1015,7 @@ lab.experiment('UserOps', () => {
       })
     })
 
-    lab.test('with same variables should 409 conflict', (done) => {
+    lab.test('with same variables should be no conflict', (done) => {
       const accountantPolicy = u.findPick(wonkaPolicies, {name: 'Accountant'}, ['id', 'name', 'version'])
 
       udaru.users.read({ id: 'VerucaId', organizationId: 'WONKA' }, (err, user) => {
@@ -1059,8 +1058,7 @@ lab.experiment('UserOps', () => {
             policies,
             organizationId: 'WONKA'
           }, (err, user) => {
-            expect(err).to.exist()
-            expect(err.output.statusCode).to.equal(409)
+            expect(err).to.not.exist()
 
             udaru.users.replacePolicies({ id: 'VerucaId', policies: [{id: accountantPolicy.id}], organizationId: 'WONKA' }, (err, user) => {
               expect(err).to.not.exist()

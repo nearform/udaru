@@ -656,6 +656,7 @@ function buildOrganizationOps (db, config) {
       newPolicies.slice(1).forEach((policy) => {
         sqlQuery.append(SQL`, (${policy.id}, ${id}, ${policy.variables})`)
       })
+      sqlQuery.append(SQL` ON CONFLICT ON CONSTRAINT org_policy_link DO NOTHING`)
 
       client.query(sqlQuery, (err, result) => {
         if (utils.isUniqueViolationError(err)) return cb(Boom.conflict(err.detail))
