@@ -49,6 +49,45 @@ lab.experiment('Teams - search', () => {
     })
   })
 
+  lab.test('exact team name search', (done) => {
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: `/authorization/teams/search?query=test&type=exact`
+    })
+
+    udaru.teams.create(teamData, (err, team) => {
+      expect(err).to.not.exist()
+
+      server.inject(options, (response) => {
+        const result = response.result
+
+        expect(response.statusCode).to.equal(200)
+        expect(result.data).to.exist()
+        expect(result.total).to.exist()
+
+        expect(result.data.length).to.equal(0)
+        expect(result.total).to.equal(0)
+
+        const options = utils.requestOptions({
+          method: 'GET',
+          url: `/authorization/teams/search?query=testTeam&type=exact`
+        })
+        server.inject(options, (response) => {
+          const result = response.result
+
+          expect(response.statusCode).to.equal(200)
+          expect(result.data).to.exist()
+          expect(result.total).to.exist()
+
+          expect(result.data.length).to.equal(1)
+          expect(result.total).to.equal(1)
+
+          udaru.teams.delete({ id: team.id, organizationId: team.organizationId }, done)
+        })
+      })
+    })
+  })
+
   lab.test('searching for teams should handle server errors', (done) => {
     const options = utils.requestOptions({
       method: 'GET',

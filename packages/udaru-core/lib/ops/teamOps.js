@@ -1076,7 +1076,7 @@ function buildTeamOps (db, config) {
       let promise = null
       if (typeof cb !== 'function') [promise, cb] = asyncify('data', 'total')
 
-      const { organizationId, query } = params
+      const { organizationId, query, type } = params
       Joi.validate({ organizationId, query }, validationRules.searchTeam, function (err) {
         if (err) {
           return cb(Boom.badRequest(err))
@@ -1087,11 +1087,22 @@ function buildTeamOps (db, config) {
           FROM teams
           WHERE org_id=${organizationId}
           AND (
-            to_tsvector(name) || to_tsvector(description) @@ to_tsquery(${query.split(' ').join(' & ') + ':*'})
-            OR name LIKE(${'%' + query + '%'})
-          )
-          ORDER BY id;
         `
+
+        if (!type || type === 'default') {
+          sqlQuery.append(SQL`
+            to_tsvector(name) || to_tsvector(description) @@ to_tsquery(${query.split(' ').join(' & ') + ':*'})
+              OR name LIKE(${'%' + query + '%'})
+          `)
+        } else if (type === 'exact') {
+          sqlQuery.append(SQL`
+            name = ${query}
+          `)
+        }
+
+        sqlQuery.append(SQL`)
+          ORDER BY id;
+        `)
 
         db.query(sqlQuery, (err, result) => {
           if (err) return cb(Boom.badImplementation(err))

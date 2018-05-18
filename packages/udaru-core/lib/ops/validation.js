@@ -255,7 +255,8 @@ const teams = {
   },
   searchTeam: {
     organizationId: validationRules.organizationId,
-    query: requiredString
+    query: requiredString,
+    type: Joi.string().optional().allow('default', 'exact')
   },
   searchTeamUsers: {
     organizationId: validationRules.organizationId,
