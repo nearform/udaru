@@ -8,5 +8,5 @@
     -   [Swagger Documentation](swagger/index.html ":ignore")
 
 -   Security
-     -   [Pentration test scans](udaru/pentests/)
-     -   [SQL Injection](sqlinjection.md)
+    -   [Pentration test scans](udaru/pentests/)
+    -   [SQL Injection](sqlinjection.md)

@@ -272,7 +272,7 @@ To run bench test against populated volume data (2 endpoints)
 npm run bench:volume
 ```
 
-For convenience, you can load the volume db and run the bench tests with the single command. 
+For convenience, you can load the volume db and run the bench tests with the single command.
 
 ```
 npm run bench:load-volume
@@ -306,6 +306,24 @@ The injection tests can be configured in the [sqlmap config][]. A few output con
 
 See the [sqlmap][] repository for more details.
 
+Also, Udaru, has some additional security related (penetration) testing available through npm commands based on [OWASP Zed Attack Proxy](https://www.owasp.org/index.php/OWASP_Zed_Attack_Proxy_Project).
+End results of the scans are stored as HTML reports in the Udaru documentation and should be reviewed manually post execution.
+
+**Note:** before running this, make sure you have a Docker installed and the weekly Zed Attack proxy might take quite a bit to download (1,5GB + in size). Also note that the API scan is very thorough, extensive and takes quite some time to complete (45+ mins).
+
+To run the baseline scan:
+```
+npm run test:security:pentest:basline
+```
+
+To run the API attack scan:
+```
+npm run test:security:pentest:api
+```
+To run both:
+```
+npm run test:security:pentest
+```
 ## License
 
 [license]: ./LICENSE.md
