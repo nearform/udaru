@@ -113,7 +113,7 @@
     "bench": "node ./bench/util/runner.js",
     "bench:volume": "node ./bench/util/volumeRunner.js",
     "bench:load-volume": "npm run pg:init-volume-db && node ./bench/util/volumeRunner.js",
-    "coverage": "echo  ️",
+    "coverage":  "echo  ️",
     "depcheck": "npx depcheck",
     "pg:init": "npx --no-install udaru-init && npm run pg:migrate",
     "pg:init-test-db": "npm run pg:init && npx --no-install udaru-loadTestData",
@@ -121,9 +121,11 @@
     "pg:migrate": "npx --no-install udaru-migrate --version=max",
     "start": "node ./index.js",
     "test": "echo ", 
-    "test:example": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -m 10000",
     "pretest:security": "napa sqlmapproject/sqlmap",
-    "test:security": "node ./security/runner.js"
+    "test:security": "node ./security/runner.js",
+    "test:example-6": "echo '\\033[33mtest:example requires Node.js greater than 8.9.0. Exiting without errors.\\033[0m'",
+    "test:example-current": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -m 10000",
+    "test:example": "npm run test:example-$(node -v | grep '^v6' >> /dev/null && echo '6' || echo 'current')"
   },
   "remarkConfig": {
     "plugins": [
