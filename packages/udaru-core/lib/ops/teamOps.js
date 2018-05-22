@@ -150,6 +150,7 @@ function buildTeamOps (db, config) {
     newPolicies.slice(1).forEach((policy) => {
       sql.append(SQL`, (${policy.id},${teamId}, ${policy.variables})`)
     })
+    sql.append(SQL` ON CONFLICT ON CONSTRAINT team_policy_link DO NOTHING`)
     job.client.query(sql, (err, result) => {
       if (utils.isUniqueViolationError(err)) return next(Boom.conflict(err.detail))
       if (err) return next(Boom.badImplementation(err))

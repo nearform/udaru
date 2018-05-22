@@ -654,11 +654,11 @@ function buildUserOps (db, config) {
           policy_id, user_id, variables
         ) VALUES
       `
-
         sqlQuery.append(SQL`(${newPolicies[0].id}, ${id}, ${newPolicies[0].variables})`)
         newPolicies.slice(1).forEach((policy) => {
           sqlQuery.append(SQL`, (${policy.id}, ${id}, ${policy.variables})`)
         })
+        sqlQuery.append(SQL` ON CONFLICT ON CONSTRAINT user_policy_link DO NOTHING`)
 
         client.query(sqlQuery, (err, result) => {
           if (utils.isUniqueViolationError(err)) return cb(Boom.conflict(err.detail))
