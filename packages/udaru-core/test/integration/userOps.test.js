@@ -1228,12 +1228,4 @@ lab.experiment('UserOps structure', () => {
       done()
     })
   })
-
-  lab.test('Search sql injection query sanity check', (done) => {
-    udaru.users.search({ query: 'Charlie\');drop database authorization;', organizationId: 'WONKA' }, (err, data, total) => {
-      expect(err).to.exist()
-
-      done()
-    })
-  })
 })

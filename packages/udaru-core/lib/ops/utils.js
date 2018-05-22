@@ -86,6 +86,15 @@ function checkOrg (db, organizationId, cb) {
   })
 }
 
+function toTsQuery (query) {
+  let tsQuery = query.trim()
+
+  if (tsQuery !== '') {
+    tsQuery = "'" + tsQuery.replace(/ +/g, ' ').replace(/\\/g, '\\\\').replace(/'/g, "''").split(' ').join("':* & '") + "':*"
+  }
+  return tsQuery
+}
+
 function preparePolicy (policy) {
   policy.variables = policy.variables || {}
 
@@ -105,5 +114,6 @@ module.exports = {
   checkUsersOrg,
   checkTeamsOrg,
   checkUserOrg,
-  checkOrg
+  checkOrg,
+  toTsQuery
 }

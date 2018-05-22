@@ -913,7 +913,7 @@ function buildUserOps (db, config) {
           FROM users
           WHERE org_id=${organizationId}
           AND (
-            to_tsvector(name) @@ to_tsquery(${query.split(' ').join(' & ') + ':*'})
+            to_tsvector(name) @@ to_tsquery(${utils.toTsQuery(query)})
             OR name ILIKE(${'%' + query + '%'})
           )
           ORDER BY id;
