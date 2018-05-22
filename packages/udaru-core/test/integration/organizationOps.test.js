@@ -921,7 +921,7 @@ lab.experiment('OrganizationOps', () => {
   })
 
   lab.experiment('multiple policies - ', () => {
-    lab.test('add same policy without variables twice 409 conflict', (done) => {
+    lab.test('add same policy without variables twice no conflict', (done) => {
       const tasks = []
 
       tasks.push((next) => {
@@ -965,8 +965,7 @@ lab.experiment('OrganizationOps', () => {
       })
       tasks.push((next) => {
         udaru.organizations.addPolicies({id: organizationId, policies: [{id: testPolicy.id}]}, (err, res) => {
-          expect(err).to.exist()
-          expect(err.output.statusCode).to.equal(409)
+          expect(err).to.not.exist()
           next()
         })
       })
@@ -1563,8 +1562,7 @@ lab.experiment('OrganizationOps', () => {
           variables: {var1: 'value1'}
         }]
         udaru.organizations.addPolicies({id: organizationId, policies}, (err, res) => {
-          expect(err).to.exist()
-          expect(err.output.statusCode).to.equal(409)
+          expect(err).to.not.exist()
           next()
         })
       })

@@ -25,9 +25,9 @@ const ResourceBatch = Joi.array().min(1).items(Joi.object({
   action: action
 }).label('ResourceAccess')).required().description('A batch of resources and actions to check').label('ResourceBatch')
 
-const PolicyIdsArray = Joi.array().required().items(PolicyIdObject).description('Array of Policies/Policy Templates to associate with this entity (with optional Policy Instance variables)').label('PolicyIdsArray')
-const UsersArray = Joi.array().required().items(requiredString).description('User IDs').label('UsersArray')
-const TeamsArray = Joi.array().required().items(requiredString).description('Teams IDs').label('TeamsArray')
+const PolicyIdsArray = Joi.array().required().min(0).items(PolicyIdObject).description('Array of Policies/Policy Templates to associate with this entity (with optional Policy Instance variables)').label('PolicyIdsArray')
+const UsersArray = Joi.array().required().min(0).items(requiredStringId.optional()).description('User IDs').label('UsersArray')
+const TeamsArray = Joi.array().required().min(0).items(requiredStringId.optional()).description('Teams IDs').label('TeamsArray')
 const ResourcesArray = Joi.array().items(resource.description('A single resource')).single().required().description('A list of Resources').label('ResourcesArray')
 
 const StatementObject = Joi.object({

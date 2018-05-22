@@ -895,7 +895,7 @@ lab.experiment('TeamOps', () => {
   })
 
   lab.experiment('multiple policy tests  - ', () => {
-    lab.test('same policy instances without variables 409 conflict', (done) => {
+    lab.test('same policy instances without variables no conflict', (done) => {
       udaru.teams.addPolicies({ id: testTeam.id, policies: [{id: policies[0].id}, {id: policies[1].id}], organizationId: 'WONKA' }, (err, team) => {
         expect(err).to.not.exist()
         expect(team).to.exist()
@@ -913,8 +913,7 @@ lab.experiment('TeamOps', () => {
         }])
 
         udaru.teams.addPolicies({ id: team.id, policies: [{id: policies[1].id}], organizationId: 'WONKA' }, (err, team) => {
-          expect(err).to.exist()
-          expect(err.output.statusCode).to.equal(409)
+          expect(err).to.not.exist()
           done()
         })
       })
@@ -1245,7 +1244,7 @@ lab.experiment('TeamOps', () => {
       })
     })
 
-    lab.test('with same variables 409 conflict', (done) => {
+    lab.test('with same variables - no conflict', (done) => {
       const policiesParam = [{
         id: policies[0].id,
         variables: { var1: 'value1' }
@@ -1276,8 +1275,7 @@ lab.experiment('TeamOps', () => {
         }]
 
         udaru.teams.addPolicies({ id: team.id, policies: policiesParam, organizationId: 'WONKA' }, (err, team) => {
-          expect(err).to.exist()
-          expect(err.output.statusCode).to.equal(409)
+          expect(err).to.not.exist()
           done()
         })
       })
