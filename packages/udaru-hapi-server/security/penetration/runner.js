@@ -16,13 +16,13 @@ if (!(doBaselineScan || doApiScan)) {
 
 const server = require('../../index')
 
-// Due to the fact Docker does networking differently on OSX and this script might be runt manually
+// Due to the fact Docker does networking differently on OSX and this script might be ran manually
 // we need to compensate for the host part of the test endpoint
 const isOSX = process.platform === 'darwin'
 const baseEndpoint = `${server.info.protocol}://${isOSX ? 'docker.for.mac.localhost' : server.info.host}:${server.info.port}`
 const swaggerEndpoint = `${baseEndpoint}/swagger.json`
 const reportNameDatePart = new Date().toISOString()
-const baselineReportName = `udaru-basline-scan-${reportNameDatePart}.html`
+const baselineReportName = `udaru-baseline-scan-${reportNameDatePart}.html`
 const apiReportName = `udaru-api-scan-${reportNameDatePart}.html`
 const reportDestination = path.join(process.cwd(), path.join('docs', 'udaru', 'pentests'))
 

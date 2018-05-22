@@ -313,7 +313,7 @@ End results of the scans are stored as HTML reports in the Udaru documentation a
 
 To run the baseline scan:
 ```
-npm run test:security:pentest:basline
+npm run test:security:pentest:baseline
 ```
 
 To run the API attack scan:

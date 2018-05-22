@@ -51,4 +51,4 @@ We are currently supporting node 6 and 8.
 
 Udaru has been extensively tested for SQL injections, please see [sqlinjection.md](./sqlinjection.md) for more information.
 
-Aside from that, udaru is occasionally tested with OWASP ZAProxy for any known security vulnerabilities. For a list, please see [pentests](./pentests) for more information.
+Aside from that, Udaru is occasionally tested with OWASP ZAProxy for any known security vulnerabilities. For a list, please see [pentests](./pentests) for more information.
