@@ -120,7 +120,8 @@
     "pg:init-volume-db": "npm run pg:init-test-db && ./bench/util/loadVolumeData.js",
     "pg:migrate": "npx --no-install udaru-migrate --version=max",
     "start": "node ./index.js",
-    "test": "echo  ️",
+    "test": "echo ", 
+    "test:example": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -m 10000",
     "pretest:security": "napa sqlmapproject/sqlmap",
     "test:security": "node ./security/runner.js"
   },
@@ -151,7 +152,9 @@
     "minimist": "^1.2.0",
     "napa": "^3.0.0",
     "npx": "^10.0.1",
-    "pg": "^7.4.1"
+    "pg": "^7.4.1",
+    "code": "^5.2.0",
+    "lab": "^15.4.1"
   },
   "standard": {
     "ignore": [
