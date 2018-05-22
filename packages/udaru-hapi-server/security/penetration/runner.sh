@@ -9,7 +9,7 @@ docker pull owasp/zap2docker-weekly
 ## run the baseline scan
 if [[ $6 == '--baseline=true' ]]; then
     echo 'Running the baseline test'
-    docker run -v $(pwd):/zap/wrk/:rw -t owasp/zap2docker-weekly zap-baseline.py -t $BASE_ENDPOINT  -r $BASELINE_REP_NAME \
+    docker run -v $(pwd):/zap/wrk/:rw -t owasp/zap2docker-weekly zap-baseline.py  -c udaruBaseline.config -t $BASE_ENDPOINT  -r $BASELINE_REP_NAME \
      -z "-config replacer.full_list\(0\).description=auth1 -config replacer.full_list\(0\).enabled=true -config replacer.full_list\(0\).matchtype=REQ_HEADER -config replacer.full_list\(0\).matchstr=Authorization -config replacer.full_list\(0\).regex=false -config replacer.full_list\(0\).replacement=ROOTid"
 
     if [ ! -f $BASELINE_REP_NAME ]; then
