@@ -113,7 +113,7 @@
     "bench": "node ./bench/util/runner.js",
     "bench:volume": "node ./bench/util/volumeRunner.js",
     "bench:load-volume": "npm run pg:init-volume-db && node ./bench/util/volumeRunner.js",
-    "coverage":  "echo  ️",
+    "coverage": "echo  ️",
     "depcheck": "npx depcheck",
     "pg:init": "npx --no-install udaru-init && npm run pg:migrate",
     "pg:init-test-db": "npm run pg:init && npx --no-install udaru-loadTestData",
