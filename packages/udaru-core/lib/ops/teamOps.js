@@ -1088,10 +1088,9 @@ function buildTeamOps (db, config) {
           WHERE org_id=${organizationId}
           AND (
         `
-
         if (!type || type === 'default') {
           sqlQuery.append(SQL`
-            to_tsvector(name) || to_tsvector(description) @@ to_tsquery(${query.split(' ').join(' & ') + ':*'})
+            to_tsvector(name) || to_tsvector(description) @@ to_tsquery(${utils.toTsQuery(query)})
               OR name LIKE(${'%' + query + '%'})
           `)
         } else if (type === 'exact') {
@@ -1136,7 +1135,7 @@ function buildTeamOps (db, config) {
           AND mem.user_id = users.id
           AND users.org_id = ${organizationId}
           AND (
-            to_tsvector(name) @@ to_tsquery(${query.split(' ').join(' & ') + ':*'})
+            to_tsvector(name) @@ to_tsquery(${utils.toTsQuery(query)})
             OR name ILIKE(${'%' + query + '%'})
             OR id ILIKE(${'%' + query + '%'})
           )

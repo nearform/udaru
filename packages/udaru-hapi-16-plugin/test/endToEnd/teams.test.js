@@ -47,6 +47,37 @@ lab.experiment('Teams - search', () => {
         udaru.teams.delete({ id: team.id, organizationId: team.organizationId }, done)
       })
     })
+
+    lab.test('searching for teams with colon in name', (done) => {
+      const options = utils.requestOptions({
+        method: 'GET',
+        url: `/authorization/teams/search?query=rubber:baby`
+      })
+
+      const team1Data = {
+        name: 'rubber:baby:buggy:bumpers',
+        description: 'This is a test team',
+        parentId: null,
+        organizationId: 'WONKA'
+      }
+
+      udaru.teams.create(team1Data, (err, team) => {
+        expect(err).to.not.exist()
+
+        server.inject(options, (response) => {
+          const result = response.result
+
+          expect(response.statusCode).to.equal(200)
+          expect(result.data[0].name).to.equal(team.name)
+          expect(result.total).to.exist()
+
+          expect(result.data.length).to.equal(1)
+          expect(result.total).to.equal(1)
+
+          udaru.teams.delete({ id: team.id, organizationId: team.organizationId }, done)
+        })
+      })
+    })
   })
 
   lab.test('exact team name search', (done) => {

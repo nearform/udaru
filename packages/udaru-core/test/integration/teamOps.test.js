@@ -1417,6 +1417,72 @@ lab.experiment('TeamOps', () => {
     })
   })
 
+  lab.test(': char search', (done) => {
+    let testTeam = {
+      id: 'ab-ba',
+      name: 'colon:team',
+      description: '"test&team\'s\\description"',
+      organizationId: 'WONKA'
+    }
+
+    udaru.teams.create(testTeam, function (err, result) {
+      expect(err).to.not.exist()
+      expect(result).to.exist()
+
+      udaru.teams.search({ query: 'colo:tea', organizationId: 'WONKA' }, (err, data, total) => {
+        expect(err).to.not.exist()
+
+        testTeam.path = 'ab-ba'
+        expect(data).to.contain(testTeam)
+        udaru.teams.delete({ id: result.id, organizationId: 'WONKA' }, done)
+      })
+    })
+  })
+
+  lab.test('quote team search', (done) => {
+    let testTeam = {
+      id: 'team-s',
+      name: 'team\'s name',
+      description: '"test&team\'s\\description"',
+      organizationId: 'WONKA'
+    }
+
+    udaru.teams.create(testTeam, function (err, result) {
+      expect(err).to.not.exist()
+      expect(result).to.exist()
+
+      udaru.teams.search({ query: 'tea\'s', organizationId: 'WONKA' }, (err, data, total) => {
+        expect(err).to.not.exist()
+
+        testTeam.path = 'team-s'
+        expect(data).to.contain(testTeam)
+        udaru.teams.delete({ id: result.id, organizationId: 'WONKA' }, done)
+      })
+    })
+  })
+
+  lab.test('backslash team search', (done) => {
+    let testTeam = {
+      id: 'team-b',
+      name: 'team\\backslash',
+      description: '"test&team\'s\\description"',
+      organizationId: 'WONKA'
+    }
+
+    udaru.teams.create(testTeam, function (err, result) {
+      expect(err).to.not.exist()
+      expect(result).to.exist()
+
+      udaru.teams.search({ query: 'tea\\backsla', organizationId: 'WONKA' }, (err, data, total) => {
+        expect(err).to.not.exist()
+
+        testTeam.path = 'team-b'
+        expect(data).to.contain(testTeam)
+        udaru.teams.delete({ id: result.id, organizationId: 'WONKA' }, done)
+      })
+    })
+  })
+
   lab.test('Search for common words phrase', (done) => {
     udaru.teams.search({ query: 'Managers', organizationId: 'WONKA' }, (err, data, total) => {
       expect(err).to.not.exist()
@@ -1520,14 +1586,6 @@ lab.experiment('TeamOps', () => {
 
   lab.test('Search sql injection org_id sanity check', (done) => {
     udaru.teams.search({ query: 'Authors', organizationId: 'WONKA||org_id<>-1' }, (err, data, total) => {
-      expect(err).to.exist()
-
-      done()
-    })
-  })
-
-  lab.test('Search sql injection query sanity check', (done) => {
-    udaru.teams.search({ query: 'Authors\'); drop database authorization;', organizationId: 'WONKA' }, (err, data, total) => {
       expect(err).to.exist()
 
       done()
@@ -1641,18 +1699,6 @@ lab.experiment('TeamOps', () => {
         organizationId: 'WONKA||org_id<>-1'
       }, (err, data, total) => {
         expect(err).to.exist()
-        done()
-      })
-    })
-
-    lab.test('Search sql injection query sanity check', (done) => {
-      udaru.teams.searchUsers({
-        id: '1',
-        query: 'Wonka\'); drop database authorization;',
-        organizationId: 'WONKA'
-      }, (err, data, total) => {
-        expect(err).to.exist()
-
         done()
       })
     })
