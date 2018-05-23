@@ -6,3 +6,7 @@
 -   API
     -   [Example Usage](example.md)
     -   [Swagger Documentation](swagger/index.html ":ignore")
+
+-   Security
+    -   [Pentration test scans](udaru/pentests/)
+    -   [SQL Injection](sqlinjection.md)

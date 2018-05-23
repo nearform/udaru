@@ -128,6 +128,9 @@
     "test": "lerna run test",
     "test:commit-check": "npm run doc:lint && npm run lint && npm run depcheck && npm run test",
     "test:security": "cd packages/udaru-hapi-server && npm run test:security",
+    "test:security:pentest:baseline": " node packages/udaru-hapi-server/security/penetration/runner.js --baseline",
+    "test:security:pentest:api": " node packages/udaru-hapi-server/security/penetration/runner.js --api",
+    "test:security:pentest": " node packages/udaru-hapi-server/security/penetration/runner.js --api --baseline",
     "swagger-gen": "node scripts/getSwaggerJson.js js > docs/swagger/swagger-json.js"
   },
   "remarkConfig": {
