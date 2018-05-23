@@ -1,3 +1,14 @@
+## 5.2.0 - May 23, 2018
+Features, enhancements
+-   Exact name search added to teams search [commit](https://github.com/nearform/udaru/pull/543)
+-   Search enhanced to handle tsquery reserved characters [commit](https://github.com/nearform/udaru/pull/542)
+-   Zed Attack Proxy baseline and API penetration testing support [commit](https://github.com/nearform/udaru/pull/544)
+
+Fixes:
+(https://github.com/nearform/udaru/pull/542)
+-   Ignore unique constraints on insert policies [commit](https://github.com/nearform/udaru/pull/545)
+-   Allow empty array of teams/user ids [commit](https://github.com/nearform/udaru/pull/545)
+
 ## 5.1.0 - May 16, 2018
 Features, enhancements
 -   Batch authorization checks on resource/action pairs [commit](https://github.com/nearform/udaru/pull/540)

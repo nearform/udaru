@@ -58,7 +58,7 @@ A brief overview of the Management API calls are as follows, see the [Swagger Do
 |/authorization/shared-policies/{id}/instances|GET|Fetch instances of a shared policy by ID|
 |/authorization/teams|POST|Create a team|
 |/authorization/teams|GET|Fetch all teams from the current user organization|
-|/authorization/teams/search|GET|Search for teams from the current user organization|
+|/authorization/teams/search|GET|Search for teams from the current user organization, set query param type to exact for an exact team name search|
 |/authorization/teams/{id}|DELETE|Delete a team|
 |/authorization/teams/{id}|PUT|Update a team|
 |/authorization/teams/{id}|GET|Fetch a team given its identifier|
