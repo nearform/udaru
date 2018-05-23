@@ -5,7 +5,6 @@ Features, enhancements
 -   Zed Attack Proxy baseline and API penetration testing support [commit](https://github.com/nearform/udaru/pull/544)
 
 Fixes:
-(https://github.com/nearform/udaru/pull/542)
 -   Ignore unique constraints on insert policies [commit](https://github.com/nearform/udaru/pull/545)
 -   Allow empty array of teams/user ids [commit](https://github.com/nearform/udaru/pull/545)
 
