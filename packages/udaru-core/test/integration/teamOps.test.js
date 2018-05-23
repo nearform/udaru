@@ -1492,6 +1492,47 @@ lab.experiment('TeamOps', () => {
     done()
   })
 
+  lab.test('Search for exact name', (done) => {
+    udaru.teams.search({ query: 'Managers', type: 'exact', organizationId: 'WONKA' }, (err, data, total) => {
+      expect(err).to.not.exist()
+      expect(total).to.exist()
+      expect(total).to.equal(1)
+      expect(data.length).to.equal(1)
+    })
+
+    done()
+  })
+
+  lab.test('Search for exact name that does not exist', (done) => {
+    udaru.teams.search({ query: 'does not exist', type: 'exact', organizationId: 'WONKA' }, (err, data, total) => {
+      expect(err).to.not.exist()
+      expect(total).to.exist()
+      expect(total).to.equal(0)
+      expect(data.length).to.equal(0)
+    })
+
+    done()
+  })
+
+  lab.test('Search with apostrophe does not cause error', (done) => {
+    udaru.teams.search({ query: "doesn't exist", type: 'exact', organizationId: 'WONKA' }, (err, data, total) => {
+      expect(err).to.not.exist()
+      expect(total).to.exist()
+      expect(total).to.equal(0)
+      expect(data.length).to.equal(0)
+    })
+
+    done()
+  })
+
+  lab.test('unknown type', (done) => {
+    udaru.teams.search({ query: 'Managers', type: 'random', organizationId: 'WONKA' }, (err, data, total) => {
+      expect(err).to.exist()
+    })
+
+    done()
+  })
+
   lab.test('Search for multiple words phrase', (done) => {
     udaru.teams.search({ query: 'Personnel Managers', organizationId: 'WONKA' }, (err, data, total) => {
       expect(err).to.not.exist()

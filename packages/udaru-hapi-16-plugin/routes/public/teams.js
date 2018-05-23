@@ -607,10 +607,12 @@ exports.register = function (server, options, next) {
     handler: function (request, reply) {
       const { organizationId } = request.udaru
       const query = request.query.query
+      const type = request.query.type
 
       request.udaruCore.teams.search({
         organizationId,
-        query
+        query,
+        type
       }, (err, data, total) => {
         reply(
           err,
@@ -632,7 +634,7 @@ exports.register = function (server, options, next) {
       },
       validate: {
         headers,
-        query: _.pick(validation.searchTeam, ['query'])
+        query: _.pick(validation.searchTeam, ['query', 'type'])
       },
       response: { schema: swagger.Search(swagger.ShortTeam).label('FilteredTeams') }
     }
