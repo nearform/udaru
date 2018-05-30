@@ -317,7 +317,7 @@ lab.experiment('TeamOps', () => {
     udaru.teams.create(testTeam, { createOnly: true }, (err, result) => {
       expect(err).to.exist()
       expect(err.output.statusCode).to.equal(400)
-      expect(err.message).to.equal('child "id" fails because ["id" with value "id _ with ~ invalid / chars" fails to match the required pattern: /^[A-Za-z0-9-]+$/]')
+      expect(err.message).to.equal('child "id" fails because ["id" with value "id _ with ~ invalid / chars" fails to match the required pattern: /^[A-Za-z0-9_-]+$/]')
 
       done()
     })
@@ -434,6 +434,54 @@ lab.experiment('TeamOps', () => {
       expect(result.path).to.equal(testTeam.id + '.' + result.id)
 
       udaru.teams.delete({ id: result.id, organizationId: 'WONKA' }, done)
+    })
+  })
+
+  lab.test('createTeam with underscore in id', (done) => {
+    let childTeam = {
+      id: 'child_team',
+      name: 'test:team:child:' + randomId(),
+      description: 'child',
+      parentId: testTeam.id,
+      organizationId: 'WONKA'
+    }
+
+    udaru.teams.create(childTeam, function (err, result) {
+      expect(err).to.not.exist()
+      expect(result).to.exist()
+      expect(result.path).to.equal(testTeam.id + '.' + result.id.replace(/_/g, '-'))
+
+      udaru.teams.delete({ id: result.id, organizationId: 'WONKA' }, done)
+    })
+  })
+
+  lab.test('path clash', (done) => {
+    let childTeamHyphen = {
+      id: 'child-team',
+      name: 'test:team:child:' + randomId(),
+      description: 'child',
+      parentId: testTeam.id,
+      organizationId: 'WONKA'
+    }
+
+    let childTeamUnderscore = {
+      id: 'child_team',
+      name: 'test:team:child:' + randomId(),
+      description: 'child',
+      parentId: testTeam.id,
+      organizationId: 'WONKA'
+    }
+
+    udaru.teams.create(childTeamUnderscore, function (err, result) {
+      expect(err).to.not.exist()
+      expect(result).to.exist()
+      expect(result.id).to.equal(childTeamUnderscore.id)
+      expect(result.path).to.equal(testTeam.id + '.' + childTeamHyphen.id)
+      udaru.teams.create(childTeamHyphen, function (err, result1) {
+        expect(err).to.exist()
+        expect(err.message).to.contain('already exists.')
+        udaru.teams.delete({ id: childTeamUnderscore.id, organizationId: 'WONKA' }, done)
+      })
     })
   })
 

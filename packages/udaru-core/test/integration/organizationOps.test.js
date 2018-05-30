@@ -133,7 +133,7 @@ lab.experiment('OrganizationOps', () => {
     udaru.organizations.create(organizationData, { createOnly: true }, (err, result) => {
       expect(err).to.exist()
       expect(err.output.statusCode).to.equal(400)
-      expect(err.message).to.equal('child "id" fails because ["id" with value "invalid?id" fails to match the required pattern: /^[A-Za-z0-9-]+$/]')
+      expect(err.message).to.equal('child "id" fails because ["id" with value "invalid?id" fails to match the required pattern: /^[A-Za-z0-9_-]+$/]')
 
       done()
     })
