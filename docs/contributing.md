@@ -34,10 +34,10 @@ We are currently supporting node 6 and 8.
 8.  In the order of dependencies above, for each package:
     -   Run `npm install` and verify that root level and package dependencies correctly install.
     -   Run `npm test` to verify the tests run locally within their own context (something that's not done by CI)
-9. Run `npm run swagger-gen` to regenerate the Swagger documentation for the Udaru [documentation site][docs-site].
+9.  Run `npm run swagger-gen` to regenerate the Swagger documentation for the Udaru [documentation site][docs-site].
     -   Run `git add` and `git commit` to commit any version and documentation changes if there are any.
 10. Finally, from root, log in to npm using `npm login`, run `lerna publish` and choose the approriate version change type.  This will update each  package.json of modified packages as appropriate, create a new git commit and tag, and publish updated packages to npm.
-    - Update root package.json to the correct version number and commit
+    -   Update root package.json to the correct version number and commit
 11. Go to the [Github release page][Releases] and hit 'Draft a new release'.
 12. Paste the Changelog content for this release and add additional release notes.
 13. Choose the tag version and a title matching the release and publish.

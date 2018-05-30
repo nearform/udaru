@@ -18,7 +18,6 @@ Note that it's also possible to follow the example below using the live Swagger 
 
 ```bash
 curl -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' --header 'authorization: ROOTid' -d '{"id":"WayneManor","name":"Wayne Manor","description":"Wayne Manor Organisation","user":{"id":"BruceWayne","name":"Bruce Wayne"}}' 'http://localhost:8080/authorization/organizations'
-
 ```
 
 Response:
@@ -44,10 +43,33 @@ This creates our Organization, and one super user, 'Bruce Wayne'. We can verify 
 curl -X GET --header 'Accept: application/json' --header 'authorization: ROOTid' 'http://localhost:8080/authorization/organizations'
 ```
 
+```javascript
+..
+  {
+      "name": "Wayne Manor",
+      "description": "Wayne Manor Organisation"
+  }
+..
+```
+
 and also verify our 'Bruce Wayne' user exists with:
 
 ```bash
-curl -X GET --header 'Accept: application/json' --header 'authorization: ROOTid' 'http://localhost:8080/authorization/users'
+curl -X GET --header 'Accept: application/json' --header 'authorization: BruceWayne' 'http://localhost:8080/authorization/users'
+```
+
+```javascript
+{
+  "page": 1,
+  "limit": 100,
+  "total": 1,
+  "data": [
+    {
+      "name": "Bruce Wayne",
+      "organizationId": "WayneManor"
+    }
+  ]
+}
 ```
 
 and that he is Admin:
@@ -66,7 +88,8 @@ curl -X GET --header 'Accept: application/json' --header 'authorization: BruceWa
     {
       "id": "132a2c88-3d00-43af-8318-540405874dfb",
       "name": "WayneManor admin",
-      "version": "1"
+      "version": "1",
+      "variables": {}
     }
   ]
 }
@@ -84,9 +107,28 @@ As Bruce Wayne, let's create some more users:
 
 ```shell
 curl -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' --header 'authorization: BruceWayne'  -d '{"id":"Alfred","name":"Alfred the butler"}' 'http://localhost:8080/authorization/users'
+```
 
+```javascript
+{
+  "name": "Alfred the butler",
+  "organizationId": "WayneManor",
+  "teams": [],
+  "policies": []
+}
+```
+
+```shell
 curl -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' --header 'authorization: BruceWayne'  -d '{"id":"Joker","name":"The Joker"}' 'http://localhost:8080/authorization/users'
+```
 
+```javascript
+{
+  "name": "The Joker",
+  "organizationId": "WayneManor",
+  "teams": [],
+  "policies": []
+}
 ```
 
 At this point, Alfred has been created, but is not in a team nor does he have any policies:
@@ -178,7 +220,8 @@ curl -X GET --header 'Accept: application/json' --header 'authorization: BruceWa
     {
       "id": "AccessBatCave",
       "name": "batcave",
-      "version": "1"
+      "version": "1",
+      "variables": {}
     }
   ]
 }
@@ -244,17 +287,20 @@ curl -X GET --header 'Accept: application/json' --header 'authorization: BruceWa
     {
       "id": "AccessBatCave",
       "name": "batcave",
-      "version": "1"
+      "version": "1",
+      "variables": {}
     },
     {
       "id": "DenyBatcomputer",
       "name": "batcomputer",
-      "version": "1"
+      "version": "1",
+      "variables": {}
     },
     {
       "id": "DriveBatmobile",
       "name": "batmobile",
-      "version": "1"
+      "version": "1",
+      "variables": {}
     }
   ]
 }
@@ -414,7 +460,7 @@ curl -X GET --header 'Accept: application/json' --header 'authorization: BruceWa
 Now let's create a policy that will allow access to the Amazons meeting room in the BatCave - note again as above, this is not the recommended way of creating policies!
 
 ```bash
-curl -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' --header 'authorization: ROOTid' --header 'org: WayneManor' -d '{"id":"AccessAmazonMeetingRoom","name":"amazon meeting room","version":"1","statements":{"Statement":[{"Effect":"Allow","Action":["enter","exit"],"Resource":["/waynemanor/batcave/amazon_meeting_room"],"Sid":"1","Condition":{}}]}}' 'http://localhost:8080/authorization/policies?sig=123456789'
+curl -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' --header 'authorization: ROOTid' --header 'org: WayneManor' -d '{"id":"AccessAmazonMeetingRoom","name":"amazon meeting room","version":"1","statements":{"Statement":[{"Effect":"Allow","Action":["enter","exit"],"Resource":["/waynemanor/batcave/amazon-meeting-room"],"Sid":"1","Condition":{}}]}}' 'http://localhost:8080/authorization/policies?sig=123456789'
 ```
 
 And let's add this policy to the `Amazons` team:
@@ -449,16 +495,16 @@ curl -X PUT --header 'Content-Type: application/json' --header 'Accept: applicat
 }
 ```
 
-Let's see what Actions `Wonder Woman` can perform on `/waynemanor/batcave/amazon_meeting_room`:
+Let's see what Actions `Wonder Woman` can perform on `/waynemanor/batcave/amazon-meeting-room`:
 
 ```bash
-curl -X GET --header 'Accept: application/json' --header 'authorization: ROOTid' --header 'org: WayneManor' 'http://localhost:8080/authorization/list/wonder-woman?resources=%2Fwaynemanor%2Fbatcave%2Famazon_meeting_room'
+curl -X GET --header 'Accept: application/json' --header 'authorization: ROOTid' --header 'org: WayneManor' 'http://localhost:8080/authorization/list/wonder-woman?resources=%2Fwaynemanor%2Fbatcave%2Famazon-meeting-room'
 ```
 
 ```js
 [
   {
-    "resource": "/waynemanor/batcave/amazon_meeting_room",
+    "resource": "/waynemanor/batcave/amazon-meeting-room",
     "actions": [
       "enter",
       "exit"

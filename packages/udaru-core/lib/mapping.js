@@ -141,7 +141,7 @@ function mapNestedTeam (row) {
     name: row.name,
     description: row.description,
     parentId: row.parent_id,
-    path: row.path,
+    path: pathToId(row.path),
     organizationId: row.org_id,
     usersCount: parseInt(row.users_count, 10)
   }
