@@ -1,3 +1,11 @@
+## 5.2.1 - May 23, 2018
+Features, enhancements
+-   Facilitating underscores in id fields for backward compatibility [commit](https://github.com/nearform/udaru/pull/549)
+
+Fixes:
+-   Migration scripts updated constraints (redo previous migration to 9) [commit](https://github.com/nearform/udaru/pull/549)
+-   Bugfix for path on nested paths [commit](https://github.com/nearform/udaru/pull/549)
+
 ## 5.2.0 - May 23, 2018
 Features, enhancements
 -   Exact name search added to teams search [commit](https://github.com/nearform/udaru/pull/543)
