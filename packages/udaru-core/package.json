@@ -1,6 +1,6 @@
 {
   "name": "@nearform/udaru-core",
-  "version": "5.2.0",
+  "version": "5.2.1",
   "description": "A policy based authorization module",
   "author": "nearForm Ltd",
   "license": "MIT",
