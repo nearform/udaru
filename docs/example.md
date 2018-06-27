@@ -149,7 +149,7 @@ curl -X GET --header 'Accept: application/json' --header 'authorization: BruceWa
 
 *   Create some policies:
 
-In Udaru you first create Policies and then attach those Policies to Users or Teams. 
+In Udaru you first create Policies and then attach them to Users or Teams. 
 
 First, you can verify that WayneManor has no Policies:
 
