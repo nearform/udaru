@@ -149,7 +149,7 @@ curl -X GET --header 'Accept: application/json' --header 'authorization: BruceWa
 
 *   Create some policies:
 
-In Udaru you first create Policies and then attach does Policies to Users or Teams. 
+In Udaru you first create Policies and then attach those Policies to Users or Teams. 
 
 First, you can verify that WayneManor has no Policies:
 
@@ -336,9 +336,9 @@ curl -X GET --header 'Accept: application/json' --header 'authorization: ROOTid'
 
 ## Teams
 
-Now let's add some teams; lets create a `Justice Leage` team that has the following sub teams: `Amazons`, `Aliens`, `Atlantis` (yep, they do exist: [Justice_Leagues](https://en.wikipedia.org/wiki/Justice_Leagues))
+Now let's add some teams; let's create a `Justice Leage` team that has the following sub teams: `Amazons`, `Aliens`, `Atlantis` (yep, they do exist: [Justice_Leagues](https://en.wikipedia.org/wiki/Justice_Leagues))
 
-Frist, let's list teams to make sure we don't already have any:
+First, let's list teams to make sure we don't already have any:
 
 ```bash
 curl -X GET --header 'Accept: application/json' --header 'authorization: BruceWayne' --header 'org: WayneManor' 'http://localhost:8080/authorization/teams'
