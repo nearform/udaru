@@ -1,6 +1,7 @@
 'use strict'
 
 const pick = require('lodash/pick')
+const Joi = require('joi')
 const validation = require('@nearform/udaru-core/lib/ops/validation').authorize
 const swagger = require('@nearform/udaru-core/lib/ops/validation').swagger
 const headers = require('../headers')
@@ -36,6 +37,44 @@ module.exports = {
         notes: 'The GET /authorization/access/{userId}/{action}/{resource} endpoint answers if a user can perform an action\non a resource.\n',
         tags: ['api', 'authorization'],
         response: {schema: swagger.Access}
+      }
+    })
+
+    server.route({
+      method: 'POST',
+      path: '/authorization/access/{userId}',
+      async handler (request) {
+        const { organizationId } = request.udaru
+        const { userId } = request.params
+        const { resourceBatch } = request.payload
+        const { remoteAddress: sourceIpAddress, remotePort: sourcePort } = request.info
+
+        const params = {
+          userId,
+          resourceBatch,
+          organizationId,
+          sourceIpAddress,
+          sourcePort
+        }
+
+        return request.udaruCore.authorize.batchAuthorization(params)
+      },
+      config: {
+        plugins: {
+          auth: {
+            action: Action.BatchAccess,
+            resource: 'authorization/batchaccess'
+          }
+        },
+        validate: {
+          params: pick(validation.batchAuthorization, ['userId']),
+          payload: Joi.object(pick(validation.batchAuthorization, ['resourceBatch'])).label('ResourceBatchPayload'),
+          headers
+        },
+        description: 'Authorize a batch of action/resource pairss',
+        notes: 'The POST /authorization/access/{userId} endpoint determines if a user has authorization on a batch of action/resource pairs\n',
+        tags: ['api', 'authorization'],
+        response: { schema: swagger.BatchAccess }
       }
     })
 

@@ -41,6 +41,58 @@ lab.experiment('Authorization', () => {
     })
   })
 
+  lab.test('batch check authorization should return access true for allowed actions/resource', (done) => {
+    const options = utils.requestOptions({
+      method: 'POST',
+      url: '/authorization/access/ROOTid',
+      payload: {
+        resourceBatch: [{
+          resource: 'resource_a',
+          action: 'action_a'
+        }]
+      }
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(200)
+      expect(result).to.equal([{
+        resource: 'resource_a',
+        action: 'action_a',
+        access: true
+      }])
+
+      done()
+    })
+  })
+
+  lab.test('batch check authorization should return access false for denied actions/resources', (done) => {
+    const options = utils.requestOptions({
+      method: 'POST',
+      url: '/authorization/access/Modifyid',
+      payload: {
+        resourceBatch: [{
+          resource: 'resource_a',
+          action: 'action_a'
+        }]
+      }
+    })
+
+    server.inject(options, (response) => {
+      const result = response.result
+
+      expect(response.statusCode).to.equal(200)
+      expect(result).to.equal([{
+        resource: 'resource_a',
+        action: 'action_a',
+        access: false
+      }])
+
+      done()
+    })
+  })
+
   lab.test('list authorizations should return actions allowed for the user', (done) => {
     const actionList = {
       actions: []

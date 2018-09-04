@@ -41,6 +41,50 @@ lab.experiment('Authorization', () => {
     expect(result).to.equal({ access: false })
   })
 
+  lab.test('batch check authorization should return access true for allowed actions/resource', async () => {
+    const options = utils.requestOptions({
+      method: 'POST',
+      url: '/authorization/access/ROOTid',
+      payload: {
+        resourceBatch: [{
+          resource: 'resource_a',
+          action: 'action_a'
+        }]
+      }
+    })
+
+    const {statusCode, result} = await server.inject(options)
+
+    expect(statusCode).to.equal(200)
+    expect(result).to.equal([{
+      resource: 'resource_a',
+      action: 'action_a',
+      access: true
+    }])
+  })
+
+  lab.test('batch check authorization should return access false for denied actions/resources', async () => {
+    const options = utils.requestOptions({
+      method: 'POST',
+      url: '/authorization/access/Modifyid',
+      payload: {
+        resourceBatch: [{
+          resource: 'resource_a',
+          action: 'action_a'
+        }]
+      }
+    })
+
+    const {statusCode, result} = await server.inject(options)
+
+    expect(statusCode).to.equal(200)
+    expect(result).to.equal([{
+      resource: 'resource_a',
+      action: 'action_a',
+      access: false
+    }])
+  })
+
   lab.test('list authorizations should return actions allowed for the user', async () => {
     const actionList = {
       actions: []
@@ -294,11 +338,10 @@ lab.experiment('Authorization inherited org policies', () => {
       }
     })
 
-    server.inject(options, (response) => {
-      const result = response.result
-      expect(response.statusCode).to.equal(200)
-      expect(result).to.equal(actionsAllowed)
-    })
+    const {statusCode, result} = await server.inject(options)
+
+    expect(statusCode).to.equal(200)
+    expect(result).to.equal(actionsAllowed)
   })
 
   lab.test('batchcheck empty payload', async () => {
@@ -314,9 +357,8 @@ lab.experiment('Authorization inherited org policies', () => {
       }
     })
 
-    server.inject(options, (response) => {
-      expect(response.statusCode).to.equal(400)
-    })
+    const {statusCode} = await server.inject(options)
+    expect(statusCode).to.equal(400)
   })
 
   lab.test('batchcheck invalid payload', async () => {
@@ -332,9 +374,8 @@ lab.experiment('Authorization inherited org policies', () => {
       }
     })
 
-    server.inject(options, (response) => {
-      expect(response.statusCode).to.equal(400)
-    })
+    const {statusCode} = await server.inject(options)
+    expect(statusCode).to.equal(400)
   })
 
   lab.test('User checks authorization for another org user', async () => {

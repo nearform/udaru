@@ -66,6 +66,55 @@ lab.experiment('Routes Authorizations', () => {
         .shouldRespond(403)
     })
 
+    lab.experiment('POST /authorization/access/{userId}', () => {
+      const records = Factory(lab, {
+        users: {
+          caller: { name: 'caller', organizationId, policies: [{id: 'testedPolicy'}] }
+        },
+        policies: {
+          testedPolicy: Policy()
+        }
+      }, udaru)
+
+      let endpoint = BuildFor(lab, records)
+        .server(server)
+        .endpoint({
+          method: 'POST',
+          url: '/authorization/access/Modifyid',
+          payload: {
+            resourceBatch: [{
+              resource: 'resource_a',
+              action: 'action_a'
+            }]
+          },
+          headers: { authorization: '{{caller.id}}' }
+        })
+
+      endpoint.test('should authorize user with correct policy')
+        .withPolicy([{
+          Effect: 'Allow',
+          Action: ['authorization:authn:batch:access'],
+          Resource: ['authorization/batchaccess']
+        }])
+        .shouldRespond(200)
+
+      endpoint.test('should not authorize user with incorrect policy (action)')
+        .withPolicy([{
+          Effect: 'Allow',
+          Action: ['authorization:authn:batch:dummy'],
+          Resource: ['authorization/access']
+        }])
+        .shouldRespond(403)
+
+      endpoint.test('should not authorize user with incorrect policy (resource)')
+        .withPolicy([{
+          Effect: 'Allow',
+          Action: ['authorization:authn:batch:access'],
+          Resource: ['authorization/dummy']
+        }])
+        .shouldRespond(403)
+    })
+
     lab.experiment('GET /authorization/list/{userId}/{resource*}', () => {
       const records = Factory(lab, {
         users: {
