@@ -144,8 +144,8 @@
   ],
   "dependencies": {},
   "devDependencies": {
-    "depcheck": "^0.6.9",
-    "joi": "^13.2.0",
+    "depcheck": "^0.6.11",
+    "joi": "^13.6.0",
     "lerna": "^2.11.0",
     "pre-commit": "^1.2.2",
     "remark-cli": "^5.0.0",
