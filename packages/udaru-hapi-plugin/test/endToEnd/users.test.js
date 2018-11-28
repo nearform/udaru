@@ -83,6 +83,21 @@ lab.experiment('Users: read - delete - update', () => {
     expect(result.data.length).to.equal(0)
   })
 
+  lab.test('get not existing user', async () => {
+    const incorrectId = 'Incorrect_Id'
+    const options = utils.requestOptions({
+      method: 'GET',
+      url: `/authorization/users/${incorrectId}`
+    })
+
+    const response = await server.inject(options)
+    const result = response.result
+
+    expect(result.statusCode).to.equal(404)
+    expect(result.error).to.equal('Not Found')
+    expect(result.message).to.equal(`User ${incorrectId} not found`)
+  })
+
   lab.test('get single user', async () => {
     const options = utils.requestOptions({
       method: 'GET',
@@ -948,6 +963,20 @@ lab.experiment('Users - manage teams', () => {
       method: 'POST',
       url: '/authorization/users/xyz/teams',
       payload: ['1']
+    })
+
+    const response = await server.inject(options)
+    expect(response.statusCode).to.equal(400)
+    expect(response.result.message).to.equal('No teams found in payload')
+  })
+
+  lab.test('replace users teams (bad teams format)', async () => {
+    const options = utils.requestOptions({
+      method: 'POST',
+      url: '/authorization/users/xyz/teams',
+      payload: {
+        teams: {}
+      }
     })
 
     const response = await server.inject(options)

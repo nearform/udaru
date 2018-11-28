@@ -147,6 +147,7 @@
     "depcheck": "^0.6.9",
     "joi": "^13.2.0",
     "lerna": "^2.11.0",
+    "pre-commit": "^1.2.2",
     "remark-cli": "^5.0.0",
     "remark-lint": "^6.0.1",
     "remark-preset-lint-recommended": "^3.0.1",
