@@ -1,3 +1,10 @@
+## 5.2.2 - Nov 28, 2018
+Features, enhancements:
+
+Fixes:
+-   Expose batch authorization in Hapi 17 plugin [commit](https://github.com/nearform/udaru/pull/556)
+-   Example tests and fixes [commit](https://github.com/nearform/udaru/pull/547)
+
 ## 5.2.1 - May 23, 2018
 Features, enhancements
 -   Facilitating underscores in id fields for backward compatibility [commit](https://github.com/nearform/udaru/pull/549)
