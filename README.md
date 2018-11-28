@@ -326,7 +326,6 @@ npm run test:security:pentest
 ```
 ## License
 
-[license]: ./LICENSE.md
 [travis-badge]: https://travis-ci.org/nearform/udaru-hapi-plugin.svg?branch=master
 [travis-url]: https://travis-ci.org/nearform/udaru-hapi-plugin
 [npm-badge]: https://badge.fury.io/js/udaru-hapi-plugin.svg

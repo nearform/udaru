@@ -120,20 +120,20 @@
   },
   "dependencies": {
     "@nearform/udaru-core": "^5.2.1",
-    "boom": "^7.2.0",
-    "hapi": "^17.2.3",
-    "hoek": "^5.0.3",
-    "joi": "^13.2.0",
-    "lodash": "^4.17.5"
+    "boom": "^7.2.2",
+    "hapi": "^17.8.1",
+    "hoek": "^6.0.4",
+    "joi": "^14.3.0",
+    "lodash": "^4.17.11"
   },
   "devDependencies": {
-    "code": "^5.2.0",
-    "coveralls": "^3.0.0",
-    "depcheck": "^0.6.9",
-    "lab": "^15.4.1",
-    "npx": "^10.0.1",
-    "sinon": "^4.5.0",
-    "uuid": "^3.2.1"
+    "code": "^5.2.4",
+    "coveralls": "^3.0.2",
+    "depcheck": "^0.6.11",
+    "lab": "^18.0.0",
+    "npx": "^10.2.0",
+    "sinon": "^7.1.1",
+    "uuid": "^3.3.2"
   },
   "publishConfig": {
     "access": "public"

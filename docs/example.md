@@ -95,7 +95,7 @@ curl -X GET --header 'Accept: application/json' --header 'authorization: BruceWa
 }
 ```
 
-Note that 'WayneManor admin' is an internal Udaru policy, you can view it as follows: 
+Note that 'WayneManor admin' is an internal Udaru policy, you can view it as follows:
 
 ```bash
 curl -X GET --header 'Accept: application/json' --header 'authorization: BruceWayne'  'http://localhost:8080/authorization/policies'
@@ -149,7 +149,7 @@ curl -X GET --header 'Accept: application/json' --header 'authorization: BruceWa
 
 *   Create some policies:
 
-In Udaru you first create Policies and then attach does Policies to Users or Teams. 
+In Udaru you first create Policies and then attach does Policies to Users or Teams.
 
 First, you can verify that WayneManor has no Policies:
 
@@ -157,7 +157,7 @@ First, you can verify that WayneManor has no Policies:
 curl -X GET --header 'Accept: application/json' --header 'authorization: BruceWayne' 'http://localhost:8080/authorization/organizations/WayneManor'
 ```
 
-Let's create a Policy to allow entry to the Bat Cave. Note that this is for demo purposes only, Policies should not be created directly in this way! In a real system, creating policies must be done with extreme caution - static policies will be seeded in Udaru at creation time, and dynamically created policies will be created by trusted back end services. Users must never be able to create Policies directly themselves. So for this demo: 
+Let's create a Policy to allow entry to the Bat Cave. Note that this is for demo purposes only, Policies should not be created directly in this way! In a real system, creating policies must be done with extreme caution - static policies will be seeded in Udaru at creation time, and dynamically created policies will be created by trusted back end services. Users must never be able to create Policies directly themselves. So for this demo:
 
 *   calls to /authorization/policies are protected endpoints, we must pass the service key ('123456789' by default)
 *   you must also be an Udaru super user to call this directly
@@ -204,7 +204,7 @@ curl -X GET --header 'Accept: application/json' --header 'authorization: BruceWa
 curl -X PUT --header 'Content-Type: application/json' --header 'Accept: application/json' --header 'authorization: BruceWayne'  -d '{"policies":[{"id": "AccessBatCave"}]}' 'http://localhost:8080/authorization/users/Alfred/policies'
 ```
 
-Again we can verify this Policy has been added: 
+Again we can verify this Policy has been added:
 
 ```bash
 curl -X GET --header 'Accept: application/json' --header 'authorization: BruceWayne'  'http://localhost:8080/authorization/users/Alfred'
