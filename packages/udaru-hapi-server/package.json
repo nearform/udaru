@@ -120,7 +120,7 @@
     "pg:init-volume-db": "npm run pg:init-test-db && ./bench/util/loadVolumeData.js",
     "pg:migrate": "npx --no-install udaru-migrate --version=max",
     "start": "node ./index.js",
-    "test": "echo ", 
+    "test": "echo ",
     "pretest:security": "napa sqlmapproject/sqlmap",
     "test:security": "node ./security/runner.js",
     "test:example-6": "echo '\\033[33mtest:example requires Node.js greater than 8.9.0. Exiting without errors.\\033[0m'",
