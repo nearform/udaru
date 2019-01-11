@@ -434,7 +434,7 @@ function buildTeamOps (db, config) {
      * @param  {Function} cb
      */
     createTeam: function createTeam (params, opts, cb) {
-      if (!cb) {
+      if (!cb && typeof opts === 'function') {
         cb = opts
         opts = {}
       }

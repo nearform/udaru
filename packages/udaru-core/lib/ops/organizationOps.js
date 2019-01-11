@@ -306,7 +306,7 @@ function buildOrganizationOps (db, config) {
      * @param  {Function} cb
      */
     create: function create (params, opts, cb) {
-      if (!cb) {
+      if (!cb && typeof opts === 'function') {
         cb = opts
         opts = {}
       }
