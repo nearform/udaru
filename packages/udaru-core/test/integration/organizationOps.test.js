@@ -103,6 +103,26 @@ lab.experiment('OrganizationOps', () => {
     })
   })
 
+  lab.test('create an organization (and delete it) with createOnly option and using promise', (done) => {
+    const organizationData = {
+      id: 'nearForm',
+      name: 'nearForm',
+      description: 'nearForm description'
+    }
+    udaru.organizations.create(organizationData, { createOnly: true }).then(result => {
+      expect(result.organization).to.exist()
+      expect(result.organization.name).to.equal('nearForm')
+
+      udaru.policies.list({organizationId: 'nearForm'}, (err, res) => {
+        expect(err).to.not.exist()
+        expect(res).to.exist()
+        expect(res).to.be.empty()
+
+        udaru.organizations.delete(result.organization.id, done)
+      })
+    })
+  })
+
   lab.test('create twice an organization with the same id should fail second time', (done) => {
     const organizationData = {
       id: 'nearForm',

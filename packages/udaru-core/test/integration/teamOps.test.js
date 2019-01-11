@@ -284,6 +284,31 @@ lab.experiment('TeamOps', () => {
     })
   })
 
+  lab.test('creating a team with createOnly option and using promise', (done) => {
+    let testTeam = {
+      name: 'test::teamOps:+only:' + randomId(),
+      description: 'description',
+      organizationId: 'WONKA'
+    }
+
+    udaru.teams.create(testTeam, { createOnly: true }).then(result => {
+      expect(result).to.exist()
+      expect(result.id).to.exist()
+      testTeam.id = result.id // afterEach will cleanup based on the ID
+
+      udaru.policies.list({ organizationId: 'WONKA' }, (err, policies) => {
+        udaru.teams.delete(testTeam, (err) => { if (err) throw err })
+        expect(err).to.not.exist()
+
+        const defaultPolicy = policies.find((p) => {
+          return p.name === 'Default Team Admin for ' + testTeam.id
+        })
+        expect(defaultPolicy).to.not.exist()
+        done()
+      })
+    })
+  })
+
   lab.test('creating a team with the same id should fail second time', (done) => {
     let testTeam = {
       id: 'nearForm',
