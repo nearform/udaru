@@ -308,6 +308,8 @@ function buildOrganizationOps (db, config) {
     create: function create (params, opts, cb) {
       if (!cb) {
         cb = opts
+      }
+      if (!opts || typeof opts === 'function') {
         opts = {}
       }
 
