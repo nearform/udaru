@@ -1,3 +1,7 @@
+## 5.2.3 - Feb 5, 2019
+Fixes:
+-   Fix organization and teams create callback handling [commit](https://github.com/nearform/udaru/pull/560)
+
 ## 5.2.2 - Nov 28, 2018
 Features, enhancements:
 

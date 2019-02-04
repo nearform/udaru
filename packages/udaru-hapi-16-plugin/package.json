@@ -128,7 +128,7 @@
   "devDependencies": {
     "code": "^4.0.0",
     "coveralls": "^3.0.0",
-    "depcheck": "^0.6.9",
+    "depcheck": "^0.7.1",
     "hapi": "^16.6.2",
     "lab": "^14.3.2",
     "npx": "^10.2.0",

@@ -63,7 +63,7 @@ All volume data sits under the organization 'CONCH' and has the following defaul
 After loading the data, the autocannon bench tests can be run by executing:
 
 ```
-npm run bench-volume
+npm run bench:volume
 ```
 
 This will run 15 second autocannon tests, which fire multiple concurrent requests at 2 frequently used endpoints. This results in the database being queried randomly across the entire set of data giving a good indication of average end-to-end latency and potential requests per second for a database containing 50K users.

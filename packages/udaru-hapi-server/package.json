@@ -146,12 +146,12 @@
     "vision": "^4.1.1"
   },
   "devDependencies": {
-    "autocannon": "^2.1.1",
+    "autocannon": "^3.2.0",
     "bloomrun": "^4.1.0",
     "chalk": "^2.3.2",
     "code": "^5.2.0",
-    "depcheck": "^0.6.9",
-    "jsonfile": "^4.0.0",
+    "depcheck": "^0.7.1",
+    "jsonfile": "^5.0.0",
     "lab": "^15.4.1",
     "lodash": "^4.17.5",
     "minimist": "^1.2.0",
