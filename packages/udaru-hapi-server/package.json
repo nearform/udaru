@@ -1,6 +1,6 @@
 {
   "name": "@nearform/udaru-hapi-server",
-  "version": "5.2.2",
+  "version": "5.2.3",
   "main": "index.js",
   "description": "Hapi server that uses udaru for policy based authorization",
   "author": "nearForm Ltd",
@@ -136,8 +136,8 @@
     "test:commit-check"
   ],
   "dependencies": {
-    "@nearform/udaru-core": "^5.2.2",
-    "@nearform/udaru-hapi-16-plugin": "^5.2.2",
+    "@nearform/udaru-core": "^5.2.3",
+    "@nearform/udaru-hapi-16-plugin": "^5.2.3",
     "async": "^2.6.0",
     "hapi": "^16.6.2",
     "hapi-pino": "^2.0.0",
