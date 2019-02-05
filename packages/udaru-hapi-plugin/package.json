@@ -129,7 +129,7 @@
   "devDependencies": {
     "code": "^5.2.4",
     "coveralls": "^3.0.2",
-    "depcheck": "^0.6.11",
+    "depcheck": "^0.7.1",
     "lab": "^18.0.0",
     "npx": "^10.2.0",
     "sinon": "^7.1.1",

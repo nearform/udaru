@@ -125,7 +125,7 @@
     "async": "^2.6.0",
     "boom": "^7.2.0",
     "joi": "^13.2.0",
-    "jsonfile": "^4.0.0",
+    "jsonfile": "^5.0.0",
     "lodash": "^4.17.5",
     "pbac": "^0.3.0",
     "pg": "^7.4.1",
@@ -137,7 +137,7 @@
   "devDependencies": {
     "code": "^4.0.0",
     "coveralls": "^3.0.0",
-    "depcheck": "^0.6.9",
+    "depcheck": "^0.7.1",
     "lab": "^14.3.2",
     "minimist": "^1.2.0",
     "npx": "^10.0.1",
