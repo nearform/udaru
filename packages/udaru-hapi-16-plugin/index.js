@@ -4,8 +4,9 @@ const buildUdaru = require('@nearform/udaru-core')
 const buildAuthorization = require('./authentication/authorization')
 const buildHapiAuthService = require('./authentication/hapi-auth-service')
 const buildAuthValidation = require('./authentication/hapi-auth-validation')
-
 const buildConfig = require('./config')
+
+const pluginName = 'udaru-hapi-plugin'
 
 function register (server, options, next) {
   const config = buildConfig(options.config)
@@ -73,7 +74,10 @@ function register (server, options, next) {
   )
 }
 
-module.exports.register = register
+module.exports = {
+  name: pluginName,
+  register
+}
 
 module.exports.register.attributes = {
   pkg: require('./package')
