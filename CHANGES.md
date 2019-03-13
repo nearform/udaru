@@ -1,3 +1,7 @@
+## 5.3.0 - Mar 13, 2019
+Enhancement:
+-   Hapi plugins export a `name` property whose value is `udaru-hapi-plugin`. This is useful when loading specific plugin options on registration, based on this newly exported plugin name [commit](https://github.com/nearform/udaru/pull/562)
+
 ## 5.2.3 - Feb 5, 2019
 Fixes:
 -   Fix organization and teams create callback handling [commit](https://github.com/nearform/udaru/pull/560)

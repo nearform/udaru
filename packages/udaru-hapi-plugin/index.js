@@ -7,7 +7,7 @@ const HapiAuthService = require('./lib/authentication')
 
 module.exports = {
   pkg: require('./package'),
-
+  name: 'udaru-hapi-plugin',
   async register (server, options) {
     const config = buildConfig(options.config)
     const udaru = buildUdaru(options.dbPool, config)
