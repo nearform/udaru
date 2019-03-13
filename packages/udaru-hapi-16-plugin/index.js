@@ -6,8 +6,6 @@ const buildHapiAuthService = require('./authentication/hapi-auth-service')
 const buildAuthValidation = require('./authentication/hapi-auth-validation')
 const buildConfig = require('./config')
 
-const pluginName = 'udaru-hapi-plugin'
-
 function register (server, options, next) {
   const config = buildConfig(options.config)
   const udaru = buildUdaru(options.dbPool, config)
@@ -75,7 +73,7 @@ function register (server, options, next) {
 }
 
 module.exports = {
-  name: pluginName,
+  name: 'udaru-hapi-plugin',
   register
 }
 
