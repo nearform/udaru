@@ -22,26 +22,27 @@ Be mindful of these dependencies when publishing, i.e. if you publish a new vers
 We are currently supporting node 6, 8 and 10.
 
 1.  Review github issues, triage, close and merge issues related to the release.
-2.  Update the CHANGES.md file.
-3.  Navigate to the [Test Rig][Test] and ensure all tests are passing.
-4.  Pull down the repository locally on the master branch.
-5.  Ensure there are no outstanding commits and the branch is clean.
-6.  From root, run `npm run test:commit-check` and sanity check testing and linting passes, and that there are no dependency issues.
-7.  From root, run `npm run outdated:all` and review all dependencies. For each outdated dependency, make a call whether to update or not.
+1.  Update the CHANGES.md file.
+1.  Navigate to the [Test Rig][Test] and ensure all tests are passing.
+1.  Pull down the repository locally on the master branch.
+1.  Ensure there are no outstanding commits and the branch is clean.
+1.  For the next step you need to have postgres running locally. From root, run `docker-compose up -d`
+1.  From root, run `npm run test:commit-check` and sanity check testing and linting passes, and that there are no dependency issues.
+1.  From root, run `npm run outdated:all` and review all dependencies. For each outdated dependency, make a call whether to update or not.
     -   Run `npm run update:all` to get all non breaking updates. We have a policy of using '^' for all dependencies in the package.json and using npm shrinkwrap for each release.
     -   Run `npm run outdated:all` again to review possible breaking and major revision updates.
     -   Create a github issue for any major update where appropriate.
-8.  In the order of dependencies above, for each package:
+1.  In the order of dependencies above, for each package:
     -   Run `npm install` and verify that root level and package dependencies correctly install.
     -   Run `npm test` to verify the tests run locally within their own context (something that's not done by CI)
-9.  Run `npm run swagger-gen` to regenerate the Swagger documentation for the Udaru [documentation site][docs-site].
+1.  Run `npm run swagger-gen` to regenerate the Swagger documentation for the Udaru [documentation site][docs-site].
     -   Run `git add` and `git commit` to commit any version and documentation changes if there are any.
-10. Finally, from root, log in to npm using `npm login`, run `lerna publish` and choose the approriate version change type.  This will update each  package.json of modified packages as appropriate, create a new git commit and tag, and publish updated packages to npm.
+1. Finally, from root, log in to npm using `npm login`, run `lerna publish` and choose the approriate version change type.  This will update each  package.json of modified packages as appropriate, create a new git commit and tag, and publish updated packages to npm.
     -   Update root package.json to the correct version number and commit
-11. Go to the [Github release page][Releases] and hit 'Draft a new release'.
-12. Paste the Changelog content for this release and add additional release notes.
-13. Choose the tag version and a title matching the release and publish.
-14. Notify the #udaru slack channel
+1. Go to the [Github release page][Releases] and hit 'Draft a new release'.
+1. Paste the Changelog content for this release and add additional release notes.
+1. Choose the tag version and a title matching the release and publish.
+1. Notify the #udaru slack channel
 
 [Test]: https://travis-ci.org/nearform/udaru
 [Releases]: https://github.com/nearform/udaru/releases
