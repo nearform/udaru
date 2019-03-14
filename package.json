@@ -1,6 +1,6 @@
 {
   "name": "udaru",
-  "version": "5.2.3",
+  "version": "5.3.0",
   "description": "A policy based authorization module",
   "license": "MIT",
   "author": "nearForm Ltd",
@@ -80,6 +80,10 @@
     {
       "name": "William Riley-Land",
       "url": "https://github.com/ShogunPanda"
+    },
+    {
+      "name": "Cristian Kiss",
+      "url": "https://github.com/ckiss"
     }
   ],
   "homepage": "https://nearform.github.io/udaru",
