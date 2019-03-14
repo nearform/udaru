@@ -1,6 +1,6 @@
 {
   "name": "@nearform/udaru-hapi-plugin",
-  "version": "5.2.3",
+  "version": "5.3.0",
   "main": "index.js",
   "description": "Hapi authentication plugin that allows using udaru for policy based authorization",
   "author": "nearForm Ltd",
