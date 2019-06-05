@@ -359,7 +359,7 @@ function buildUserOps (db, config) {
         const sqlQuery = SQL`
           UPDATE users
           SET name = ${name},
-          metadata = ${metadata}
+          metadata = ${metadata || null}
           WHERE id = ${id}
           AND org_id = ${organizationId}
         `
@@ -607,7 +607,7 @@ function buildUserOps (db, config) {
         INSERT INTO users (
           id, name, org_id, metadata
         ) VALUES (
-          ${id}, ${name}, ${organizationId}, ${metadata}
+          ${id}, ${name}, ${organizationId}, ${metadata || null}
         )
         RETURNING id
       `

@@ -126,7 +126,7 @@ function buildOrganizationOps (db, config) {
         id, name, description, metadata
       )
       VALUES (
-        ${id}, ${name}, ${description}, ${metadata} 
+        ${id}, ${name}, ${description}, ${metadata || null} 
       )
       RETURNING id
     `
@@ -415,7 +415,7 @@ function buildOrganizationOps (db, config) {
           SET
             name = ${name},
             description = ${description},
-            metadata = ${metadata}
+            metadata = ${metadata || null}
           WHERE id = ${id}
         `
         db.query(sqlQuery, function (err, result) {

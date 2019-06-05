@@ -50,8 +50,8 @@ function buildTeamOps (db, config) {
         ${teamId.toString()},
         ${job.params.name},
         ${job.params.description},
-        ${job.params.metadata},
-        ${job.params.parentId},
+        ${job.params.metadata || null},
+        ${job.params.parentId || null},
         ${job.params.organizationId},
       `
     if (job.params.parentId) {
