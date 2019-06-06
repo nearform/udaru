@@ -39,7 +39,7 @@ lab.experiment('Edge cases', () => {
 
     buildServer({}, err => {
       expect(err).to.exist()
-      require.cache[resolved] = null
+      delete require.cache[resolved]
       done()
     })
   })
