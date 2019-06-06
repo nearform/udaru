@@ -19,7 +19,7 @@ Udaru consists of 4 individual packages. While they are all published in their o
 
 Be mindful of these dependencies when publishing, i.e. if you publish a new version of `udaru-core` you need to bump all the other packages also.
 
-We are currently supporting node 6, 8 and 10.
+We are currently supporting node 6, 8, 10 and 12.
 
 1.  Review github issues, triage, close and merge issues related to the release.
 1.  Update the CHANGES.md file.
