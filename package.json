@@ -94,9 +94,6 @@
   "bugs": {
     "url": "https://github.com/nearform/udaru/issues"
   },
-  "bin": {
-    "udaru": "packages/udaru-server/index.js"
-  },
   "engines": {
     "node": ">=6.0.0"
   },
