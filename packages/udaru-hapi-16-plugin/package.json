@@ -110,10 +110,10 @@
   "scripts": {
     "coverage": "UDARU_SERVICE_logger_pino_level=silent lab -r html -o coverage/coverage.html",
     "coveralls": "UDARU_SERVICE_logger_pino_level=silent lab -r lcov | COVERALLS_REPO_TOKEN='?' coveralls",
-    "depcheck": "npx depcheck",
-    "pg:init": "npx --no-install udaru-init && npm run pg:migrate",
-    "pg:init-test-db": "npm run pg:init && npx --no-install udaru-loadTestData",
-    "pg:migrate": "npx --no-install udaru-migrate --version=max",
+    "depcheck": "depcheck",
+    "pg:init": "udaru-init && npm run pg:migrate",
+    "pg:init-test-db": "npm run pg:init && udaru-loadTestData",
+    "pg:migrate": "udaru-migrate --version=max",
     "test": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab"
   },
   "dependencies": {
@@ -131,7 +131,6 @@
     "depcheck": "^0.7.1",
     "hapi": "^16.6.2",
     "lab": "^14.3.2",
-    "npx": "^10.2.0",
     "sinon": "^7.1.1",
     "uuid": "^3.2.1"
   },
