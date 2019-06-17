@@ -110,6 +110,7 @@
     "acl"
   ],
   "scripts": {
+    "audit": "npm i --package-lock-only && npm audit",
     "bench": "node ./bench/util/runner.js",
     "bench:volume": "node ./bench/util/volumeRunner.js",
     "bench:load-volume": "npm run pg:init-volume-db && node ./bench/util/volumeRunner.js",

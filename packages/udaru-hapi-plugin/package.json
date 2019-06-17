@@ -108,6 +108,7 @@
     "hapi"
   ],
   "scripts": {
+    "audit": "npm i --package-lock-only && npm audit",
     "coverage": "UDARU_SERVICE_logger_pino_level=silent lab -r html -o coverage/coverage.html",
     "coveralls": "UDARU_SERVICE_logger_pino_level=silent lab -r lcov | COVERALLS_REPO_TOKEN='?' coveralls",
     "depcheck": "depcheck",

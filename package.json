@@ -130,6 +130,7 @@
     "doc:lint": "remark .",
     "start": "node packages/udaru-hapi-server/index.js",
     "test": "lerna run test",
+    "test:audit": "lerna run audit",
     "test:example": "cd packages/udaru-hapi-server && npm run test:example",
     "test:commit-check": "npm run doc:lint && npm run lint && npm run depcheck && npm run test && npm run test:example",
     "test:security": "cd packages/udaru-hapi-server && npm run test:security",
