@@ -108,12 +108,13 @@
     "hapi"
   ],
   "scripts": {
+    "audit": "npm i --package-lock-only && npm audit",
     "coverage": "UDARU_SERVICE_logger_pino_level=silent lab -r html -o coverage/coverage.html",
     "coveralls": "UDARU_SERVICE_logger_pino_level=silent lab -r lcov | COVERALLS_REPO_TOKEN='?' coveralls",
-    "depcheck": "npx depcheck",
-    "pg:init": "npx --no-install udaru-init && npm run pg:migrate",
-    "pg:init-test-db": "npm run pg:init && npx --no-install udaru-loadTestData",
-    "pg:migrate": "npx --no-install udaru-migrate --version=max",
+    "depcheck": "depcheck",
+    "pg:init": "udaru-init && npm run pg:migrate",
+    "pg:init-test-db": "npm run pg:init && udaru-loadTestData",
+    "pg:migrate": "udaru-migrate --version=max",
     "test-6": "echo '\\033[33mudaru-hapi-plugin requires Node.js greater than 8.9.0. Exiting without errors.\\033[0m'",
     "test-current": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab",
     "test": "npm run test-$(node -v | grep '^v6' >> /dev/null && echo '6' || echo 'current')"
@@ -131,7 +132,6 @@
     "coveralls": "^3.0.2",
     "depcheck": "^0.7.1",
     "lab": "^18.0.0",
-    "npx": "^10.2.0",
     "sinon": "^7.1.1",
     "uuid": "^3.3.2"
   },
