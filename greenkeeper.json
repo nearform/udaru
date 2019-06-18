@@ -1,0 +1,16 @@
+{
+  "groups": {
+    "core": {
+      "packages": [
+        "packages/udaru-core/package.json"
+      ]
+    },
+    "hapi": {
+      "packages": [
+        "packages/udaru-hapi-16-plugin/package.json",
+        "packages/udaru-hapi-plugin/package.json",
+        "packages/udaru-hapi-server/package.json"
+      ]
+    }
+  }
+}
