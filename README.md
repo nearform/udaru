@@ -1,4 +1,7 @@
 # Udaru
+
+[![Greenkeeper badge](https://badges.greenkeeper.io/nearform/udaru.svg)](https://greenkeeper.io/)
+
 [![npm][npm-badge]][npm-url]
 [![travis][travis-badge]][travis-url]
 [![coveralls][coveralls-badge]][coveralls-url]
