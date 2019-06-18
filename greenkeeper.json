@@ -1,0 +1,14 @@
+{
+  "groups": {
+    "default": {
+      "packages": [
+        "docs/swagger/swagger-ui-dist/package.json",
+        "package.json",
+        "packages/udaru-core/package.json",
+        "packages/udaru-hapi-16-plugin/package.json",
+        "packages/udaru-hapi-plugin/package.json",
+        "packages/udaru-hapi-server/package.json"
+      ]
+    }
+  }
+}
