@@ -136,7 +136,7 @@
     "uuid": "^3.2.1"
   },
   "devDependencies": {
-    "code": "^5.2.4",
+    "code": "^4.0.0",
     "coveralls": "^3.0.0",
     "depcheck": "^0.8.1",
     "lab": "^14.3.2",
