@@ -138,7 +138,7 @@
   "devDependencies": {
     "code": "^4.0.0",
     "coveralls": "^3.0.0",
-    "depcheck": "^0.7.1",
+    "depcheck": "^0.8.1",
     "lab": "^14.3.2",
     "minimist": "^1.2.0",
     "sinon": "^7.1.1"

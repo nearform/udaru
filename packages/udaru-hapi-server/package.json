@@ -121,7 +121,7 @@
     "pg:init-volume-db": "npm run pg:init-test-db && ./bench/util/loadVolumeData.js",
     "pg:migrate": "udaru-migrate --version=max",
     "start": "node ./index.js",
-    "test": "echo ",
+    "test": "npm run test:example-$(node -v | grep '^v6' >> /dev/null && echo '6' || echo 'current')",
     "pretest:security": "napa sqlmapproject/sqlmap",
     "test:security": "node ./security/runner.js",
     "test:example-6": "echo '\\033[33mtest:example requires Node.js greater than 8.9.0. Exiting without errors.\\033[0m'",
@@ -147,11 +147,11 @@
     "vision": "^4.1.1"
   },
   "devDependencies": {
-    "autocannon": "^3.2.0",
+    "autocannon": "^4.0.0",
     "bloomrun": "^4.1.0",
     "chalk": "^2.3.2",
-    "code": "^5.2.0",
-    "depcheck": "^0.7.1",
+    "code": "^5.2.4",
+    "depcheck": "^0.8.1",
     "jsonfile": "^5.0.0",
     "lab": "^15.4.1",
     "lodash": "^4.17.5",

@@ -146,11 +146,11 @@
   ],
   "dependencies": {},
   "devDependencies": {
-    "depcheck": "^0.6.11",
-    "joi": "^13.6.0",
+    "depcheck": "^0.8.1",
+    "joi": "^14.3.1",
     "lerna": "^2.11.0",
     "pre-commit": "^1.2.2",
-    "remark-cli": "^5.0.0",
+    "remark-cli": "^6.0.1",
     "remark-lint": "^6.0.1",
     "remark-preset-lint-recommended": "^3.0.1",
     "standard": "^11.0.1"
