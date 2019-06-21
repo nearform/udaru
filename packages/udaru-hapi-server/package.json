@@ -121,12 +121,10 @@
     "pg:init-volume-db": "npm run pg:init-test-db && ./bench/util/loadVolumeData.js",
     "pg:migrate": "udaru-migrate --version=max",
     "start": "node ./index.js",
-    "test": "npm run test:example-$(node -v | grep '^v6' >> /dev/null && echo '6' || echo 'current')",
+    "test": "npm run test:example",
     "pretest:security": "napa sqlmapproject/sqlmap",
     "test:security": "node ./security/runner.js",
-    "test:example-6": "echo '\\033[33mtest:example requires Node.js greater than 8.9.0. Exiting without errors.\\033[0m'",
-    "test:example-current": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -m 10000",
-    "test:example": "npm run test:example-$(node -v | grep '^v6' >> /dev/null && echo '6' || echo 'current')"
+    "test:example": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -m 10000"
   },
   "remarkConfig": {
     "plugins": [
