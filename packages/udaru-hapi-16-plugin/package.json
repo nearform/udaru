@@ -92,7 +92,7 @@
     "url": "https://github.com/nearform/udaru/issues"
   },
   "engines": {
-    "node": ">=6.0.0"
+    "node": ">=8.9.0"
   },
   "keywords": [
     "access",
@@ -127,7 +127,7 @@
     "lodash": "^4.17.5"
   },
   "devDependencies": {
-    "code": "^4.0.0",
+    "code": "^5.2.4",
     "coveralls": "^3.0.0",
     "depcheck": "^0.8.1",
     "hapi": "^18.1.0",
