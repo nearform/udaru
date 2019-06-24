@@ -1,7 +1,7 @@
 'use strict'
 
 const pick = require('lodash/pick')
-const Joi = require('joi')
+const Joi = require('@hapi/joi')
 const validation = require('@nearform/udaru-core/lib/ops/validation').authorize
 const swagger = require('@nearform/udaru-core/lib/ops/validation').swagger
 const headers = require('../headers')

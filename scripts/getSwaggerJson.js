@@ -1,4 +1,4 @@
-const Joi = require('joi')
+const Joi = require('@hapi/joi')
 
 const swaggerSchema = Joi.object({
   swagger: Joi.string(),

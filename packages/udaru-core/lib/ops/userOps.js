@@ -1,7 +1,7 @@
 'use strict'
 
 const _ = require('lodash')
-const Joi = require('joi')
+const Joi = require('@hapi/joi')
 const Boom = require('boom')
 const async = require('async')
 const uuidV4 = require('uuid/v4')

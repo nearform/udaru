@@ -1,7 +1,7 @@
 'use strict'
 
 const _ = require('lodash')
-const Joi = require('joi')
+const Joi = require('@hapi/joi')
 const Boom = require('boom')
 const buildServiceKey = require('./../../authentication/serviceKey')
 const swagger = require('@nearform/udaru-core/lib/ops/validation').swagger
