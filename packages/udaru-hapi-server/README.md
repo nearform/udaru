@@ -46,14 +46,14 @@ The Swagger documentation also gives the ability to execute calls to the API and
 Copyright nearForm Ltd 2017. Licensed under [MIT][license].
 
 [license]: ./LICENSE.md
-[travis-badge]: https://travis-ci.org/nearform/udaru-hapi-plugin.svg?branch=master
-[travis-url]: https://travis-ci.org/nearform/udaru-hapi-plugin
-[npm-badge]: https://badge.fury.io/js/udaru-hapi-plugin.svg
-[npm-url]: https://npmjs.org/package/udaru-hapi-plugin
-[coveralls-badge]: https://coveralls.io/repos/nearform/udaru-hapi-plugin/badge.svg?branch=master&service=github
-[coveralls-url]: https://coveralls.io/github/nearform/udaru-hapi-plugin?branch=master
-[snyk-badge]: https://snyk.io/test/github/nearform/udaru-hapi-plugin/badge.svg
-[snyk-url]: https://snyk.io/test/github/nearform/udaru-hapi-plugin
+[travis-badge]: https://travis-ci.org/nearform/udaru.svg?branch=master
+[travis-url]: https://travis-ci.org/nearform/udaru
+[npm-badge]: https://badge.fury.io/js/%40nearform%2Fudaru-hapi-server.svg
+[npm-url]: https://npmjs.org/package/%40nearform%2Fudaru-hapi-server
+[coveralls-badge]: https://coveralls.io/repos/nearform/udaru/badge.svg?branch=master&service=github
+[coveralls-url]: https://coveralls.io/github/nearform/udaru?branch=master
+[snyk-badge]: https://snyk.io/test/github/nearform/udaru/badge.svg
+[snyk-url]: https://snyk.io/test/github/nearform/udaru
 [swagger-link]: http://localhost:8080/documentation
 [docs-site]: https://nearform.github.io/udaru
 [swagger-docs-url]: https://nearform.github.io/udaru/swagger/

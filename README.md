@@ -328,14 +328,14 @@ npm run test:security:pentest
 ```
 ## License
 
-[travis-badge]: https://travis-ci.org/nearform/udaru-hapi-plugin.svg?branch=master
-[travis-url]: https://travis-ci.org/nearform/udaru-hapi-plugin
-[npm-badge]: https://badge.fury.io/js/udaru-hapi-plugin.svg
-[npm-url]: https://npmjs.org/package/udaru-hapi-plugin
-[coveralls-badge]: https://coveralls.io/repos/nearform/udaru-hapi-plugin/badge.svg?branch=master&service=github
-[coveralls-url]: https://coveralls.io/github/nearform/udaru-hapi-plugin?branch=master
-[snyk-badge]: https://snyk.io/test/github/nearform/udaru-hapi-plugin/badge.svg
-[snyk-url]: https://snyk.io/test/github/nearform/udaru-hapi-plugin
+[travis-badge]: https://travis-ci.org/nearform/udaru.svg?branch=master
+[travis-url]: https://travis-ci.org/nearform/udaru?branch=master
+[npm-badge]: https://badge.fury.io/js/%40nearform%2Fudaru-hapi-plugin.svg
+[npm-url]: https://www.npmjs.com/package/@nearform/udaru-hapi-plugin
+[coveralls-badge]: https://coveralls.io/repos/nearform/udaru/badge.svg?branch=master&service=github
+[coveralls-url]: https://coveralls.io/github/nearform/udaru?branch=master
+[snyk-badge]: https://snyk.io/test/github/nearform/udaru/badge.svg
+[snyk-url]: https://snyk.io/test/github/nearform/udaru
 [postgrator]: https://github.com/rickbergfalk/postgrator
 [docs-site]: https://nearform.github.io/udaru
 [swagger-docs-url]: https://nearform.github.io/udaru/swagger/
@@ -348,10 +348,8 @@ npm run test:security:pentest
 [sqlmap config]: https://github.com/nearform/udaru/blob/master/security/fixtures/injection-endpoints.json
 [SQL Injection]: docs/sqlinjection.md
 [npm-udaru-core]: https://www.npmjs.com/package/@nearform/udaru-core
-[udaru-hapi-plugin]: https://www.npmjs.com/package/udaru/@nearform/udaru-hapi-plugin
-[udaru-hapi-16-plugin]: https://www.npmjs.com/package/udaru/@nearform/udaru-hapi-16-plugin
-[udaru-hapi-server]: https://www.npmjs.com/package/udaru/@nearform/udaru-hapi-serve
+[udaru-hapi-plugin]: https://www.npmjs.com/package/@nearform/udaru-hapi-plugin
+[udaru-hapi-16-plugin]: https://www.npmjs.com/package/@nearform/udaru-hapi-16-plugin
+[udaru-hapi-server]: https://www.npmjs.com/package/@nearform/udaru-hapi-server
 
 Copyright nearForm Ltd 2017-2018. Licensed under [MIT license](https://choosealicense.com/licenses/mit).
-
-
