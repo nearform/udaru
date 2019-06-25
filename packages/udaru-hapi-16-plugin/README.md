@@ -66,8 +66,8 @@ Copyright nearForm Ltd 2017. Licensed under [MIT][license].
 [license]: ./LICENSE.md
 [travis-badge]: https://travis-ci.org/nearform/udaru.svg?branch=master
 [travis-url]: https://travis-ci.org/nearform/udaru
-[npm-badge]: https://badge.fury.io/js/%40nearform/udaru-hapi-16-plugin.svg
-[npm-url]: https://npmjs.org/package/@nearform/udaru-hapi-16-plugin
+[npm-badge]: https://badge.fury.io/js/%40nearform%2Fudaru-hapi-16-plugin.svg
+[npm-url]: https://npmjs.org/package/%40nearform%2Fudaru-hapi-16-plugin
 [coveralls-badge]: https://coveralls.io/repos/nearform/udaru/badge.svg?branch=master&service=github
 [coveralls-url]: https://coveralls.io/github/nearform/udaru?branch=master
 [snyk-badge]: https://snyk.io/test/github/nearform/udaru/badge.svg
