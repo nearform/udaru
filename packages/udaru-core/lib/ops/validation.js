@@ -1,13 +1,13 @@
 'use strict'
 
-const Joi = require('joi')
+const Joi = require('@hapi/joi')
 
 const requiredString = Joi.string().required()
 const requiredStringId = Joi.string().regex(/^[A-Za-z0-9_-]+$/).required().max(128)
 const MetaData = Joi.object().optional().description('Metadata').label('MetaData')
 
 const PolicyIdString = requiredStringId.description('Policy Id String').label('PolicyIdString')
-const PolicyVariables = Joi.object().optional().pattern(/^(?!(udaru)|(request)).*$/igm, requiredString).description('A list of the variables with their fixed values').label('variables')
+const PolicyVariables = Joi.object().optional().pattern(/^(?!(udaru)|(request)).*$/im, requiredString).description('A list of the variables with their fixed values').label('variables')
 const PolicyInstanceId = Joi.number().integer().optional().description('Optional Policy Instance Id')
 
 const PolicyIdObject = Joi.object({

@@ -1,7 +1,7 @@
 'use strict'
 
 const Boom = require('boom')
-const Joi = require('joi')
+const Joi = require('@hapi/joi')
 const async = require('async')
 const SQL = require('@nearform/sql')
 const asyncify = require('../asyncify')

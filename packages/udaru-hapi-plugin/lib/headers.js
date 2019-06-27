@@ -1,6 +1,6 @@
 'use strict'
 
-const Joi = require('joi')
+const Joi = require('@hapi/joi')
 
 const headers = Joi.object({
   'authorization': Joi.any().required().description('User ID of the enpoint caller'),
