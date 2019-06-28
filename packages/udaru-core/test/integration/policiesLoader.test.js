@@ -42,4 +42,39 @@ lab.experiment('policiesLoader', () => {
       })
     }, false)
   })
+
+  lab.test('should throw on missing organizationId', (done) => {
+    loader.load(null, path.join(__dirname, 'fixtures/policies_for_loader-WONKA.json'), (err) => {
+      expect(err).to.exist()
+      done()
+    }, false)
+  })
+
+  lab.test('should throw on invalid organizationId', (done) => {
+    loader.load('12345', path.join(__dirname, 'fixtures/policies_for_loader-WONKA.json'), (err) => {
+      expect(err).to.exist()
+      done()
+    }, false)
+  })
+
+  lab.test('should throw on missing source', (done) => {
+    loader.load(organizationId, null, (err) => {
+      expect(err).to.exist()
+      done()
+    }, false)
+  })
+
+  lab.test('should throw on invalid source', (done) => {
+    loader.load(organizationId, path.join(__dirname, 'fixtures/policies_for_loader-MISSING.json'), (err) => {
+      expect(err).to.exist()
+      done()
+    }, false)
+  })
+
+  lab.test('should return promise without callback', (done) => {
+    const promise = loader.load(organizationId, path.join(__dirname, 'fixtures/policies_for_loader-WONKA.json'), true)
+    promise.then(() => {
+      udaru.policies.delete({ id: 'policyIdTESTLOADER', organizationId }, done)
+    }).catch(done)
+  })
 })
