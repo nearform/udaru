@@ -132,7 +132,7 @@
     "pg": "^7.4.1",
     "pino": "^5.9.0",
     "postgrator": "^3.5.0",
-    "reconfig": "3.2.0",
+    "reconfig": "^3.3.0",
     "uuid": "^3.2.1"
   },
   "devDependencies": {
