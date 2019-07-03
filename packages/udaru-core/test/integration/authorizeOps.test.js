@@ -634,7 +634,7 @@ lab.experiment('AuthorizeOps', () => {
       })
     })
 
-    // test for no permissions on the resource
+    // test for no permissions on the resource - callback
     tasks.push((result, cb) => {
       authorize.listActions({
         userId: testUserId,
@@ -647,6 +647,48 @@ lab.experiment('AuthorizeOps', () => {
 
         cb(err, result)
       })
+    })
+
+    // test for no permissions on the resource - promise, ip
+    tasks.push((result, cb) => {
+      authorize.listActions({
+        userId: testUserId,
+        resource: 'database:pg01:balancesheet',
+        organizationId,
+        sourceIpAddress: '127.0.0.1'
+      }).then(result => {
+        expect(result).to.exist()
+        expect(result.actions).to.equal([])
+        cb(null, result)
+      }).catch(cb)
+    })
+
+    // test for no permissions on resource list - callback
+    tasks.push((result, cb) => {
+      authorize.listAuthorizationsOnResources({
+        userId: testUserId,
+        resources: ['database:pg01:balancesheet'],
+        organizationId
+      },
+      (err, result) => {
+        expect(err).to.not.exist()
+        expect(result).to.exist()
+        expect(result[0].actions).to.equal([])
+        cb(err, result)
+      })
+    })
+
+    // test for no permissions on resource list - promise
+    tasks.push((result, cb) => {
+      authorize.listAuthorizationsOnResources({
+        userId: testUserId,
+        resources: ['database:pg01:balancesheet'],
+        organizationId
+      }).then(result => {
+        expect(result).to.exist()
+        expect(result[0].actions).to.equal([])
+        cb(null, result)
+      }).catch(cb)
     })
 
     // test for team permissions on the resource
@@ -823,9 +865,10 @@ lab.experiment('AuthorizeOps - list and access with multiple policies', () => {
         userId: adminId,
         resourceBatch: [],
         organizationId
-      }, (err, res) => {
+      }).then(result => {
+        done(Error('ERROR'))
+      }).catch(err => {
         expect(err).to.exist()
-
         done()
       })
     })
@@ -1002,12 +1045,12 @@ lab.experiment('AuthorizeOps - test inherited policies', () => {
           action: action,
           resource: resource
         }
-        authorize.isUserAuthorized(authorizationData, (err, result) => {
-          expect(err).to.not.exist()
+        authorize.isUserAuthorized(authorizationData).then(result => {
           expect(result).to.exist()
           expect(result.access).to.equal(expectedResult)
-
-          next(err, result)
+          next(null, result)
+        }).catch(err => {
+          next(err)
         })
       }
 
