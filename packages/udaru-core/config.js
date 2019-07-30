@@ -148,8 +148,7 @@ module.exports = (...amendments) => {
   })
 
   // fix auth resource functions (since v3.3.0 reconfig drops functions and replaces them with an empty object)
-  const resources = (reconfig._rawConfig.AuthConfig || {}).resources
-  if (resources) { reconfig._config.AuthConfig.resources = resources }
+  reconfig._config.AuthConfig.resources = reconfig._rawConfig.AuthConfig.resources
 
   return reconfig
 }

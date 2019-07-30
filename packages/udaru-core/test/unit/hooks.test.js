@@ -5,6 +5,7 @@ const expect = require('code').expect
 const Lab = require('lab')
 const lab = exports.lab = Lab.script()
 const udaru = require('../..')()
+const buildHooks = require('../../lib/hooks')
 
 const organizationId = 'WONKA'
 
@@ -56,6 +57,24 @@ lab.experiment('Hooks', () => {
       }).to.throw(TypeError, 'The hook callback must be a function')
 
       done()
+    })
+  })
+
+  lab.experiment('wrapping', () => {
+    lab.test('with promise', done => {
+      udaru.fullConfig.get('hooks').propagateErrors = true
+      const hooks = buildHooks(udaru.fullConfig)
+      const funcToWrap = function (a, b) { return new Promise((resolve, reject) => { return reject(new Error('test')) }) } // function (a, b) { return a + b }
+      const wrappedFunc = hooks.wrap('funcName', funcToWrap)
+      const handler = function (error, input, result, cb) { cb(error) }
+      hooks.add('funcName', handler)
+      wrappedFunc(1, 2)
+        .then(args => { done(Error('failed')) })
+        .catch(err => {
+          if (err) { done() }
+          udaru.fullConfig.get('hooks').propagateErrors = false
+          hooks.clear()
+        })
     })
   })
 

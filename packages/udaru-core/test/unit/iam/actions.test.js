@@ -136,11 +136,34 @@ lab.describe('actions function', () => {
     })
   })
 
-  lab.test('should not list denied actions', done => {
+  lab.test('should not list denied actions with callback', done => {
     iam.actions({ resource: 'resources/nothing/no-read' }, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.equal([])
 
+      done()
+    })
+  })
+
+  lab.test('should not list denied actions with promise', done => {
+    iam.actions({ resource: 'resources/nothing/no-read' })
+      .then(result => {
+        expect(result).to.equal([])
+        done()
+      })
+      .catch(done)
+  })
+
+  lab.test('should catch on errors', done => {
+    iam.actions({ resource: 1, context: 2 }, (err, result) => {
+      expect(err).to.exist()
+      done()
+    })
+  })
+
+  lab.test('resources should catch on errors', done => {
+    iam.actionsOnResources({ resource: 1, context: 2 }, (err, result) => {
+      expect(err).to.exist()
       done()
     })
   })
@@ -242,7 +265,7 @@ lab.describe('actions function', () => {
     done()
   })
 
-  lab.test('Should maintain that Deny statements take precedence over Allow ', done => {
+  lab.test('Should maintain that Deny statements take precedence over Allow with callback', done => {
     iam.actionsOnResources({ resources: ['resources/thing3'] }, (err, result) => {
       expect(err).to.not.exist()
       expect(result).to.equal([
@@ -255,5 +278,21 @@ lab.describe('actions function', () => {
       ])
     })
     done()
+  })
+
+  lab.test('Should maintain that Deny statements take precedence over Allow with Promise', done => {
+    iam.actionsOnResources({ resources: ['resources/thing3'] })
+      .then(result => {
+        expect(result).to.equal([
+          {
+            resource: 'resources/thing3',
+            actions: [
+              'foo:bar:read'
+            ]
+          }
+        ])
+        done()
+      })
+      .catch(done)
   })
 })
