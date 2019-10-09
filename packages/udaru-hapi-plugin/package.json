@@ -118,18 +118,18 @@
     "test": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab"
   },
   "dependencies": {
+    "@hapi/boom": "^8.0.1",
+    "@hapi/hoek": "^8.3.0",
     "@hapi/joi": "^15.1.0",
     "@nearform/udaru-core": "^5.2.4",
-    "boom": "^7.2.2",
-    "hapi": "^18.1.0",
-    "hoek": "^6.1.3",
     "lodash": "^4.17.11"
   },
   "devDependencies": {
-    "code": "^5.2.4",
+    "@hapi/code": "^6.0.0",
+    "@hapi/hapi": "^18.4.0",
+    "@hapi/lab": "^20.4.0",
     "coveralls": "^3.0.2",
     "depcheck": "^0.8.1",
-    "lab": "^18.0.2",
     "sinon": "^7.1.1",
     "uuid": "^3.3.2"
   },

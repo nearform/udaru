@@ -1,7 +1,7 @@
 'use strict'
 
 const _ = require('lodash')
-const { expect } = require('code')
+const { expect } = require('@hapi/code')
 const udaru = require('@nearform/udaru-core')()
 const utils = require('@nearform/udaru-core/test/testUtils')
 
