@@ -1,4 +1,4 @@
-const Lab = require('lab')
+const Lab = require('@hapi/lab')
 const lab = exports.lab = Lab.script()
 const server = require('../test-server')
 const Factory = require('@nearform/udaru-core/test/factory')

@@ -1,7 +1,7 @@
 'use strict'
 
-const expect = require('code').expect
-const Lab = require('lab')
+const expect = require('@hapi/code').expect
+const Lab = require('@hapi/lab')
 const lab = exports.lab = Lab.script()
 const utils = require('@nearform/udaru-core/test/testUtils')
 const uuid = require('uuid/v4')

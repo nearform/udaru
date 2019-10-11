@@ -1,6 +1,6 @@
 const config = require('../lib/config')()
 const Action = config.get('AuthConfig.Action')
-const Hapi = require('hapi')
+const Hapi = require('@hapi/hapi')
 
 let server = null
 

@@ -1,7 +1,7 @@
-const Lab = require('lab')
+const Lab = require('@hapi/lab')
 const lab = exports.lab = Lab.script()
-const Hapi = require('hapi')
-const expect = require('code').expect
+const Hapi = require('@hapi/hapi')
+const expect = require('@hapi/code').expect
 const sinon = require('sinon')
 
 const server = require('./test-server')
