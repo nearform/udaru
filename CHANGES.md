@@ -1,3 +1,7 @@
+## 5.3.2 - Oct 11, 2019
+Fixes:
+-   Dependencies updated to fix DOS vulnerability [commit](https://github.com/nearform/udaru/pull/581)
+
 ## 5.3.1 - Jun 06, 2019
 Enhancement:
 -   Node 12 check [commit](https://github.com/nearform/udaru/pull/568)
