@@ -122,7 +122,7 @@
     "pg:migrate": "udaru-migrate --version=max",
     "start": "node ./index.js",
     "test": "npm run test:example",
-    "pretest:security": "napa sqlmapproject/sqlmap",
+    "pretest:security": "napa https://github.com/sqlmapproject/sqlmap",
     "test:security": "node ./security/runner.js",
     "test:example": "npm run pg:init-test-db && UDARU_SERVICE_logger_pino_level=silent lab -m 10000"
   },
